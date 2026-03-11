@@ -1,7 +1,10 @@
-//
-//  MainMenuViewController.swift
-//  trainingtask
-//
-//  Created by Яшенок Алина Игоревна on 11.03.26.
-//
+import UIKit
 
+final class MainMenuViewController: UIViewController {
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        view.backgroundColor = .white
+    }
+}
