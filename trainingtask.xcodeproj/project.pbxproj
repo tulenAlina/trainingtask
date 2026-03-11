@@ -54,7 +54,8 @@
 				6FFDD0CB2F618666008CED45 /* LaunchScreen.storyboard */,
 				6FFDD0CC2F618666008CED45 /* Localizable.strings */,
 			);
-			path = Resources;
+			name = Resources;
+			path = App/Resources;
 			sourceTree = "<group>";
 		};
 		6FFDD0CE2F618685008CED45 /* Constants */ = {
@@ -169,7 +170,8 @@
 				6FFDD0DA2F618685008CED45 /* Domain */,
 				6FFDD0DE2F618685008CED45 /* UI */,
 			);
-			path = Sources;
+			name = Sources;
+			path = App/Sources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -269,7 +271,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = FUBF9ZAVPM;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = trainingtask/Resources/Info.plist;
+				INFOPLIST_FILE = App/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -302,7 +304,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = FUBF9ZAVPM;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = trainingtask/Resources/Info.plist;
+				INFOPLIST_FILE = App/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
