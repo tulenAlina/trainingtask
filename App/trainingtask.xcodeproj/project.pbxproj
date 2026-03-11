@@ -8,15 +8,15 @@
 
 /* Begin PBXFileReference section */
 		6FFDD0872F616B40008CED45 /* trainingtask.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = trainingtask.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6FFDD0C82F618666008CED45 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		6FFDD0C92F618666008CED45 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6FFDD0CA2F618666008CED45 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		6FFDD0CC2F618666008CED45 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
+		6FFDD0D12F618685008CED45 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		6FFDD0D22F618685008CED45 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		6FFDD0DB2F618685008CED45 /* MainMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenuViewController.swift; sourceTree = "<group>"; };
+		6FFDD0DC2F618685008CED45 /* SplashViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		6FFDD0892F616B40008CED45 /* trainingtask */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = trainingtask;
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		6FFDD0842F616B40008CED45 /* Frameworks */ = {
@@ -32,7 +32,8 @@
 		6FFDD07E2F616B40008CED45 = {
 			isa = PBXGroup;
 			children = (
-				6FFDD0892F616B40008CED45 /* trainingtask */,
+				6FFDD0DF2F618685008CED45 /* Sources */,
+				6FFDD0CD2F618666008CED45 /* Resources */,
 				6FFDD0882F616B40008CED45 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -43,6 +44,132 @@
 				6FFDD0872F616B40008CED45 /* trainingtask.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		6FFDD0CD2F618666008CED45 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				6FFDD0C82F618666008CED45 /* Assets.xcassets */,
+				6FFDD0C92F618666008CED45 /* Info.plist */,
+				6FFDD0CB2F618666008CED45 /* LaunchScreen.storyboard */,
+				6FFDD0CC2F618666008CED45 /* Localizable.strings */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		6FFDD0CE2F618685008CED45 /* Constants */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Constants;
+			sourceTree = "<group>";
+		};
+		6FFDD0CF2F618685008CED45 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		6FFDD0D02F618685008CED45 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		6FFDD0D32F618685008CED45 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				6FFDD0CE2F618685008CED45 /* Constants */,
+				6FFDD0CF2F618685008CED45 /* Extensions */,
+				6FFDD0D02F618685008CED45 /* Utilities */,
+				6FFDD0D12F618685008CED45 /* AppDelegate.swift */,
+				6FFDD0D22F618685008CED45 /* SceneDelegate.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		6FFDD0D42F618685008CED45 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
+		6FFDD0D52F618685008CED45 /* Repositories */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Repositories;
+			sourceTree = "<group>";
+		};
+		6FFDD0D62F618685008CED45 /* StubServer */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = StubServer;
+			sourceTree = "<group>";
+		};
+		6FFDD0D72F618685008CED45 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				6FFDD0D42F618685008CED45 /* Network */,
+				6FFDD0D52F618685008CED45 /* Repositories */,
+				6FFDD0D62F618685008CED45 /* StubServer */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		6FFDD0D82F618685008CED45 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		6FFDD0D92F618685008CED45 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		6FFDD0DA2F618685008CED45 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				6FFDD0D82F618685008CED45 /* Models */,
+				6FFDD0D92F618685008CED45 /* Services */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		6FFDD0DD2F618685008CED45 /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				6FFDD0DB2F618685008CED45 /* MainMenuViewController.swift */,
+				6FFDD0DC2F618685008CED45 /* SplashViewController.swift */,
+			);
+			path = Screens;
+			sourceTree = "<group>";
+		};
+		6FFDD0DE2F618685008CED45 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				6FFDD0DD2F618685008CED45 /* Screens */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		6FFDD0DF2F618685008CED45 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				6FFDD0D32F618685008CED45 /* Core */,
+				6FFDD0D72F618685008CED45 /* Data */,
+				6FFDD0DA2F618685008CED45 /* Domain */,
+				6FFDD0DE2F618685008CED45 /* UI */,
+			);
+			path = Sources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -59,9 +186,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				6FFDD0892F616B40008CED45 /* trainingtask */,
 			);
 			name = trainingtask;
 			packageProductDependencies = (
@@ -123,6 +247,17 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		6FFDD0CB2F618666008CED45 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				6FFDD0CA2F618666008CED45 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		6FFDD09B2F616B48008CED45 /* Debug */ = {
