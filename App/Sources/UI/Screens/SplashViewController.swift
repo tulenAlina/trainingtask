@@ -21,6 +21,7 @@ final class SplashViewController: UIViewController {
         guard let window = view.window else {return}
         let mainMenuVC = MainMenuViewController()
         
-        window.rootViewController = mainMenuVC
+        let navigation = UINavigationController(rootViewController: mainMenuVC)
+        window.rootViewController = navigation
     }
 }

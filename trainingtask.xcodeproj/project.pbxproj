@@ -38,6 +38,29 @@
 		6FFDD0DC2F618685008CED45 /* SplashViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		6FBE2C8A2F62D71400B02B5A /* Projects */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Projects;
+			sourceTree = "<group>";
+		};
+		6FBE2C8B2F62D71F00B02B5A /* Tasks */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Tasks;
+			sourceTree = "<group>";
+		};
+		6FBE2C8C2F62D72900B02B5A /* Employees */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Employees;
+			sourceTree = "<group>";
+		};
+		6FBE2C8D2F62D73400B02B5A /* Settings */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Settings;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		6FFDD0842F616B40008CED45 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -174,6 +197,10 @@
 		6FFDD0DD2F618685008CED45 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				6FBE2C8D2F62D73400B02B5A /* Settings */,
+				6FBE2C8C2F62D72900B02B5A /* Employees */,
+				6FBE2C8B2F62D71F00B02B5A /* Tasks */,
+				6FBE2C8A2F62D71400B02B5A /* Projects */,
 				6FFDD0DB2F618685008CED45 /* MainMenuViewController.swift */,
 				6FFDD0DC2F618685008CED45 /* SplashViewController.swift */,
 			);
@@ -214,6 +241,12 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				6FBE2C8A2F62D71400B02B5A /* Projects */,
+				6FBE2C8B2F62D71F00B02B5A /* Tasks */,
+				6FBE2C8C2F62D72900B02B5A /* Employees */,
+				6FBE2C8D2F62D73400B02B5A /* Settings */,
 			);
 			name = trainingtask;
 			packageProductDependencies = (
