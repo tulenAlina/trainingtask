@@ -10,6 +10,7 @@
 		6FBE2C7E2F62A2AA00B02B5A /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FBE2C7D2F62A29E00B02B5A /* Task.swift */; };
 		6FBE2C802F62A57800B02B5A /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FBE2C7F2F62A57300B02B5A /* Project.swift */; };
 		6FBE2C822F62A66500B02B5A /* Employee.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FBE2C812F62A66000B02B5A /* Employee.swift */; };
+		6FBE2C842F62AA4A00B02B5A /* config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6FBE2C832F62AA4A00B02B5A /* config.plist */; };
 		6FFDD0E12F61933E008CED45 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FFDD0D12F618685008CED45 /* AppDelegate.swift */; };
 		6FFDD0E22F61933E008CED45 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FFDD0D22F618685008CED45 /* SceneDelegate.swift */; };
 		6FFDD0E32F61933E008CED45 /* MainMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FFDD0DB2F618685008CED45 /* MainMenuViewController.swift */; };
@@ -21,6 +22,7 @@
 		6FBE2C7D2F62A29E00B02B5A /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		6FBE2C7F2F62A57300B02B5A /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
 		6FBE2C812F62A66000B02B5A /* Employee.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Employee.swift; sourceTree = "<group>"; };
+		6FBE2C832F62AA4A00B02B5A /* config.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = config.plist; path = App/Resources/config.plist; sourceTree = SOURCE_ROOT; };
 		6FFDD0872F616B40008CED45 /* trainingtask.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = trainingtask.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6FFDD0C82F618666008CED45 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6FFDD0C92F618666008CED45 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -142,6 +144,7 @@
 				6FBE2C812F62A66000B02B5A /* Employee.swift */,
 				6FBE2C7F2F62A57300B02B5A /* Project.swift */,
 				6FBE2C7D2F62A29E00B02B5A /* Task.swift */,
+				6FBE2C832F62AA4A00B02B5A /* config.plist */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -252,6 +255,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6FBE2C842F62AA4A00B02B5A /* config.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

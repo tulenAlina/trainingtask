@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NumderOfDays</key>
+	<integer>7</integer>
+	<key>MaxRecords</key>
+	<integer>50</integer>
+	<key>ServerURL</key>
+	<string>http://localhost:8080</string>
+</dict>
+</plist>
