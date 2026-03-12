@@ -5,9 +5,9 @@ struct Task {
     let taskName: String
     let projectID: UUID
     let workTime: Int
-    let startDate: Date = Date()
-    let endDate: Date = Date() // поменять на старт + количество дней между датами
-    let status: TaskStatus = .notStarted
+    let startDate: Date
+    let endDate: Date
+    let status: TaskStatus
     let employeeID: UUID
 }
 
