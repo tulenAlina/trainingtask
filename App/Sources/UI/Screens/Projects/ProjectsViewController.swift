@@ -2,6 +2,7 @@ import UIKit
 
 final class ProjectsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
+    private let server = ServerManager.shared.currentServer
     private var projects: [ProjectEntity] = []
     private let projectTable = UITableView()
     
@@ -20,8 +21,25 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
     ) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {[weak self] _,_,completion in
             let project = self?.projects[indexPath.row]
-            //TODO: удалить
-            completion(true)
+            guard let project else {
+                completion(false)
+                return
+            }
+            Task {
+                do {
+                    try await self?.server.deleteProject(project.id)
+                    self?.projects.remove(at: indexPath.row)
+                    DispatchQueue.main.async {
+                        self?.projectTable.reloadData()
+                        completion(true)
+                    }
+                } catch {
+                    DispatchQueue.main.async {
+                        completion(false)
+                    }
+                    print("Ошибка удаления")
+                }
+            }
         }
         
         let editAction = UIContextualAction(style: .normal, title: "Изменить") {[weak self] _,_,completion in
@@ -39,7 +57,6 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
     }
     
     private func loadProjects() async throws {
-        let server = ServerManager.shared.currentServer
         try projects = await server.fetchProjects()
         DispatchQueue.main.async {
             self.projectTable.reloadData()
