@@ -1,6 +1,11 @@
 import UIKit
 
-final class EmployeesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+protocol EmployeesViewControllerDelegate: AnyObject {
+    func didAddEmployee(_ employee: EmployeeEntity)
+    func didUpdateEmployee(_ employee: EmployeeEntity)
+}
+
+final class EmployeesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, EmployeesViewControllerDelegate {
     
     private var employees: [EmployeeEntity] = []
     private let employeeTable = UITableView()
@@ -41,8 +46,16 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
                 }
             }
         }
-        let editAction = UIContextualAction(style: .normal, title: "Изменить") {_, _, _ in
-            //TODO: переход на эеран редактирования
+        let editAction = UIContextualAction(style: .normal, title: "Изменить") {[weak self] _, _, completion in
+            let employee = self?.employees[indexPath.row]
+            guard let employee else {
+                completion(false)
+                return
+            }
+            let editVC = EditEmployeeViewController(employee)
+            editVC.delegate = self
+            self?.navigationController?.pushViewController(editVC, animated: true)
+            completion(true)
         }
         return UISwipeActionsConfiguration(actions: [deleteAction, editAction])
     }
@@ -65,7 +78,21 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
     }
     
     @objc private func addTapped() {
-        //TODO: переход на экран редактирования
+        let editVC = EditEmployeeViewController()
+        editVC.delegate = self
+        navigationController?.pushViewController(editVC, animated: true)
+    }
+    
+    func didAddEmployee(_ employee: EmployeeEntity) {
+        employees.append(employee)
+        employeeTable.insertRows(at: [IndexPath(row: employees.count-1, section: 0)], with: .automatic)
+    }
+    
+    func didUpdateEmployee(_ employee: EmployeeEntity) {
+        if let index = employees.firstIndex(where: {$0.id == employee.id}) {
+            employees[index] = employee
+            employeeTable.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+        }
     }
     
     override func viewDidLoad() {
