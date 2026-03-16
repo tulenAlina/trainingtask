@@ -64,8 +64,7 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let project = projects[indexPath.row]
-        navigationController?.pushViewController(TasksViewController(), animated: true)
-        //TODO: передавать проект
+        navigationController?.pushViewController(TasksViewController(project: project), animated: true)
     }
     
     func didAddProject(_ project: ProjectEntity) {
