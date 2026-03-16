@@ -22,7 +22,7 @@ struct TaskEntity {
     }
 }
 
-enum TaskStatus: String {
+enum TaskStatus: String, CaseIterable {
     case notStarted = "Не начата"
     case inProgress = "В процессе"
     case completed = "Завершена"

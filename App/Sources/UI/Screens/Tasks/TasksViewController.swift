@@ -1,6 +1,12 @@
 import UIKit
 
-final class TasksViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+protocol TasksViewControllerDelegate: AnyObject {
+    func didAddTask(_ task: TaskEntity)
+    func didUpdateTask(_ task: TaskEntity)
+}
+
+
+final class TasksViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, TasksViewControllerDelegate {
     private let project: ProjectEntity?
     private let server = ServerManager.shared.currentServer
     private var tasks: [TaskEntity] = []
@@ -68,17 +74,34 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
         }
         
         let editAction = UIContextualAction(style: .normal, title: "Изменить") {[weak self] _,_,completion in
-//            let task = self?.tasks[indexPath.row]
-//            guard let task else {
-//                completion(false)
-//                return
-//            }
-//            let editVC = EditTaskViewController(project)
-//            editVC.delegate = self
-//            self?.navigationController?.pushViewController(editVC, animated: true)
-//            completion(true)
+            let task = self?.tasks[indexPath.row]
+            guard let task else {
+                completion(false)
+                return
+            }
+            let editVC: EditTaskViewController
+            if let project = self?.project {
+                editVC = EditTaskViewController(task, project: project)
+            } else {
+                editVC = EditTaskViewController(task)
+            }
+            editVC.delegate = self
+            self?.navigationController?.pushViewController(editVC, animated: true)
+            completion(true)
         }
         return UISwipeActionsConfiguration(actions: [deleteAction, editAction])
+    }
+    
+    func didAddTask(_ task: TaskEntity) {
+        tasks.append(task)
+        taskTable.insertRows(at: [IndexPath(row: tasks.count-1, section: 0)], with: .automatic)
+    }
+    
+    func didUpdateTask(_ task: TaskEntity) {
+        if let index = tasks.firstIndex(where: {$0.id == task.id}) {
+            tasks[index] = task
+            taskTable.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+        }
     }
     
     private func loadTasks() async throws {
@@ -99,7 +122,14 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
     }
     
     @objc private func addTapped() {
-        //TODO: переход на экран редактирования задач
+        let editVC: EditTaskViewController
+        if let project {
+            editVC = EditTaskViewController(project: project)
+        } else {
+            editVC = EditTaskViewController()
+        }
+        editVC.delegate = self
+        navigationController?.pushViewController(editVC, animated: true)
     }
     
     override func viewDidLoad() {
