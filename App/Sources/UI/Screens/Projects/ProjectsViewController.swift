@@ -1,6 +1,11 @@
 import UIKit
 
-final class ProjectsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+protocol ProjectsViewControllerDelegate: AnyObject {
+    func didAddProject(_ project: ProjectEntity)
+    func didUpdateProject(_ project: ProjectEntity)
+}
+
+final class ProjectsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, ProjectsViewControllerDelegate {
     
     private let server = ServerManager.shared.currentServer
     private var projects: [ProjectEntity] = []
@@ -30,7 +35,7 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
                     try await self?.server.deleteProject(project.id)
                     self?.projects.remove(at: indexPath.row)
                     DispatchQueue.main.async {
-                        self?.projectTable.reloadData()
+                        self?.projectTable.deleteRows(at: [indexPath], with: .automatic)
                         completion(true)
                     }
                 } catch {
@@ -43,8 +48,14 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
         }
         
         let editAction = UIContextualAction(style: .normal, title: "Изменить") {[weak self] _,_,completion in
-                let project = self?.projects[indexPath.row]
-                //TODO: переход на экран редактирования
+            let project = self?.projects[indexPath.row]
+            guard let project else {
+                completion(false)
+                return
+            }
+            let editVC = EditProjectViewController(project)
+            editVC.delegate = self
+            self?.navigationController?.pushViewController(editVC, animated: true)
             completion(true)
         }
         return UISwipeActionsConfiguration(actions: [deleteAction, editAction])
@@ -53,7 +64,20 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let project = projects[indexPath.row]
-        //TODO: переход на экран задач по проекту
+        navigationController?.pushViewController(TasksViewController(), animated: true)
+        //TODO: передавать проект
+    }
+    
+    func didAddProject(_ project: ProjectEntity) {
+        projects.append(project)
+        projectTable.insertRows(at: [IndexPath(row: projects.count-1, section: 0)], with: .automatic)
+    }
+    
+    func didUpdateProject(_ project: ProjectEntity) {
+        if let index = projects.firstIndex(where: {$0.id == project.id}) {
+            projects[index] = project
+            projectTable.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+        }
     }
     
     private func loadProjects() async throws {
@@ -74,7 +98,10 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
     }
     
     @objc private func addTapped() {
-        //TODO: переход на экран редактирования
+        let editVC = EditProjectViewController()
+        editVC.delegate = self
+        navigationController?.pushViewController(editVC, animated: true)
+        
     }
     
     override func viewDidLoad() {
@@ -85,9 +112,9 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
         view.addSubview(projectTable)
         NSLayoutConstraint.activate([
             projectTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            projectTable.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            projectTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             projectTable.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            projectTable.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor)
+            projectTable.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
         projectTable.dataSource = self
         projectTable.delegate = self
