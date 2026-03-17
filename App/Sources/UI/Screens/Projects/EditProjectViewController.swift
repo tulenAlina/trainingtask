@@ -81,8 +81,7 @@ final class EditProjectViewController: UIViewController {
                     
                 } catch {
                     await MainActor.run {
-                        // TODO: показать алерт
-                        print("Ошибка сохранения: \(error)")
+                        self.showAlert("Не удалось сохранить проект")
                     }
                 }
             }

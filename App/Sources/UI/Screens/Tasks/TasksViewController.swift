@@ -73,7 +73,7 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
                         self?.view.isUserInteractionEnabled = true
                         completion(false)
                     }
-                    print("Ошибка удаления")
+                    self?.showAlert("Не удалось удалить задачу")
                 }
             }
         }
@@ -124,7 +124,7 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
             do {
                 try await loadTasks()
             } catch {
-                print ("Ошибка загрузки")
+                showAlert("Не удалось загрузить задачи")
             }
         }
     }
@@ -143,12 +143,6 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
         }
         editVC.delegate = self
         navigationController?.pushViewController(editVC, animated: true)
-    }
-    
-    private func showAlert (_ message: String) {
-        let alert = UIAlertController(title: "Внимание", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Ок", style: .default))
-        present(alert, animated: true)
     }
     
     override func viewDidLoad() {

@@ -96,7 +96,7 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
             DispatchQueue.main.async {
                 self.view.isUserInteractionEnabled = true
             }
-            print("Ошибка загрузки данных")
+            self.showAlert("Не удалось загрузить данные")
         }
     }
     
@@ -207,7 +207,7 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
                     }
                 }
             } catch {
-                print ("Ошибка сохранения")
+                self.showAlert("Не удалось сохранить задачу")
             }
         }
     }

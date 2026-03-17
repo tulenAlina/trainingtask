@@ -90,7 +90,7 @@ final class EditEmployeeViewController: UIViewController {
                     }
                 }
             } catch {
-                print ("Ошибка сохранения")
+                self.showAlert("Не удалось сохранить сотрудника")
             }
         }
     }

@@ -47,7 +47,7 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
                         self?.view.isUserInteractionEnabled = true
                         completion(false)
                     }
-                    print("Ошибка удаления")
+                    self?.showAlert("Не удалось удалить проект")
                 }
             }
         }
@@ -99,7 +99,7 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
             do {
                 try await loadProjects()
             } catch {
-                print ("Ошибка загрузки")
+                showAlert("Не удалось загрузить проекты")
             }
         }
     }
@@ -113,12 +113,6 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
         let editVC = EditProjectViewController()
         editVC.delegate = self
         navigationController?.pushViewController(editVC, animated: true)
-    }
-    
-    private func showAlert (_ message: String) {
-        let alert = UIAlertController(title: "Внимание", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Ок", style: .default))
-        present(alert, animated: true)
     }
     
     override func viewDidLoad() {

@@ -47,7 +47,7 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
                         self?.view.isUserInteractionEnabled = true
                         completion(false)
                     }
-                    print("Ошибка удаления")
+                    self?.showAlert("Не удалось удалить сотрудника")
                 }
             }
         }
@@ -80,7 +80,7 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
             do {
                 try await loadEmployees()
             } catch {
-                print ("Ошибка загрузки сотрудников")
+                showAlert("Не удалось загрузить сотрудников")
             }
         }
     }
@@ -106,12 +106,6 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
             employees[index] = employee
             employeeTable.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
         }
-    }
-    
-    private func showAlert (_ message: String) {
-        let alert = UIAlertController(title: "Внимание", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Ок", style: .default))
-        present(alert, animated: true)
     }
     
     override func viewDidLoad() {
