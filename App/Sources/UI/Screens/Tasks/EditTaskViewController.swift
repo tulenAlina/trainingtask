@@ -2,6 +2,7 @@ import UIKit
 
 final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDelegate {
     
+    private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private var task: TaskEntity? = nil
     private var contextProject: ProjectEntity? = nil
     private let server = ServerManager.shared.currentServer
@@ -9,6 +10,8 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
     private var employees: [EmployeeEntity] = []
     let dateFormatter = DateFormatter()
     
+    private var saveButton: UIBarButtonItem!
+    private var cancelButton: UIBarButtonItem!
     private var taskNameTF: UITextField!
     private var projectTF: UITextField!
     private var projectPV = UIPickerView()
@@ -86,7 +89,13 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
         do {
             try await projects = server.fetchProjects()
             try await employees = server.fetchEmployees()
+            DispatchQueue.main.async {
+                self.view.isUserInteractionEnabled = true
+            }
         } catch {
+            DispatchQueue.main.async {
+                self.view.isUserInteractionEnabled = true
+            }
             print("Ошибка загрузки данных")
         }
     }
@@ -153,6 +162,9 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
     }
     
     @objc private func saveTask() {
+        loadingIndicator.startAnimating()
+        view.isUserInteractionEnabled = false
+        saveButton.isEnabled = false
         Task {
             do {
                 if let task {
@@ -169,6 +181,9 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
                     let savedTask = try await server.updateTask(newTask)
                     DispatchQueue.main.async {
                         self.delegate?.didUpdateTask(savedTask)
+                        self.loadingIndicator.stopAnimating()
+                        self.view.isUserInteractionEnabled = true
+                        self.saveButton.isEnabled = true
                         self.navigationController?.popViewController(animated: true)
                     }
                 } else {
@@ -185,6 +200,9 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
                     let savedTask = try await server.createTask(newTask)
                     DispatchQueue.main.async {
                         self.delegate?.didAddTask(savedTask)
+                        self.loadingIndicator.stopAnimating()
+                        self.view.isUserInteractionEnabled = true
+                        self.saveButton.isEnabled = true
                         self.navigationController?.popViewController(animated: true)
                     }
                 }
@@ -207,8 +225,8 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
         view.backgroundColor = .white
         title = (task != nil) ? "Редактирование задачи" : "Добавление задачи"
         
-        let saveButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(saveTask))
-        let cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancellView))
+        saveButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(saveTask))
+        cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancellView))
         navigationItem.leftBarButtonItem = cancelButton
         navigationItem.rightBarButtonItem = saveButton
         
@@ -219,51 +237,63 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
         dateFormatter.dateFormat = "yyyy-MM-dd"
         dateFormatter.locale = Locale(identifier: "ru_RU")
         
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.center = view.center
+        view.addSubview(loadingIndicator)
+        loadingIndicator.startAnimating()
+        view.isUserInteractionEnabled = false
+        saveButton.isEnabled = false
+        
         Task {
             await loadData()
-            setupTextFields()
-            setupPickerView(projectPV, for: projectTF)
-            setupPickerView(employeePV, for: employeeTF)
-            setupSegmentedControl()
-            
-            view.addSubview(taskNameTF)
-            view.addSubview(projectTF)
-            view.addSubview(workTimeTF)
-            view.addSubview(startDateTF)
-            view.addSubview(endDateTF)
-            view.addSubview(statusSC)
-            view.addSubview(employeeTF)
-            
-            NSLayoutConstraint.activate([
-                taskNameTF.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-                taskNameTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                taskNameTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            await MainActor.run {
+                loadingIndicator.stopAnimating()
+                view.isUserInteractionEnabled = true
+                saveButton.isEnabled = true
+                setupTextFields()
+                setupPickerView(projectPV, for: projectTF)
+                setupPickerView(employeePV, for: employeeTF)
+                setupSegmentedControl()
                 
-                projectTF.topAnchor.constraint(equalTo: taskNameTF.bottomAnchor, constant: 30),
-                projectTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                projectTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                view.addSubview(taskNameTF)
+                view.addSubview(projectTF)
+                view.addSubview(workTimeTF)
+                view.addSubview(startDateTF)
+                view.addSubview(endDateTF)
+                view.addSubview(statusSC)
+                view.addSubview(employeeTF)
                 
-                workTimeTF.topAnchor.constraint(equalTo: projectTF.bottomAnchor, constant: 30),
-                workTimeTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                workTimeTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                
-                startDateTF.topAnchor.constraint(equalTo: workTimeTF.bottomAnchor, constant: 30),
-                startDateTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                startDateTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                
-                endDateTF.topAnchor.constraint(equalTo: startDateTF.bottomAnchor, constant: 30),
-                endDateTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                endDateTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                
-                statusSC.topAnchor.constraint(equalTo: endDateTF.bottomAnchor, constant: 30),
-                statusSC.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                statusSC.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                
-                employeeTF.topAnchor.constraint(equalTo: statusSC.bottomAnchor, constant: 30),
-                employeeTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                employeeTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
-                
-            ])
+                NSLayoutConstraint.activate([
+                    taskNameTF.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+                    taskNameTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+                    taskNameTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                    
+                    projectTF.topAnchor.constraint(equalTo: taskNameTF.bottomAnchor, constant: 30),
+                    projectTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+                    projectTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                    
+                    workTimeTF.topAnchor.constraint(equalTo: projectTF.bottomAnchor, constant: 30),
+                    workTimeTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+                    workTimeTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                    
+                    startDateTF.topAnchor.constraint(equalTo: workTimeTF.bottomAnchor, constant: 30),
+                    startDateTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+                    startDateTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                    
+                    endDateTF.topAnchor.constraint(equalTo: startDateTF.bottomAnchor, constant: 30),
+                    endDateTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+                    endDateTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                    
+                    statusSC.topAnchor.constraint(equalTo: endDateTF.bottomAnchor, constant: 30),
+                    statusSC.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+                    statusSC.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                    
+                    employeeTF.topAnchor.constraint(equalTo: statusSC.bottomAnchor, constant: 30),
+                    employeeTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+                    employeeTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+                    
+                ])
+            }
         }
     }
 }

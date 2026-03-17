@@ -11,6 +11,7 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
     private let server = ServerManager.shared.currentServer
     private var tasks: [TaskEntity] = []
     private let taskTable = UITableView()
+    private let loadingIndicator = UIActivityIndicatorView(style: .large)
     
     init() {
             self.project = nil
@@ -51,6 +52,8 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
     ) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {[weak self] _,_,completion in
+            self?.loadingIndicator.startAnimating()
+            self?.view.isUserInteractionEnabled = false
             let task = self?.tasks[indexPath.row]
             guard let task else {
                 completion(false)
@@ -66,6 +69,8 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
                     }
                 } catch {
                     DispatchQueue.main.async {
+                        self?.loadingIndicator.stopAnimating()
+                        self?.view.isUserInteractionEnabled = true
                         completion(false)
                     }
                     print("Ошибка удаления")
@@ -109,6 +114,8 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
         tasks = Array(allTasks.prefix(SettingsManager.shared.maxRecords))
         DispatchQueue.main.async {
             self.taskTable.reloadData()
+            self.loadingIndicator.stopAnimating()
+            self.view.isUserInteractionEnabled = true
         }
     }
     
@@ -149,7 +156,16 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
         view.backgroundColor = .white
         title = "Задачи"
         taskTable.translatesAutoresizingMaskIntoConstraints = false
+        
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.center = view.center
+        
         view.addSubview(taskTable)
+        view.addSubview(loadingIndicator)
+        
+        loadingIndicator.startAnimating()
+        view.isUserInteractionEnabled = false
+        
         NSLayoutConstraint.activate([
             taskTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             taskTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),

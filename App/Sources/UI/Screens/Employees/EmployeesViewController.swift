@@ -10,6 +10,7 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
     private var employees: [EmployeeEntity] = []
     private let employeeTable = UITableView()
     private let server = ServerManager.shared.currentServer
+    private let loadingIndicator = UIActivityIndicatorView(style: .large)
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return employees.count
@@ -25,6 +26,8 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
     ) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {[weak self] _, _, completion in
+            self?.loadingIndicator.startAnimating()
+            self?.view.isUserInteractionEnabled = false
             let employee = self?.employees[indexPath.row]
             guard let employee else {
                 completion(false)
@@ -40,6 +43,8 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
                     }
                 } catch {
                     DispatchQueue.main.async {
+                        self?.loadingIndicator.stopAnimating()
+                        self?.view.isUserInteractionEnabled = true
                         completion(false)
                     }
                     print("Ошибка удаления")
@@ -65,6 +70,8 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
         employees = Array(allEmployees.prefix(SettingsManager.shared.maxRecords))
         DispatchQueue.main.async {
             self.employeeTable.reloadData()
+            self.loadingIndicator.stopAnimating()
+            self.view.isUserInteractionEnabled = true
         }
     }
     
@@ -112,7 +119,15 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
         view.backgroundColor = .white
         title = "Сотрудники"
         
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.center = view.center
+        
         view.addSubview(employeeTable)
+        view.addSubview(loadingIndicator)
+        
+        loadingIndicator.startAnimating()
+        view.isUserInteractionEnabled = false
+        
         NSLayoutConstraint.activate([
             employeeTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             employeeTable.trailingAnchor.constraint(equalTo: view.trailingAnchor),

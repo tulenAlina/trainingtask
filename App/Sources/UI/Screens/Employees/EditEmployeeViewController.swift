@@ -6,7 +6,11 @@ final class EditEmployeeViewController: UIViewController {
     private var lastNameTF: UITextField!
     private var surNameTF: UITextField!
     private var positionTF: UITextField!
+    private var saveButton: UIBarButtonItem!
+    private var cancelButton: UIBarButtonItem!
     weak var delegate: EmployeesViewControllerDelegate?
+    
+    private let loadingIndicator = UIActivityIndicatorView(style: .large)
     
     init() {
         super.init(nibName: nil, bundle: nil)
@@ -50,6 +54,9 @@ final class EditEmployeeViewController: UIViewController {
     
     @objc private func saveEmployee() {
         let server = ServerManager.shared.currentServer
+        loadingIndicator.startAnimating()
+        view.isUserInteractionEnabled = false
+        saveButton.isEnabled = false
         Task {
             do {
                 if let employee {
@@ -61,6 +68,9 @@ final class EditEmployeeViewController: UIViewController {
                     let savedEmployee = try await server.updateEmployee(newEmployee)
                     DispatchQueue.main.async {
                         self.delegate?.didUpdateEmployee(savedEmployee)
+                        self.loadingIndicator.stopAnimating()
+                        self.view.isUserInteractionEnabled = true
+                        self.saveButton.isEnabled = true
                         self.navigationController?.popViewController(animated: true)
                     }
                 } else {
@@ -73,6 +83,9 @@ final class EditEmployeeViewController: UIViewController {
                     let savedEmployee = try await server.createEmployee(newEmployee)
                     DispatchQueue.main.async {
                         self.delegate?.didAddEmployee(savedEmployee)
+                        self.loadingIndicator.stopAnimating()
+                        self.view.isUserInteractionEnabled = true
+                        self.saveButton.isEnabled = true
                         self.navigationController?.popViewController(animated: true)
                     }
                 }
@@ -91,17 +104,21 @@ final class EditEmployeeViewController: UIViewController {
         view.backgroundColor = .white
         title = (employee != nil) ? "Редактирование сотрудника" : "Добавление сотрудника"
         
-        let saveButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(saveEmployee))
-        let cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancellView))
+        saveButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(saveEmployee))
+        cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancellView))
         navigationItem.leftBarButtonItem = cancelButton
         navigationItem.rightBarButtonItem = saveButton
         
         setupTextFields()
         
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.center = view.center
+        
         view.addSubview(firstNameTF)
         view.addSubview(lastNameTF)
         view.addSubview(surNameTF)
         view.addSubview(positionTF)
+        view.addSubview(loadingIndicator)
         
         NSLayoutConstraint.activate([
             firstNameTF.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),

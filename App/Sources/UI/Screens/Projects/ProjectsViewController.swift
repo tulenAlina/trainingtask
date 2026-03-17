@@ -10,6 +10,7 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
     private let server = ServerManager.shared.currentServer
     private var projects: [ProjectEntity] = []
     private let projectTable = UITableView()
+    private let loadingIndicator = UIActivityIndicatorView(style: .large)
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return projects.count
@@ -25,6 +26,8 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
     ) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {[weak self] _,_,completion in
+            self?.loadingIndicator.startAnimating()
+            self?.view.isUserInteractionEnabled = false
             let project = self?.projects[indexPath.row]
             guard let project else {
                 completion(false)
@@ -40,6 +43,8 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
                     }
                 } catch {
                     DispatchQueue.main.async {
+                        self?.loadingIndicator.stopAnimating()
+                        self?.view.isUserInteractionEnabled = true
                         completion(false)
                     }
                     print("Ошибка удаления")
@@ -84,6 +89,8 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
         projects = Array(allProjects.prefix(SettingsManager.shared.maxRecords))
         DispatchQueue.main.async {
             self.projectTable.reloadData()
+            self.loadingIndicator.stopAnimating()
+            self.view.isUserInteractionEnabled = true
         }
     }
     
@@ -119,7 +126,15 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
         view.backgroundColor = .white
         title = "Проекты"
         projectTable.translatesAutoresizingMaskIntoConstraints = false
+        
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.center = view.center
+        
         view.addSubview(projectTable)
+        view.addSubview(loadingIndicator)
+        loadingIndicator.startAnimating()
+        view.isUserInteractionEnabled = false
+        
         NSLayoutConstraint.activate([
             projectTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             projectTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
