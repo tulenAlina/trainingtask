@@ -34,8 +34,8 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
                 do {
                     try await self?.server.deleteEmployee(employee.id)
                     self?.employees.remove(at: indexPath.row)
+                    self?.refreshView()
                     DispatchQueue.main.async {
-                        self?.employeeTable.deleteRows(at: [indexPath], with: .automatic)
                         completion(true)
                     }
                 } catch {
@@ -61,7 +61,8 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
     }
     
     private func loadEmployees() async throws{
-        try await employees = server.fetchEmployees()
+        let allEmployees = try await server.fetchEmployees()
+        employees = Array(allEmployees.prefix(SettingsManager.shared.maxRecords))
         DispatchQueue.main.async {
             self.employeeTable.reloadData()
         }
@@ -78,6 +79,11 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
     }
     
     @objc private func addTapped() {
+        if employees.count >= SettingsManager.shared.maxRecords {
+            showAlert("Достигнуто максимальное количество сотрудников (\(SettingsManager.shared.maxRecords))")
+            return
+        }
+        
         let editVC = EditEmployeeViewController()
         editVC.delegate = self
         navigationController?.pushViewController(editVC, animated: true)
@@ -93,6 +99,12 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
             employees[index] = employee
             employeeTable.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
         }
+    }
+    
+    private func showAlert (_ message: String) {
+        let alert = UIAlertController(title: "Внимание", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ок", style: .default))
+        present(alert, animated: true)
     }
     
     override func viewDidLoad() {

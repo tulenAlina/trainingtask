@@ -60,8 +60,8 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
                 do {
                     try await self?.server.deleteTask(task.id)
                     self?.tasks.remove(at: indexPath.row)
+                    self?.refreshView()
                     DispatchQueue.main.async {
-                        self?.taskTable.deleteRows(at: [indexPath], with: .automatic)
                         completion(true)
                     }
                 } catch {
@@ -105,7 +105,8 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
     }
     
     private func loadTasks() async throws {
-        try tasks = await server.fetchTasks(projectID: project?.id)
+        let allTasks = try await server.fetchTasks(projectID: project?.id)
+        tasks = Array(allTasks.prefix(SettingsManager.shared.maxRecords))
         DispatchQueue.main.async {
             self.taskTable.reloadData()
         }
@@ -122,6 +123,11 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
     }
     
     @objc private func addTapped() {
+        if tasks.count >= SettingsManager.shared.maxRecords {
+            showAlert("Достигнуто максимальное количество задач (\(SettingsManager.shared.maxRecords))")
+            return
+        }
+        
         let editVC: EditTaskViewController
         if let project {
             editVC = EditTaskViewController(project: project)
@@ -130,6 +136,12 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
         }
         editVC.delegate = self
         navigationController?.pushViewController(editVC, animated: true)
+    }
+    
+    private func showAlert (_ message: String) {
+        let alert = UIAlertController(title: "Внимание", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ок", style: .default))
+        present(alert, animated: true)
     }
     
     override func viewDidLoad() {

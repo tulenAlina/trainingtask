@@ -34,8 +34,8 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
                 do {
                     try await self?.server.deleteProject(project.id)
                     self?.projects.remove(at: indexPath.row)
+                    self?.refreshView()
                     DispatchQueue.main.async {
-                        self?.projectTable.deleteRows(at: [indexPath], with: .automatic)
                         completion(true)
                     }
                 } catch {
@@ -80,7 +80,8 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
     }
     
     private func loadProjects() async throws {
-        try projects = await server.fetchProjects()
+        let allProjects = try await server.fetchProjects()
+        projects = Array(allProjects.prefix(SettingsManager.shared.maxRecords))
         DispatchQueue.main.async {
             self.projectTable.reloadData()
         }
@@ -97,10 +98,20 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
     }
     
     @objc private func addTapped() {
+        if projects.count >= SettingsManager.shared.maxRecords {
+            showAlert("Достигнуто максимальное количество проектов (\(SettingsManager.shared.maxRecords))")
+            return
+        }
+        
         let editVC = EditProjectViewController()
         editVC.delegate = self
         navigationController?.pushViewController(editVC, animated: true)
-        
+    }
+    
+    private func showAlert (_ message: String) {
+        let alert = UIAlertController(title: "Внимание", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ок", style: .default))
+        present(alert, animated: true)
     }
     
     override func viewDidLoad() {

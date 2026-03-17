@@ -73,11 +73,9 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         if pickerView == projectPV {
-            //selectedProject = projects[row]
             projectTF.text = projects[row].projectName
             view.endEditing(true)
         } else {
-            //selectedEmployee = employees[row]
             let emp = employees[row]
             employeeTF.text = "\(emp.lastName) \(emp.firstName)"
             view.endEditing(true)
@@ -149,8 +147,7 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
             taskNameTF = createTextField("Введите задачу", isEdit)
             workTimeTF = createTextField("Введите количество часов", isEdit)
             startDateTF = createTextField(dateFormatter.string(from: Date()), !isEdit)
-            //TODO: поменять дату окончания
-            endDateTF = createTextField(dateFormatter.string(from: Date()), !isEdit)
+            endDateTF = createTextField(dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: SettingsManager.shared.defaultDaysBetween, to: Date()) ?? Date()), !isEdit)
             employeeTF = createTextField("Выберите сотрудника", isEdit)
         }
     }
