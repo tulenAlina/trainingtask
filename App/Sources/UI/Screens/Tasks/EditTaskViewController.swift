@@ -100,17 +100,6 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
         }
     }
     
-    private func createTextField(_ label: String, _ isEdit: Bool) -> UITextField{
-        let textField = UITextField()
-        if isEdit {
-            textField.text = label
-        } else {
-            textField.placeholder = label
-        }
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        return textField
-    }
-    
     private func setupPickerView(_ picker: UIPickerView, for textField: UITextField) {
         picker.dataSource = self
         picker.delegate = self
@@ -131,33 +120,33 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
         if let task {
             isEdit = true
             if let contextProject {
-                projectTF = createTextField("\(contextProject.projectName)", isEdit)
+                projectTF = UITextField.create(text: "\(contextProject.projectName)", placeholder: "Выберите проект", isEdit: isEdit)
                 projectTF.isEnabled = false
                 projectTF.textColor = .lightGray
             } else {
-                projectTF = createTextField("\(projects.first(where: {$0.id == task.projectID})?.projectName ?? "")", isEdit)
+                projectTF = UITextField.create(text: "\(projects.first(where: {$0.id == task.projectID})?.projectName ?? "")", placeholder: "Выберите проект", isEdit: isEdit)
             }
-            taskNameTF = createTextField("\(task.taskName)", isEdit)
-            workTimeTF = createTextField("\(task.workTime)", isEdit)
-            startDateTF = createTextField(dateFormatter.string(from: task.startDate), isEdit)
-            endDateTF = createTextField(dateFormatter.string(from: task.endDate), isEdit)
+            taskNameTF = UITextField.create(text: "\(task.taskName)", placeholder: "Введите задачу", isEdit: isEdit)
+            workTimeTF = UITextField.create(text: "\(task.workTime)", placeholder: "Введите количество часов", isEdit: isEdit)
+            startDateTF = UITextField.create(text: dateFormatter.string(from: task.startDate), placeholder: "Введите дату начала",  isEdit: isEdit)
+            endDateTF = UITextField.create(text: dateFormatter.string(from: task.endDate), placeholder: "Введите дату окончания", isEdit: isEdit)
             var fio: String = ""
             if let emp = employees.first(where: {$0.id == task.employeeID}) {
                 fio = "\(emp.lastName) \(emp.firstName) \(emp.surName ?? "")"
             }
-            employeeTF = createTextField("\(fio)", isEdit)
+            employeeTF = UITextField.create(text: "\(fio)", placeholder: "Выберите сотрудника", isEdit: isEdit)
         } else {
             if let contextProject {
-                projectTF = createTextField("\(contextProject.projectName)", isEdit)
+                projectTF = UITextField.create(text: "\(contextProject.projectName)", placeholder: "Выберите проект", isEdit: isEdit)
                 projectTF.isEnabled = false
             } else {
-                projectTF = createTextField("Выберите проект", isEdit)
+                projectTF = UITextField.create(placeholder: "Выберите проект", isEdit: isEdit)
             }
-            taskNameTF = createTextField("Введите задачу", isEdit)
-            workTimeTF = createTextField("Введите количество часов", isEdit)
-            startDateTF = createTextField(dateFormatter.string(from: Date()), !isEdit)
-            endDateTF = createTextField(dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: SettingsManager.shared.defaultDaysBetween, to: Date()) ?? Date()), !isEdit)
-            employeeTF = createTextField("Выберите сотрудника", isEdit)
+            taskNameTF = UITextField.create(placeholder: "Введите задачу", isEdit: isEdit)
+            workTimeTF = UITextField.create(placeholder: "Введите количество часов", isEdit: isEdit)
+            startDateTF = UITextField.create(text: dateFormatter.string(from: Date()), placeholder: "Введите дату начала", isEdit: !isEdit)
+            endDateTF = UITextField.create(text: dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: SettingsManager.shared.defaultDaysBetween, to: Date()) ?? Date()), placeholder: "Введите дату окончания", isEdit: !isEdit)
+            employeeTF = UITextField.create(placeholder: "Выберите сотрудника", isEdit: isEdit)
         }
     }
     

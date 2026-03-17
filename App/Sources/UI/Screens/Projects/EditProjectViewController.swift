@@ -22,26 +22,15 @@ final class EditProjectViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func createTextField(_ label: String, _ isEdit: Bool) -> UITextField{
-        let textField = UITextField()
-        if isEdit {
-            textField.text = label
-        } else {
-            textField.placeholder = label
-        }
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        return textField
-    }
-    
     private func setupTextFields() {
         var isEdit = false
         if let project {
             isEdit = true
-            projectNameTF = createTextField("\(project.projectName)", isEdit)
-            projectDescriptionTF = createTextField("\(project.description)", isEdit)
+            projectNameTF = UITextField.create(text: "\(project.projectName)", placeholder: "Введите название", isEdit: isEdit)
+            projectDescriptionTF = UITextField.create(text: "\(project.description)", placeholder: "Введите описание", isEdit: isEdit)
         } else {
-            projectNameTF = createTextField("Введите название", isEdit)
-            projectDescriptionTF = createTextField("Введите описание", isEdit)
+            projectNameTF = UITextField.create(placeholder: "Введите название", isEdit: isEdit)
+            projectDescriptionTF = UITextField.create(placeholder: "Введите описание", isEdit: isEdit)
         }
     }
     

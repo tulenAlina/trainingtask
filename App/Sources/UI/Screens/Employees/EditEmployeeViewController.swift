@@ -25,30 +25,19 @@ final class EditEmployeeViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func createTextField(_ label: String, _ isEdit: Bool) -> UITextField{
-        let textField = UITextField()
-        if isEdit {
-            textField.text = label
-        } else {
-            textField.placeholder = label
-        }
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        return textField
-    }
-    
     private func setupTextFields() {
         var isEdit = false
         if let employee {
             isEdit = true
-            firstNameTF = createTextField("\(employee.firstName)", isEdit)
-            lastNameTF = createTextField("\(employee.lastName)", isEdit)
-            surNameTF = createTextField("\(employee.surName ?? "")", isEdit)
-            positionTF = createTextField("\(employee.position)", isEdit)
+            firstNameTF = UITextField.create(text: "\(employee.firstName)", placeholder: "Введите имя", isEdit: isEdit)
+            lastNameTF = UITextField.create(text: "\(employee.lastName)", placeholder: "Введите фамилию", isEdit: isEdit)
+            surNameTF = UITextField.create(text: "\(employee.surName ?? "")", placeholder: "Введите отчество(если есть)", isEdit: isEdit)
+            positionTF = UITextField.create(text: "\(employee.position)", placeholder: "Введите должность", isEdit: isEdit)
         } else {
-            firstNameTF = createTextField("Введите имя", isEdit)
-            lastNameTF = createTextField("Введите фамилию", isEdit)
-            surNameTF = createTextField("Введите отчество (если есть)", isEdit)
-            positionTF = createTextField("Введите должность", isEdit)
+            firstNameTF = UITextField.create(placeholder: "Введите имя", isEdit: isEdit)
+            lastNameTF = UITextField.create(placeholder: "Введите фамилию", isEdit: isEdit)
+            surNameTF = UITextField.create(placeholder: "Введите отчество(если есть)", isEdit: isEdit)
+            positionTF = UITextField.create(placeholder: "Введите должность", isEdit: isEdit)
         }
     }
     
