@@ -27,6 +27,22 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
         return sc
     }()
     
+    private let startDatePicker: UIDatePicker = {
+        let picker = UIDatePicker()
+        picker.datePickerMode = .date
+        picker.preferredDatePickerStyle = .inline
+        picker.locale = Locale(identifier: "ru_RU")
+        return picker
+    }()
+    
+    private let endDatePicker: UIDatePicker = {
+        let picker = UIDatePicker()
+        picker.datePickerMode = .date
+        picker.preferredDatePickerStyle = .inline
+        picker.locale = Locale(identifier: "ru_RU")
+        return picker
+    }()
+    
     weak var delegate: TasksViewControllerDelegate?
     
     init() {
@@ -114,6 +130,14 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
             statusSC.selectedSegmentIndex = 0
         }
     }
+    
+    private func setupDatePickers() {
+        startDateTF.inputView = startDatePicker
+        endDateTF.inputView = endDatePicker
+        
+        startDatePicker.addTarget(self, action: #selector(dateChanged), for: .valueChanged)
+        endDatePicker.addTarget(self, action: #selector(dateChanged), for: .valueChanged)
+    }
         
     private func setupTextFields() {
         var isEdit = false
@@ -127,7 +151,10 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
                 projectTF = UITextField.create(text: "\(projects.first(where: {$0.id == task.projectID})?.projectName ?? "")", placeholder: "Выберите проект", isEdit: isEdit)
             }
             taskNameTF = UITextField.create(text: "\(task.taskName)", placeholder: "Введите задачу", isEdit: isEdit)
+            
             workTimeTF = UITextField.create(text: "\(task.workTime)", placeholder: "Введите количество часов", isEdit: isEdit)
+            workTimeTF.keyboardType = .numberPad
+            
             startDateTF = UITextField.create(text: dateFormatter.string(from: task.startDate), placeholder: "Введите дату начала",  isEdit: isEdit)
             endDateTF = UITextField.create(text: dateFormatter.string(from: task.endDate), placeholder: "Введите дату окончания", isEdit: isEdit)
             var fio: String = ""
@@ -143,10 +170,23 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
                 projectTF = UITextField.create(placeholder: "Выберите проект", isEdit: isEdit)
             }
             taskNameTF = UITextField.create(placeholder: "Введите задачу", isEdit: isEdit)
+            
             workTimeTF = UITextField.create(placeholder: "Введите количество часов", isEdit: isEdit)
+            workTimeTF.keyboardType = .numberPad
+            
             startDateTF = UITextField.create(text: dateFormatter.string(from: Date()), placeholder: "Введите дату начала", isEdit: !isEdit)
             endDateTF = UITextField.create(text: dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: SettingsManager.shared.defaultDaysBetween, to: Date()) ?? Date()), placeholder: "Введите дату окончания", isEdit: !isEdit)
             employeeTF = UITextField.create(placeholder: "Выберите сотрудника", isEdit: isEdit)
+        }
+    }
+    
+    @objc private func dateChanged(_ sender: UIDatePicker) {
+        let dateString = dateFormatter.string(from: sender.date)
+        
+        if sender == startDatePicker {
+            startDateTF.text = dateString
+        } else if sender == endDatePicker {
+            endDateTF.text = dateString
         }
     }
     
@@ -243,6 +283,7 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
                 setupPickerView(projectPV, for: projectTF)
                 setupPickerView(employeePV, for: employeeTF)
                 setupSegmentedControl()
+                setupDatePickers()
                 
                 view.addSubview(taskNameTF)
                 view.addSubview(projectTF)
