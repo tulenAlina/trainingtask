@@ -36,7 +36,6 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
             Task {
                 do {
                     try await self?.server.deleteProject(project.id)
-                    self?.projects.remove(at: indexPath.row)
                     self?.refreshView()
                     DispatchQueue.main.async {
                         completion(true)

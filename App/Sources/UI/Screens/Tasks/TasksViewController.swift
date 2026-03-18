@@ -68,7 +68,6 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
             Task {
                 do {
                     try await self?.server.deleteTask(task.id)
-                    self?.tasks.remove(at: indexPath.row)
                     self?.refreshView()
                     DispatchQueue.main.async {
                         completion(true)

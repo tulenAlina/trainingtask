@@ -36,7 +36,6 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
             Task {
                 do {
                     try await self?.server.deleteEmployee(employee.id)
-                    self?.employees.remove(at: indexPath.row)
                     self?.refreshView()
                     DispatchQueue.main.async {
                         completion(true)
