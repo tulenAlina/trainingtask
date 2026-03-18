@@ -8,9 +8,9 @@ struct TaskEntity {
     var startDate: Date
     var endDate: Date
     var status: TaskStatus
-    var employeeID: UUID
+    var employeeID: UUID?
     
-    init(id: UUID = UUID(), taskName: String, projectID: UUID, workTime: Int, startDate: Date, endDate: Date, status: TaskStatus, employeeID: UUID) {
+    init(id: UUID = UUID(), taskName: String, projectID: UUID, workTime: Int, startDate: Date, endDate: Date, status: TaskStatus, employeeID: UUID? = nil) {
         self.id = id
         self.taskName = taskName
         self.projectID = projectID

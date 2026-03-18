@@ -55,8 +55,16 @@ class StubServer: Server {
     
     func deleteProject(_ id: UUID) async throws {
         try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
-        if projects[id] == nil {
+        guard let project = projects[id] else {
             throw Errors.itemNotFound
+        }
+        
+        for taskID in project.tasks {
+            if let task = tasks[taskID], let employeeID = task.employeeID, var employee = employees[employeeID] {
+                employee.tasks.removeAll {$0 == task.id}
+                employees[employee.id] = employee
+            }
+            tasks[taskID] = nil
         }
         projects[id] = nil
     }
@@ -82,8 +90,12 @@ class StubServer: Server {
     }
     func deleteEmployee(_ id: UUID) async throws {
         try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
-        if employees[id] == nil {
+        guard let employee = employees[id] else {
             throw Errors.itemNotFound
+        }
+        
+        for taskID in employee.tasks {
+            tasks[taskID]?.employeeID = nil
         }
         employees[id] = nil
     }
@@ -99,12 +111,49 @@ class StubServer: Server {
     func createTask(_ task: TaskEntity) async throws -> TaskEntity {
         try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
         tasks[task.id] = task
+        
+        if var project = projects[task.projectID] {
+            project.tasks.append(task.id)
+            projects[task.projectID] = project
+        }
+        
+        guard let employeeID = task.employeeID else {return task}
+        if var employee = employees[employeeID] {
+            employee.tasks.append(task.id)
+            employees[employeeID] = employee
+        }
         return task
     }
     func updateTask(_ task: TaskEntity) async throws -> TaskEntity {
         try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
-        if tasks[task.id] == nil {
+        guard let oldTask = tasks[task.id] else {
             throw Errors.itemNotFound
+        }
+        
+        if oldTask.projectID != task.projectID {
+            if var oldProject = projects[oldTask.projectID] {
+                oldProject.tasks.removeAll {$0 == task.id}
+                projects[oldTask.projectID] = oldProject
+            }
+            
+            if var newProject = projects[task.projectID]
+            {
+                newProject.tasks.append(task.id)
+                projects[task.projectID] = newProject
+            }
+        }
+        
+        if oldTask.employeeID != task.employeeID {
+            if let oldEmployeeID = oldTask.employeeID, var oldEmployee = employees[oldEmployeeID] {
+                oldEmployee.tasks.removeAll {$0 == task.id}
+                employees[oldEmployeeID] = oldEmployee
+            }
+            
+            if let newEmployeeID = task.employeeID, var newEmployee = employees[newEmployeeID]
+            {
+                newEmployee.tasks.append(task.id)
+                employees[newEmployeeID] = newEmployee
+            }
         }
         
         tasks[task.id] = task
@@ -112,9 +161,20 @@ class StubServer: Server {
     }
     func deleteTask(_ id: UUID) async throws {
         try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
-        if tasks[id] == nil {
+        guard let task = tasks[id] else {
             throw Errors.itemNotFound
         }
+        
+        if var project = projects[task.projectID] {
+            project.tasks.removeAll {$0 == task.id}
+            projects[task.projectID] = project
+        }
+        
+        if let employeeID = task.employeeID, var employee = employees[employeeID] {
+            employee.tasks.removeAll {$0 == task.id}
+            employees[employeeID] = employee
+        }
+        
         tasks[id] = nil
     }
 }

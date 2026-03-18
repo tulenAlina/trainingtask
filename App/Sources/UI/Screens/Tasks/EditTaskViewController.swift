@@ -135,16 +135,20 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
         return inputProject
     }
     
-    private func validateEmployee() -> EmployeeEntity? {
+    private func validateEmployee() -> (EmployeeEntity?, Bool) {
+        if employeeTF.text?.trimmed.isBlank ?? true {
+            return (nil, true)
+        }
+        
         guard let inputEmployee = employees.first(where: {emp in
             let fio = "\(emp.lastName) \(emp.firstName) \(emp.surName ?? "")".trimmed
             return fio == employeeTF.text?.trimmed ?? ""
         })
         else {
             showAlert("Выберите сотрудника из списка")
-            return nil
+            return (nil, false)
         }
-        return inputEmployee
+        return (inputEmployee, true)
     }
     
     private func loadData() async {
@@ -242,8 +246,9 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
     }
     
     @objc private func saveTask() {
-        guard validateDates() else {return}
-        guard let inputProject = validateProject(), let inputEmployee = validateEmployee() else {return}
+        guard validateDates() && validateEmployee().1 else {return}
+        guard let inputProject = validateProject() else {return}
+        let inputEmployee = validateEmployee().0
         loadingIndicator.startAnimating()
         view.isUserInteractionEnabled = false
         saveButton.isEnabled = false
@@ -257,7 +262,7 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
                     newTask.startDate = dateFormatter.date(from: startDateTF.text ?? "") ?? Date()
                     newTask.endDate = dateFormatter.date(from: endDateTF.text ?? "") ?? Calendar.current.date(byAdding: .day, value: SettingsManager.shared.defaultDaysBetween, to: Date()) ?? Date()
                     newTask.status = TaskStatus.allCases[statusSC.selectedSegmentIndex]
-                    newTask.employeeID = inputEmployee.id
+                    newTask.employeeID = inputEmployee?.id
                     
                     let savedTask = try await server.updateTask(newTask)
                     DispatchQueue.main.async {
@@ -275,7 +280,7 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
                         startDate: dateFormatter.date(from: startDateTF.text ?? "") ?? Date(),
                         endDate: dateFormatter.date(from: endDateTF.text ?? "") ?? Calendar.current.date(byAdding: .day, value: SettingsManager.shared.defaultDaysBetween, to: Date()) ?? Date(),
                         status: TaskStatus.allCases[statusSC.selectedSegmentIndex],
-                        employeeID: inputEmployee.id
+                        employeeID: inputEmployee?.id
                     )
                     let savedTask = try await server.createTask(newTask)
                     DispatchQueue.main.async {
@@ -315,9 +320,8 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
         let isWorkTimeFilled = !(workTimeTF.text?.trimmed.isBlank ?? true)
         let isStartDateFilled = !(startDateTF.text?.trimmed.isBlank ?? true)
         let isEndDateFilled = !(endDateTF.text?.trimmed.isBlank ?? true)
-        let isEmployeeFilled = !(employeeTF.text?.trimmed.isBlank ?? true)
         
-        saveButton.isEnabled = !isFieldsMatched && isTaskNameFilled && isProjectFilled && isWorkTimeFilled && isStartDateFilled && isEndDateFilled && isEmployeeFilled
+        saveButton.isEnabled = !isFieldsMatched && isTaskNameFilled && isProjectFilled && isWorkTimeFilled && isStartDateFilled && isEndDateFilled
     }
     
     override func viewDidLoad() {
