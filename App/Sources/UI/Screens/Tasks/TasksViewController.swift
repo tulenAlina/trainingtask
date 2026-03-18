@@ -100,6 +100,7 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
     func didAddTask(_ task: TaskEntity) {
         tasks.append(task)
         taskTable.insertRows(at: [IndexPath(row: tasks.count-1, section: 0)], with: .automatic)
+        updateEmptyState()
     }
     
     func didUpdateTask(_ task: TaskEntity) {
@@ -114,8 +115,21 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
         tasks = Array(allTasks.prefix(SettingsManager.shared.maxRecords))
         DispatchQueue.main.async {
             self.taskTable.reloadData()
+            self.updateEmptyState()
             self.loadingIndicator.stopAnimating()
             self.view.isUserInteractionEnabled = true
+        }
+    }
+    
+    private func updateEmptyState() {
+        if tasks.isEmpty {
+            let label = UILabel()
+            label.text = "Нет задач"
+            label.textAlignment = .center
+            label.textColor = .gray
+            taskTable.backgroundView = label
+        } else {
+            taskTable.backgroundView = nil
         }
     }
     

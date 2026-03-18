@@ -75,6 +75,7 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
     func didAddProject(_ project: ProjectEntity) {
         projects.append(project)
         projectTable.insertRows(at: [IndexPath(row: projects.count-1, section: 0)], with: .automatic)
+        updateEmptyState()
     }
     
     func didUpdateProject(_ project: ProjectEntity) {
@@ -89,10 +90,24 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
         projects = Array(allProjects.prefix(SettingsManager.shared.maxRecords))
         DispatchQueue.main.async {
             self.projectTable.reloadData()
+            self.updateEmptyState()
             self.loadingIndicator.stopAnimating()
             self.view.isUserInteractionEnabled = true
         }
     }
+    
+    private func updateEmptyState() {
+        if projects.isEmpty {
+            let label = UILabel()
+            label.text = "Нет проектов"
+            label.textAlignment = .center
+            label.textColor = .gray
+            projectTable.backgroundView = label
+        } else {
+            projectTable.backgroundView = nil
+        }
+    }
+    
     
     @objc private func refreshView() {
         Task {

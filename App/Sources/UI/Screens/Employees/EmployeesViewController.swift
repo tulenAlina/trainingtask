@@ -70,8 +70,21 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
         employees = Array(allEmployees.prefix(SettingsManager.shared.maxRecords))
         DispatchQueue.main.async {
             self.employeeTable.reloadData()
+            self.updateEmptyState()
             self.loadingIndicator.stopAnimating()
             self.view.isUserInteractionEnabled = true
+        }
+    }
+    
+    private func updateEmptyState() {
+        if employees.isEmpty {
+            let label = UILabel()
+            label.text = "Нет сотрудников"
+            label.textAlignment = .center
+            label.textColor = .gray
+            employeeTable.backgroundView = label
+        } else {
+            employeeTable.backgroundView = nil
         }
     }
     
@@ -99,6 +112,7 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
     func didAddEmployee(_ employee: EmployeeEntity) {
         employees.append(employee)
         employeeTable.insertRows(at: [IndexPath(row: employees.count-1, section: 0)], with: .automatic)
+        updateEmptyState()
     }
     
     func didUpdateEmployee(_ employee: EmployeeEntity) {
