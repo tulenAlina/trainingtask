@@ -50,10 +50,10 @@ final class EditEmployeeViewController: UIViewController {
             do {
                 if let employee {
                     var newEmployee = employee
-                    newEmployee.firstName = firstNameTF.text ?? ""
-                    newEmployee.lastName = lastNameTF.text ?? ""
-                    newEmployee.surName = surNameTF.text ?? nil
-                    newEmployee.position = positionTF.text ?? ""
+                    newEmployee.firstName = firstNameTF.text?.trimmed ?? ""
+                    newEmployee.lastName = lastNameTF.text?.trimmed ?? ""
+                    newEmployee.surName = surNameTF.text?.trimmed ?? nil
+                    newEmployee.position = positionTF.text?.trimmed ?? ""
                     let savedEmployee = try await server.updateEmployee(newEmployee)
                     DispatchQueue.main.async {
                         self.delegate?.didUpdateEmployee(savedEmployee)
@@ -64,10 +64,10 @@ final class EditEmployeeViewController: UIViewController {
                     }
                 } else {
                     let newEmployee = EmployeeEntity(
-                        firstName: firstNameTF.text ?? "",
-                        lastName: lastNameTF.text ?? "",
-                        surName: surNameTF.text ?? nil,
-                        position: positionTF.text ?? ""
+                        firstName: firstNameTF.text?.trimmed ?? "",
+                        lastName: lastNameTF.text?.trimmed ?? "",
+                        surName: surNameTF.text?.trimmed ?? nil,
+                        position: positionTF.text?.trimmed ?? ""
                     )
                     let savedEmployee = try await server.createEmployee(newEmployee)
                     DispatchQueue.main.async {
@@ -88,6 +88,18 @@ final class EditEmployeeViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
+    @objc private func updateSaveButtonState() {
+        var isFieldsMatched = false
+        if let employee {
+            isFieldsMatched = (firstNameTF.text?.trimmed ?? "" == employee.firstName.trimmed) && (lastNameTF.text?.trimmed ?? "" == employee.lastName.trimmed) && (surNameTF.text?.trimmed ?? "" == employee.surName?.trimmed ?? "") && (positionTF.text?.trimmed ?? "" == employee.position.trimmed)
+        }
+        let isFirstnameFilled = !(firstNameTF.text?.trimmed.isBlank ?? true)
+        let isLastnameFilled = !(lastNameTF.text?.trimmed.isBlank ?? true)
+        let isPositionFilled = !(positionTF.text?.trimmed.isBlank ?? true)
+        
+        saveButton.isEnabled = !isFieldsMatched && isFirstnameFilled && isLastnameFilled && isPositionFilled
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -97,6 +109,7 @@ final class EditEmployeeViewController: UIViewController {
         cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancellView))
         navigationItem.leftBarButtonItem = cancelButton
         navigationItem.rightBarButtonItem = saveButton
+        saveButton.isEnabled = false
         
         setupTextFields()
         
@@ -126,5 +139,10 @@ final class EditEmployeeViewController: UIViewController {
             positionTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             positionTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
+        
+        firstNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        lastNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        surNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        positionTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
     }
 }

@@ -1,11 +1,22 @@
 import UIKit
 
 //TODO: Добавить валидацию
-final class SettingsViewController: UIViewController {
+final class SettingsViewController: UIViewController, UITextFieldDelegate {
     
     private var serverUrlTF = UITextField()
     private var maxRecordsTF = UITextField()
     private var defaultDaysBetweenTF = UITextField()
+    private var saveButton: UIBarButtonItem!
+    private var cancelButton: UIBarButtonItem!
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if textField == maxRecordsTF || textField == defaultDaysBetweenTF {
+            let allowedCharacters = CharacterSet.decimalDigits
+            let characterSet = CharacterSet(charactersIn: string)
+            return allowedCharacters.isSuperset(of: characterSet)
+        }
+        return true
+    }
     
     private func setupTextFields() {
         serverUrlTF.placeholder = "Введите url сервера"
@@ -14,10 +25,12 @@ final class SettingsViewController: UIViewController {
         
         maxRecordsTF.placeholder = "Введите максимальное количество записей в списках"
         maxRecordsTF.keyboardType = .numberPad
+        maxRecordsTF.delegate = self
         maxRecordsTF.translatesAutoresizingMaskIntoConstraints = false
         
         defaultDaysBetweenTF.placeholder = "Введите количество дней между начальной и конечной датами в задаче"
         defaultDaysBetweenTF.keyboardType = .numberPad
+        defaultDaysBetweenTF.delegate = self
         defaultDaysBetweenTF.translatesAutoresizingMaskIntoConstraints = false
         
         loadCurrentSettings()
@@ -44,13 +57,21 @@ final class SettingsViewController: UIViewController {
         view.endEditing(true)
     }
     
+    @objc private func updateSaveButtonState() {
+        let isURLFilled = !(serverUrlTF.text?.trimmed.isBlank ?? true)
+        let isMaxRecordsFilled = !(maxRecordsTF.text?.trimmed.isBlank ?? true)
+        let isDefaultDaysBetweenFilled = !(defaultDaysBetweenTF.text?.trimmed.isBlank ?? true)
+        
+        saveButton.isEnabled = isURLFilled && isMaxRecordsFilled && isDefaultDaysBetweenFilled
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         title = "Настройки"
         
-        let saveButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(saveSettings))
-        let cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancellView))
+        saveButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(saveSettings))
+        cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancellView))
         navigationItem.leftBarButtonItem = cancelButton
         navigationItem.rightBarButtonItem = saveButton
         
@@ -77,5 +98,9 @@ final class SettingsViewController: UIViewController {
             defaultDaysBetweenTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             defaultDaysBetweenTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
+        
+        serverUrlTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        maxRecordsTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        defaultDaysBetweenTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
     }
 }

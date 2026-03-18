@@ -1,6 +1,6 @@
 import UIKit
 
-final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDelegate {
+final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDelegate, UITextFieldDelegate {
     
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private var task: TaskEntity? = nil
@@ -86,7 +86,7 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
             return projects[row].projectName
         } else {
             let emp = employees[row]
-            return "\(emp.lastName) \(emp.firstName) \(emp.surName ?? "")"
+            return "\(emp.lastName) \(emp.firstName) \(emp.surName ?? "")".trimmed
         }
     }
     
@@ -96,9 +96,55 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
             view.endEditing(true)
         } else {
             let emp = employees[row]
-            employeeTF.text = "\(emp.lastName) \(emp.firstName)"
+            employeeTF.text = "\(emp.lastName) \(emp.firstName) \(emp.surName ?? "")".trimmed
             view.endEditing(true)
         }
+        updateSaveButtonState()
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if textField == workTimeTF {
+            let allowedCharacters = CharacterSet.decimalDigits
+            let characterSet = CharacterSet(charactersIn: string)
+            return allowedCharacters.isSuperset(of: characterSet)
+        }
+        return true
+    }
+    
+    private func validateDates() -> Bool{
+        guard let startDate = dateFormatter.date(from: startDateTF.text ?? ""),
+              let endDate = dateFormatter.date(from: endDateTF.text ?? "")
+        else {
+            showAlert("Неверный формат даты")
+            return false
+        }
+        
+        guard endDate >= startDate else {
+            showAlert("Дата окончания должна быть позже даты начала")
+            return false
+        }
+        return true
+    }
+    
+    private func validateProject() -> ProjectEntity?{
+        guard let inputProject = projects.first(where: {$0.projectName.trimmed == projectTF.text?.trimmed ?? ""})
+        else {
+            showAlert("Выберите проект из списка")
+            return nil
+        }
+        return inputProject
+    }
+    
+    private func validateEmployee() -> EmployeeEntity? {
+        guard let inputEmployee = employees.first(where: {emp in
+            let fio = "\(emp.lastName) \(emp.firstName) \(emp.surName ?? "")".trimmed
+            return fio == employeeTF.text?.trimmed ?? ""
+        })
+        else {
+            showAlert("Выберите сотрудника из списка")
+            return nil
+        }
+        return inputEmployee
     }
     
     private func loadData() async {
@@ -154,18 +200,20 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
             
             workTimeTF = UITextField.create(text: "\(task.workTime)", placeholder: "Введите количество часов", isEdit: isEdit)
             workTimeTF.keyboardType = .numberPad
+            workTimeTF.delegate = self
             
-            startDateTF = UITextField.create(text: dateFormatter.string(from: task.startDate), placeholder: "Введите дату начала",  isEdit: isEdit)
-            endDateTF = UITextField.create(text: dateFormatter.string(from: task.endDate), placeholder: "Введите дату окончания", isEdit: isEdit)
+            startDateTF = UITextField.create(text: dateFormatter.string(from: task.startDate), placeholder: "Введите дату начала (ГГГГ-ММ-ДД)",  isEdit: isEdit)
+            endDateTF = UITextField.create(text: dateFormatter.string(from: task.endDate), placeholder: "Введите дату окончания (ГГГГ-ММ-ДД)", isEdit: isEdit)
             var fio: String = ""
             if let emp = employees.first(where: {$0.id == task.employeeID}) {
-                fio = "\(emp.lastName) \(emp.firstName) \(emp.surName ?? "")"
+                fio = "\(emp.lastName) \(emp.firstName) \(emp.surName ?? "")".trimmed
             }
             employeeTF = UITextField.create(text: "\(fio)", placeholder: "Выберите сотрудника", isEdit: isEdit)
         } else {
             if let contextProject {
-                projectTF = UITextField.create(text: "\(contextProject.projectName)", placeholder: "Выберите проект", isEdit: isEdit)
+                projectTF = UITextField.create(text: "\(contextProject.projectName)", placeholder: "Выберите проект", isEdit: !isEdit)
                 projectTF.isEnabled = false
+                projectTF.textColor = .lightGray
             } else {
                 projectTF = UITextField.create(placeholder: "Выберите проект", isEdit: isEdit)
             }
@@ -173,9 +221,10 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
             
             workTimeTF = UITextField.create(placeholder: "Введите количество часов", isEdit: isEdit)
             workTimeTF.keyboardType = .numberPad
+            workTimeTF.delegate = self
             
-            startDateTF = UITextField.create(text: dateFormatter.string(from: Date()), placeholder: "Введите дату начала", isEdit: !isEdit)
-            endDateTF = UITextField.create(text: dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: SettingsManager.shared.defaultDaysBetween, to: Date()) ?? Date()), placeholder: "Введите дату окончания", isEdit: !isEdit)
+            startDateTF = UITextField.create(text: dateFormatter.string(from: Date()), placeholder: "Введите дату начала (ГГГГ-ММ-ДД)", isEdit: !isEdit)
+            endDateTF = UITextField.create(text: dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: SettingsManager.shared.defaultDaysBetween, to: Date()) ?? Date()), placeholder: "Введите дату окончания (ГГГГ-ММ-ДД)", isEdit: !isEdit)
             employeeTF = UITextField.create(placeholder: "Выберите сотрудника", isEdit: isEdit)
         }
     }
@@ -188,9 +237,13 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
         } else if sender == endDatePicker {
             endDateTF.text = dateString
         }
+        
+        updateSaveButtonState()
     }
     
     @objc private func saveTask() {
+        guard validateDates() else {return}
+        guard let inputProject = validateProject(), let inputEmployee = validateEmployee() else {return}
         loadingIndicator.startAnimating()
         view.isUserInteractionEnabled = false
         saveButton.isEnabled = false
@@ -198,14 +251,13 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
             do {
                 if let task {
                     var newTask = task
-                    newTask.taskName = taskNameTF.text ?? ""
-                    newTask.projectID = projects[projectPV.selectedRow(inComponent: 0)].id
+                    newTask.taskName = taskNameTF.text?.trimmed ?? ""
+                    newTask.projectID = inputProject.id
                     newTask.workTime = Int(workTimeTF.text ?? "") ?? 0
                     newTask.startDate = dateFormatter.date(from: startDateTF.text ?? "") ?? Date()
-                    newTask.endDate = dateFormatter.date(from: endDateTF.text ?? "") ?? Date()
-                    //TODO: поменять конечную дату
+                    newTask.endDate = dateFormatter.date(from: endDateTF.text ?? "") ?? Calendar.current.date(byAdding: .day, value: SettingsManager.shared.defaultDaysBetween, to: Date()) ?? Date()
                     newTask.status = TaskStatus.allCases[statusSC.selectedSegmentIndex]
-                    newTask.employeeID = employees[employeePV.selectedRow(inComponent: 0)].id
+                    newTask.employeeID = inputEmployee.id
                     
                     let savedTask = try await server.updateTask(newTask)
                     DispatchQueue.main.async {
@@ -217,14 +269,13 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
                     }
                 } else {
                     let newTask = TaskEntity(
-                        taskName: taskNameTF.text ?? "",
-                        projectID: projects[projectPV.selectedRow(inComponent: 0)].id,
+                        taskName: taskNameTF.text?.trimmed ?? "",
+                        projectID: inputProject.id,
                         workTime: Int(workTimeTF.text ?? "") ?? 0,
                         startDate: dateFormatter.date(from: startDateTF.text ?? "") ?? Date(),
-                        endDate: dateFormatter.date(from: endDateTF.text ?? "") ?? Date(),
-                        //TODO: поменять конечную дату
+                        endDate: dateFormatter.date(from: endDateTF.text ?? "") ?? Calendar.current.date(byAdding: .day, value: SettingsManager.shared.defaultDaysBetween, to: Date()) ?? Date(),
                         status: TaskStatus.allCases[statusSC.selectedSegmentIndex],
-                        employeeID: employees[employeePV.selectedRow(inComponent: 0)].id
+                        employeeID: inputEmployee.id
                     )
                     let savedTask = try await server.createTask(newTask)
                     DispatchQueue.main.async {
@@ -249,6 +300,26 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
         view.endEditing(true)
     }
     
+    @objc private func updateSaveButtonState() {
+        var isFieldsMatched = false
+        if let task {
+            var empFio: String = ""
+            if let emp = employees.first(where: {$0.id == task.employeeID}) {
+                empFio = "\(emp.lastName) \(emp.firstName) \(emp.surName ?? "")".trimmed
+            }
+            
+            isFieldsMatched = (taskNameTF.text?.trimmed ?? "" == task.taskName.trimmed) && (projectTF.text?.trimmed ?? "" == projects.first {$0.id == task.projectID}?.projectName.trimmed ?? "") && (Int(workTimeTF.text?.trimmed ?? "") ?? 0 == task.workTime) && (startDateTF.text?.trimmed ?? "" == dateFormatter.string(from: task.startDate)) && (endDateTF.text?.trimmed ?? "" == dateFormatter.string(from: task.endDate) && employeeTF.text?.trimmed ?? "" == empFio) && (statusSC.selectedSegmentIndex == TaskStatus.allCases.firstIndex { $0 == task.status } ?? 0)
+        }
+        let isTaskNameFilled = !(taskNameTF.text?.trimmed.isBlank ?? true)
+        let isProjectFilled = !(projectTF.text?.trimmed.isBlank ?? true)
+        let isWorkTimeFilled = !(workTimeTF.text?.trimmed.isBlank ?? true)
+        let isStartDateFilled = !(startDateTF.text?.trimmed.isBlank ?? true)
+        let isEndDateFilled = !(endDateTF.text?.trimmed.isBlank ?? true)
+        let isEmployeeFilled = !(employeeTF.text?.trimmed.isBlank ?? true)
+        
+        saveButton.isEnabled = !isFieldsMatched && isTaskNameFilled && isProjectFilled && isWorkTimeFilled && isStartDateFilled && isEndDateFilled && isEmployeeFilled
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -258,6 +329,7 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
         cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancellView))
         navigationItem.leftBarButtonItem = cancelButton
         navigationItem.rightBarButtonItem = saveButton
+        saveButton.isEnabled = false
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissObjects))
         tapGesture.cancelsTouchesInView = false
@@ -271,14 +343,12 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
         view.addSubview(loadingIndicator)
         loadingIndicator.startAnimating()
         view.isUserInteractionEnabled = false
-        saveButton.isEnabled = false
         
         Task {
             await loadData()
             await MainActor.run {
                 loadingIndicator.stopAnimating()
                 view.isUserInteractionEnabled = true
-                saveButton.isEnabled = true
                 setupTextFields()
                 setupPickerView(projectPV, for: projectTF)
                 setupPickerView(employeePV, for: employeeTF)
@@ -323,6 +393,16 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
                     employeeTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
                     
                 ])
+                
+                taskNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+                projectTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+                workTimeTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+                startDateTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+                endDateTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+                employeeTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+                statusSC.addTarget(self, action: #selector(updateSaveButtonState), for: .valueChanged)
+                
+                updateSaveButtonState()
             }
         }
     }

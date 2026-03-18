@@ -43,8 +43,8 @@ final class EditProjectViewController: UIViewController {
             do {
                 if let project {
                     var newProject = project
-                    newProject.projectName = projectNameTF.text ?? ""
-                    newProject.description = projectDescriptionTF.text ?? ""
+                    newProject.projectName = projectNameTF.text?.trimmed ?? ""
+                    newProject.description = projectDescriptionTF.text?.trimmed ?? ""
                     let savedProject = try await server.updateProject(newProject)
                     DispatchQueue.main.async {
                         self.delegate?.didUpdateProject(savedProject)
@@ -55,8 +55,8 @@ final class EditProjectViewController: UIViewController {
                     }
                 } else {
                     let newProject = ProjectEntity(
-                        projectName: projectNameTF.text ?? "",
-                        description: projectDescriptionTF.text ?? ""
+                        projectName: projectNameTF.text?.trimmed ?? "",
+                        description: projectDescriptionTF.text?.trimmed ?? ""
                     )
                     let savedProject = try await server.createProject(newProject)
                     DispatchQueue.main.async {
@@ -80,6 +80,17 @@ final class EditProjectViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
+    @objc private func updateSaveButtonState() {
+        var isFieldsMatched = false
+        if let project {
+            isFieldsMatched = (projectNameTF.text?.trimmed ?? "" == project.projectName.trimmed) && (projectDescriptionTF.text?.trimmed ?? "" == project.description.trimmed)
+        }
+        let isNameFilled = !(projectNameTF.text?.trimmed.isBlank ?? true)
+        let isDescriptionFilled = !(projectDescriptionTF.text?.trimmed.isBlank ?? true)
+        
+        saveButton.isEnabled = !isFieldsMatched && isNameFilled && isDescriptionFilled
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -89,6 +100,7 @@ final class EditProjectViewController: UIViewController {
         cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancellView))
         navigationItem.leftBarButtonItem = cancelButton
         navigationItem.rightBarButtonItem = saveButton
+        saveButton.isEnabled = false
         
         loadingIndicator.hidesWhenStopped = true
         loadingIndicator.center = view.center
@@ -108,5 +120,8 @@ final class EditProjectViewController: UIViewController {
             projectDescriptionTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             projectDescriptionTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
+        
+        projectNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        projectDescriptionTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
     }
 }
