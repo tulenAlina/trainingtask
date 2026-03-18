@@ -10,6 +10,7 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
     private let project: ProjectEntity?
     private let server = ServerManager.shared.currentServer
     private var tasks: [TaskEntity] = []
+    private var projects: [ProjectEntity] = []
     private let taskTable = UITableView()
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     
@@ -33,9 +34,14 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TaskCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "TaskCell")
-        cell.textLabel?.text = tasks[indexPath.row].taskName
-        cell.detailTextLabel?.text = project?.projectName
         let task = tasks[indexPath.row]
+        cell.textLabel?.text = task.taskName
+        
+        if project == nil {
+            let projectName = projects.first(where: {$0.id == task.projectID})?.projectName
+            cell.detailTextLabel?.text = projectName
+        }
+        
         switch task.status {
         case .notStarted:
             cell.imageView?.image = UIImage(systemName: "circle")
@@ -112,6 +118,9 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
     
     private func loadTasks() async throws {
         let allTasks = try await server.fetchTasks(projectID: project?.id)
+        if project == nil {
+            projects = try await server.fetchProjects()
+        }
         tasks = Array(allTasks.prefix(SettingsManager.shared.maxRecords))
         DispatchQueue.main.async {
             self.taskTable.reloadData()
