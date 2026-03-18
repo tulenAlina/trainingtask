@@ -10,28 +10,28 @@ final class SettingsManager {
     
     var serverURL: String {
         get {
-            UserDefaults.standard.string(forKey: "serverURL") ?? ""
+            UserDefaults.standard.string(forKey: UserDefaultsKeys.serverURL) ?? ""
         }
         set {
-            UserDefaults.standard.set(newValue, forKey: "serverURL")
+            UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.serverURL)
         }
     }
     
     var maxRecords: Int {
         get {
-            UserDefaults.standard.integer(forKey: "maxRecords")
+            UserDefaults.standard.integer(forKey: UserDefaultsKeys.maxRecords)
         }
         set {
-            UserDefaults.standard.set(newValue, forKey: "maxRecords")
+            UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.maxRecords)
         }
     }
     
     var defaultDaysBetween: Int {
         get {
-            UserDefaults.standard.integer(forKey: "defaultDaysBetween")
+            UserDefaults.standard.integer(forKey: UserDefaultsKeys.defaultDaysBetween)
         }
         set {
-            UserDefaults.standard.set(newValue, forKey: "defaultDaysBetween")
+            UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.defaultDaysBetween)
         }
     }
     
@@ -47,9 +47,9 @@ final class SettingsManager {
     
     private func registerDefaults() {
         let defaultValues: [String: Any] = [
-            "serverURL" : config?["serverURL"] as? String ?? "",
-            "maxRecords" : config?["maxRecords"] as? Int ?? 0,
-            "defaultDaysBetween" : config?["defaultDaysBetween"] as? Int ?? 0
+            UserDefaultsKeys.serverURL : config?["serverURL"] as? String ?? "",
+            UserDefaultsKeys.maxRecords : config?["maxRecords"] as? Int ?? 0,
+            UserDefaultsKeys.defaultDaysBetween : config?["defaultDaysBetween"] as? Int ?? 0
         ]
         UserDefaults.standard.register(defaults: defaultValues)
     }
