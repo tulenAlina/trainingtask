@@ -6,6 +6,9 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate {
     private var serverUrlTF = UITextField()
     private var maxRecordsTF = UITextField()
     private var defaultDaysBetweenTF = UITextField()
+    private var serverUrlLabel = UILabel()
+    private var maxRecordsLabel = UILabel()
+    private var defaultDaysBetweenLabel = UILabel()
     private var saveButton: UIBarButtonItem!
     private var cancelButton: UIBarButtonItem!
     
@@ -21,19 +24,38 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate {
     private func setupTextFields() {
         serverUrlTF.placeholder = "Введите url сервера"
         serverUrlTF.keyboardType = .URL
+        serverUrlTF.textColor = .darkGray
         serverUrlTF.translatesAutoresizingMaskIntoConstraints = false
         
         maxRecordsTF.placeholder = "Введите максимальное количество записей в списках"
         maxRecordsTF.keyboardType = .numberPad
+        maxRecordsTF.textColor = .darkGray
         maxRecordsTF.delegate = self
         maxRecordsTF.translatesAutoresizingMaskIntoConstraints = false
         
         defaultDaysBetweenTF.placeholder = "Введите количество дней между начальной и конечной датами в задаче"
         defaultDaysBetweenTF.keyboardType = .numberPad
+        defaultDaysBetweenTF.textColor = .darkGray
         defaultDaysBetweenTF.delegate = self
         defaultDaysBetweenTF.translatesAutoresizingMaskIntoConstraints = false
         
         loadCurrentSettings()
+    }
+    
+    private func setupLabels() {
+        serverUrlLabel.text = "URL сервера:"
+        serverUrlLabel.font = UIFont.boldSystemFont(ofSize: serverUrlLabel.font.pointSize)
+        serverUrlLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        maxRecordsLabel.text = "Максимальное количество записей в списках:"
+        maxRecordsLabel.font = UIFont.boldSystemFont(ofSize: serverUrlLabel.font.pointSize)
+        maxRecordsLabel.numberOfLines = 0
+        maxRecordsLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        defaultDaysBetweenLabel.text = "Количество дней по умолчанию между начальной и конечной датами в задаче:"
+        defaultDaysBetweenLabel.font = UIFont.boldSystemFont(ofSize: serverUrlLabel.font.pointSize)
+        defaultDaysBetweenLabel.numberOfLines = 0
+        defaultDaysBetweenLabel.translatesAutoresizingMaskIntoConstraints = false
     }
     
     private func loadCurrentSettings() {
@@ -80,21 +102,37 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate {
         view.addGestureRecognizer(tapGesture)
         
         setupTextFields()
+        setupLabels()
         
+        view.addSubview(serverUrlLabel)
         view.addSubview(serverUrlTF)
+        view.addSubview(maxRecordsLabel)
         view.addSubview(maxRecordsTF)
+        view.addSubview(defaultDaysBetweenLabel)
         view.addSubview(defaultDaysBetweenTF)
         
         NSLayoutConstraint.activate([
-            serverUrlTF.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            serverUrlLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            serverUrlLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            serverUrlLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            serverUrlTF.topAnchor.constraint(equalTo: serverUrlLabel.bottomAnchor, constant: 5),
             serverUrlTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             serverUrlTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            maxRecordsTF.topAnchor.constraint(equalTo: serverUrlTF.bottomAnchor, constant: 30),
+            maxRecordsLabel.topAnchor.constraint(equalTo: serverUrlTF.bottomAnchor, constant: 30),
+            maxRecordsLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            maxRecordsLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            maxRecordsTF.topAnchor.constraint(equalTo: maxRecordsLabel.bottomAnchor, constant: 5),
             maxRecordsTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             maxRecordsTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            defaultDaysBetweenTF.topAnchor.constraint(equalTo: maxRecordsTF.bottomAnchor, constant: 30),
+            defaultDaysBetweenLabel.topAnchor.constraint(equalTo: maxRecordsTF.bottomAnchor, constant: 30),
+            defaultDaysBetweenLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            defaultDaysBetweenLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            defaultDaysBetweenTF.topAnchor.constraint(equalTo: defaultDaysBetweenLabel.bottomAnchor, constant: 5),
             defaultDaysBetweenTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             defaultDaysBetweenTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
