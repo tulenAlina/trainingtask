@@ -246,9 +246,10 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
     }
     
     @objc private func saveTask() {
-        guard validateDates() && validateEmployee().1 else {return}
+        let isValidateEmployee = validateEmployee()
+        guard validateDates() && isValidateEmployee.1 else {return}
         guard let inputProject = validateProject() else {return}
-        let inputEmployee = validateEmployee().0
+        let inputEmployee = isValidateEmployee.0
         loadingIndicator.startAnimating()
         view.isUserInteractionEnabled = false
         saveButton.isEnabled = false
