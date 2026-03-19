@@ -25,8 +25,8 @@ final class SplashViewController: UIViewController {
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         versionLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        if let version = loadVersion() {
-            versionLabel.text = version
+        if let version = loadVersion()?.replacingOccurrences(of: "version=", with: "") {
+            versionLabel.text = "Версия \(version)"
         }
         
         view.addSubview(nameLabel)
