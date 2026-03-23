@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "filename" : "png-clipart-computer-icons-task-task-icon-text-rectangle-thumbnail.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -12,6 +13,7 @@
           "value" : "dark"
         }
       ],
+      "filename" : "png-clipart-computer-icons-task-task-icon-text-rectangle-thumbnail 1.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -23,6 +25,7 @@
           "value" : "tinted"
         }
       ],
+      "filename" : "png-clipart-computer-icons-task-task-icon-text-rectangle-thumbnail 2.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
