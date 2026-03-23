@@ -89,7 +89,7 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate {
         view.backgroundColor = .white
         title = "Настройки"
         
-        saveButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(saveSettings))
+        saveButton = UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(saveSettings))
         cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancellView))
         navigationItem.leftBarButtonItem = cancelButton
         navigationItem.rightBarButtonItem = saveButton
