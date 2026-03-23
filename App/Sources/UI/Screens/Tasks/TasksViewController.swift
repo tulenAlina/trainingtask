@@ -5,12 +5,16 @@ protocol TasksViewControllerDelegate: AnyObject {
     func didUpdateTask(_ task: TaskEntity)
 }
 
+extension TasksViewControllerDelegate {
+    func didAddTask(_ task: TaskEntity) {}
+}
 
 final class TasksViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, TasksViewControllerDelegate {
     private let project: ProjectEntity?
     private let server = ServerManager.shared.currentServer
     private var tasks: [TaskEntity] = []
     private var projects: [ProjectEntity] = []
+    private var employees: [EmployeeEntity] = []
     private let taskTable = UITableView()
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     
@@ -102,6 +106,23 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
         return UISwipeActionsConfiguration(actions: [deleteAction, editAction])
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let task = tasks[indexPath.row]
+        let currentProject: ProjectEntity?
+        var isContextProject = false
+        if let project {
+            currentProject = project
+            isContextProject = true
+        } else {
+            currentProject = projects.first { $0.id == task.projectID }
+        }
+        let currentEmployee = employees.first { $0.id == task.employeeID }
+        let detailViewController = TaskDetailViewController(task: task, project: currentProject, employee: currentEmployee, isContextProject: isContextProject)
+        detailViewController.delegate = self
+        navigationController?.pushViewController(detailViewController, animated: true)
+    }
+    
     func didAddTask(_ task: TaskEntity) {
         tasks.append(task)
         taskTable.insertRows(at: [IndexPath(row: tasks.count-1, section: 0)], with: .automatic)
@@ -120,6 +141,7 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
         if project == nil {
             projects = try await server.fetchProjects()
         }
+        employees = try await server.fetchEmployees()
         tasks = Array(allTasks.prefix(SettingsManager.shared.maxRecords))
         DispatchQueue.main.async {
             self.taskTable.reloadData()
