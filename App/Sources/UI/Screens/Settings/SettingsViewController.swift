@@ -3,9 +3,9 @@ import UIKit
 //TODO: Добавить валидацию
 final class SettingsViewController: UIViewController, UITextFieldDelegate {
     
-    private var serverUrlTF = UITextField()
-    private var maxRecordsTF = UITextField()
-    private var defaultDaysBetweenTF = UITextField()
+    private var serverUrlTF: UITextField!
+    private var maxRecordsTF: UITextField!
+    private var defaultDaysBetweenTF: UITextField!
     private var serverUrlLabel = UILabel()
     private var maxRecordsLabel = UILabel()
     private var defaultDaysBetweenLabel = UILabel()
@@ -22,20 +22,17 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate {
     }
     
     private func setupTextFields() {
-        serverUrlTF.placeholder = "Введите url сервера"
+        serverUrlTF = UITextField.create(placeholder: "Введите url сервера")
         serverUrlTF.keyboardType = .URL
-        serverUrlTF.textColor = .darkGray
         serverUrlTF.translatesAutoresizingMaskIntoConstraints = false
         
-        maxRecordsTF.placeholder = "Введите максимальное количество записей в списках"
+        maxRecordsTF = UITextField.create(placeholder: "Введите максимальное количество записей в списках")
         maxRecordsTF.keyboardType = .numberPad
-        maxRecordsTF.textColor = .darkGray
         maxRecordsTF.delegate = self
         maxRecordsTF.translatesAutoresizingMaskIntoConstraints = false
         
-        defaultDaysBetweenTF.placeholder = "Введите количество дней между начальной и конечной датами в задаче"
+        defaultDaysBetweenTF = UITextField.create(placeholder: "Введите количество дней между начальной и конечной датами в задаче")
         defaultDaysBetweenTF.keyboardType = .numberPad
-        defaultDaysBetweenTF.textColor = .darkGray
         defaultDaysBetweenTF.delegate = self
         defaultDaysBetweenTF.translatesAutoresizingMaskIntoConstraints = false
         
