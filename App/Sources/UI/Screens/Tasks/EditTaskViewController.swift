@@ -298,10 +298,6 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
         }
     }
     
-    @objc private func cancellView() {
-        navigationController?.popViewController(animated: true)
-    }
-    
     @objc private func dismissObjects() {
         view.endEditing(true)
     }
@@ -328,11 +324,9 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        title = (task != nil) ? "Редактирование задачи" : "Добавление задачи"
+        title = (task != nil) ? "Редактирование" : "Cоздание"
         
-        saveButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(saveTask))
-        cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancellView))
-        navigationItem.leftBarButtonItem = cancelButton
+        saveButton = UIBarButtonItem(title: "Сохранить", style: .done, target: self, action: #selector(saveTask))
         navigationItem.rightBarButtonItem = saveButton
         saveButton.isEnabled = false
         

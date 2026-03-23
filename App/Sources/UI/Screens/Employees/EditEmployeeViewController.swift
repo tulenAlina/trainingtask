@@ -84,10 +84,6 @@ final class EditEmployeeViewController: UIViewController {
         }
     }
     
-    @objc private func cancellView() {
-        navigationController?.popViewController(animated: true)
-    }
-    
     @objc private func updateSaveButtonState() {
         var isFieldsMatched = false
         if let employee {
@@ -103,11 +99,9 @@ final class EditEmployeeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        title = (employee != nil) ? "Редактирование сотрудника" : "Добавление сотрудника"
+        title = (employee != nil) ? "Редактирование" : "Создание"
         
-        saveButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(saveEmployee))
-        cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancellView))
-        navigationItem.leftBarButtonItem = cancelButton
+        saveButton = UIBarButtonItem(title: "Сохранить", style: .done, target: self, action: #selector(saveEmployee))
         navigationItem.rightBarButtonItem = saveButton
         saveButton.isEnabled = false
         

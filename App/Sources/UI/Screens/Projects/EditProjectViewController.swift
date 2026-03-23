@@ -76,10 +76,6 @@ final class EditProjectViewController: UIViewController {
             }
     }
     
-    @objc private func cancellView() {
-        navigationController?.popViewController(animated: true)
-    }
-    
     @objc private func updateSaveButtonState() {
         var isFieldsMatched = false
         if let project {
@@ -94,11 +90,9 @@ final class EditProjectViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        title = (project != nil) ? "Редактирование проекта" : "Добавление проекта"
+        title = (project != nil) ? "Редактирование" : "Создание"
         
-        saveButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(saveProject))
-        cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancellView))
-        navigationItem.leftBarButtonItem = cancelButton
+        saveButton = UIBarButtonItem(title: "Сохранить", style: .done, target: self, action: #selector(saveProject))
         navigationItem.rightBarButtonItem = saveButton
         saveButton.isEnabled = false
         
