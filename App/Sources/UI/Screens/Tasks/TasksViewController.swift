@@ -17,6 +17,7 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
     private var employees: [EmployeeEntity] = []
     private let taskTable = UITableView()
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
+    private let refreshControl = UIRefreshControl()
     
     init() {
             self.project = nil
@@ -167,8 +168,14 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
         Task {
             do {
                 try await loadTasks()
+                await MainActor.run {
+                    refreshControl.endRefreshing()
+                }
             } catch {
-                showAlert("Не удалось загрузить задачи")
+                await MainActor.run {
+                    refreshControl.endRefreshing()
+                    showAlert("Не удалось загрузить задачи")
+                }
             }
         }
     }
@@ -210,12 +217,14 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
             taskTable.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             taskTable.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
+        
+        refreshControl.addTarget(self, action: #selector(refreshView), for: .valueChanged)
         taskTable.dataSource = self
         taskTable.delegate = self
+        taskTable.refreshControl = refreshControl
         refreshView()
         
-        let refreshButton = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(refreshView))
         let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
-        navigationItem.rightBarButtonItems = [refreshButton, addButton]
+        navigationItem.rightBarButtonItem = addButton
     }
 }

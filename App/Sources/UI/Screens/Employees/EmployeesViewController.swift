@@ -15,6 +15,7 @@
         private let employeeTable = UITableView()
         private let server = ServerManager.shared.currentServer
         private let loadingIndicator = UIActivityIndicatorView(style: .large)
+        private let refreshControl = UIRefreshControl()
         
         func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
             return employees.count
@@ -103,8 +104,14 @@
             Task {
                 do {
                     try await loadEmployees()
+                    await MainActor.run {
+                        refreshControl.endRefreshing()
+                    }
                 } catch {
-                    showAlert("Не удалось загрузить сотрудников")
+                    await MainActor.run {
+                        refreshControl.endRefreshing()
+                        showAlert("Не удалось загрузить сотрудников")
+                    }
                 }
             }
         }
@@ -154,14 +161,16 @@
                 employeeTable.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
             ])
             
+            refreshControl.addTarget(self, action: #selector(refreshView), for: .valueChanged)
+                
             employeeTable.dataSource = self
             employeeTable.delegate = self
             employeeTable.translatesAutoresizingMaskIntoConstraints = false
+            employeeTable.refreshControl = refreshControl
             
             refreshView()
             
-            let refreshButton = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(refreshView))
             let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
-            navigationItem.rightBarButtonItems = [refreshButton, addButton]
+            navigationItem.rightBarButtonItem = addButton
         }
     }

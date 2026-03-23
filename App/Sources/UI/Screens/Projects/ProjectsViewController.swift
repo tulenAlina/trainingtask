@@ -11,6 +11,7 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
     private var projects: [ProjectEntity] = []
     private let projectTable = UITableView()
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
+    private let refreshControl = UIRefreshControl()
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return projects.count
@@ -112,8 +113,14 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
         Task {
             do {
                 try await loadProjects()
+                await MainActor.run {
+                    refreshControl.endRefreshing()
+                }
             } catch {
-                showAlert("Не удалось загрузить проекты")
+                await MainActor.run {
+                    refreshControl.endRefreshing()
+                    showAlert("Не удалось загрузить проекты")
+                }
             }
         }
     }
@@ -149,12 +156,14 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
             projectTable.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             projectTable.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
+        refreshControl.addTarget(self, action: #selector(refreshView), for: .valueChanged)
+        
         projectTable.dataSource = self
         projectTable.delegate = self
+        projectTable.refreshControl = refreshControl
         refreshView()
         
-        let refreshButton = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(refreshView))
         let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
-        navigationItem.rightBarButtonItems = [refreshButton, addButton]
+        navigationItem.rightBarButtonItem = addButton
     }
 }
