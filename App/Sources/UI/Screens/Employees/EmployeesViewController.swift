@@ -1,19 +1,19 @@
 import UIKit
 
 protocol EmployeesViewControllerDelegate: AnyObject {
-    func didAddEmployee(_ employee: EmployeeEntity)
-    func didUpdateEmployee(_ employee: EmployeeEntity)
+    func didAddEmployee(_ employee: Employee)
+    func didUpdateEmployee(_ employee: Employee)
 }
 
 extension EmployeesViewControllerDelegate {
-    func didAddEmployee(_ employee: EmployeeEntity) {}
+    func didAddEmployee(_ employee: Employee) {}
 }
 
 final class EmployeesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, EmployeesViewControllerDelegate {
     
     enum Mode {
         case normal
-        case selection(completion: (EmployeeEntity) -> Void)
+        case selection(completion: (Employee) -> Void)
     }
     
     private let mode: Mode
@@ -21,7 +21,7 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
     private let server = ServerManager.shared.currentServer
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private let refreshControl = UIRefreshControl()
-    private var employees: [EmployeeEntity] = []
+    private var employees: [Employee] = []
     
     init(mode: Mode = .normal) {
         self.mode = mode
@@ -71,7 +71,7 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
         }
     }
     
-    func didAddEmployee(_ employee: EmployeeEntity) {
+    func didAddEmployee(_ employee: Employee) {
         let maxRecords = SettingsManager.shared.maxRecords
         if employees.count >= maxRecords {
             employees.removeLast()
@@ -82,7 +82,7 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
         updateEmptyState()
     }
     
-    func didUpdateEmployee(_ employee: EmployeeEntity) {
+    func didUpdateEmployee(_ employee: Employee) {
         if let index = employees.firstIndex(where: {$0.id == employee.id}) {
             employees[index] = employee
             employeeTable.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)

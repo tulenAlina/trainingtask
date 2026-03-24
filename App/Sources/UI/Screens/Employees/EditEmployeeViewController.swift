@@ -5,7 +5,7 @@ final class EditEmployeeViewController: UIViewController {
     weak var delegate: EmployeesViewControllerDelegate?
     
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
-    private var employee: EmployeeEntity? = nil
+    private var employee: Employee? = nil
     private var firstNameTF: UITextField!
     private var lastNameTF: UITextField!
     private var surNameTF: UITextField!
@@ -17,7 +17,7 @@ final class EditEmployeeViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
-    init(_ employee: EmployeeEntity) {
+    init(_ employee: Employee) {
         self.employee = employee
         super.init(nibName: nil, bundle: nil)
     }
@@ -108,7 +108,7 @@ final class EditEmployeeViewController: UIViewController {
                         self.navigationController?.popViewController(animated: true)
                     }
                 } else {
-                    let newEmployee = EmployeeEntity(
+                    let newEmployee = Employee(
                         firstName: firstNameTF.text?.trimmed ?? "",
                         lastName: lastNameTF.text?.trimmed ?? "",
                         surName: surNameTF.text?.trimmed ?? nil,

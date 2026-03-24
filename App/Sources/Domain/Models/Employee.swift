@@ -1,6 +1,6 @@
 import Foundation
 
-struct EmployeeEntity {
+struct Employee {
     let id: UUID
     let createdAt: Date
     var firstName: String

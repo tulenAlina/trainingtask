@@ -1,20 +1,20 @@
 import UIKit
 
 protocol TasksViewControllerDelegate: AnyObject {
-    func didAddTask(_ task: TaskEntity)
-    func didUpdateTask(_ task: TaskEntity)
+    func didAddTask(_ task: ProjectTask)
+    func didUpdateTask(_ task: ProjectTask)
 }
 
 extension TasksViewControllerDelegate {
-    func didAddTask(_ task: TaskEntity) {}
+    func didAddTask(_ task: ProjectTask) {}
 }
 
 final class TasksViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, TasksViewControllerDelegate {
-    private let project: ProjectEntity?
+    private let project: Project?
     private let server = ServerManager.shared.currentServer
-    private var tasks: [TaskEntity] = []
-    private var projects: [ProjectEntity] = []
-    private var employees: [EmployeeEntity] = []
+    private var tasks: [ProjectTask] = []
+    private var projects: [Project] = []
+    private var employees: [Employee] = []
     private let taskTable = UITableView()
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private let refreshControl = UIRefreshControl()
@@ -24,7 +24,7 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
         super.init(nibName: nil, bundle: nil)
     }
         
-    init(project: ProjectEntity) {
+    init(project: Project) {
         self.project = project
         super.init(nibName: nil, bundle: nil)
     }
@@ -65,7 +65,7 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
         navigationItem.rightBarButtonItem = addButton
     }
     
-    func didAddTask(_ task: TaskEntity) {
+    func didAddTask(_ task: ProjectTask) {
         let maxRecords = SettingsManager.shared.maxRecords
         if tasks.count >= maxRecords {
             tasks.removeLast()
@@ -76,7 +76,7 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
         updateEmptyState()
     }
     
-    func didUpdateTask(_ task: TaskEntity) {
+    func didUpdateTask(_ task: ProjectTask) {
         if let index = tasks.firstIndex(where: {$0.id == task.id}) {
             tasks[index] = task
             taskTable.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
@@ -144,7 +144,7 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let task = tasks[indexPath.row]
-        let currentProject: ProjectEntity?
+        let currentProject: Project?
         var isContextProject = false
         if let project {
             currentProject = project

@@ -4,9 +4,9 @@ final class TaskDetailViewController: UIViewController, TasksViewControllerDeleg
     
     weak var delegate: TasksViewControllerDelegate?
     
-    private var task: TaskEntity
-    private var project: ProjectEntity?
-    private var employee: EmployeeEntity?
+    private var task: ProjectTask
+    private var project: Project?
+    private var employee: Employee?
     private let server = ServerManager.shared.currentServer
     private let isContextProject: Bool
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
@@ -25,7 +25,7 @@ final class TaskDetailViewController: UIViewController, TasksViewControllerDeleg
         return formatter
     }()
     
-    init(task: TaskEntity, project: ProjectEntity?, employee: EmployeeEntity?, isContextProject: Bool) {
+    init(task: ProjectTask, project: Project?, employee: Employee?, isContextProject: Bool) {
         self.task = task
         self.project = project
         self.employee = employee
@@ -89,7 +89,7 @@ final class TaskDetailViewController: UIViewController, TasksViewControllerDeleg
         navigationItem.rightBarButtonItem = changeButton
     }
     
-    func didUpdateTask(_ task: TaskEntity) {
+    func didUpdateTask(_ task: ProjectTask) {
         self.task = task
         self.delegate?.didUpdateTask(task)
         

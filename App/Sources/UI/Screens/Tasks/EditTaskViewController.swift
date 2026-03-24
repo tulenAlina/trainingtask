@@ -7,10 +7,10 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
     private let server = ServerManager.shared.currentServer
     private let dateFormatter = DateFormatter()
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
-    private var task: TaskEntity? = nil
-    private var contextProject: ProjectEntity? = nil
-    private var projects: [ProjectEntity] = []
-    private var employees: [EmployeeEntity] = []
+    private var task: ProjectTask? = nil
+    private var contextProject: Project? = nil
+    private var projects: [Project] = []
+    private var employees: [Employee] = []
     private var saveButton: UIBarButtonItem!
     private var cancelButton: UIBarButtonItem!
     private var taskNameTF: UITextField!
@@ -61,17 +61,17 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
         super.init(nibName: nil, bundle: nil)
     }
     
-    init(_ task: TaskEntity) {
+    init(_ task: ProjectTask) {
         self.task = task
         super.init(nibName: nil, bundle: nil)
     }
     
-    init(project: ProjectEntity) {
+    init(project: Project) {
         self.contextProject = project
         super.init(nibName: nil, bundle: nil)
     }
     
-    init(_ task: TaskEntity, project: ProjectEntity) {
+    init(_ task: ProjectTask, project: Project) {
         self.task = task
         self.contextProject = project
         super.init(nibName: nil, bundle: nil)
@@ -201,7 +201,7 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
         return true
     }
     
-    private func validateProject() -> ProjectEntity?{
+    private func validateProject() -> Project?{
         guard let inputProject = projects.first(where: {$0.projectName.trimmed == projectTF.text?.trimmed ?? ""})
         else {
             showAlert("Выберите проект из списка")
@@ -210,7 +210,7 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
         return inputProject
     }
     
-    private func validateEmployee() -> (EmployeeEntity?, Bool) {
+    private func validateEmployee() -> (Employee?, Bool) {
         if employeeTF.text?.trimmed.isBlank ?? true {
             return (nil, true)
         }
@@ -342,7 +342,7 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
                         self.navigationController?.popViewController(animated: true)
                     }
                 } else {
-                    let newTask = TaskEntity(
+                    let newTask = ProjectTask(
                         taskName: taskNameTF.text?.trimmed ?? "",
                         projectID: inputProject.id,
                         workTime: Int(workTimeTF.text ?? "") ?? 0,

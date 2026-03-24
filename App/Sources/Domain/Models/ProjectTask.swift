@@ -7,7 +7,7 @@ enum TaskStatus: String, CaseIterable {
     case postponed = "Отложена"
 }
 
-struct TaskEntity {
+struct ProjectTask {
     let id: UUID
     let createdAt: Date
     var taskName: String

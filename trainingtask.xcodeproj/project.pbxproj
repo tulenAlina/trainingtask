@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6FBE2C7E2F62A2AA00B02B5A /* TaskEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FBE2C7D2F62A29E00B02B5A /* TaskEntity.swift */; };
-		6FBE2C802F62A57800B02B5A /* ProjectEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FBE2C7F2F62A57300B02B5A /* ProjectEntity.swift */; };
-		6FBE2C822F62A66500B02B5A /* EmployeeEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FBE2C812F62A66000B02B5A /* EmployeeEntity.swift */; };
+		6FBE2C7E2F62A2AA00B02B5A /* ProjectTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FBE2C7D2F62A29E00B02B5A /* ProjectTask.swift */; };
+		6FBE2C802F62A57800B02B5A /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FBE2C7F2F62A57300B02B5A /* Project.swift */; };
+		6FBE2C822F62A66500B02B5A /* Employee.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FBE2C812F62A66000B02B5A /* Employee.swift */; };
 		6FBE2C842F62AA4A00B02B5A /* config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6FBE2C832F62AA4A00B02B5A /* config.plist */; };
 		6FBE2C862F62AC7300B02B5A /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FBE2C852F62AC6B00B02B5A /* Server.swift */; };
 		6FBE2C882F62B01E00B02B5A /* StubServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FBE2C872F62B01400B02B5A /* StubServer.swift */; };
@@ -28,9 +28,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		6FBE2C7D2F62A29E00B02B5A /* TaskEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskEntity.swift; sourceTree = "<group>"; };
-		6FBE2C7F2F62A57300B02B5A /* ProjectEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectEntity.swift; sourceTree = "<group>"; };
-		6FBE2C812F62A66000B02B5A /* EmployeeEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmployeeEntity.swift; sourceTree = "<group>"; };
+		6FBE2C7D2F62A29E00B02B5A /* ProjectTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectTask.swift; sourceTree = "<group>"; };
+		6FBE2C7F2F62A57300B02B5A /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
+		6FBE2C812F62A66000B02B5A /* Employee.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Employee.swift; sourceTree = "<group>"; };
 		6FBE2C832F62AA4A00B02B5A /* config.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = config.plist; path = App/Resources/config.plist; sourceTree = SOURCE_ROOT; };
 		6FBE2C852F62AC6B00B02B5A /* Server.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Server.swift; sourceTree = "<group>"; };
 		6FBE2C872F62B01400B02B5A /* StubServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubServer.swift; sourceTree = "<group>"; };
@@ -192,9 +192,9 @@
 		6FFDD0D82F618685008CED45 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				6FBE2C812F62A66000B02B5A /* EmployeeEntity.swift */,
-				6FBE2C7F2F62A57300B02B5A /* ProjectEntity.swift */,
-				6FBE2C7D2F62A29E00B02B5A /* TaskEntity.swift */,
+				6FBE2C812F62A66000B02B5A /* Employee.swift */,
+				6FBE2C7F2F62A57300B02B5A /* Project.swift */,
+				6FBE2C7D2F62A29E00B02B5A /* ProjectTask.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -329,17 +329,17 @@
 			files = (
 				6FFDD0E72F619930008CED45 /* LaunchScreen.storyboard in Sources */,
 				6FBE2CAE2F6AAE9D00B02B5A /* String+Extention.swift in Sources */,
-				6FBE2C822F62A66500B02B5A /* EmployeeEntity.swift in Sources */,
+				6FBE2C822F62A66500B02B5A /* Employee.swift in Sources */,
 				6FFDD0E12F61933E008CED45 /* AppDelegate.swift in Sources */,
 				6FFDD0E22F61933E008CED45 /* SceneDelegate.swift in Sources */,
 				6FBE2CA62F69438B00B02B5A /* SettingsManager.swift in Sources */,
 				6FBE2CAC2F698F7F00B02B5A /* UITextField+Extension.swift in Sources */,
 				6FFDD0E32F61933E008CED45 /* MainMenuViewController.swift in Sources */,
 				6FBE2CB22F6AF6D700B02B5A /* UserDefaultsKeys.swift in Sources */,
-				6FBE2C7E2F62A2AA00B02B5A /* TaskEntity.swift in Sources */,
+				6FBE2C7E2F62A2AA00B02B5A /* ProjectTask.swift in Sources */,
 				6FBE2C9B2F62EE9000B02B5A /* ServerManager.swift in Sources */,
 				6FBE2CAA2F698B1D00B02B5A /* UIViewController+Alert.swift in Sources */,
-				6FBE2C802F62A57800B02B5A /* ProjectEntity.swift in Sources */,
+				6FBE2C802F62A57800B02B5A /* Project.swift in Sources */,
 				6FBE2C862F62AC7300B02B5A /* Server.swift in Sources */,
 				6FBE2C882F62B01E00B02B5A /* StubServer.swift in Sources */,
 				6FFDD0E42F61933E008CED45 /* SplashViewController.swift in Sources */,

@@ -1,6 +1,6 @@
 import Foundation
 
-struct ProjectEntity {
+struct Project {
     let id: UUID
     let createdAt: Date
     var projectName: String

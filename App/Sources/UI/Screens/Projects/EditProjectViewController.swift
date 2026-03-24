@@ -3,7 +3,7 @@ import UIKit
 final class EditProjectViewController: UIViewController {
     weak var delegate: ProjectsViewControllerDelegate?
     
-    private var project: ProjectEntity? = nil
+    private var project: Project? = nil
     private var projectNameTF: UITextField!
     private var projectDescriptionTF: UITextField!
     private var saveButton: UIBarButtonItem!
@@ -14,7 +14,7 @@ final class EditProjectViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
-    init(_ project: ProjectEntity) {
+    init(_ project: Project) {
         self.project = project
         super.init(nibName: nil, bundle: nil)
     }
@@ -87,7 +87,7 @@ final class EditProjectViewController: UIViewController {
                         self.navigationController?.popViewController(animated: true)
                     }
                 } else {
-                    let newProject = ProjectEntity(
+                    let newProject = Project(
                         projectName: projectNameTF.text?.trimmed ?? "",
                         description: projectDescriptionTF.text?.trimmed ?? ""
                     )

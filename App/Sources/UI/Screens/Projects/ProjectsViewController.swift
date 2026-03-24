@@ -1,20 +1,20 @@
 import UIKit
 
 protocol ProjectsViewControllerDelegate: AnyObject {
-    func didAddProject(_ project: ProjectEntity)
-    func didUpdateProject(_ project: ProjectEntity)
+    func didAddProject(_ project: Project)
+    func didUpdateProject(_ project: Project)
 }
 
 final class ProjectsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, ProjectsViewControllerDelegate {
     
     enum Mode {
         case normal
-        case selection(completion: (ProjectEntity) -> Void)
+        case selection(completion: (Project) -> Void)
     }
     
     private let mode: Mode
     private let server = ServerManager.shared.currentServer
-    private var projects: [ProjectEntity] = []
+    private var projects: [Project] = []
     private let projectTable = UITableView()
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private let refreshControl = UIRefreshControl()
@@ -64,7 +64,7 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
         }
     }
     
-    func didAddProject(_ project: ProjectEntity) {
+    func didAddProject(_ project: Project) {
         let maxRecords = SettingsManager.shared.maxRecords
         if projects.count >= maxRecords {
             projects.removeLast()
@@ -75,7 +75,7 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
         updateEmptyState()
     }
     
-    func didUpdateProject(_ project: ProjectEntity) {
+    func didUpdateProject(_ project: Project) {
         if let index = projects.firstIndex(where: {$0.id == project.id}) {
             projects[index] = project
             projectTable.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)

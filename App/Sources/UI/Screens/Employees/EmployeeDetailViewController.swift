@@ -4,13 +4,13 @@ final class EmployeeDetailViewController: UIViewController, EmployeesViewControl
     
     weak var delegate: EmployeesViewControllerDelegate?
     
-    private var employee: EmployeeEntity
+    private var employee: Employee
     private var firstNameLabel = UILabel()
     private var lastNameLabel = UILabel()
     private var surNameLabel = UILabel()
     private var positionLabel = UILabel()
     
-    init(employee: EmployeeEntity) {
+    init(employee: Employee) {
         self.employee = employee
         super.init(nibName: nil, bundle: nil)
     }
@@ -53,7 +53,7 @@ final class EmployeeDetailViewController: UIViewController, EmployeesViewControl
         navigationItem.rightBarButtonItem = changeButton
     }
     
-    func didUpdateEmployee(_ employee: EmployeeEntity) {
+    func didUpdateEmployee(_ employee: Employee) {
         self.employee = employee
         self.delegate?.didUpdateEmployee(employee)
         updateLabels()
