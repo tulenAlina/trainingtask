@@ -11,8 +11,8 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
         case normal
         case selection(completion: (ProjectEntity) -> Void)
     }
-    private let mode: Mode
     
+    private let mode: Mode
     private let server = ServerManager.shared.currentServer
     private var projects: [ProjectEntity] = []
     private let projectTable = UITableView()
@@ -26,6 +26,60 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .white
+        title = "Проекты"
+        projectTable.translatesAutoresizingMaskIntoConstraints = false
+        
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.center = view.center
+        
+        view.addSubview(projectTable)
+        view.addSubview(loadingIndicator)
+        loadingIndicator.startAnimating()
+        view.isUserInteractionEnabled = false
+        
+        NSLayoutConstraint.activate([
+            projectTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            projectTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            projectTable.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            projectTable.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        refreshControl.addTarget(self, action: #selector(refreshView), for: .valueChanged)
+        
+        projectTable.dataSource = self
+        projectTable.delegate = self
+        projectTable.refreshControl = refreshControl
+        refreshView()
+        
+        switch mode {
+        case .normal:
+            let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
+            navigationItem.rightBarButtonItem = addButton
+        case .selection:
+            break
+        }
+    }
+    
+    func didAddProject(_ project: ProjectEntity) {
+        let maxRecords = SettingsManager.shared.maxRecords
+        if projects.count >= maxRecords {
+            projects.removeLast()
+            projectTable.deleteRows(at: [IndexPath(row: maxRecords - 1, section: 0)], with: .automatic)
+        }
+        projects.insert(project, at: 0)
+        projectTable.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
+        updateEmptyState()
+    }
+    
+    func didUpdateProject(_ project: ProjectEntity) {
+        if let index = projects.firstIndex(where: {$0.id == project.id}) {
+            projects[index] = project
+            projectTable.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -101,24 +155,6 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
         }
     }
     
-    func didAddProject(_ project: ProjectEntity) {
-        let maxRecords = SettingsManager.shared.maxRecords
-        if projects.count >= maxRecords {
-            projects.removeLast()
-            projectTable.deleteRows(at: [IndexPath(row: maxRecords - 1, section: 0)], with: .automatic)
-        }
-        projects.insert(project, at: 0)
-        projectTable.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
-        updateEmptyState()
-    }
-    
-    func didUpdateProject(_ project: ProjectEntity) {
-        if let index = projects.firstIndex(where: {$0.id == project.id}) {
-            projects[index] = project
-            projectTable.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
-        }
-    }
-    
     private func loadProjects() async throws {
         let allProjects = try await server.fetchProjects()
         projects = Array(allProjects.prefix(SettingsManager.shared.maxRecords))
@@ -163,41 +199,5 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
         let editVC = EditProjectViewController()
         editVC.delegate = self
         navigationController?.pushViewController(editVC, animated: true)
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .white
-        title = "Проекты"
-        projectTable.translatesAutoresizingMaskIntoConstraints = false
-        
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.center = view.center
-        
-        view.addSubview(projectTable)
-        view.addSubview(loadingIndicator)
-        loadingIndicator.startAnimating()
-        view.isUserInteractionEnabled = false
-        
-        NSLayoutConstraint.activate([
-            projectTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            projectTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            projectTable.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            projectTable.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
-        refreshControl.addTarget(self, action: #selector(refreshView), for: .valueChanged)
-        
-        projectTable.dataSource = self
-        projectTable.delegate = self
-        projectTable.refreshControl = refreshControl
-        refreshView()
-        
-        switch mode {
-        case .normal:
-            let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
-            navigationItem.rightBarButtonItem = addButton
-        case .selection:
-            break
-        }
     }
 }

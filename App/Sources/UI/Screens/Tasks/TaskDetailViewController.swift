@@ -2,14 +2,14 @@ import UIKit
 
 final class TaskDetailViewController: UIViewController, TasksViewControllerDelegate {
     
-    private let loadingIndicator = UIActivityIndicatorView(style: .large)
+    weak var delegate: TasksViewControllerDelegate?
     
     private var task: TaskEntity
     private var project: ProjectEntity?
     private var employee: EmployeeEntity?
+    private let server = ServerManager.shared.currentServer
     private let isContextProject: Bool
-    
-    
+    private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private var taskNameLabel = UILabel()
     private var projectLabel = UILabel()
     private var workTimeLabel = UILabel()
@@ -17,8 +17,6 @@ final class TaskDetailViewController: UIViewController, TasksViewControllerDeleg
     private var endDateLabel = UILabel()
     private var employeeLabel = UILabel()
     private var statusLabel = UILabel()
-    weak var delegate: TasksViewControllerDelegate?
-    private let server = ServerManager.shared.currentServer
     
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -37,6 +35,58 @@ final class TaskDetailViewController: UIViewController, TasksViewControllerDeleg
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .white
+        title = "Детали задачи"
+        
+        setupLabels()
+        loadingIndicator.center = view.center
+        loadingIndicator.hidesWhenStopped = true
+        
+        view.addSubview(taskNameLabel)
+        view.addSubview(projectLabel)
+        view.addSubview(workTimeLabel)
+        view.addSubview(startDateLabel)
+        view.addSubview(endDateLabel)
+        view.addSubview(employeeLabel)
+        view.addSubview(statusLabel)
+        view.addSubview(loadingIndicator)
+        
+        NSLayoutConstraint.activate([
+            taskNameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            taskNameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            taskNameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            projectLabel.topAnchor.constraint(equalTo: taskNameLabel.bottomAnchor, constant: 30),
+            projectLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            projectLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            workTimeLabel.topAnchor.constraint(equalTo: projectLabel.bottomAnchor, constant: 30),
+            workTimeLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            workTimeLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            startDateLabel.topAnchor.constraint(equalTo: workTimeLabel.bottomAnchor, constant: 30),
+            startDateLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            startDateLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            endDateLabel.topAnchor.constraint(equalTo: startDateLabel.bottomAnchor, constant: 30),
+            endDateLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            endDateLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            employeeLabel.topAnchor.constraint(equalTo: endDateLabel.bottomAnchor, constant: 30),
+            employeeLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            employeeLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            statusLabel.topAnchor.constraint(equalTo: employeeLabel.bottomAnchor, constant: 30),
+            statusLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            statusLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+        ])
+        
+        let changeButton = UIBarButtonItem(title: "Изменить", style: .plain, target: self, action: #selector(changeTapped))
+        navigationItem.rightBarButtonItem = changeButton
     }
     
     func didUpdateTask(_ task: TaskEntity) {
@@ -116,57 +166,5 @@ final class TaskDetailViewController: UIViewController, TasksViewControllerDeleg
             editViewController.delegate = self
             navigationController?.pushViewController(editViewController, animated: true)
         }
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .white
-        title = "Детали задачи"
-        
-        setupLabels()
-        loadingIndicator.center = view.center
-        loadingIndicator.hidesWhenStopped = true
-        
-        view.addSubview(taskNameLabel)
-        view.addSubview(projectLabel)
-        view.addSubview(workTimeLabel)
-        view.addSubview(startDateLabel)
-        view.addSubview(endDateLabel)
-        view.addSubview(employeeLabel)
-        view.addSubview(statusLabel)
-        view.addSubview(loadingIndicator)
-        
-        NSLayoutConstraint.activate([
-            taskNameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            taskNameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            taskNameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            projectLabel.topAnchor.constraint(equalTo: taskNameLabel.bottomAnchor, constant: 30),
-            projectLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            projectLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            workTimeLabel.topAnchor.constraint(equalTo: projectLabel.bottomAnchor, constant: 30),
-            workTimeLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            workTimeLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            startDateLabel.topAnchor.constraint(equalTo: workTimeLabel.bottomAnchor, constant: 30),
-            startDateLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            startDateLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            endDateLabel.topAnchor.constraint(equalTo: startDateLabel.bottomAnchor, constant: 30),
-            endDateLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            endDateLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            employeeLabel.topAnchor.constraint(equalTo: endDateLabel.bottomAnchor, constant: 30),
-            employeeLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            employeeLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            statusLabel.topAnchor.constraint(equalTo: employeeLabel.bottomAnchor, constant: 30),
-            statusLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            statusLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
-        ])
-        
-        let changeButton = UIBarButtonItem(title: "Изменить", style: .plain, target: self, action: #selector(changeTapped))
-        navigationItem.rightBarButtonItem = changeButton
     }
 }

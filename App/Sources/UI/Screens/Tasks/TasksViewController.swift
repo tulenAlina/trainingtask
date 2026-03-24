@@ -20,17 +20,67 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
     private let refreshControl = UIRefreshControl()
     
     init() {
-            self.project = nil
-            super.init(nibName: nil, bundle: nil)
-        }
+        self.project = nil
+        super.init(nibName: nil, bundle: nil)
+    }
         
-        init(project: ProjectEntity) {
-            self.project = project
-            super.init(nibName: nil, bundle: nil)
-        }
+    init(project: ProjectEntity) {
+        self.project = project
+        super.init(nibName: nil, bundle: nil)
+    }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .white
+        title = "Задачи"
+        taskTable.translatesAutoresizingMaskIntoConstraints = false
+        
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.center = view.center
+        
+        view.addSubview(taskTable)
+        view.addSubview(loadingIndicator)
+        
+        loadingIndicator.startAnimating()
+        view.isUserInteractionEnabled = false
+        
+        NSLayoutConstraint.activate([
+            taskTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            taskTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            taskTable.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            taskTable.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        
+        refreshControl.addTarget(self, action: #selector(refreshView), for: .valueChanged)
+        taskTable.dataSource = self
+        taskTable.delegate = self
+        taskTable.refreshControl = refreshControl
+        refreshView()
+        
+        let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
+        navigationItem.rightBarButtonItem = addButton
+    }
+    
+    func didAddTask(_ task: TaskEntity) {
+        let maxRecords = SettingsManager.shared.maxRecords
+        if tasks.count >= maxRecords {
+            tasks.removeLast()
+            taskTable.deleteRows(at: [IndexPath(row: maxRecords - 1, section: 0)], with: .automatic)
+        }
+        tasks.insert(task, at: 0)
+        taskTable.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
+        updateEmptyState()
+    }
+    
+    func didUpdateTask(_ task: TaskEntity) {
+        if let index = tasks.firstIndex(where: {$0.id == task.id}) {
+            tasks[index] = task
+            taskTable.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -108,24 +158,6 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
         navigationController?.pushViewController(detailViewController, animated: true)
     }
     
-    func didAddTask(_ task: TaskEntity) {
-        let maxRecords = SettingsManager.shared.maxRecords
-        if tasks.count >= maxRecords {
-            tasks.removeLast()
-            taskTable.deleteRows(at: [IndexPath(row: maxRecords - 1, section: 0)], with: .automatic)
-        }
-        tasks.insert(task, at: 0)
-        taskTable.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
-        updateEmptyState()
-    }
-    
-    func didUpdateTask(_ task: TaskEntity) {
-        if let index = tasks.firstIndex(where: {$0.id == task.id}) {
-            tasks[index] = task
-            taskTable.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
-        }
-    }
-    
     private func loadTasks() async throws {
         let allTasks = try await server.fetchTasks(projectID: project?.id)
         if project == nil {
@@ -178,37 +210,5 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
         }
         editVC.delegate = self
         navigationController?.pushViewController(editVC, animated: true)
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .white
-        title = "Задачи"
-        taskTable.translatesAutoresizingMaskIntoConstraints = false
-        
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.center = view.center
-        
-        view.addSubview(taskTable)
-        view.addSubview(loadingIndicator)
-        
-        loadingIndicator.startAnimating()
-        view.isUserInteractionEnabled = false
-        
-        NSLayoutConstraint.activate([
-            taskTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            taskTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            taskTable.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            taskTable.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
-        
-        refreshControl.addTarget(self, action: #selector(refreshView), for: .valueChanged)
-        taskTable.dataSource = self
-        taskTable.delegate = self
-        taskTable.refreshControl = refreshControl
-        refreshView()
-        
-        let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
-        navigationItem.rightBarButtonItem = addButton
     }
 }

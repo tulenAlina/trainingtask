@@ -1,6 +1,10 @@
 import UIKit
 
 final class EditEmployeeViewController: UIViewController {
+    
+    weak var delegate: EmployeesViewControllerDelegate?
+    
+    private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private var employee: EmployeeEntity? = nil
     private var firstNameTF: UITextField!
     private var lastNameTF: UITextField!
@@ -8,9 +12,6 @@ final class EditEmployeeViewController: UIViewController {
     private var positionTF: UITextField!
     private var saveButton: UIBarButtonItem!
     private var cancelButton: UIBarButtonItem!
-    weak var delegate: EmployeesViewControllerDelegate?
-    
-    private let loadingIndicator = UIActivityIndicatorView(style: .large)
     
     init() {
         super.init(nibName: nil, bundle: nil)
@@ -23,6 +24,50 @@ final class EditEmployeeViewController: UIViewController {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .white
+        title = (employee != nil) ? "Редактирование" : "Создание"
+        
+        saveButton = UIBarButtonItem(title: "Сохранить", style: .done, target: self, action: #selector(saveEmployee))
+        navigationItem.rightBarButtonItem = saveButton
+        saveButton.isEnabled = false
+        
+        setupTextFields()
+        
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.center = view.center
+        
+        view.addSubview(firstNameTF)
+        view.addSubview(lastNameTF)
+        view.addSubview(surNameTF)
+        view.addSubview(positionTF)
+        view.addSubview(loadingIndicator)
+        
+        NSLayoutConstraint.activate([
+            firstNameTF.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            firstNameTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            firstNameTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            lastNameTF.topAnchor.constraint(equalTo: firstNameTF.bottomAnchor, constant: 30),
+            lastNameTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            lastNameTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            surNameTF.topAnchor.constraint(equalTo: lastNameTF.bottomAnchor, constant: 30),
+            surNameTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            surNameTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            positionTF.topAnchor.constraint(equalTo: surNameTF.bottomAnchor, constant: 30),
+            positionTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            positionTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+        ])
+        
+        firstNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        lastNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        surNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        positionTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
     }
     
     private func setupTextFields() {
@@ -94,49 +139,5 @@ final class EditEmployeeViewController: UIViewController {
         let isPositionFilled = !(positionTF.text?.trimmed.isBlank ?? true)
         
         saveButton.isEnabled = !isFieldsMatched && isFirstnameFilled && isLastnameFilled && isPositionFilled
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .white
-        title = (employee != nil) ? "Редактирование" : "Создание"
-        
-        saveButton = UIBarButtonItem(title: "Сохранить", style: .done, target: self, action: #selector(saveEmployee))
-        navigationItem.rightBarButtonItem = saveButton
-        saveButton.isEnabled = false
-        
-        setupTextFields()
-        
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.center = view.center
-        
-        view.addSubview(firstNameTF)
-        view.addSubview(lastNameTF)
-        view.addSubview(surNameTF)
-        view.addSubview(positionTF)
-        view.addSubview(loadingIndicator)
-        
-        NSLayoutConstraint.activate([
-            firstNameTF.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            firstNameTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            firstNameTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            lastNameTF.topAnchor.constraint(equalTo: firstNameTF.bottomAnchor, constant: 30),
-            lastNameTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            lastNameTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            surNameTF.topAnchor.constraint(equalTo: lastNameTF.bottomAnchor, constant: 30),
-            surNameTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            surNameTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            positionTF.topAnchor.constraint(equalTo: surNameTF.bottomAnchor, constant: 30),
-            positionTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            positionTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
-        ])
-        
-        firstNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        lastNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        surNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        positionTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
     }
 }

@@ -7,33 +7,6 @@ final class MainMenuViewController: UIViewController {
     private lazy var employeeButton = self.createButton("Сотрудники")
     private lazy var settingsButton = self.createButton("Настройки")
     
-    private func createButton(_ title: String) -> UIButton {
-        let btn = UIButton()
-        btn.setTitle(title, for: .normal)
-        btn.setTitleColor(.black, for: .normal)
-        btn.backgroundColor = .lightGray
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
-        return btn
-    }
-    
-    @objc private func buttonTapped(_ sender: UIButton) {
-        switch sender {
-        case projectButton:
-            navigationController?.pushViewController(ProjectsViewController(), animated: true)
-        case taskButton:
-            navigationController?.pushViewController(TasksViewController(), animated: true)
-        case employeeButton:
-            navigationController?.pushViewController(EmployeesViewController(), animated: true)
-        case settingsButton:
-            navigationController?.pushViewController(SettingsViewController(), animated: true)
-        default:
-            break
-            
-            
-        }
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -64,5 +37,30 @@ final class MainMenuViewController: UIViewController {
             settingsButton.widthAnchor.constraint(equalToConstant: 200),
             settingsButton.heightAnchor.constraint(equalToConstant: 50)
             ])
+    }
+    
+    private func createButton(_ title: String) -> UIButton {
+        let btn = UIButton()
+        btn.setTitle(title, for: .normal)
+        btn.setTitleColor(.black, for: .normal)
+        btn.backgroundColor = .lightGray
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+        return btn
+    }
+    
+    @objc private func buttonTapped(_ sender: UIButton) {
+        switch sender {
+        case projectButton:
+            navigationController?.pushViewController(ProjectsViewController(), animated: true)
+        case taskButton:
+            navigationController?.pushViewController(TasksViewController(), animated: true)
+        case employeeButton:
+            navigationController?.pushViewController(EmployeesViewController(), animated: true)
+        case settingsButton:
+            navigationController?.pushViewController(SettingsViewController(), animated: true)
+        default:
+            break
+        }
     }
 }

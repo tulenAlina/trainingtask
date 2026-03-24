@@ -2,11 +2,6 @@ import Foundation
 
 final class SettingsManager {
     static let shared = SettingsManager()
-    private init() {
-        loadConfig()
-        registerDefaults()
-    }
-    private var config: [String: Any]?
     
     var serverURL: String {
         get {
@@ -33,6 +28,13 @@ final class SettingsManager {
         set {
             UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.defaultDaysBetween)
         }
+    }
+    
+    private var config: [String: Any]?
+    
+    private init() {
+        loadConfig()
+        registerDefaults()
     }
     
     private func loadConfig() {

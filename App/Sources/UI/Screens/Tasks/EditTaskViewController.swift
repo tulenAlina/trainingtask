@@ -2,14 +2,15 @@ import UIKit
 
 final class EditTaskViewController: UIViewController, UITextFieldDelegate {
     
+    weak var delegate: TasksViewControllerDelegate?
+    
+    private let server = ServerManager.shared.currentServer
+    private let dateFormatter = DateFormatter()
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private var task: TaskEntity? = nil
     private var contextProject: ProjectEntity? = nil
-    private let server = ServerManager.shared.currentServer
     private var projects: [ProjectEntity] = []
     private var employees: [EmployeeEntity] = []
-    private let dateFormatter = DateFormatter()
-    
     private var saveButton: UIBarButtonItem!
     private var cancelButton: UIBarButtonItem!
     private var taskNameTF: UITextField!
@@ -18,12 +19,6 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
     private var startDateTF: UITextField!
     private var endDateTF: UITextField!
     private var employeeTF: UITextField!
-    private var statusSC: UISegmentedControl = {
-        let items = TaskStatus.allCases.map {$0.rawValue}
-        let sc = UISegmentedControl(items: items)
-        sc.translatesAutoresizingMaskIntoConstraints = false
-        return sc
-    }()
     
     private let startDatePicker: UIDatePicker = {
         let picker = UIDatePicker()
@@ -55,7 +50,12 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
         return button
     }()
     
-    weak var delegate: TasksViewControllerDelegate?
+    private var statusSC: UISegmentedControl = {
+        let items = TaskStatus.allCases.map {$0.rawValue}
+        let sc = UISegmentedControl(items: items)
+        sc.translatesAutoresizingMaskIntoConstraints = false
+        return sc
+    }()
     
     init() {
         super.init(nibName: nil, bundle: nil)
@@ -72,13 +72,109 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
     }
     
     init(_ task: TaskEntity, project: ProjectEntity) {
-            self.task = task
-            self.contextProject = project
-            super.init(nibName: nil, bundle: nil)
-        }
+        self.task = task
+        self.contextProject = project
+        super.init(nibName: nil, bundle: nil)
+    }
         
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .white
+        title = (task != nil) ? "Редактирование" : "Cоздание"
+        
+        saveButton = UIBarButtonItem(title: "Сохранить", style: .done, target: self, action: #selector(saveTask))
+        navigationItem.rightBarButtonItem = saveButton
+        saveButton.isEnabled = false
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissObjects))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+        
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        dateFormatter.locale = Locale(identifier: "ru_RU")
+        
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.center = view.center
+        view.addSubview(loadingIndicator)
+        loadingIndicator.startAnimating()
+        view.isUserInteractionEnabled = false
+        
+        Task {
+            await loadData()
+            await MainActor.run {
+                loadingIndicator.stopAnimating()
+                view.isUserInteractionEnabled = true
+                setupTextFields()
+                setupSegmentedControl()
+                setupDatePickers()
+                
+                view.addSubview(taskNameTF)
+                view.addSubview(projectTF)
+                view.addSubview(projectButton)
+                view.addSubview(workTimeTF)
+                view.addSubview(startDateTF)
+                view.addSubview(endDateTF)
+                view.addSubview(statusSC)
+                view.addSubview(employeeTF)
+                view.addSubview(employeeButton)
+                
+                if contextProject != nil {
+                    projectButton.isEnabled = false
+                }
+                
+                NSLayoutConstraint.activate([
+                    taskNameTF.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+                    taskNameTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+                    taskNameTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                    
+                    projectTF.topAnchor.constraint(equalTo: taskNameTF.bottomAnchor, constant: 30),
+                    projectTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+                    projectTF.trailingAnchor.constraint(equalTo: projectButton.leadingAnchor, constant: -20),
+                    
+                    projectButton.topAnchor.constraint(equalTo: taskNameTF.bottomAnchor, constant: 30),
+                    projectButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                    
+                    workTimeTF.topAnchor.constraint(equalTo: projectTF.bottomAnchor, constant: 30),
+                    workTimeTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+                    workTimeTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                    
+                    startDateTF.topAnchor.constraint(equalTo: workTimeTF.bottomAnchor, constant: 30),
+                    startDateTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+                    startDateTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                    
+                    endDateTF.topAnchor.constraint(equalTo: startDateTF.bottomAnchor, constant: 30),
+                    endDateTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+                    endDateTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                    
+                    statusSC.topAnchor.constraint(equalTo: endDateTF.bottomAnchor, constant: 30),
+                    statusSC.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+                    statusSC.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                    
+                    employeeButton.topAnchor.constraint(equalTo: statusSC.bottomAnchor, constant: 30),
+                    employeeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                    
+                    employeeTF.topAnchor.constraint(equalTo: statusSC.bottomAnchor, constant: 30),
+                    employeeTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+                    employeeTF.trailingAnchor.constraint(equalTo: employeeButton.leadingAnchor, constant: -20)
+                ])
+                
+                taskNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+                projectTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+                workTimeTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+                startDateTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+                endDateTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+                employeeTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+                statusSC.addTarget(self, action: #selector(updateSaveButtonState), for: .valueChanged)
+                projectButton.addTarget(self, action: #selector(selectProjectTapped), for: .touchUpInside)
+                employeeButton.addTarget(self, action: #selector(selectEmployeeTapped), for: .touchUpInside)
+                
+                updateSaveButtonState()
+            }
+        }
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
@@ -307,101 +403,5 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
             self?.updateSaveButtonState()
         })
         navigationController?.pushViewController(employeesViewController, animated: true)
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .white
-        title = (task != nil) ? "Редактирование" : "Cоздание"
-        
-        saveButton = UIBarButtonItem(title: "Сохранить", style: .done, target: self, action: #selector(saveTask))
-        navigationItem.rightBarButtonItem = saveButton
-        saveButton.isEnabled = false
-        
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissObjects))
-        tapGesture.cancelsTouchesInView = false
-        view.addGestureRecognizer(tapGesture)
-        
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        dateFormatter.locale = Locale(identifier: "ru_RU")
-        
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.center = view.center
-        view.addSubview(loadingIndicator)
-        loadingIndicator.startAnimating()
-        view.isUserInteractionEnabled = false
-        
-        Task {
-            await loadData()
-            await MainActor.run {
-                loadingIndicator.stopAnimating()
-                view.isUserInteractionEnabled = true
-                setupTextFields()
-                setupSegmentedControl()
-                setupDatePickers()
-                
-                view.addSubview(taskNameTF)
-                view.addSubview(projectTF)
-                view.addSubview(projectButton)
-                view.addSubview(workTimeTF)
-                view.addSubview(startDateTF)
-                view.addSubview(endDateTF)
-                view.addSubview(statusSC)
-                view.addSubview(employeeTF)
-                view.addSubview(employeeButton)
-                
-                if contextProject != nil {
-                    projectButton.isEnabled = false
-                }
-                
-                NSLayoutConstraint.activate([
-                    taskNameTF.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-                    taskNameTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                    taskNameTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                    
-                    projectTF.topAnchor.constraint(equalTo: taskNameTF.bottomAnchor, constant: 30),
-                    projectTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                    projectTF.trailingAnchor.constraint(equalTo: projectButton.leadingAnchor, constant: -20),
-                    
-                    projectButton.topAnchor.constraint(equalTo: taskNameTF.bottomAnchor, constant: 30),
-                    projectButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                    
-                    workTimeTF.topAnchor.constraint(equalTo: projectTF.bottomAnchor, constant: 30),
-                    workTimeTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                    workTimeTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                    
-                    startDateTF.topAnchor.constraint(equalTo: workTimeTF.bottomAnchor, constant: 30),
-                    startDateTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                    startDateTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                    
-                    endDateTF.topAnchor.constraint(equalTo: startDateTF.bottomAnchor, constant: 30),
-                    endDateTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                    endDateTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                    
-                    statusSC.topAnchor.constraint(equalTo: endDateTF.bottomAnchor, constant: 30),
-                    statusSC.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                    statusSC.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                    
-                    employeeButton.topAnchor.constraint(equalTo: statusSC.bottomAnchor, constant: 30),
-                    employeeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                    
-                    employeeTF.topAnchor.constraint(equalTo: statusSC.bottomAnchor, constant: 30),
-                    employeeTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                    employeeTF.trailingAnchor.constraint(equalTo: employeeButton.leadingAnchor, constant: -20)
-                ])
-                
-                taskNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-                projectTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-                workTimeTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-                startDateTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-                endDateTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-                employeeTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-                statusSC.addTarget(self, action: #selector(updateSaveButtonState), for: .valueChanged)
-                projectButton.addTarget(self, action: #selector(selectProjectTapped), for: .touchUpInside)
-                employeeButton.addTarget(self, action: #selector(selectEmployeeTapped), for: .touchUpInside)
-                
-                updateSaveButtonState()
-            }
-        }
     }
 }

@@ -6,29 +6,13 @@ class StubServer: Server {
         case itemNotFound
     }
     
-    init() {
-        setupMockData()
-    }
-    
-    // MARK: - Private properties
     private let sleeepTimeInNanoseconds: UInt64 = 1_000_000_000
     private var projects: [UUID:ProjectEntity] = [:]
     private var employees: [UUID:EmployeeEntity] = [:]
     private var tasks: [UUID:TaskEntity] = [:]
     
-    private func setupMockData() {
-        for i in 0..<10 {
-            var proj = ProjectEntity(projectName: "Project\(i)", description: "Description\(i)")
-            var emp = EmployeeEntity(firstName: "Name\(i)", lastName: "LastName\(i)", surName: "Surname\(i)", position: "Position\(i)")
-            let task = TaskEntity(taskName: "Task\(i)", projectID: proj.id, workTime: 5, startDate: Date(), endDate: Date(), status: .notStarted, employeeID: emp.id)
-            
-            proj.tasks.append(task.id)
-            emp.tasks.append(task.id)
-            
-            projects[proj.id] = proj
-            employees[emp.id] = emp
-            tasks[task.id] = task
-        }
+    init() {
+        setupMockData()
     }
     
     // MARK: - Projects
@@ -165,6 +149,7 @@ class StubServer: Server {
         tasks[task.id] = task
         return task
     }
+    
     func deleteTask(_ id: UUID) async throws {
         try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
         guard let task = tasks[id] else {
@@ -182,5 +167,21 @@ class StubServer: Server {
         }
         
         tasks[id] = nil
+    }
+    
+    // MARK: - Data
+    private func setupMockData() {
+        for i in 0..<10 {
+            var proj = ProjectEntity(projectName: "Project\(i)", description: "Description\(i)")
+            var emp = EmployeeEntity(firstName: "Name\(i)", lastName: "LastName\(i)", surName: "Surname\(i)", position: "Position\(i)")
+            let task = TaskEntity(taskName: "Task\(i)", projectID: proj.id, workTime: 5, startDate: Date(), endDate: Date(), status: .notStarted, employeeID: emp.id)
+            
+            proj.tasks.append(task.id)
+            emp.tasks.append(task.id)
+            
+            projects[proj.id] = proj
+            employees[emp.id] = emp
+            tasks[task.id] = task
+        }
     }
 }

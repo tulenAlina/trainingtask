@@ -1,6 +1,5 @@
 import UIKit
 
-//TODO: Добавить валидацию
 final class SettingsViewController: UIViewController, UITextFieldDelegate {
     
     private var serverUrlTF: UITextField!
@@ -11,6 +10,61 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate {
     private var defaultDaysBetweenLabel = UILabel()
     private var saveButton: UIBarButtonItem!
     private var cancelButton: UIBarButtonItem!
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .white
+        title = "Настройки"
+        
+        saveButton = UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(saveSettings))
+        cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancellView))
+        navigationItem.leftBarButtonItem = cancelButton
+        navigationItem.rightBarButtonItem = saveButton
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+        
+        setupTextFields()
+        setupLabels()
+        
+        view.addSubview(serverUrlLabel)
+        view.addSubview(serverUrlTF)
+        view.addSubview(maxRecordsLabel)
+        view.addSubview(maxRecordsTF)
+        view.addSubview(defaultDaysBetweenLabel)
+        view.addSubview(defaultDaysBetweenTF)
+        
+        NSLayoutConstraint.activate([
+            serverUrlLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            serverUrlLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            serverUrlLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            serverUrlTF.topAnchor.constraint(equalTo: serverUrlLabel.bottomAnchor, constant: 5),
+            serverUrlTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            serverUrlTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            maxRecordsLabel.topAnchor.constraint(equalTo: serverUrlTF.bottomAnchor, constant: 30),
+            maxRecordsLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            maxRecordsLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            maxRecordsTF.topAnchor.constraint(equalTo: maxRecordsLabel.bottomAnchor, constant: 5),
+            maxRecordsTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            maxRecordsTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            defaultDaysBetweenLabel.topAnchor.constraint(equalTo: maxRecordsTF.bottomAnchor, constant: 30),
+            defaultDaysBetweenLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            defaultDaysBetweenLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            defaultDaysBetweenTF.topAnchor.constraint(equalTo: defaultDaysBetweenLabel.bottomAnchor, constant: 5),
+            defaultDaysBetweenTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            defaultDaysBetweenTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+        ])
+        
+        serverUrlTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        maxRecordsTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        defaultDaysBetweenTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+    }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         if textField == maxRecordsTF || textField == defaultDaysBetweenTF {
@@ -82,60 +136,5 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate {
         let isDefaultDaysBetweenFilled = !(defaultDaysBetweenTF.text?.trimmed.isBlank ?? true)
         
         saveButton.isEnabled = isURLFilled && isMaxRecordsFilled && isDefaultDaysBetweenFilled
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .white
-        title = "Настройки"
-        
-        saveButton = UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(saveSettings))
-        cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancellView))
-        navigationItem.leftBarButtonItem = cancelButton
-        navigationItem.rightBarButtonItem = saveButton
-        
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        tapGesture.cancelsTouchesInView = false
-        view.addGestureRecognizer(tapGesture)
-        
-        setupTextFields()
-        setupLabels()
-        
-        view.addSubview(serverUrlLabel)
-        view.addSubview(serverUrlTF)
-        view.addSubview(maxRecordsLabel)
-        view.addSubview(maxRecordsTF)
-        view.addSubview(defaultDaysBetweenLabel)
-        view.addSubview(defaultDaysBetweenTF)
-        
-        NSLayoutConstraint.activate([
-            serverUrlLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            serverUrlLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            serverUrlLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            serverUrlTF.topAnchor.constraint(equalTo: serverUrlLabel.bottomAnchor, constant: 5),
-            serverUrlTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            serverUrlTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            maxRecordsLabel.topAnchor.constraint(equalTo: serverUrlTF.bottomAnchor, constant: 30),
-            maxRecordsLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            maxRecordsLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            maxRecordsTF.topAnchor.constraint(equalTo: maxRecordsLabel.bottomAnchor, constant: 5),
-            maxRecordsTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            maxRecordsTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            defaultDaysBetweenLabel.topAnchor.constraint(equalTo: maxRecordsTF.bottomAnchor, constant: 30),
-            defaultDaysBetweenLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            defaultDaysBetweenLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            defaultDaysBetweenTF.topAnchor.constraint(equalTo: defaultDaysBetweenLabel.bottomAnchor, constant: 5),
-            defaultDaysBetweenTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            defaultDaysBetweenTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
-        ])
-        
-        serverUrlTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        maxRecordsTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        defaultDaysBetweenTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
     }
 }

@@ -1,13 +1,14 @@
 import UIKit
 
 final class EditProjectViewController: UIViewController {
+    weak var delegate: ProjectsViewControllerDelegate?
+    
     private var project: ProjectEntity? = nil
     private var projectNameTF: UITextField!
     private var projectDescriptionTF: UITextField!
     private var saveButton: UIBarButtonItem!
     private var cancelButton: UIBarButtonItem!
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
-    weak var delegate: ProjectsViewControllerDelegate?
     
     init() {
         super.init(nibName: nil, bundle: nil)
@@ -20,6 +21,38 @@ final class EditProjectViewController: UIViewController {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .white
+        title = (project != nil) ? "Редактирование" : "Создание"
+        
+        saveButton = UIBarButtonItem(title: "Сохранить", style: .done, target: self, action: #selector(saveProject))
+        navigationItem.rightBarButtonItem = saveButton
+        saveButton.isEnabled = false
+        
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.center = view.center
+        
+        setupTextFields()
+        
+        view.addSubview(projectNameTF)
+        view.addSubview(projectDescriptionTF)
+        view.addSubview(loadingIndicator)
+        
+        NSLayoutConstraint.activate([
+            projectNameTF.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            projectNameTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            projectNameTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            projectDescriptionTF.topAnchor.constraint(equalTo: projectNameTF.bottomAnchor, constant: 30),
+            projectDescriptionTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            projectDescriptionTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+        ])
+        
+        projectNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        projectDescriptionTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
     }
     
     private func setupTextFields() {
@@ -85,37 +118,5 @@ final class EditProjectViewController: UIViewController {
         let isDescriptionFilled = !(projectDescriptionTF.text?.trimmed.isBlank ?? true)
         
         saveButton.isEnabled = !isFieldsMatched && isNameFilled && isDescriptionFilled
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .white
-        title = (project != nil) ? "Редактирование" : "Создание"
-        
-        saveButton = UIBarButtonItem(title: "Сохранить", style: .done, target: self, action: #selector(saveProject))
-        navigationItem.rightBarButtonItem = saveButton
-        saveButton.isEnabled = false
-        
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.center = view.center
-        
-        setupTextFields()
-        
-        view.addSubview(projectNameTF)
-        view.addSubview(projectDescriptionTF)
-        view.addSubview(loadingIndicator)
-        
-        NSLayoutConstraint.activate([
-            projectNameTF.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            projectNameTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            projectNameTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            projectDescriptionTF.topAnchor.constraint(equalTo: projectNameTF.bottomAnchor, constant: 30),
-            projectDescriptionTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            projectDescriptionTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
-        ])
-        
-        projectNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        projectDescriptionTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
     }
 }

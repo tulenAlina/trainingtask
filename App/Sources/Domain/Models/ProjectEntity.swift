@@ -2,10 +2,10 @@ import Foundation
 
 struct ProjectEntity {
     let id: UUID
+    let createdAt: Date
     var projectName: String
     var description: String
     var tasks: [UUID]
-    let createdAt: Date
     
     init(id: UUID = UUID(), projectName: String, description: String, tasks: [UUID] = [], createdAt: Date = Date()) {
         self.id = id

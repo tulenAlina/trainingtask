@@ -4,20 +4,6 @@ final class SplashViewController: UIViewController {
     private let nameLabel = UILabel()
     private let versionLabel = UILabel()
     
-    private func navigateToMainMenu() {
-        guard let window = view.window else {return}
-        let mainMenuVC = MainMenuViewController()
-        
-        let navigation = UINavigationController(rootViewController: mainMenuVC)
-        window.rootViewController = navigation
-    }
-    
-    private func loadVersion() -> String? {
-        guard let path = Bundle.main.path(forResource: "version", ofType: "txt"),
-              let content = try? String(contentsOfFile: path, encoding: .utf8) else {return nil}
-        return content
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -42,5 +28,19 @@ final class SplashViewController: UIViewController {
             versionLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor)
         ])
         
+    }
+    
+    private func navigateToMainMenu() {
+        guard let window = view.window else {return}
+        let mainMenuVC = MainMenuViewController()
+        
+        let navigation = UINavigationController(rootViewController: mainMenuVC)
+        window.rootViewController = navigation
+    }
+    
+    private func loadVersion() -> String? {
+        guard let path = Bundle.main.path(forResource: "version", ofType: "txt"),
+              let content = try? String(contentsOfFile: path, encoding: .utf8) else {return nil}
+        return content
     }
 }
