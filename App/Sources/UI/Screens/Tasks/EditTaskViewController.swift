@@ -120,8 +120,7 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
         }
         
         guard let inputEmployee = employees.first(where: {emp in
-            let fio = "\(emp.lastName) \(emp.firstName) \(emp.surName ?? "")".trimmed
-            return fio == employeeTF.text?.trimmed ?? ""
+            return emp.fullName == employeeTF.text?.trimmed ?? ""
         })
         else {
             showAlert("Выберите сотрудника из списка")
@@ -183,7 +182,7 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
             endDateTF = UITextField.create(text: dateFormatter.string(from: task.endDate), placeholder: "Введите дату окончания (ГГГГ-ММ-ДД)", isEdit: isEdit)
             var fio: String = ""
             if let emp = employees.first(where: {$0.id == task.employeeID}) {
-                fio = "\(emp.lastName) \(emp.firstName) \(emp.surName ?? "")".trimmed
+                fio = emp.fullName
             }
             employeeTF = UITextField.create(text: "\(fio)", placeholder: "Введите сотрудника", isEdit: isEdit)
         } else {
@@ -280,7 +279,7 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
         if let task {
             var empFio: String = ""
             if let emp = employees.first(where: {$0.id == task.employeeID}) {
-                empFio = "\(emp.lastName) \(emp.firstName) \(emp.surName ?? "")".trimmed
+                empFio = emp.fullName
             }
             
             isFieldsMatched = (taskNameTF.text?.trimmed ?? "" == task.taskName.trimmed) && (projectTF.text?.trimmed ?? "" == projects.first {$0.id == task.projectID}?.projectName.trimmed ?? "") && (Int(workTimeTF.text?.trimmed ?? "") ?? 0 == task.workTime) && (startDateTF.text?.trimmed ?? "" == dateFormatter.string(from: task.startDate)) && (endDateTF.text?.trimmed ?? "" == dateFormatter.string(from: task.endDate) && employeeTF.text?.trimmed ?? "" == empFio) && (statusSC.selectedSegmentIndex == TaskStatus.allCases.firstIndex { $0 == task.status } ?? 0)
@@ -304,8 +303,7 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
     
     @objc private func selectEmployeeTapped() {
         let employeesViewController = EmployeesViewController(mode: .selection {[weak self] selectedEmployee in
-            let fio = "\(selectedEmployee.lastName) \(selectedEmployee.firstName) \(selectedEmployee.surName ?? "")".trimmed
-            self?.employeeTF.text = fio
+            self?.employeeTF.text = selectedEmployee.fullName
             self?.updateSaveButtonState()
         })
         navigationController?.pushViewController(employeesViewController, animated: true)

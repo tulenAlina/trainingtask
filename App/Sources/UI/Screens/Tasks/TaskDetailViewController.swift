@@ -64,7 +64,7 @@ final class TaskDetailViewController: UIViewController, TasksViewControllerDeleg
         
         let employeeFIO: String
         if let employee {
-            employeeFIO = "\(employee.lastName) \(employee.firstName) \(employee.surName ?? "")"
+            employeeFIO = employee.fullName
         }
         else {
             employeeFIO = "не назначен"

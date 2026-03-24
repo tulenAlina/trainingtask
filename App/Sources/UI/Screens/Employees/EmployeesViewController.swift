@@ -38,7 +38,7 @@
         
         func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
             let cell = tableView.dequeueReusableCell(withIdentifier: "EmployeeCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "EmployeeCell")
-            cell.textLabel?.text = "\(employees[indexPath.row].lastName) \(employees[indexPath.row].firstName) \(employees[indexPath.row].surName ?? "")".trimmed
+            cell.textLabel?.text = employees[indexPath.row].fullName
             cell.detailTextLabel?.text = employees[indexPath.row].position
             return cell
         }

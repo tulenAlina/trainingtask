@@ -16,4 +16,11 @@ struct EmployeeEntity {
         self.position = position
         self.tasks = tasks
     }
+    
+    var fullName: String {
+        [lastName, firstName, surName]
+            .compactMap { $0 }
+            .joined(separator: " ")
+            .trimmed
+    }
 }
