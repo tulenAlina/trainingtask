@@ -13,13 +13,6 @@ final class SplashViewController: UIViewController {
         view.backgroundColor = .white
         setupLabels()
         setupConstraints()
-        setupTimer()
-    }
-    
-    private func setupTimer() {
-        Timer.scheduledTimer(withTimeInterval: 5, repeats: false) { [weak self] _ in
-            self?.navigateToMainMenu()
-        }
     }
     
     private func setupConstraints() {
@@ -41,13 +34,6 @@ final class SplashViewController: UIViewController {
         versionLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(nameLabel)
         view.addSubview(versionLabel)
-    }
-    private func navigateToMainMenu() {
-        guard let window = view.window else {return}
-        let mainMenuVC = MainMenuViewController()
-        
-        let navigation = UINavigationController(rootViewController: mainMenuVC)
-        window.rootViewController = navigation
     }
     
     private func loadVersion() -> String? {
