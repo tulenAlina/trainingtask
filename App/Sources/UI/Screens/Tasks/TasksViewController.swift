@@ -109,8 +109,13 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
     }
     
     func didAddTask(_ task: TaskEntity) {
-        tasks.append(task)
-        taskTable.insertRows(at: [IndexPath(row: tasks.count-1, section: 0)], with: .automatic)
+        let maxRecords = SettingsManager.shared.maxRecords
+        if tasks.count >= maxRecords {
+            tasks.removeLast()
+            taskTable.deleteRows(at: [IndexPath(row: maxRecords - 1, section: 0)], with: .automatic)
+        }
+        tasks.insert(task, at: 0)
+        taskTable.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
         updateEmptyState()
     }
     
@@ -165,11 +170,6 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
     }
     
     @objc private func addTapped() {
-        if tasks.count >= SettingsManager.shared.maxRecords {
-            showAlert("Достигнуто максимальное количество задач (\(SettingsManager.shared.maxRecords))")
-            return
-        }
-        
         let editVC: EditTaskViewController
         if let project {
             editVC = EditTaskViewController(project: project)

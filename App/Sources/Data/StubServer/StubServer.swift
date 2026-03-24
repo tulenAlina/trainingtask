@@ -34,7 +34,9 @@ class StubServer: Server {
     // MARK: - Projects
     func fetchProjects() async throws -> [ProjectEntity] {
         try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
-        return Array(projects.values)
+        var result = Array(projects.values)
+        result = result.sorted { $0.createdAt > $1.createdAt }
+        return result
     }
     
     func createProject(_ project: ProjectEntity) async throws -> ProjectEntity {
@@ -72,7 +74,9 @@ class StubServer: Server {
     // MARK: - Employees
     func fetchEmployees() async throws -> [EmployeeEntity] {
         try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
-        return Array(employees.values)
+        var result = Array(employees.values)
+        result = result.sorted { $0.createdAt > $1.createdAt }
+        return result
     }
     func createEmployee(_ employee: EmployeeEntity) async throws -> EmployeeEntity {
         try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
@@ -103,10 +107,12 @@ class StubServer: Server {
     // MARK: - Tasks
     func fetchTasks(projectID: UUID?) async throws -> [TaskEntity] {
         try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
+        var result = Array(tasks.values)
         if let projectID {
-            return Array(tasks.values.filter {$0.projectID == projectID})
+            result = result.filter {$0.projectID == projectID}
         }
-        return Array(tasks.values)
+        result = result.sorted { $0.createdAt > $1.createdAt }
+        return result
     }
     func createTask(_ task: TaskEntity) async throws -> TaskEntity {
         try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)

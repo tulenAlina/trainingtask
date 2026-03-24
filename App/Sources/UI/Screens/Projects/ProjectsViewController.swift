@@ -102,8 +102,13 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
     }
     
     func didAddProject(_ project: ProjectEntity) {
-        projects.append(project)
-        projectTable.insertRows(at: [IndexPath(row: projects.count-1, section: 0)], with: .automatic)
+        let maxRecords = SettingsManager.shared.maxRecords
+        if projects.count >= maxRecords {
+            projects.removeLast()
+            projectTable.deleteRows(at: [IndexPath(row: maxRecords - 1, section: 0)], with: .automatic)
+        }
+        projects.insert(project, at: 0)
+        projectTable.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
         updateEmptyState()
     }
     
@@ -155,11 +160,6 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
     }
     
     @objc private func addTapped() {
-        if projects.count >= SettingsManager.shared.maxRecords {
-            showAlert("Достигнуто максимальное количество проектов (\(SettingsManager.shared.maxRecords))")
-            return
-        }
-        
         let editVC = EditProjectViewController()
         editVC.delegate = self
         navigationController?.pushViewController(editVC, animated: true)

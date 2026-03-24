@@ -134,19 +134,19 @@
         }
         
         @objc private func addTapped() {
-            if employees.count >= SettingsManager.shared.maxRecords {
-                showAlert("Достигнуто максимальное количество сотрудников (\(SettingsManager.shared.maxRecords))")
-                return
-            }
-            
             let editVC = EditEmployeeViewController()
             editVC.delegate = self
             navigationController?.pushViewController(editVC, animated: true)
         }
         
         func didAddEmployee(_ employee: EmployeeEntity) {
-            employees.append(employee)
-            employeeTable.insertRows(at: [IndexPath(row: employees.count-1, section: 0)], with: .automatic)
+            let maxRecords = SettingsManager.shared.maxRecords
+            if employees.count >= maxRecords {
+                employees.removeLast()
+                employeeTable.deleteRows(at: [IndexPath(row: maxRecords - 1, section: 0)], with: .automatic)
+            }
+            employees.insert(employee, at: 0)
+            employeeTable.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
             updateEmptyState()
         }
         
