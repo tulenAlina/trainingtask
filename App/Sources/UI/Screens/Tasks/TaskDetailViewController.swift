@@ -18,12 +18,7 @@ final class TaskDetailViewController: UIViewController, TasksViewControllerDeleg
     private var employeeLabel = UILabel()
     private var statusLabel = UILabel()
     
-    private let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.locale = Locale(identifier: "ru_RU")
-        return formatter
-    }()
+    private let dateFormatter = DateHelper.self
     
     init(task: ProjectTask, project: Project?, employee: Employee?, isContextProject: Bool) {
         self.task = task
@@ -39,22 +34,34 @@ final class TaskDetailViewController: UIViewController, TasksViewControllerDeleg
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupUI()
+    }
+    
+    func didUpdateTask(_ task: ProjectTask) {
+        self.task = task
+        self.delegate?.didUpdateTask(task)
+        
+        loadingIndicator.startAnimating()
+        view.isUserInteractionEnabled = false
+        Task {
+            await loadRelatedData()
+            await MainActor.run {
+                loadingIndicator.stopAnimating()
+                view.isUserInteractionEnabled = true
+            }
+        }
+    }
+    
+    private func setupUI() {
         view.backgroundColor = .white
         title = "Детали задачи"
-        
         setupLabels()
-        loadingIndicator.center = view.center
-        loadingIndicator.hidesWhenStopped = true
-        
-        view.addSubview(taskNameLabel)
-        view.addSubview(projectLabel)
-        view.addSubview(workTimeLabel)
-        view.addSubview(startDateLabel)
-        view.addSubview(endDateLabel)
-        view.addSubview(employeeLabel)
-        view.addSubview(statusLabel)
-        view.addSubview(loadingIndicator)
-        
+        setupNavigationBar()
+        setupLoadingIndicator()
+        setupConstraints()
+    }
+    
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
             taskNameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
             taskNameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -84,24 +91,38 @@ final class TaskDetailViewController: UIViewController, TasksViewControllerDeleg
             statusLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             statusLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
-        
+    }
+    
+    private func setupNavigationBar() {
         let changeButton = UIBarButtonItem(title: "Изменить", style: .plain, target: self, action: #selector(changeTapped))
         navigationItem.rightBarButtonItem = changeButton
     }
     
-    func didUpdateTask(_ task: ProjectTask) {
-        self.task = task
-        self.delegate?.didUpdateTask(task)
+    private func setupLoadingIndicator() {
+        loadingIndicator.center = view.center
+        loadingIndicator.hidesWhenStopped = true
+        view.addSubview(loadingIndicator)
+    }
+    
+    private func setupLabels() {
+        updateLabels()
+        taskNameLabel.translatesAutoresizingMaskIntoConstraints = false
+        projectLabel.translatesAutoresizingMaskIntoConstraints = false
+        workTimeLabel.translatesAutoresizingMaskIntoConstraints = false
+        startDateLabel.translatesAutoresizingMaskIntoConstraints = false
+        endDateLabel.translatesAutoresizingMaskIntoConstraints = false
+        employeeLabel.translatesAutoresizingMaskIntoConstraints = false
+        statusLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        loadingIndicator.startAnimating()
-        view.isUserInteractionEnabled = false
-        Task {
-            await loadRelatedData()
-            await MainActor.run {
-                loadingIndicator.stopAnimating()
-                view.isUserInteractionEnabled = true
-            }
-        }
+        employeeLabel.numberOfLines = 0
+        
+        view.addSubview(taskNameLabel)
+        view.addSubview(projectLabel)
+        view.addSubview(workTimeLabel)
+        view.addSubview(startDateLabel)
+        view.addSubview(endDateLabel)
+        view.addSubview(employeeLabel)
+        view.addSubview(statusLabel)
     }
     
     private func updateLabels() {
@@ -121,19 +142,6 @@ final class TaskDetailViewController: UIViewController, TasksViewControllerDeleg
         }
         employeeLabel.text = "Сотрудник: \(employeeFIO)"
         statusLabel.text = "Статус: \(task.status.rawValue)"
-    }
-    
-    private func setupLabels() {
-        updateLabels()
-        taskNameLabel.translatesAutoresizingMaskIntoConstraints = false
-        projectLabel.translatesAutoresizingMaskIntoConstraints = false
-        workTimeLabel.translatesAutoresizingMaskIntoConstraints = false
-        startDateLabel.translatesAutoresizingMaskIntoConstraints = false
-        endDateLabel.translatesAutoresizingMaskIntoConstraints = false
-        employeeLabel.translatesAutoresizingMaskIntoConstraints = false
-        statusLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        employeeLabel.numberOfLines = 0
     }
     
     private func loadRelatedData() async {

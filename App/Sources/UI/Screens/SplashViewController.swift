@@ -6,20 +6,23 @@ final class SplashViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupUI()
+    }
+    
+    private func setupUI() {
         view.backgroundColor = .white
-        nameLabel.text = "TrainingApp"
-        nameLabel.translatesAutoresizingMaskIntoConstraints = false
-        versionLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        if let version = loadVersion()?.replacingOccurrences(of: "version=", with: "") {
-            versionLabel.text = "Версия \(version)"
-        }
-        
-        view.addSubview(nameLabel)
-        view.addSubview(versionLabel)
+        setupLabels()
+        setupConstraints()
+        setupTimer()
+    }
+    
+    private func setupTimer() {
         Timer.scheduledTimer(withTimeInterval: 5, repeats: false) { [weak self] _ in
             self?.navigateToMainMenu()
         }
+    }
+    
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
             nameLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
             nameLabel.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor, constant: -5),
@@ -27,9 +30,18 @@ final class SplashViewController: UIViewController {
             versionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 5),
             versionLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor)
         ])
-        
     }
     
+    private func setupLabels() {
+        nameLabel.text = "TrainingApp"
+        if let version = loadVersion()?.replacingOccurrences(of: "version=", with: "") {
+            versionLabel.text = "Версия \(version)"
+        }
+        nameLabel.translatesAutoresizingMaskIntoConstraints = false
+        versionLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(nameLabel)
+        view.addSubview(versionLabel)
+    }
     private func navigateToMainMenu() {
         guard let window = view.window else {return}
         let mainMenuVC = MainMenuViewController()

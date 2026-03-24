@@ -5,7 +5,7 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
     weak var delegate: TasksViewControllerDelegate?
     
     private let server = ServerManager.shared.currentServer
-    private let dateFormatter = DateFormatter()
+    private let dateFormatter = DateHelper.self
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private var task: ProjectTask? = nil
     private var contextProject: Project? = nil
@@ -85,96 +85,8 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
         super.viewDidLoad()
         view.backgroundColor = .white
         title = (task != nil) ? "Редактирование" : "Cоздание"
-        
-        saveButton = UIBarButtonItem(title: "Сохранить", style: .done, target: self, action: #selector(saveTask))
-        navigationItem.rightBarButtonItem = saveButton
-        saveButton.isEnabled = false
-        
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissObjects))
-        tapGesture.cancelsTouchesInView = false
-        view.addGestureRecognizer(tapGesture)
-        
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        dateFormatter.locale = Locale(identifier: "ru_RU")
-        
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.center = view.center
-        view.addSubview(loadingIndicator)
-        loadingIndicator.startAnimating()
-        view.isUserInteractionEnabled = false
-        
-        Task {
-            await loadData()
-            await MainActor.run {
-                loadingIndicator.stopAnimating()
-                view.isUserInteractionEnabled = true
-                setupTextFields()
-                setupSegmentedControl()
-                setupDatePickers()
-                
-                view.addSubview(taskNameTF)
-                view.addSubview(projectTF)
-                view.addSubview(projectButton)
-                view.addSubview(workTimeTF)
-                view.addSubview(startDateTF)
-                view.addSubview(endDateTF)
-                view.addSubview(statusSC)
-                view.addSubview(employeeTF)
-                view.addSubview(employeeButton)
-                
-                if contextProject != nil {
-                    projectButton.isEnabled = false
-                }
-                
-                NSLayoutConstraint.activate([
-                    taskNameTF.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-                    taskNameTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                    taskNameTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                    
-                    projectTF.topAnchor.constraint(equalTo: taskNameTF.bottomAnchor, constant: 30),
-                    projectTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                    projectTF.trailingAnchor.constraint(equalTo: projectButton.leadingAnchor, constant: -20),
-                    
-                    projectButton.topAnchor.constraint(equalTo: taskNameTF.bottomAnchor, constant: 30),
-                    projectButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                    
-                    workTimeTF.topAnchor.constraint(equalTo: projectTF.bottomAnchor, constant: 30),
-                    workTimeTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                    workTimeTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                    
-                    startDateTF.topAnchor.constraint(equalTo: workTimeTF.bottomAnchor, constant: 30),
-                    startDateTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                    startDateTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                    
-                    endDateTF.topAnchor.constraint(equalTo: startDateTF.bottomAnchor, constant: 30),
-                    endDateTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                    endDateTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                    
-                    statusSC.topAnchor.constraint(equalTo: endDateTF.bottomAnchor, constant: 30),
-                    statusSC.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                    statusSC.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                    
-                    employeeButton.topAnchor.constraint(equalTo: statusSC.bottomAnchor, constant: 30),
-                    employeeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                    
-                    employeeTF.topAnchor.constraint(equalTo: statusSC.bottomAnchor, constant: 30),
-                    employeeTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                    employeeTF.trailingAnchor.constraint(equalTo: employeeButton.leadingAnchor, constant: -20)
-                ])
-                
-                taskNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-                projectTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-                workTimeTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-                startDateTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-                endDateTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-                employeeTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-                statusSC.addTarget(self, action: #selector(updateSaveButtonState), for: .valueChanged)
-                projectButton.addTarget(self, action: #selector(selectProjectTapped), for: .touchUpInside)
-                employeeButton.addTarget(self, action: #selector(selectEmployeeTapped), for: .touchUpInside)
-                
-                updateSaveButtonState()
-            }
-        }
+        setupLoadingIndicator()
+        loadInitialData()
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
@@ -198,58 +110,82 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
-    private func validateDates() -> Bool{
-        guard let startDate = dateFormatter.date(from: startDateTF.text ?? ""),
-              let endDate = dateFormatter.date(from: endDateTF.text ?? "")
-        else {
-            showAlert("Неверный формат даты")
-            return false
-        }
-        
-        guard endDate >= startDate else {
-            showAlert("Дата окончания должна быть позже даты начала")
-            return false
-        }
-        return true
+    private func setupUI() {
+        setupTextFields()
+        setupButtons()
+        setupSegmentedControl()
+        setupDatePickers()
+        setupNavigationBar()
+        setupTapGesture()
+        setupConstraints()
     }
     
-    private func validateProject() -> Project?{
-        guard let inputProject = projects.first(where: {$0.projectName.trimmed == projectTF.text?.trimmed ?? ""})
-        else {
-            showAlert("Выберите проект из списка")
-            return nil
+    private func setupButtons() {
+        projectButton.addTarget(self, action: #selector(selectProjectTapped), for: .touchUpInside)
+        employeeButton.addTarget(self, action: #selector(selectEmployeeTapped), for: .touchUpInside)
+        if contextProject != nil {
+            projectButton.isEnabled = false
         }
-        return inputProject
+        view.addSubview(projectButton)
+        view.addSubview(employeeButton)
     }
     
-    private func validateEmployee() -> (Employee?, Bool) {
-        if employeeTF.text?.trimmed.isBlank ?? true {
-            return (nil, true)
-        }
-        
-        guard let inputEmployee = employees.first(where: {emp in
-            return emp.fullName == employeeTF.text?.trimmed ?? ""
-        })
-        else {
-            showAlert("Выберите сотрудника из списка")
-            return (nil, false)
-        }
-        return (inputEmployee, true)
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            taskNameTF.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            taskNameTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            taskNameTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            projectTF.topAnchor.constraint(equalTo: taskNameTF.bottomAnchor, constant: 30),
+            projectTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            projectTF.trailingAnchor.constraint(equalTo: projectButton.leadingAnchor, constant: -20),
+            
+            projectButton.topAnchor.constraint(equalTo: taskNameTF.bottomAnchor, constant: 30),
+            projectButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            workTimeTF.topAnchor.constraint(equalTo: projectTF.bottomAnchor, constant: 30),
+            workTimeTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            workTimeTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            startDateTF.topAnchor.constraint(equalTo: workTimeTF.bottomAnchor, constant: 30),
+            startDateTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            startDateTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            endDateTF.topAnchor.constraint(equalTo: startDateTF.bottomAnchor, constant: 30),
+            endDateTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            endDateTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            statusSC.topAnchor.constraint(equalTo: endDateTF.bottomAnchor, constant: 30),
+            statusSC.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            statusSC.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            employeeButton.topAnchor.constraint(equalTo: statusSC.bottomAnchor, constant: 30),
+            employeeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            employeeTF.topAnchor.constraint(equalTo: statusSC.bottomAnchor, constant: 30),
+            employeeTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            employeeTF.trailingAnchor.constraint(equalTo: employeeButton.leadingAnchor, constant: -20)
+        ])
     }
     
-    private func loadData() async {
-        do {
-            try await projects = server.fetchProjects()
-            try await employees = server.fetchEmployees()
-            DispatchQueue.main.async {
-                self.view.isUserInteractionEnabled = true
-            }
-        } catch {
-            DispatchQueue.main.async {
-                self.view.isUserInteractionEnabled = true
-            }
-            self.showAlert("Не удалось загрузить данные")
-        }
+    private func setupNavigationBar() {
+        saveButton = UIBarButtonItem(title: "Сохранить", style: .done, target: self, action: #selector(saveTask))
+        navigationItem.rightBarButtonItem = saveButton
+        saveButton.isEnabled = false
+    }
+    
+    private func setupLoadingIndicator() {
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.center = view.center
+        view.addSubview(loadingIndicator)
+        loadingIndicator.startAnimating()
+        view.isUserInteractionEnabled = false
+    }
+    
+    private func setupTapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissObjects))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
     }
     
     private func setupSegmentedControl() {
@@ -259,6 +195,8 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
         } else {
             statusSC.selectedSegmentIndex = 0
         }
+        
+        statusSC.addTarget(self, action: #selector(updateSaveButtonState), for: .valueChanged)
     }
     
     private func setupDatePickers() {
@@ -312,6 +250,89 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
             startDateTF = UITextField.create(text: dateFormatter.string(from: Date()), placeholder: "Введите дату начала (ГГГГ-ММ-ДД)", isEdit: !isEdit)
             endDateTF = UITextField.create(text: dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: SettingsManager.shared.defaultDaysBetween, to: Date()) ?? Date()), placeholder: "Введите дату окончания (ГГГГ-ММ-ДД)", isEdit: !isEdit)
             employeeTF = UITextField.create(placeholder: "Введите сотрудника", isEdit: isEdit)
+        }
+        
+        taskNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        projectTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        workTimeTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        startDateTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        endDateTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        employeeTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        
+        view.addSubview(taskNameTF)
+        view.addSubview(projectTF)
+        view.addSubview(workTimeTF)
+        view.addSubview(startDateTF)
+        view.addSubview(endDateTF)
+        view.addSubview(statusSC)
+        view.addSubview(employeeTF)
+    }
+    
+    private func validateDates() -> Bool{
+        guard let startDate = dateFormatter.date(from: startDateTF.text ?? ""),
+              let endDate = dateFormatter.date(from: endDateTF.text ?? "")
+        else {
+            showAlert("Неверный формат даты")
+            return false
+        }
+        
+        guard endDate >= startDate else {
+            showAlert("Дата окончания должна быть позже даты начала")
+            return false
+        }
+        return true
+    }
+    
+    private func validateProject() -> Project?{
+        guard let inputProject = projects.first(where: {$0.projectName.trimmed == projectTF.text?.trimmed ?? ""})
+        else {
+            showAlert("Выберите проект из списка")
+            return nil
+        }
+        return inputProject
+    }
+    
+    private func validateEmployee() -> (Employee?, Bool) {
+        if employeeTF.text?.trimmed.isBlank ?? true {
+            return (nil, true)
+        }
+        
+        guard let inputEmployee = employees.first(where: {emp in
+            return emp.fullName == employeeTF.text?.trimmed ?? ""
+        })
+        else {
+            showAlert("Выберите сотрудника из списка")
+            return (nil, false)
+        }
+        return (inputEmployee, true)
+    }
+    
+    private func loadInitialData() {
+        loadingIndicator.startAnimating()
+        view.isUserInteractionEnabled = false
+        Task {
+            await loadData()
+            await MainActor.run {
+                setupUI()
+                loadingIndicator.stopAnimating()
+                view.isUserInteractionEnabled = true
+                updateSaveButtonState()
+            }
+        }
+    }
+    
+    private func loadData() async {
+        do {
+            projects = try await server.fetchProjects()
+            employees = try await server.fetchEmployees()
+            DispatchQueue.main.async {
+                self.view.isUserInteractionEnabled = true
+            }
+        } catch {
+            DispatchQueue.main.async {
+                self.view.isUserInteractionEnabled = true
+            }
+            self.showAlert("Не удалось загрузить данные")
         }
     }
     

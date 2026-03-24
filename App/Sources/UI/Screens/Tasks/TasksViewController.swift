@@ -35,34 +35,8 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
-        title = "Задачи"
-        taskTable.translatesAutoresizingMaskIntoConstraints = false
-        
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.center = view.center
-        
-        view.addSubview(taskTable)
-        view.addSubview(loadingIndicator)
-        
-        loadingIndicator.startAnimating()
-        view.isUserInteractionEnabled = false
-        
-        NSLayoutConstraint.activate([
-            taskTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            taskTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            taskTable.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            taskTable.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
-        
-        refreshControl.addTarget(self, action: #selector(refreshView), for: .valueChanged)
-        taskTable.dataSource = self
-        taskTable.delegate = self
-        taskTable.refreshControl = refreshControl
+        setupUI()
         refreshView()
-        
-        let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
-        navigationItem.rightBarButtonItem = addButton
     }
     
     func didAddTask(_ task: ProjectTask) {
@@ -156,6 +130,46 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
         let detailViewController = TaskDetailViewController(task: task, project: currentProject, employee: currentEmployee, isContextProject: isContextProject)
         detailViewController.delegate = self
         navigationController?.pushViewController(detailViewController, animated: true)
+    }
+    
+    private func setupUI() {
+        view.backgroundColor = .white
+        title = "Задачи"
+        setupTableView()
+        setupNavigationBar()
+        setupLoadingIndicator()
+        setupConstraints()
+    }
+    
+    private func setupTableView() {
+        taskTable.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(taskTable)
+        refreshControl.addTarget(self, action: #selector(refreshView), for: .valueChanged)
+        taskTable.dataSource = self
+        taskTable.delegate = self
+        taskTable.refreshControl = refreshControl
+    }
+    
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            taskTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            taskTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            taskTable.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            taskTable.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+    }
+    
+    private func setupNavigationBar() {
+        let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
+        navigationItem.rightBarButtonItem = addButton
+    }
+    
+    private func setupLoadingIndicator() {
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.center = view.center
+        view.addSubview(loadingIndicator)
+        loadingIndicator.startAnimating()
+        view.isUserInteractionEnabled = false
     }
     
     private func loadTasks() async throws {

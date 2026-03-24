@@ -34,41 +34,8 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
-        title = "Сотрудники"
-        
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.center = view.center
-        
-        view.addSubview(employeeTable)
-        view.addSubview(loadingIndicator)
-        
-        loadingIndicator.startAnimating()
-        view.isUserInteractionEnabled = false
-        
-        NSLayoutConstraint.activate([
-            employeeTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            employeeTable.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            employeeTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            employeeTable.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
-        ])
-        
-        refreshControl.addTarget(self, action: #selector(refreshView), for: .valueChanged)
-            
-        employeeTable.dataSource = self
-        employeeTable.delegate = self
-        employeeTable.translatesAutoresizingMaskIntoConstraints = false
-        employeeTable.refreshControl = refreshControl
-        
+        setupUI()
         refreshView()
-        
-        switch mode {
-        case .normal:
-            let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
-            navigationItem.rightBarButtonItem = addButton
-        case .selection:
-            break
-        }
     }
     
     func didAddEmployee(_ employee: Employee) {
@@ -148,6 +115,51 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
             completion(employee)
             navigationController?.popViewController(animated: true)
         }
+    }
+    
+    private func setupUI() {
+        view.backgroundColor = .white
+        title = "Сотрудники"
+        setupTableView()
+        setupNavigationBar()
+        setupLoadingIndicator()
+        setupConstraints()
+    }
+    
+    private func setupTableView() {
+        employeeTable.dataSource = self
+        employeeTable.delegate = self
+        employeeTable.translatesAutoresizingMaskIntoConstraints = false
+        employeeTable.refreshControl = refreshControl
+        refreshControl.addTarget(self, action: #selector(refreshView), for: .valueChanged)
+        view.addSubview(employeeTable)
+    }
+    
+    private func setupNavigationBar() {
+        switch mode {
+        case .normal:
+            let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
+            navigationItem.rightBarButtonItem = addButton
+        case .selection:
+            break
+        }
+    }
+    
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            employeeTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            employeeTable.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            employeeTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            employeeTable.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
+    }
+    
+    private func setupLoadingIndicator() {
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.center = view.center
+        view.addSubview(loadingIndicator)
+        loadingIndicator.startAnimating()
+        view.isUserInteractionEnabled = false
     }
     
     private func loadEmployees() async throws{

@@ -21,16 +21,29 @@ final class EmployeeDetailViewController: UIViewController, EmployeesViewControl
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupUI()
+    }
+    
+    func didUpdateEmployee(_ employee: Employee) {
+        self.employee = employee
+        self.delegate?.didUpdateEmployee(employee)
+        updateLabels()
+    }
+    
+    private func setupUI() {
         view.backgroundColor = .white
         title = "Детали сотрудника"
-        
         setupLabels()
-        
-        view.addSubview(firstNameLabel)
-        view.addSubview(lastNameLabel)
-        view.addSubview(surNameLabel)
-        view.addSubview(positionLabel)
-        
+        setupNavigationBar()
+        setupConstraints()
+    }
+    
+    private func setupNavigationBar() {
+        let changeButton = UIBarButtonItem(title: "Изменить", style: .plain, target: self, action: #selector(changeTapped))
+        navigationItem.rightBarButtonItem = changeButton
+    }
+    
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
             firstNameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
             firstNameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -48,15 +61,6 @@ final class EmployeeDetailViewController: UIViewController, EmployeesViewControl
             positionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             positionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
-        
-        let changeButton = UIBarButtonItem(title: "Изменить", style: .plain, target: self, action: #selector(changeTapped))
-        navigationItem.rightBarButtonItem = changeButton
-    }
-    
-    func didUpdateEmployee(_ employee: Employee) {
-        self.employee = employee
-        self.delegate?.didUpdateEmployee(employee)
-        updateLabels()
     }
     
     private func updateLabels() {
@@ -76,6 +80,12 @@ final class EmployeeDetailViewController: UIViewController, EmployeesViewControl
     
     private func setupLabels() {
         updateLabels()
+        
+        view.addSubview(firstNameLabel)
+        view.addSubview(lastNameLabel)
+        view.addSubview(surNameLabel)
+        view.addSubview(positionLabel)
+        
         firstNameLabel.translatesAutoresizingMaskIntoConstraints = false
         lastNameLabel.translatesAutoresizingMaskIntoConstraints = false
         surNameLabel.translatesAutoresizingMaskIntoConstraints = false

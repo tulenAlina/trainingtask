@@ -25,22 +25,19 @@ final class EditProjectViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupUI()
+    }
+    
+    private func setupUI() {
         view.backgroundColor = .white
         title = (project != nil) ? "Редактирование" : "Создание"
-        
-        saveButton = UIBarButtonItem(title: "Сохранить", style: .done, target: self, action: #selector(saveProject))
-        navigationItem.rightBarButtonItem = saveButton
-        saveButton.isEnabled = false
-        
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.center = view.center
-        
         setupTextFields()
-        
-        view.addSubview(projectNameTF)
-        view.addSubview(projectDescriptionTF)
-        view.addSubview(loadingIndicator)
-        
+        setupNavigationBar()
+        setupLoadingIndicator()
+        setupConstraints()
+    }
+    
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
             projectNameTF.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
             projectNameTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -50,9 +47,17 @@ final class EditProjectViewController: UIViewController {
             projectDescriptionTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             projectDescriptionTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
-        
-        projectNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        projectDescriptionTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+    }
+    
+    private func setupNavigationBar() {
+        saveButton = UIBarButtonItem(title: "Сохранить", style: .done, target: self, action: #selector(saveProject))
+        navigationItem.rightBarButtonItem = saveButton
+        saveButton.isEnabled = false
+    }
+    
+    private func setupLoadingIndicator() {
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.center = view.center
     }
     
     private func setupTextFields() {
@@ -65,6 +70,12 @@ final class EditProjectViewController: UIViewController {
             projectNameTF = UITextField.create(placeholder: "Введите название", isEdit: isEdit)
             projectDescriptionTF = UITextField.create(placeholder: "Введите описание", isEdit: isEdit)
         }
+        view.addSubview(projectNameTF)
+        view.addSubview(projectDescriptionTF)
+        view.addSubview(loadingIndicator)
+        
+        projectNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        projectDescriptionTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
     }
     
     @objc private func saveProject() {

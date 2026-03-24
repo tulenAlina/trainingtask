@@ -30,38 +30,8 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
-        title = "Проекты"
-        projectTable.translatesAutoresizingMaskIntoConstraints = false
-        
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.center = view.center
-        
-        view.addSubview(projectTable)
-        view.addSubview(loadingIndicator)
-        loadingIndicator.startAnimating()
-        view.isUserInteractionEnabled = false
-        
-        NSLayoutConstraint.activate([
-            projectTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            projectTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            projectTable.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            projectTable.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
-        refreshControl.addTarget(self, action: #selector(refreshView), for: .valueChanged)
-        
-        projectTable.dataSource = self
-        projectTable.delegate = self
-        projectTable.refreshControl = refreshControl
+        setupUI()
         refreshView()
-        
-        switch mode {
-        case .normal:
-            let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
-            navigationItem.rightBarButtonItem = addButton
-        case .selection:
-            break
-        }
     }
     
     func didAddProject(_ project: Project) {
@@ -153,6 +123,51 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
             completion(project)
             navigationController?.popViewController(animated: true)
         }
+    }
+    
+    private func setupUI() {
+        view.backgroundColor = .white
+        title = "Проекты"
+        setupTableView()
+        setupNavigationBar()
+        setupLoadingIndicator()
+        setupConstraints()
+    }
+    
+    private func setupTableView() {
+        projectTable.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(projectTable)
+        refreshControl.addTarget(self, action: #selector(refreshView), for: .valueChanged)
+        projectTable.dataSource = self
+        projectTable.delegate = self
+        projectTable.refreshControl = refreshControl
+    }
+    
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            projectTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            projectTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            projectTable.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            projectTable.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+    }
+    
+    private func setupNavigationBar() {
+        switch mode {
+        case .normal:
+            let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
+            navigationItem.rightBarButtonItem = addButton
+        case .selection:
+            break
+        }
+    }
+    
+    private func setupLoadingIndicator() {
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.center = view.center
+        view.addSubview(loadingIndicator)
+        loadingIndicator.startAnimating()
+        view.isUserInteractionEnabled = false
     }
     
     private func loadProjects() async throws {

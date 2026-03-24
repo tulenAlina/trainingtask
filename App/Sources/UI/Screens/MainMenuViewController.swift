@@ -9,13 +9,24 @@ final class MainMenuViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupUI()
+    }
+    
+    private func setupUI() {
         view.backgroundColor = .white
         title = "Главное меню"
-        
+        setupButtons()
+        setupConstraints()
+    }
+    
+    private func setupButtons() {
         view.addSubview(projectButton)
         view.addSubview(taskButton)
         view.addSubview(employeeButton)
         view.addSubview(settingsButton)
+    }
+    
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
             projectButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
             projectButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
