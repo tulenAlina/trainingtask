@@ -8,7 +8,7 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
     private let server = ServerManager.shared.currentServer
     private var projects: [ProjectEntity] = []
     private var employees: [EmployeeEntity] = []
-    let dateFormatter = DateFormatter()
+    private let dateFormatter = DateFormatter()
     
     private var saveButton: UIBarButtonItem!
     private var cancelButton: UIBarButtonItem!

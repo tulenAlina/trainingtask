@@ -1,8 +1,8 @@
 import UIKit
 
 final class SplashViewController: UIViewController {
-    let nameLabel = UILabel()
-    let versionLabel = UILabel()
+    private let nameLabel = UILabel()
+    private let versionLabel = UILabel()
     
     private func navigateToMainMenu() {
         guard let window = view.window else {return}
