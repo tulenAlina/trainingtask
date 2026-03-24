@@ -186,6 +186,18 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
         return true
     }
     
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        if textField == startDateTF {
+            if let text = textField.text, let date = dateFormatter.date(from: text) {
+                startDatePicker.date = date
+            }
+        } else if textField == endDateTF {
+            if let text = textField.text, let date = dateFormatter.date(from: text) {
+                endDatePicker.date = date
+            }
+        }
+    }
+    
     private func validateDates() -> Bool{
         guard let startDate = dateFormatter.date(from: startDateTF.text ?? ""),
               let endDate = dateFormatter.date(from: endDateTF.text ?? "")
@@ -252,6 +264,8 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
     private func setupDatePickers() {
         startDateTF.inputView = startDatePicker
         endDateTF.inputView = endDatePicker
+        startDateTF.delegate = self
+        endDateTF.delegate = self
         
         startDatePicker.addTarget(self, action: #selector(dateChanged), for: .valueChanged)
         endDatePicker.addTarget(self, action: #selector(dateChanged), for: .valueChanged)
