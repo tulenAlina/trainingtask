@@ -1,6 +1,6 @@
 import UIKit
 
-final class SettingsViewController: UIViewController, UITextFieldDelegate {
+final class SettingsViewController: UIViewController {
     
     private var serverUrlTF: UITextField!
     private var maxRecordsTF: UITextField!
@@ -14,15 +14,6 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-    }
-    
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if textField == maxRecordsTF || textField == defaultDaysBetweenTF {
-            let allowedCharacters = CharacterSet.decimalDigits
-            let characterSet = CharacterSet(charactersIn: string)
-            return allowedCharacters.isSuperset(of: characterSet)
-        }
-        return true
     }
     
     private func setupUI() {
@@ -146,5 +137,16 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate {
         let isDefaultDaysBetweenFilled = !(defaultDaysBetweenTF.text?.trimmed.isBlank ?? true)
         
         saveButton.isEnabled = isURLFilled && isMaxRecordsFilled && isDefaultDaysBetweenFilled
+    }
+}
+
+extension SettingsViewController: UITextFieldDelegate {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if textField == maxRecordsTF || textField == defaultDaysBetweenTF {
+            let allowedCharacters = CharacterSet.decimalDigits
+            let characterSet = CharacterSet(charactersIn: string)
+            return allowedCharacters.isSuperset(of: characterSet)
+        }
+        return true
     }
 }

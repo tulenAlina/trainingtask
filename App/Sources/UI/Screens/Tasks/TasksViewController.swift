@@ -9,7 +9,7 @@ extension TasksViewControllerDelegate {
     func didAddTask(_ task: ProjectTask) {}
 }
 
-final class TasksViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, TasksViewControllerDelegate {
+final class TasksViewController: UIViewController {
     private let project: Project?
     private let server = ServerManager.shared.currentServer
     private var tasks: [ProjectTask] = []
@@ -37,99 +37,6 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
         super.viewDidLoad()
         setupUI()
         refreshView()
-    }
-    
-    func didAddTask(_ task: ProjectTask) {
-        let maxRecords = SettingsManager.shared.maxRecords
-        if tasks.count >= maxRecords {
-            tasks.removeLast()
-            taskTable.deleteRows(at: [IndexPath(row: maxRecords - 1, section: 0)], with: .automatic)
-        }
-        tasks.insert(task, at: 0)
-        taskTable.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
-        updateEmptyState()
-    }
-    
-    func didUpdateTask(_ task: ProjectTask) {
-        if let index = tasks.firstIndex(where: {$0.id == task.id}) {
-            tasks[index] = task
-            taskTable.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return tasks.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "TaskCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "TaskCell")
-        let task = tasks[indexPath.row]
-        cell.textLabel?.text = task.taskName
-        
-        if project == nil {
-            let projectName = projects.first(where: {$0.id == task.projectID})?.projectName
-            cell.detailTextLabel?.text = projectName
-        }
-        
-        switch task.status {
-        case .notStarted:
-            cell.imageView?.image = UIImage(systemName: "circle")
-        case .inProgress:
-            cell.imageView?.image = UIImage(systemName: "play.circle")
-        case .completed:
-            cell.imageView?.image = UIImage(systemName: "checkmark.circle")
-        case .postponed:
-            cell.imageView?.image = UIImage(systemName: "pause.circle")
-        }
-        return cell
-    }
-    
-    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
-    ) -> UISwipeActionsConfiguration? {
-        let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {[weak self] _,_,completion in
-            self?.loadingIndicator.startAnimating()
-            self?.view.isUserInteractionEnabled = false
-            let task = self?.tasks[indexPath.row]
-            guard let task else {
-                completion(false)
-                return
-            }
-            Task {
-                do {
-                    try await self?.server.deleteTask(task.id)
-                    self?.refreshView()
-                    DispatchQueue.main.async {
-                        completion(true)
-                    }
-                } catch {
-                    DispatchQueue.main.async {
-                        self?.loadingIndicator.stopAnimating()
-                        self?.view.isUserInteractionEnabled = true
-                        completion(false)
-                    }
-                    self?.showAlert("Не удалось удалить задачу")
-                }
-            }
-        }
-        
-        return UISwipeActionsConfiguration(actions: [deleteAction])
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        let task = tasks[indexPath.row]
-        let currentProject: Project?
-        var isContextProject = false
-        if let project {
-            currentProject = project
-            isContextProject = true
-        } else {
-            currentProject = projects.first { $0.id == task.projectID }
-        }
-        let currentEmployee = employees.first { $0.id == task.employeeID }
-        let detailViewController = TaskDetailViewController(task: task, project: currentProject, employee: currentEmployee, isContextProject: isContextProject)
-        detailViewController.delegate = self
-        navigationController?.pushViewController(detailViewController, animated: true)
     }
     
     private func setupUI() {
@@ -224,5 +131,104 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
         }
         editVC.delegate = self
         navigationController?.pushViewController(editVC, animated: true)
+    }
+}
+
+extension TasksViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return tasks.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "TaskCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "TaskCell")
+        let task = tasks[indexPath.row]
+        cell.textLabel?.text = task.taskName
+        
+        if project == nil {
+            let projectName = projects.first(where: {$0.id == task.projectID})?.projectName
+            cell.detailTextLabel?.text = projectName
+        }
+        
+        switch task.status {
+        case .notStarted:
+            cell.imageView?.image = UIImage(systemName: "circle")
+        case .inProgress:
+            cell.imageView?.image = UIImage(systemName: "play.circle")
+        case .completed:
+            cell.imageView?.image = UIImage(systemName: "checkmark.circle")
+        case .postponed:
+            cell.imageView?.image = UIImage(systemName: "pause.circle")
+        }
+        return cell
+    }
+}
+
+extension TasksViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
+    ) -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {[weak self] _,_,completion in
+            self?.loadingIndicator.startAnimating()
+            self?.view.isUserInteractionEnabled = false
+            let task = self?.tasks[indexPath.row]
+            guard let task else {
+                completion(false)
+                return
+            }
+            Task {
+                do {
+                    try await self?.server.deleteTask(task.id)
+                    self?.refreshView()
+                    DispatchQueue.main.async {
+                        completion(true)
+                    }
+                } catch {
+                    DispatchQueue.main.async {
+                        self?.loadingIndicator.stopAnimating()
+                        self?.view.isUserInteractionEnabled = true
+                        completion(false)
+                    }
+                    self?.showAlert("Не удалось удалить задачу")
+                }
+            }
+        }
+        
+        return UISwipeActionsConfiguration(actions: [deleteAction])
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let task = tasks[indexPath.row]
+        let currentProject: Project?
+        var isContextProject = false
+        if let project {
+            currentProject = project
+            isContextProject = true
+        } else {
+            currentProject = projects.first { $0.id == task.projectID }
+        }
+        let currentEmployee = employees.first { $0.id == task.employeeID }
+        let detailViewController = TaskDetailViewController(task: task, project: currentProject, employee: currentEmployee, isContextProject: isContextProject)
+        detailViewController.delegate = self
+        navigationController?.pushViewController(detailViewController, animated: true)
+    }
+}
+
+extension TasksViewController: TasksViewControllerDelegate {
+    func didAddTask(_ task: ProjectTask) {
+        let maxRecords = SettingsManager.shared.maxRecords
+        if tasks.count >= maxRecords {
+            tasks.removeLast()
+            taskTable.deleteRows(at: [IndexPath(row: maxRecords - 1, section: 0)], with: .automatic)
+        }
+        tasks.insert(task, at: 0)
+        taskTable.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
+        updateEmptyState()
+    }
+    
+    func didUpdateTask(_ task: ProjectTask) {
+        if let index = tasks.firstIndex(where: {$0.id == task.id}) {
+            tasks[index] = task
+            taskTable.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+        }
     }
 }

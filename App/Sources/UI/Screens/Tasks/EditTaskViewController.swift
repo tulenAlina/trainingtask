@@ -1,6 +1,6 @@
 import UIKit
 
-final class EditTaskViewController: UIViewController, UITextFieldDelegate {
+final class EditTaskViewController: UIViewController {
     
     weak var delegate: TasksViewControllerDelegate?
     
@@ -87,27 +87,6 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
         title = (task != nil) ? "Редактирование" : "Cоздание"
         setupLoadingIndicator()
         loadInitialData()
-    }
-    
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if textField == workTimeTF {
-            let allowedCharacters = CharacterSet.decimalDigits
-            let characterSet = CharacterSet(charactersIn: string)
-            return allowedCharacters.isSuperset(of: characterSet)
-        }
-        return true
-    }
-    
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        if textField == startDateTF {
-            if let text = textField.text, let date = dateFormatter.date(from: text) {
-                startDatePicker.date = date
-            }
-        } else if textField == endDateTF {
-            if let text = textField.text, let date = dateFormatter.date(from: text) {
-                endDatePicker.date = date
-            }
-        }
     }
     
     private func setupUI() {
@@ -438,5 +417,28 @@ final class EditTaskViewController: UIViewController, UITextFieldDelegate {
             self?.updateSaveButtonState()
         })
         navigationController?.pushViewController(employeesViewController, animated: true)
+    }
+}
+
+extension EditTaskViewController: UITextFieldDelegate {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if textField == workTimeTF {
+            let allowedCharacters = CharacterSet.decimalDigits
+            let characterSet = CharacterSet(charactersIn: string)
+            return allowedCharacters.isSuperset(of: characterSet)
+        }
+        return true
+    }
+    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        if textField == startDateTF {
+            if let text = textField.text, let date = dateFormatter.date(from: text) {
+                startDatePicker.date = date
+            }
+        } else if textField == endDateTF {
+            if let text = textField.text, let date = dateFormatter.date(from: text) {
+                endDatePicker.date = date
+            }
+        }
     }
 }

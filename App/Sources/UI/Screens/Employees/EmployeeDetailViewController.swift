@@ -1,6 +1,6 @@
 import UIKit
 
-final class EmployeeDetailViewController: UIViewController, EmployeesViewControllerDelegate {
+final class EmployeeDetailViewController: UIViewController {
     
     weak var delegate: EmployeesViewControllerDelegate?
     
@@ -22,12 +22,6 @@ final class EmployeeDetailViewController: UIViewController, EmployeesViewControl
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-    }
-    
-    func didUpdateEmployee(_ employee: Employee) {
-        self.employee = employee
-        self.delegate?.didUpdateEmployee(employee)
-        updateLabels()
     }
     
     private func setupUI() {
@@ -96,5 +90,13 @@ final class EmployeeDetailViewController: UIViewController, EmployeesViewControl
         let editViewController = EditEmployeeViewController(employee)
         editViewController.delegate = self
         navigationController?.pushViewController(editViewController, animated: true)
+    }
+}
+
+extension EmployeeDetailViewController: EmployeesViewControllerDelegate {
+    func didUpdateEmployee(_ employee: Employee) {
+        self.employee = employee
+        self.delegate?.didUpdateEmployee(employee)
+        updateLabels()
     }
 }

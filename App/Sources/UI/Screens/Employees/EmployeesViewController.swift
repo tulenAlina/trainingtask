@@ -9,7 +9,7 @@ extension EmployeesViewControllerDelegate {
     func didAddEmployee(_ employee: Employee) {}
 }
 
-final class EmployeesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, EmployeesViewControllerDelegate {
+final class EmployeesViewController: UIViewController {
     
     enum Mode {
         case normal
@@ -36,85 +36,6 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
         super.viewDidLoad()
         setupUI()
         refreshView()
-    }
-    
-    func didAddEmployee(_ employee: Employee) {
-        let maxRecords = SettingsManager.shared.maxRecords
-        if employees.count >= maxRecords {
-            employees.removeLast()
-            employeeTable.deleteRows(at: [IndexPath(row: maxRecords - 1, section: 0)], with: .automatic)
-        }
-        employees.insert(employee, at: 0)
-        employeeTable.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
-        updateEmptyState()
-    }
-    
-    func didUpdateEmployee(_ employee: Employee) {
-        if let index = employees.firstIndex(where: {$0.id == employee.id}) {
-            employees[index] = employee
-            employeeTable.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return employees.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "EmployeeCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "EmployeeCell")
-        cell.textLabel?.text = employees[indexPath.row].fullName
-        cell.detailTextLabel?.text = employees[indexPath.row].position
-        return cell
-    }
-    
-    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
-    ) -> UISwipeActionsConfiguration? {
-        switch mode {
-        case .normal:
-            let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {[weak self] _, _, completion in
-                self?.loadingIndicator.startAnimating()
-                self?.view.isUserInteractionEnabled = false
-                let employee = self?.employees[indexPath.row]
-                guard let employee else {
-                    completion(false)
-                    return
-                }
-                Task {
-                    do {
-                        try await self?.server.deleteEmployee(employee.id)
-                        self?.refreshView()
-                        DispatchQueue.main.async {
-                            completion(true)
-                        }
-                    } catch {
-                        DispatchQueue.main.async {
-                            self?.loadingIndicator.stopAnimating()
-                            self?.view.isUserInteractionEnabled = true
-                            completion(false)
-                        }
-                        self?.showAlert("Не удалось удалить сотрудника")
-                    }
-                }
-            }
-            
-            return UISwipeActionsConfiguration(actions: [deleteAction])
-        case .selection:
-            return nil
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        let employee = employees[indexPath.row]
-        switch mode {
-        case .normal:
-            let detailViewController = EmployeeDetailViewController(employee: employee)
-            detailViewController.delegate = self
-            navigationController?.pushViewController(detailViewController, animated: true)
-        case .selection(let completion):
-            completion(employee)
-            navigationController?.popViewController(animated: true)
-        }
     }
     
     private func setupUI() {
@@ -205,5 +126,90 @@ final class EmployeesViewController: UIViewController, UITableViewDataSource, UI
         let editVC = EditEmployeeViewController()
         editVC.delegate = self
         navigationController?.pushViewController(editVC, animated: true)
+    }
+}
+
+extension EmployeesViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return employees.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "EmployeeCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "EmployeeCell")
+        cell.textLabel?.text = employees[indexPath.row].fullName
+        cell.detailTextLabel?.text = employees[indexPath.row].position
+        return cell
+    }
+}
+
+extension EmployeesViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
+    ) -> UISwipeActionsConfiguration? {
+        switch mode {
+        case .normal:
+            let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {[weak self] _, _, completion in
+                self?.loadingIndicator.startAnimating()
+                self?.view.isUserInteractionEnabled = false
+                let employee = self?.employees[indexPath.row]
+                guard let employee else {
+                    completion(false)
+                    return
+                }
+                Task {
+                    do {
+                        try await self?.server.deleteEmployee(employee.id)
+                        self?.refreshView()
+                        DispatchQueue.main.async {
+                            completion(true)
+                        }
+                    } catch {
+                        DispatchQueue.main.async {
+                            self?.loadingIndicator.stopAnimating()
+                            self?.view.isUserInteractionEnabled = true
+                            completion(false)
+                        }
+                        self?.showAlert("Не удалось удалить сотрудника")
+                    }
+                }
+            }
+            
+            return UISwipeActionsConfiguration(actions: [deleteAction])
+        case .selection:
+            return nil
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let employee = employees[indexPath.row]
+        switch mode {
+        case .normal:
+            let detailViewController = EmployeeDetailViewController(employee: employee)
+            detailViewController.delegate = self
+            navigationController?.pushViewController(detailViewController, animated: true)
+        case .selection(let completion):
+            completion(employee)
+            navigationController?.popViewController(animated: true)
+        }
+    }
+}
+
+extension EmployeesViewController: EmployeesViewControllerDelegate {
+    func didAddEmployee(_ employee: Employee) {
+        let maxRecords = SettingsManager.shared.maxRecords
+        if employees.count >= maxRecords {
+            employees.removeLast()
+            employeeTable.deleteRows(at: [IndexPath(row: maxRecords - 1, section: 0)], with: .automatic)
+        }
+        employees.insert(employee, at: 0)
+        employeeTable.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
+        updateEmptyState()
+    }
+    
+    func didUpdateEmployee(_ employee: Employee) {
+        if let index = employees.firstIndex(where: {$0.id == employee.id}) {
+            employees[index] = employee
+            employeeTable.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+        }
     }
 }

@@ -1,6 +1,6 @@
 import UIKit
 
-final class TaskDetailViewController: UIViewController, TasksViewControllerDelegate {
+final class TaskDetailViewController: UIViewController {
     
     weak var delegate: TasksViewControllerDelegate?
     
@@ -35,21 +35,6 @@ final class TaskDetailViewController: UIViewController, TasksViewControllerDeleg
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-    }
-    
-    func didUpdateTask(_ task: ProjectTask) {
-        self.task = task
-        self.delegate?.didUpdateTask(task)
-        
-        loadingIndicator.startAnimating()
-        view.isUserInteractionEnabled = false
-        Task {
-            await loadRelatedData()
-            await MainActor.run {
-                loadingIndicator.stopAnimating()
-                view.isUserInteractionEnabled = true
-            }
-        }
     }
     
     private func setupUI() {
@@ -173,6 +158,23 @@ final class TaskDetailViewController: UIViewController, TasksViewControllerDeleg
             let editViewController = EditTaskViewController(task)
             editViewController.delegate = self
             navigationController?.pushViewController(editViewController, animated: true)
+        }
+    }
+}
+
+extension TaskDetailViewController: TasksViewControllerDelegate {
+    func didUpdateTask(_ task: ProjectTask) {
+        self.task = task
+        self.delegate?.didUpdateTask(task)
+        
+        loadingIndicator.startAnimating()
+        view.isUserInteractionEnabled = false
+        Task {
+            await loadRelatedData()
+            await MainActor.run {
+                loadingIndicator.stopAnimating()
+                view.isUserInteractionEnabled = true
+            }
         }
     }
 }
