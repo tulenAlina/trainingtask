@@ -118,7 +118,8 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
         
         switch mode {
         case .normal:
-            navigationController?.pushViewController(TasksViewController(project: project), animated: true)
+            let tasksViewConttroller = TasksViewController(project: project)
+            navigationController?.pushViewController(tasksViewConttroller, animated: true)
         case .selection(let completion):
             completion(project)
             navigationController?.popViewController(animated: true)
