@@ -7,11 +7,26 @@ protocol ProjectsViewControllerDelegate: AnyObject {
 
 final class ProjectsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, ProjectsViewControllerDelegate {
     
+    enum Mode {
+        case normal
+        case selection(completion: (ProjectEntity) -> Void)
+    }
+    private let mode: Mode
+    
     private let server = ServerManager.shared.currentServer
     private var projects: [ProjectEntity] = []
     private let projectTable = UITableView()
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private let refreshControl = UIRefreshControl()
+    
+    init(mode: Mode = .normal) {
+        self.mode = mode
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return projects.count
@@ -26,50 +41,64 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
     ) -> UISwipeActionsConfiguration? {
-        let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {[weak self] _,_,completion in
-            self?.loadingIndicator.startAnimating()
-            self?.view.isUserInteractionEnabled = false
-            let project = self?.projects[indexPath.row]
-            guard let project else {
-                completion(false)
-                return
-            }
-            Task {
-                do {
-                    try await self?.server.deleteProject(project.id)
-                    self?.refreshView()
-                    DispatchQueue.main.async {
-                        completion(true)
+        switch mode {
+        case .normal:
+            
+            let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {[weak self] _,_,completion in
+                self?.loadingIndicator.startAnimating()
+                self?.view.isUserInteractionEnabled = false
+                let project = self?.projects[indexPath.row]
+                guard let project else {
+                    completion(false)
+                    return
+                }
+                Task {
+                    do {
+                        try await self?.server.deleteProject(project.id)
+                        self?.refreshView()
+                        DispatchQueue.main.async {
+                            completion(true)
+                        }
+                    } catch {
+                        DispatchQueue.main.async {
+                            self?.loadingIndicator.stopAnimating()
+                            self?.view.isUserInteractionEnabled = true
+                            completion(false)
+                        }
+                        self?.showAlert("Не удалось удалить проект")
                     }
-                } catch {
-                    DispatchQueue.main.async {
-                        self?.loadingIndicator.stopAnimating()
-                        self?.view.isUserInteractionEnabled = true
-                        completion(false)
-                    }
-                    self?.showAlert("Не удалось удалить проект")
                 }
             }
+            
+            let editAction = UIContextualAction(style: .normal, title: "Изменить") {[weak self] _,_,completion in
+                let project = self?.projects[indexPath.row]
+                guard let project else {
+                    completion(false)
+                    return
+                }
+                let editVC = EditProjectViewController(project)
+                editVC.delegate = self
+                self?.navigationController?.pushViewController(editVC, animated: true)
+                completion(true)
+            }
+            return UISwipeActionsConfiguration(actions: [deleteAction, editAction])
+        case .selection:
+            return nil
         }
         
-        let editAction = UIContextualAction(style: .normal, title: "Изменить") {[weak self] _,_,completion in
-            let project = self?.projects[indexPath.row]
-            guard let project else {
-                completion(false)
-                return
-            }
-            let editVC = EditProjectViewController(project)
-            editVC.delegate = self
-            self?.navigationController?.pushViewController(editVC, animated: true)
-            completion(true)
-        }
-        return UISwipeActionsConfiguration(actions: [deleteAction, editAction])
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let project = projects[indexPath.row]
-        navigationController?.pushViewController(TasksViewController(project: project), animated: true)
+        
+        switch mode {
+        case .normal:
+            navigationController?.pushViewController(TasksViewController(project: project), animated: true)
+        case .selection(let completion):
+            completion(project)
+            navigationController?.popViewController(animated: true)
+        }
     }
     
     func didAddProject(_ project: ProjectEntity) {
@@ -163,7 +192,12 @@ final class ProjectsViewController: UIViewController, UITableViewDataSource, UIT
         projectTable.refreshControl = refreshControl
         refreshView()
         
-        let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
-        navigationItem.rightBarButtonItem = addButton
+        switch mode {
+        case .normal:
+            let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
+            navigationItem.rightBarButtonItem = addButton
+        case .selection:
+            break
+        }
     }
 }

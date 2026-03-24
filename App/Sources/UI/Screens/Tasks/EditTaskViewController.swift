@@ -1,6 +1,6 @@
 import UIKit
 
-final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDelegate, UITextFieldDelegate {
+final class EditTaskViewController: UIViewController, UITextFieldDelegate {
     
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private var task: TaskEntity? = nil
@@ -14,12 +14,10 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
     private var cancelButton: UIBarButtonItem!
     private var taskNameTF: UITextField!
     private var projectTF: UITextField!
-    private var projectPV = UIPickerView()
     private var workTimeTF: UITextField!
     private var startDateTF: UITextField!
     private var endDateTF: UITextField!
     private var employeeTF: UITextField!
-    private var employeePV = UIPickerView()
     private var statusSC: UISegmentedControl = {
         let items = TaskStatus.allCases.map {$0.rawValue}
         let sc = UISegmentedControl(items: items)
@@ -41,6 +39,20 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
         picker.preferredDatePickerStyle = .inline
         picker.locale = Locale(identifier: "ru_RU")
         return picker
+    }()
+    
+    private let projectButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Выбрать", for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
+    private let employeeButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Выбрать", for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
     
     weak var delegate: TasksViewControllerDelegate?
@@ -67,39 +79,6 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
         
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-       
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        if pickerView == projectPV {
-            return projects.count
-        } else {
-            return employees.count
-        }
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        if pickerView == projectPV {
-            return projects[row].projectName
-        } else {
-            let emp = employees[row]
-            return "\(emp.lastName) \(emp.firstName) \(emp.surName ?? "")".trimmed
-        }
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        if pickerView == projectPV {
-            projectTF.text = projects[row].projectName
-            view.endEditing(true)
-        } else {
-            let emp = employees[row]
-            employeeTF.text = "\(emp.lastName) \(emp.firstName) \(emp.surName ?? "")".trimmed
-            view.endEditing(true)
-        }
-        updateSaveButtonState()
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
@@ -166,12 +145,6 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
         }
     }
     
-    private func setupPickerView(_ picker: UIPickerView, for textField: UITextField) {
-        picker.dataSource = self
-        picker.delegate = self
-        textField.inputView = picker
-    }
-    
     private func setupSegmentedControl() {
         if let task {
             let index = TaskStatus.allCases.firstIndex { $0 == task.status } ?? 0
@@ -194,11 +167,11 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
         if let task {
             isEdit = true
             if let contextProject {
-                projectTF = UITextField.create(text: "\(contextProject.projectName)", placeholder: "Выберите проект", isEdit: isEdit)
+                projectTF = UITextField.create(text: "\(contextProject.projectName)", placeholder: "Введите проект", isEdit: isEdit)
                 projectTF.isEnabled = false
                 projectTF.textColor = .lightGray
             } else {
-                projectTF = UITextField.create(text: "\(projects.first(where: {$0.id == task.projectID})?.projectName ?? "")", placeholder: "Выберите проект", isEdit: isEdit)
+                projectTF = UITextField.create(text: "\(projects.first(where: {$0.id == task.projectID})?.projectName ?? "")", placeholder: "Введите проект", isEdit: isEdit)
             }
             taskNameTF = UITextField.create(text: "\(task.taskName)", placeholder: "Введите задачу", isEdit: isEdit)
             
@@ -212,14 +185,14 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
             if let emp = employees.first(where: {$0.id == task.employeeID}) {
                 fio = "\(emp.lastName) \(emp.firstName) \(emp.surName ?? "")".trimmed
             }
-            employeeTF = UITextField.create(text: "\(fio)", placeholder: "Выберите сотрудника", isEdit: isEdit)
+            employeeTF = UITextField.create(text: "\(fio)", placeholder: "Введите сотрудника", isEdit: isEdit)
         } else {
             if let contextProject {
-                projectTF = UITextField.create(text: "\(contextProject.projectName)", placeholder: "Выберите проект", isEdit: !isEdit)
+                projectTF = UITextField.create(text: "\(contextProject.projectName)", placeholder: "Введите проект", isEdit: !isEdit)
                 projectTF.isEnabled = false
                 projectTF.textColor = .lightGray
             } else {
-                projectTF = UITextField.create(placeholder: "Выберите проект", isEdit: isEdit)
+                projectTF = UITextField.create(placeholder: "Введите проект", isEdit: isEdit)
             }
             taskNameTF = UITextField.create(placeholder: "Введите задачу", isEdit: isEdit)
             
@@ -229,7 +202,7 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
             
             startDateTF = UITextField.create(text: dateFormatter.string(from: Date()), placeholder: "Введите дату начала (ГГГГ-ММ-ДД)", isEdit: !isEdit)
             endDateTF = UITextField.create(text: dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: SettingsManager.shared.defaultDaysBetween, to: Date()) ?? Date()), placeholder: "Введите дату окончания (ГГГГ-ММ-ДД)", isEdit: !isEdit)
-            employeeTF = UITextField.create(placeholder: "Выберите сотрудника", isEdit: isEdit)
+            employeeTF = UITextField.create(placeholder: "Введите сотрудника", isEdit: isEdit)
         }
     }
     
@@ -321,6 +294,23 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
         saveButton.isEnabled = !isFieldsMatched && isTaskNameFilled && isProjectFilled && isWorkTimeFilled && isStartDateFilled && isEndDateFilled
     }
     
+    @objc private func selectProjectTapped() {
+        let projectsViewController = ProjectsViewController(mode: .selection {[weak self] selectedProject in
+            self?.projectTF.text = selectedProject.projectName
+            self?.updateSaveButtonState()
+        })
+        navigationController?.pushViewController(projectsViewController, animated: true)
+    }
+    
+    @objc private func selectEmployeeTapped() {
+        let employeesViewController = EmployeesViewController(mode: .selection {[weak self] selectedEmployee in
+            let fio = "\(selectedEmployee.lastName) \(selectedEmployee.firstName) \(selectedEmployee.surName ?? "")".trimmed
+            self?.employeeTF.text = fio
+            self?.updateSaveButtonState()
+        })
+        navigationController?.pushViewController(employeesViewController, animated: true)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -349,18 +339,22 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
                 loadingIndicator.stopAnimating()
                 view.isUserInteractionEnabled = true
                 setupTextFields()
-                setupPickerView(projectPV, for: projectTF)
-                setupPickerView(employeePV, for: employeeTF)
                 setupSegmentedControl()
                 setupDatePickers()
                 
                 view.addSubview(taskNameTF)
                 view.addSubview(projectTF)
+                view.addSubview(projectButton)
                 view.addSubview(workTimeTF)
                 view.addSubview(startDateTF)
                 view.addSubview(endDateTF)
                 view.addSubview(statusSC)
                 view.addSubview(employeeTF)
+                view.addSubview(employeeButton)
+                
+                if contextProject != nil {
+                    projectButton.isEnabled = false
+                }
                 
                 NSLayoutConstraint.activate([
                     taskNameTF.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
@@ -369,7 +363,10 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
                     
                     projectTF.topAnchor.constraint(equalTo: taskNameTF.bottomAnchor, constant: 30),
                     projectTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                    projectTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                    projectTF.trailingAnchor.constraint(equalTo: projectButton.leadingAnchor, constant: -20),
+                    
+                    projectButton.topAnchor.constraint(equalTo: taskNameTF.bottomAnchor, constant: 30),
+                    projectButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
                     
                     workTimeTF.topAnchor.constraint(equalTo: projectTF.bottomAnchor, constant: 30),
                     workTimeTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -387,10 +384,12 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
                     statusSC.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
                     statusSC.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
                     
+                    employeeButton.topAnchor.constraint(equalTo: statusSC.bottomAnchor, constant: 30),
+                    employeeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                    
                     employeeTF.topAnchor.constraint(equalTo: statusSC.bottomAnchor, constant: 30),
                     employeeTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                    employeeTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
-                    
+                    employeeTF.trailingAnchor.constraint(equalTo: employeeButton.leadingAnchor, constant: -20)
                 ])
                 
                 taskNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
@@ -400,6 +399,8 @@ final class EditTaskViewController: UIViewController, UIPickerViewDataSource, UI
                 endDateTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
                 employeeTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
                 statusSC.addTarget(self, action: #selector(updateSaveButtonState), for: .valueChanged)
+                projectButton.addTarget(self, action: #selector(selectProjectTapped), for: .touchUpInside)
+                employeeButton.addTarget(self, action: #selector(selectEmployeeTapped), for: .touchUpInside)
                 
                 updateSaveButtonState()
             }

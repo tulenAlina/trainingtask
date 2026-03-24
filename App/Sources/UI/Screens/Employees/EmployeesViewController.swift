@@ -11,11 +11,26 @@
 
     final class EmployeesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, EmployeesViewControllerDelegate {
         
+        enum Mode {
+            case normal
+            case selection(completion: (EmployeeEntity) -> Void)
+        }
+        private let mode: Mode
+        
         private var employees: [EmployeeEntity] = []
         private let employeeTable = UITableView()
         private let server = ServerManager.shared.currentServer
         private let loadingIndicator = UIActivityIndicatorView(style: .large)
         private let refreshControl = UIRefreshControl()
+        
+        init(mode: Mode = .normal) {
+            self.mode = mode
+            super.init(nibName: nil, bundle: nil)
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
         
         func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
             return employees.count
@@ -23,58 +38,60 @@
         
         func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
             let cell = tableView.dequeueReusableCell(withIdentifier: "EmployeeCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "EmployeeCell")
-            cell.textLabel?.text = "\(employees[indexPath.row].firstName) \(employees[indexPath.row].lastName) \(employees[indexPath.row].surName ?? "")"
+            cell.textLabel?.text = "\(employees[indexPath.row].lastName) \(employees[indexPath.row].firstName) \(employees[indexPath.row].surName ?? "")".trimmed
             cell.detailTextLabel?.text = employees[indexPath.row].position
             return cell
         }
         
         func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
         ) -> UISwipeActionsConfiguration? {
-            let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {[weak self] _, _, completion in
-                self?.loadingIndicator.startAnimating()
-                self?.view.isUserInteractionEnabled = false
-                let employee = self?.employees[indexPath.row]
-                guard let employee else {
-                    completion(false)
-                    return
-                }
-                Task {
-                    do {
-                        try await self?.server.deleteEmployee(employee.id)
-                        self?.refreshView()
-                        DispatchQueue.main.async {
-                            completion(true)
+            switch mode {
+            case .normal:
+                
+                let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {[weak self] _, _, completion in
+                    self?.loadingIndicator.startAnimating()
+                    self?.view.isUserInteractionEnabled = false
+                    let employee = self?.employees[indexPath.row]
+                    guard let employee else {
+                        completion(false)
+                        return
+                    }
+                    Task {
+                        do {
+                            try await self?.server.deleteEmployee(employee.id)
+                            self?.refreshView()
+                            DispatchQueue.main.async {
+                                completion(true)
+                            }
+                        } catch {
+                            DispatchQueue.main.async {
+                                self?.loadingIndicator.stopAnimating()
+                                self?.view.isUserInteractionEnabled = true
+                                completion(false)
+                            }
+                            self?.showAlert("Не удалось удалить сотрудника")
                         }
-                    } catch {
-                        DispatchQueue.main.async {
-                            self?.loadingIndicator.stopAnimating()
-                            self?.view.isUserInteractionEnabled = true
-                            completion(false)
-                        }
-                        self?.showAlert("Не удалось удалить сотрудника")
                     }
                 }
+                
+                return UISwipeActionsConfiguration(actions: [deleteAction])
+            case .selection:
+                return nil
             }
-            let editAction = UIContextualAction(style: .normal, title: "Изменить") {[weak self] _, _, completion in
-                let employee = self?.employees[indexPath.row]
-                guard let employee else {
-                    completion(false)
-                    return
-                }
-                let editVC = EditEmployeeViewController(employee)
-                editVC.delegate = self
-                self?.navigationController?.pushViewController(editVC, animated: true)
-                completion(true)
-            }
-            return UISwipeActionsConfiguration(actions: [deleteAction, editAction])
         }
         
         func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
             tableView.deselectRow(at: indexPath, animated: true)
             let employee = employees[indexPath.row]
-            let detailViewController = EmployeeDetailViewController(employee: employee)
-            detailViewController.delegate = self
-            navigationController?.pushViewController(detailViewController, animated: true)
+            switch mode {
+            case .normal:
+                let detailViewController = EmployeeDetailViewController(employee: employee)
+                detailViewController.delegate = self
+                navigationController?.pushViewController(detailViewController, animated: true)
+            case .selection(let completion):
+                completion(employee)
+                navigationController?.popViewController(animated: true)
+            }
         }
         
         private func loadEmployees() async throws{
@@ -170,7 +187,12 @@
             
             refreshView()
             
-            let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
-            navigationItem.rightBarButtonItem = addButton
+            switch mode {
+            case .normal:
+                let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
+                navigationItem.rightBarButtonItem = addButton
+            case .selection:
+                break
+            }
         }
     }

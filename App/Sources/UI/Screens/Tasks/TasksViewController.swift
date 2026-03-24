@@ -88,23 +88,7 @@ final class TasksViewController: UIViewController, UITableViewDataSource, UITabl
             }
         }
         
-        let editAction = UIContextualAction(style: .normal, title: "Изменить") {[weak self] _,_,completion in
-            let task = self?.tasks[indexPath.row]
-            guard let task else {
-                completion(false)
-                return
-            }
-            let editVC: EditTaskViewController
-            if let project = self?.project {
-                editVC = EditTaskViewController(task, project: project)
-            } else {
-                editVC = EditTaskViewController(task)
-            }
-            editVC.delegate = self
-            self?.navigationController?.pushViewController(editVC, animated: true)
-            completion(true)
-        }
-        return UISwipeActionsConfiguration(actions: [deleteAction, editAction])
+        return UISwipeActionsConfiguration(actions: [deleteAction])
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
