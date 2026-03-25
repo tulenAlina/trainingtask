@@ -6,7 +6,7 @@ final class EditEmployeeViewController: UIViewController {
     var saveButton: UIBarButtonItem!
     
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
-    private var employee: Employee? = nil
+    private var employee: Employee?
     private var firstNameTextField: UITextField!
     private var lastNameTextField: UITextField!
     private var surNameTextField: UITextField!
@@ -14,11 +14,7 @@ final class EditEmployeeViewController: UIViewController {
     private var cancelButton: UIBarButtonItem!
     private let server = ServerManager.shared.currentServer
     
-    init() {
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    init(_ employee: Employee) {
+    init(_ employee: Employee? = nil) {
         self.employee = employee
         super.init(nibName: nil, bundle: nil)
     }

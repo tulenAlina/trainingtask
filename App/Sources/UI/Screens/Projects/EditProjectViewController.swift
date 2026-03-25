@@ -5,17 +5,13 @@ final class EditProjectViewController: UIViewController {
     var saveButton: UIBarButtonItem!
     
     private let server = ServerManager.shared.currentServer
-    private var project: Project? = nil
+    private var project: Project?
     private var nameTextField: UITextField!
     private var descriptionTextField: UITextField!
     private var cancelButton: UIBarButtonItem!
     private var loadingIndicator: UIActivityIndicatorView!
     
-    init() {
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    init(_ project: Project) {
+    init(_ project: Project? = nil) {
         self.project = project
         super.init(nibName: nil, bundle: nil)
     }

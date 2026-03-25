@@ -8,8 +8,8 @@ final class EditTaskViewController: UIViewController {
     private let server = ServerManager.shared.currentServer
     private let dateFormatter = DateHelper.self
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
-    private var task: ProjectTask? = nil
-    private var contextProject: Project? = nil
+    private var task: ProjectTask?
+    private var contextProject: Project?
     private var projects: [Project] = []
     private var employees: [Employee] = []
     private var cancelButton: UIBarButtonItem!
@@ -57,21 +57,7 @@ final class EditTaskViewController: UIViewController {
         return sc
     }()
     
-    init() {
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    init(_ task: ProjectTask) {
-        self.task = task
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    init(project: Project) {
-        self.contextProject = project
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    init(_ task: ProjectTask, project: Project) {
+    init(_ task: ProjectTask? = nil, project: Project? = nil) {
         self.task = task
         self.contextProject = project
         super.init(nibName: nil, bundle: nil)

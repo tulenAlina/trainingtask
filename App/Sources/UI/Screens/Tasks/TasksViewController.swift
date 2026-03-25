@@ -18,13 +18,8 @@ final class TasksViewController: UIViewController {
     private let tableView = UITableView()
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private let refreshControl = UIRefreshControl()
-    
-    init() {
-        self.project = nil
-        super.init(nibName: nil, bundle: nil)
-    }
         
-    init(project: Project) {
+    init(project: Project? = nil) {
         self.project = project
         super.init(nibName: nil, bundle: nil)
     }
