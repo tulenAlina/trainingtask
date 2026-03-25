@@ -3,15 +3,16 @@ import UIKit
 final class EditEmployeeViewController: UIViewController {
     
     weak var delegate: EmployeesViewControllerDelegate?
+    var saveButton: UIBarButtonItem!
     
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private var employee: Employee? = nil
-    private var firstNameTF: UITextField!
-    private var lastNameTF: UITextField!
-    private var surNameTF: UITextField!
-    private var positionTF: UITextField!
-    private var saveButton: UIBarButtonItem!
+    private var firstNameTextField: UITextField!
+    private var lastNameTextField: UITextField!
+    private var surNameTextField: UITextField!
+    private var positionTextField: UITextField!
     private var cancelButton: UIBarButtonItem!
+    private let server = ServerManager.shared.currentServer
     
     init() {
         super.init(nibName: nil, bundle: nil)
@@ -54,21 +55,21 @@ final class EditEmployeeViewController: UIViewController {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            firstNameTF.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            firstNameTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            firstNameTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            firstNameTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            firstNameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            firstNameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            lastNameTF.topAnchor.constraint(equalTo: firstNameTF.bottomAnchor, constant: 30),
-            lastNameTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            lastNameTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            lastNameTextField.topAnchor.constraint(equalTo: firstNameTextField.bottomAnchor, constant: 30),
+            lastNameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            lastNameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            surNameTF.topAnchor.constraint(equalTo: lastNameTF.bottomAnchor, constant: 30),
-            surNameTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            surNameTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            surNameTextField.topAnchor.constraint(equalTo: lastNameTextField.bottomAnchor, constant: 30),
+            surNameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            surNameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            positionTF.topAnchor.constraint(equalTo: surNameTF.bottomAnchor, constant: 30),
-            positionTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            positionTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+            positionTextField.topAnchor.constraint(equalTo: surNameTextField.bottomAnchor, constant: 30),
+            positionTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            positionTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
     }
     
@@ -76,80 +77,112 @@ final class EditEmployeeViewController: UIViewController {
         var isEdit = false
         if let employee {
             isEdit = true
-            firstNameTF = UITextField.create(text: "\(employee.firstName)", placeholder: "Введите имя", isEdit: isEdit)
-            lastNameTF = UITextField.create(text: "\(employee.lastName)", placeholder: "Введите фамилию", isEdit: isEdit)
-            surNameTF = UITextField.create(text: "\(employee.surName ?? "")", placeholder: "Введите отчество(если есть)", isEdit: isEdit)
-            positionTF = UITextField.create(text: "\(employee.position)", placeholder: "Введите должность", isEdit: isEdit)
+            firstNameTextField = UITextField.create(text: "\(employee.firstName)", placeholder: "Введите имя", isEdit: isEdit)
+            lastNameTextField = UITextField.create(text: "\(employee.lastName)", placeholder: "Введите фамилию", isEdit: isEdit)
+            surNameTextField = UITextField.create(text: "\(employee.surName ?? "")", placeholder: "Введите отчество(если есть)", isEdit: isEdit)
+            positionTextField = UITextField.create(text: "\(employee.position)", placeholder: "Введите должность", isEdit: isEdit)
         } else {
-            firstNameTF = UITextField.create(placeholder: "Введите имя", isEdit: isEdit)
-            lastNameTF = UITextField.create(placeholder: "Введите фамилию", isEdit: isEdit)
-            surNameTF = UITextField.create(placeholder: "Введите отчество(если есть)", isEdit: isEdit)
-            positionTF = UITextField.create(placeholder: "Введите должность", isEdit: isEdit)
+            firstNameTextField = UITextField.create(placeholder: "Введите имя", isEdit: isEdit)
+            lastNameTextField = UITextField.create(placeholder: "Введите фамилию", isEdit: isEdit)
+            surNameTextField = UITextField.create(placeholder: "Введите отчество(если есть)", isEdit: isEdit)
+            positionTextField = UITextField.create(placeholder: "Введите должность", isEdit: isEdit)
         }
-        view.addSubview(firstNameTF)
-        view.addSubview(lastNameTF)
-        view.addSubview(surNameTF)
-        view.addSubview(positionTF)
+        view.addSubview(firstNameTextField)
+        view.addSubview(lastNameTextField)
+        view.addSubview(surNameTextField)
+        view.addSubview(positionTextField)
         
         
-        firstNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        lastNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        surNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        positionTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        firstNameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        lastNameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        surNameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        positionTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
     }
     
-    @objc private func saveEmployee() {
-        let server = ServerManager.shared.currentServer
+    private func startLoading() {
         loadingIndicator.startAnimating()
         view.isUserInteractionEnabled = false
         saveButton.isEnabled = false
+    }
+    
+    private func prepareUpdateData() -> Employee {
+        var updatedEmployee = employee!
+        updatedEmployee.firstName = firstNameTextField.text?.trimmed ?? ""
+        updatedEmployee.lastName = lastNameTextField.text?.trimmed ?? ""
+        updatedEmployee.surName = surNameTextField.text?.trimmed ?? nil
+        updatedEmployee.position = positionTextField.text?.trimmed ?? ""
+        return updatedEmployee
+    }
+    
+    private func prepareCreateData() -> Employee {
+        return Employee(
+            firstName: firstNameTextField.text?.trimmed ?? "",
+            lastName: lastNameTextField.text?.trimmed ?? "",
+            surName: surNameTextField.text?.trimmed ?? nil,
+            position: positionTextField.text?.trimmed ?? ""
+        )
+    }
+    
+    private func handleSuccess(savedEmployee: Employee) {
+        if employee != nil {
+            delegate?.didUpdateEmployee(savedEmployee)
+        } else {
+            delegate?.didAddEmployee(savedEmployee)
+        }
+        self.loadingIndicator.stopAnimating()
+        self.view.isUserInteractionEnabled = true
+        self.saveButton.isEnabled = true
+        self.navigationController?.popViewController(animated: true)
+    }
+    
+    private func performSave() async throws -> Employee {
+        if employee != nil {
+            let updatedEmployee = prepareUpdateData()
+            return try await server.updateEmployee(updatedEmployee)
+        } else {
+            let createdEmployee = prepareCreateData()
+            return try await server.createEmployee(createdEmployee)
+            
+        }
+    }
+    
+    @objc private func saveEmployee() {
+        startLoading()
         Task {
             do {
-                if let employee {
-                    var newEmployee = employee
-                    newEmployee.firstName = firstNameTF.text?.trimmed ?? ""
-                    newEmployee.lastName = lastNameTF.text?.trimmed ?? ""
-                    newEmployee.surName = surNameTF.text?.trimmed ?? nil
-                    newEmployee.position = positionTF.text?.trimmed ?? ""
-                    let savedEmployee = try await server.updateEmployee(newEmployee)
-                    DispatchQueue.main.async {
-                        self.delegate?.didUpdateEmployee(savedEmployee)
-                        self.loadingIndicator.stopAnimating()
-                        self.view.isUserInteractionEnabled = true
-                        self.saveButton.isEnabled = true
-                        self.navigationController?.popViewController(animated: true)
-                    }
-                } else {
-                    let newEmployee = Employee(
-                        firstName: firstNameTF.text?.trimmed ?? "",
-                        lastName: lastNameTF.text?.trimmed ?? "",
-                        surName: surNameTF.text?.trimmed ?? nil,
-                        position: positionTF.text?.trimmed ?? ""
-                    )
-                    let savedEmployee = try await server.createEmployee(newEmployee)
-                    DispatchQueue.main.async {
-                        self.delegate?.didAddEmployee(savedEmployee)
-                        self.loadingIndicator.stopAnimating()
-                        self.view.isUserInteractionEnabled = true
-                        self.saveButton.isEnabled = true
-                        self.navigationController?.popViewController(animated: true)
-                    }
+                let savedEmployee = try await performSave()
+                DispatchQueue.main.async {
+                    self.handleSuccess(savedEmployee: savedEmployee)
                 }
             } catch {
-                self.showAlert("Не удалось сохранить сотрудника")
+                await MainActor.run {
+                    self.showAlert("Не удалось сохранить сотрудника")
+                }
             }
         }
     }
     
     @objc private func updateSaveButtonState() {
-        var isFieldsMatched = false
-        if let employee {
-            isFieldsMatched = (firstNameTF.text?.trimmed ?? "" == employee.firstName.trimmed) && (lastNameTF.text?.trimmed ?? "" == employee.lastName.trimmed) && (surNameTF.text?.trimmed ?? "" == employee.surName?.trimmed ?? "") && (positionTF.text?.trimmed ?? "" == employee.position.trimmed)
-        }
-        let isFirstnameFilled = !(firstNameTF.text?.trimmed.isBlank ?? true)
-        let isLastnameFilled = !(lastNameTF.text?.trimmed.isBlank ?? true)
-        let isPositionFilled = !(positionTF.text?.trimmed.isBlank ?? true)
+        saveButton.isEnabled = isFormValid
+    }
+}
+
+extension EditEmployeeViewController: FormValidatable {
+    var isFieldsChanged: Bool {
+        guard let employee = employee else { return true }
         
-        saveButton.isEnabled = !isFieldsMatched && isFirstnameFilled && isLastnameFilled && isPositionFilled
+        let firstNameChanged = firstNameTextField.text?.trimmed ?? "" != employee.firstName.trimmed
+        let lastNameChanged = lastNameTextField.text?.trimmed ?? "" != employee.lastName.trimmed
+        let surNameChanged = surNameTextField.text?.trimmed ?? "" != employee.surName?.trimmed ?? ""
+        let positionChanged = positionTextField.text?.trimmed ?? "" != employee.position.trimmed
+        
+        return firstNameChanged || lastNameChanged || surNameChanged || positionChanged
+    }
+                                                                                   
+    var isFormFilled: Bool {
+        let isFirstnameFilled = !(firstNameTextField.text?.trimmed.isBlank ?? true)
+        let isLastnameFilled = !(lastNameTextField.text?.trimmed.isBlank ?? true)
+        let isPositionFilled = !(positionTextField.text?.trimmed.isBlank ?? true)
+        return isFirstnameFilled && isLastnameFilled && isPositionFilled
     }
 }

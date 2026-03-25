@@ -2,14 +2,14 @@ import UIKit
 
 final class SettingsViewController: UIViewController {
     
-    private var serverUrlTF: UITextField!
-    private var maxRecordsTF: UITextField!
-    private var defaultDaysBetweenTF: UITextField!
+    var saveButton: UIBarButtonItem!
+    
+    private var serverUrlTextField: UITextField!
+    private var maxRecordsTextField: UITextField!
+    private var defaultDaysBetweenTextField: UITextField!
     private var serverUrlLabel = UILabel()
     private var maxRecordsLabel = UILabel()
     private var defaultDaysBetweenLabel = UILabel()
-    private var saveButton: UIBarButtonItem!
-    private var cancelButton: UIBarButtonItem!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,9 +28,8 @@ final class SettingsViewController: UIViewController {
     
     private func setupNavigationBar() {
         saveButton = UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(saveSettings))
-        cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancellView))
-        navigationItem.leftBarButtonItem = cancelButton
         navigationItem.rightBarButtonItem = saveButton
+        saveButton.isEnabled = false
     }
     
     private func setupTapGesture() {
@@ -45,48 +44,48 @@ final class SettingsViewController: UIViewController {
             serverUrlLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             serverUrlLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            serverUrlTF.topAnchor.constraint(equalTo: serverUrlLabel.bottomAnchor, constant: 5),
-            serverUrlTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            serverUrlTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            serverUrlTextField.topAnchor.constraint(equalTo: serverUrlLabel.bottomAnchor, constant: 5),
+            serverUrlTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            serverUrlTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            maxRecordsLabel.topAnchor.constraint(equalTo: serverUrlTF.bottomAnchor, constant: 30),
+            maxRecordsLabel.topAnchor.constraint(equalTo: serverUrlTextField.bottomAnchor, constant: 30),
             maxRecordsLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             maxRecordsLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            maxRecordsTF.topAnchor.constraint(equalTo: maxRecordsLabel.bottomAnchor, constant: 5),
-            maxRecordsTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            maxRecordsTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            maxRecordsTextField.topAnchor.constraint(equalTo: maxRecordsLabel.bottomAnchor, constant: 5),
+            maxRecordsTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            maxRecordsTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            defaultDaysBetweenLabel.topAnchor.constraint(equalTo: maxRecordsTF.bottomAnchor, constant: 30),
+            defaultDaysBetweenLabel.topAnchor.constraint(equalTo: maxRecordsTextField.bottomAnchor, constant: 30),
             defaultDaysBetweenLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             defaultDaysBetweenLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            defaultDaysBetweenTF.topAnchor.constraint(equalTo: defaultDaysBetweenLabel.bottomAnchor, constant: 5),
-            defaultDaysBetweenTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            defaultDaysBetweenTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+            defaultDaysBetweenTextField.topAnchor.constraint(equalTo: defaultDaysBetweenLabel.bottomAnchor, constant: 5),
+            defaultDaysBetweenTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            defaultDaysBetweenTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
     }
     
     private func setupTextFields() {
-        serverUrlTF = UITextField.create(placeholder: "Введите url сервера")
-        serverUrlTF.keyboardType = .URL
-        serverUrlTF.translatesAutoresizingMaskIntoConstraints = false
-        serverUrlTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        view.addSubview(serverUrlTF)
+        serverUrlTextField = UITextField.create(placeholder: "Введите url сервера")
+        serverUrlTextField.keyboardType = .URL
+        serverUrlTextField.translatesAutoresizingMaskIntoConstraints = false
+        serverUrlTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        view.addSubview(serverUrlTextField)
         
-        maxRecordsTF = UITextField.create(placeholder: "Введите максимальное количество записей в списках")
-        maxRecordsTF.keyboardType = .numberPad
-        maxRecordsTF.delegate = self
-        maxRecordsTF.translatesAutoresizingMaskIntoConstraints = false
-        maxRecordsTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        view.addSubview(maxRecordsTF)
+        maxRecordsTextField = UITextField.create(placeholder: "Введите максимальное количество записей в списках")
+        maxRecordsTextField.keyboardType = .numberPad
+        maxRecordsTextField.delegate = self
+        maxRecordsTextField.translatesAutoresizingMaskIntoConstraints = false
+        maxRecordsTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        view.addSubview(maxRecordsTextField)
         
-        defaultDaysBetweenTF = UITextField.create(placeholder: "Введите количество дней между начальной и конечной датами в задаче")
-        defaultDaysBetweenTF.keyboardType = .numberPad
-        defaultDaysBetweenTF.delegate = self
-        defaultDaysBetweenTF.translatesAutoresizingMaskIntoConstraints = false
-        defaultDaysBetweenTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        view.addSubview(defaultDaysBetweenTF)
+        defaultDaysBetweenTextField = UITextField.create(placeholder: "Введите количество дней между начальной и конечной датами в задаче")
+        defaultDaysBetweenTextField.keyboardType = .numberPad
+        defaultDaysBetweenTextField.delegate = self
+        defaultDaysBetweenTextField.translatesAutoresizingMaskIntoConstraints = false
+        defaultDaysBetweenTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        view.addSubview(defaultDaysBetweenTextField)
         
         loadCurrentSettings()
     }
@@ -111,20 +110,16 @@ final class SettingsViewController: UIViewController {
     }
     
     private func loadCurrentSettings() {
-        serverUrlTF.text = SettingsManager.shared.serverURL
-        maxRecordsTF.text = String(SettingsManager.shared.maxRecords)
-        defaultDaysBetweenTF.text = String(SettingsManager.shared.defaultDaysBetween)
+        serverUrlTextField.text = SettingsManager.shared.serverURL
+        maxRecordsTextField.text = String(SettingsManager.shared.maxRecords)
+        defaultDaysBetweenTextField.text = String(SettingsManager.shared.defaultDaysBetween)
     }
     
     @objc private func saveSettings() {
-        SettingsManager.shared.serverURL = serverUrlTF.text ?? ""
-        SettingsManager.shared.maxRecords = Int(maxRecordsTF.text ?? "") ?? 0
-        SettingsManager.shared.defaultDaysBetween = Int(defaultDaysBetweenTF.text ?? "") ?? 0
+        SettingsManager.shared.serverURL = serverUrlTextField.text?.trimmed ?? ""
+        SettingsManager.shared.maxRecords = Int(maxRecordsTextField.text ?? "") ?? 0
+        SettingsManager.shared.defaultDaysBetween = Int(defaultDaysBetweenTextField.text ?? "") ?? 0
         self.navigationController?.popViewController(animated: true)
-    }
-    
-    @objc private func cancellView() {
-        navigationController?.popViewController(animated: true)
     }
     
     @objc private func dismissKeyboard() {
@@ -132,21 +127,34 @@ final class SettingsViewController: UIViewController {
     }
     
     @objc private func updateSaveButtonState() {
-        let isURLFilled = !(serverUrlTF.text?.trimmed.isBlank ?? true)
-        let isMaxRecordsFilled = !(maxRecordsTF.text?.trimmed.isBlank ?? true)
-        let isDefaultDaysBetweenFilled = !(defaultDaysBetweenTF.text?.trimmed.isBlank ?? true)
-        
-        saveButton.isEnabled = isURLFilled && isMaxRecordsFilled && isDefaultDaysBetweenFilled
+        saveButton.isEnabled = isFormValid
     }
 }
 
 extension SettingsViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if textField == maxRecordsTF || textField == defaultDaysBetweenTF {
+        if textField == maxRecordsTextField || textField == defaultDaysBetweenTextField {
             let allowedCharacters = CharacterSet.decimalDigits
             let characterSet = CharacterSet(charactersIn: string)
             return allowedCharacters.isSuperset(of: characterSet)
         }
         return true
+    }
+}
+
+extension SettingsViewController: FormValidatable {
+    var isFieldsChanged: Bool {
+        let urlChanged = serverUrlTextField.text?.trimmed ?? "" != SettingsManager.shared.serverURL
+        let maxRecordsChanged = maxRecordsTextField.text?.trimmed ?? "" != String(SettingsManager.shared.maxRecords)
+        let defaultDaysBetweenChanged = defaultDaysBetweenTextField.text?.trimmed ?? "" != String(SettingsManager.shared.defaultDaysBetween)
+        
+        return urlChanged || maxRecordsChanged || defaultDaysBetweenChanged
+    }
+                                                                                   
+    var isFormFilled: Bool {
+        let isUrlFilled = !(serverUrlTextField.text?.trimmed.isBlank ?? true)
+        let isMaxRecordsFilled = !(maxRecordsTextField.text?.trimmed.isBlank ?? true)
+        let isDefaultDaysBetweenFilled = !(defaultDaysBetweenTextField.text?.trimmed.isBlank ?? true)
+        return isUrlFilled && isMaxRecordsFilled && isDefaultDaysBetweenFilled
     }
 }

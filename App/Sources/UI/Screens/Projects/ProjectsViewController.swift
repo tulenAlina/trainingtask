@@ -15,9 +15,9 @@ final class ProjectsViewController: UIViewController {
     private let mode: Mode
     private let server = ServerManager.shared.currentServer
     private var projects: [Project] = []
-    private let projectTable = UITableView()
+    private var tableView: UITableView!
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
-    private let refreshControl = UIRefreshControl()
+    private var refreshControl: UIRefreshControl!
     
     init(mode: Mode = .normal) {
         self.mode = mode
@@ -44,20 +44,22 @@ final class ProjectsViewController: UIViewController {
     }
     
     private func setupTableView() {
-        projectTable.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(projectTable)
+        tableView = UITableView()
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(tableView)
+        refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshView), for: .valueChanged)
-        projectTable.dataSource = self
-        projectTable.delegate = self
-        projectTable.refreshControl = refreshControl
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.refreshControl = refreshControl
     }
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            projectTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            projectTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            projectTable.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            projectTable.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
     }
     
@@ -83,11 +85,15 @@ final class ProjectsViewController: UIViewController {
         let allProjects = try await server.fetchProjects()
         projects = Array(allProjects.prefix(SettingsManager.shared.maxRecords))
         DispatchQueue.main.async {
-            self.projectTable.reloadData()
-            self.updateEmptyState()
-            self.loadingIndicator.stopAnimating()
-            self.view.isUserInteractionEnabled = true
+            self.updateUIAfterLoading()
         }
+    }
+    
+    private func updateUIAfterLoading() {
+        tableView.reloadData()
+        updateEmptyState()
+        loadingIndicator.stopAnimating()
+        view.isUserInteractionEnabled = true
     }
     
     private func updateEmptyState() {
@@ -96,10 +102,41 @@ final class ProjectsViewController: UIViewController {
             label.text = "Нет проектов"
             label.textAlignment = .center
             label.textColor = .gray
-            projectTable.backgroundView = label
+            tableView.backgroundView = label
         } else {
-            projectTable.backgroundView = nil
+            tableView.backgroundView = nil
         }
+    }
+    
+    private func performDelete(at indexPath: IndexPath, completion: @escaping (Bool) -> Void) {
+        self.loadingIndicator.startAnimating()
+        self.view.isUserInteractionEnabled = false
+        let project = self.projects[indexPath.row]
+        
+        Task {
+            do {
+                try await self.server.deleteProject(project.id)
+                self.refreshView()
+                DispatchQueue.main.async {
+                    completion(true)
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    self.loadingIndicator.stopAnimating()
+                    self.view.isUserInteractionEnabled = true
+                    completion(false)
+                }
+                self.showAlert("Не удалось удалить проект")
+            }
+        }
+    }
+    
+    private func performEdit(at indexPath: IndexPath, completion: @escaping (Bool) -> Void) {
+        let project = self.projects[indexPath.row]
+        let editViewController = EditProjectViewController(project)
+        editViewController.delegate = self
+        self.navigationController?.pushViewController(editViewController, animated: true)
+        completion(true)
     }
     
     
@@ -120,9 +157,9 @@ final class ProjectsViewController: UIViewController {
     }
     
     @objc private func addTapped() {
-        let editVC = EditProjectViewController()
-        editVC.delegate = self
-        navigationController?.pushViewController(editVC, animated: true)
+        let editViewController = EditProjectViewController()
+        editViewController.delegate = self
+        navigationController?.pushViewController(editViewController, animated: true)
     }
 }
 
@@ -144,44 +181,8 @@ extension ProjectsViewController: UITableViewDelegate {
     ) -> UISwipeActionsConfiguration? {
         switch mode {
         case .normal:
-            
-            let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {[weak self] _,_,completion in
-                self?.loadingIndicator.startAnimating()
-                self?.view.isUserInteractionEnabled = false
-                let project = self?.projects[indexPath.row]
-                guard let project else {
-                    completion(false)
-                    return
-                }
-                Task {
-                    do {
-                        try await self?.server.deleteProject(project.id)
-                        self?.refreshView()
-                        DispatchQueue.main.async {
-                            completion(true)
-                        }
-                    } catch {
-                        DispatchQueue.main.async {
-                            self?.loadingIndicator.stopAnimating()
-                            self?.view.isUserInteractionEnabled = true
-                            completion(false)
-                        }
-                        self?.showAlert("Не удалось удалить проект")
-                    }
-                }
-            }
-            
-            let editAction = UIContextualAction(style: .normal, title: "Изменить") {[weak self] _,_,completion in
-                let project = self?.projects[indexPath.row]
-                guard let project else {
-                    completion(false)
-                    return
-                }
-                let editVC = EditProjectViewController(project)
-                editVC.delegate = self
-                self?.navigationController?.pushViewController(editVC, animated: true)
-                completion(true)
-            }
+            let deleteAction = createDeleteAction(at: indexPath)
+            let editAction = createEditAction(at: indexPath)
             return UISwipeActionsConfiguration(actions: [deleteAction, editAction])
         case .selection:
             return nil
@@ -202,6 +203,20 @@ extension ProjectsViewController: UITableViewDelegate {
             navigationController?.popViewController(animated: true)
         }
     }
+    
+    private func createDeleteAction(at indexPath: IndexPath) -> UIContextualAction {
+        let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {[weak self] _,_,completion in
+            self?.performDelete(at: indexPath, completion: completion)
+        }
+        return deleteAction
+    }
+    
+    private func createEditAction(at indexPath: IndexPath) -> UIContextualAction {
+        let editAction = UIContextualAction(style: .normal, title: "Изменить") {[weak self] _,_,completion in
+            self?.performEdit(at: indexPath, completion: completion)
+        }
+        return editAction
+    }
 }
 
 extension ProjectsViewController: ProjectsViewControllerDelegate {
@@ -209,17 +224,17 @@ extension ProjectsViewController: ProjectsViewControllerDelegate {
         let maxRecords = SettingsManager.shared.maxRecords
         if projects.count >= maxRecords {
             projects.removeLast()
-            projectTable.deleteRows(at: [IndexPath(row: maxRecords - 1, section: 0)], with: .automatic)
+            tableView.deleteRows(at: [IndexPath(row: maxRecords - 1, section: 0)], with: .automatic)
         }
         projects.insert(project, at: 0)
-        projectTable.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
+        tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
         updateEmptyState()
     }
     
     func didUpdateProject(_ project: Project) {
         if let index = projects.firstIndex(where: {$0.id == project.id}) {
             projects[index] = project
-            projectTable.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+            tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
         }
     }
 }

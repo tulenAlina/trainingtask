@@ -15,7 +15,7 @@ final class TasksViewController: UIViewController {
     private var tasks: [ProjectTask] = []
     private var projects: [Project] = []
     private var employees: [Employee] = []
-    private let taskTable = UITableView()
+    private let tableView = UITableView()
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private let refreshControl = UIRefreshControl()
     
@@ -49,20 +49,20 @@ final class TasksViewController: UIViewController {
     }
     
     private func setupTableView() {
-        taskTable.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(taskTable)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(tableView)
         refreshControl.addTarget(self, action: #selector(refreshView), for: .valueChanged)
-        taskTable.dataSource = self
-        taskTable.delegate = self
-        taskTable.refreshControl = refreshControl
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.refreshControl = refreshControl
     }
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            taskTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            taskTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            taskTable.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            taskTable.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
     }
     
@@ -87,7 +87,7 @@ final class TasksViewController: UIViewController {
         employees = try await server.fetchEmployees()
         tasks = Array(allTasks.prefix(SettingsManager.shared.maxRecords))
         DispatchQueue.main.async {
-            self.taskTable.reloadData()
+            self.tableView.reloadData()
             self.updateEmptyState()
             self.loadingIndicator.stopAnimating()
             self.view.isUserInteractionEnabled = true
@@ -100,9 +100,32 @@ final class TasksViewController: UIViewController {
             label.text = "Нет задач"
             label.textAlignment = .center
             label.textColor = .gray
-            taskTable.backgroundView = label
+            tableView.backgroundView = label
         } else {
-            taskTable.backgroundView = nil
+            tableView.backgroundView = nil
+        }
+    }
+    
+    private func performDelete(at indexPath: IndexPath, completion: @escaping (Bool) -> Void) {
+        self.loadingIndicator.startAnimating()
+        self.view.isUserInteractionEnabled = false
+        let task = self.tasks[indexPath.row]
+
+        Task {
+            do {
+                try await self.server.deleteTask(task.id)
+                self.refreshView()
+                DispatchQueue.main.async {
+                    completion(true)
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    self.loadingIndicator.stopAnimating()
+                    self.view.isUserInteractionEnabled = true
+                    completion(false)
+                }
+                self.showAlert("Не удалось удалить задачу")
+            }
         }
     }
     
@@ -123,14 +146,14 @@ final class TasksViewController: UIViewController {
     }
     
     @objc private func addTapped() {
-        let editVC: EditTaskViewController
+        let editViewController: EditTaskViewController
         if let project {
-            editVC = EditTaskViewController(project: project)
+            editViewController = EditTaskViewController(project: project)
         } else {
-            editVC = EditTaskViewController()
+            editViewController = EditTaskViewController()
         }
-        editVC.delegate = self
-        navigationController?.pushViewController(editVC, animated: true)
+        editViewController.delegate = self
+        navigationController?.pushViewController(editViewController, animated: true)
     }
 }
 
@@ -166,50 +189,44 @@ extension TasksViewController: UITableViewDataSource {
 extension TasksViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
     ) -> UISwipeActionsConfiguration? {
-        let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {[weak self] _,_,completion in
-            self?.loadingIndicator.startAnimating()
-            self?.view.isUserInteractionEnabled = false
-            let task = self?.tasks[indexPath.row]
-            guard let task else {
-                completion(false)
-                return
-            }
-            Task {
-                do {
-                    try await self?.server.deleteTask(task.id)
-                    self?.refreshView()
-                    DispatchQueue.main.async {
-                        completion(true)
-                    }
-                } catch {
-                    DispatchQueue.main.async {
-                        self?.loadingIndicator.stopAnimating()
-                        self?.view.isUserInteractionEnabled = true
-                        completion(false)
-                    }
-                    self?.showAlert("Не удалось удалить задачу")
-                }
-            }
-        }
+        let deleteAction = createDeleteAction(at: indexPath)
         
         return UISwipeActionsConfiguration(actions: [deleteAction])
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let task = tasks[indexPath.row]
+        let detailViewController = createTaskDetailViewController(for: tasks[indexPath.row])
+        navigationController?.pushViewController(detailViewController, animated: true)
+    }
+    
+    private func createDeleteAction(at indexPath: IndexPath) -> UIContextualAction {
+        let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {[weak self] _,_,completion in
+            self?.performDelete(at: indexPath, completion: completion)
+        }
+        return deleteAction
+    }
+    
+    private func createTaskDetailViewController(for task: ProjectTask) -> TaskDetailViewController {
         let currentProject: Project?
         var isContextProject = false
+        
         if let project {
             currentProject = project
             isContextProject = true
         } else {
             currentProject = projects.first { $0.id == task.projectID }
         }
+        
         let currentEmployee = employees.first { $0.id == task.employeeID }
-        let detailViewController = TaskDetailViewController(task: task, project: currentProject, employee: currentEmployee, isContextProject: isContextProject)
+        
+        let detailViewController = TaskDetailViewController(
+            task: task,
+            project: currentProject,
+            employee: currentEmployee,
+            isContextProject: isContextProject)
         detailViewController.delegate = self
-        navigationController?.pushViewController(detailViewController, animated: true)
+        return detailViewController
     }
 }
 
@@ -218,17 +235,17 @@ extension TasksViewController: TasksViewControllerDelegate {
         let maxRecords = SettingsManager.shared.maxRecords
         if tasks.count >= maxRecords {
             tasks.removeLast()
-            taskTable.deleteRows(at: [IndexPath(row: maxRecords - 1, section: 0)], with: .automatic)
+            tableView.deleteRows(at: [IndexPath(row: maxRecords - 1, section: 0)], with: .automatic)
         }
         tasks.insert(task, at: 0)
-        taskTable.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
+        tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
         updateEmptyState()
     }
     
     func didUpdateTask(_ task: ProjectTask) {
         if let index = tasks.firstIndex(where: {$0.id == task.id}) {
             tasks[index] = task
-            taskTable.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+            tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
         }
     }
 }

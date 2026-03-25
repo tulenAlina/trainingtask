@@ -17,7 +17,7 @@ final class EmployeesViewController: UIViewController {
     }
     
     private let mode: Mode
-    private let employeeTable = UITableView()
+    private let tableView = UITableView()
     private let server = ServerManager.shared.currentServer
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private let refreshControl = UIRefreshControl()
@@ -48,12 +48,12 @@ final class EmployeesViewController: UIViewController {
     }
     
     private func setupTableView() {
-        employeeTable.dataSource = self
-        employeeTable.delegate = self
-        employeeTable.translatesAutoresizingMaskIntoConstraints = false
-        employeeTable.refreshControl = refreshControl
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.refreshControl = refreshControl
         refreshControl.addTarget(self, action: #selector(refreshView), for: .valueChanged)
-        view.addSubview(employeeTable)
+        view.addSubview(tableView)
     }
     
     private func setupNavigationBar() {
@@ -68,10 +68,10 @@ final class EmployeesViewController: UIViewController {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            employeeTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            employeeTable.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            employeeTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            employeeTable.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
     }
     
@@ -87,7 +87,7 @@ final class EmployeesViewController: UIViewController {
         let allEmployees = try await server.fetchEmployees()
         employees = Array(allEmployees.prefix(SettingsManager.shared.maxRecords))
         DispatchQueue.main.async {
-            self.employeeTable.reloadData()
+            self.tableView.reloadData()
             self.updateEmptyState()
             self.loadingIndicator.stopAnimating()
             self.view.isUserInteractionEnabled = true
@@ -100,9 +100,32 @@ final class EmployeesViewController: UIViewController {
             label.text = "Нет сотрудников"
             label.textAlignment = .center
             label.textColor = .gray
-            employeeTable.backgroundView = label
+            tableView.backgroundView = label
         } else {
-            employeeTable.backgroundView = nil
+            tableView.backgroundView = nil
+        }
+    }
+    
+    private func performDelete(at indexPath: IndexPath, completion: @escaping (Bool) -> Void) {
+        self.loadingIndicator.startAnimating()
+        self.view.isUserInteractionEnabled = false
+        let employee = self.employees[indexPath.row]
+
+        Task {
+            do {
+                try await self.server.deleteEmployee(employee.id)
+                self.refreshView()
+                DispatchQueue.main.async {
+                    completion(true)
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    self.loadingIndicator.stopAnimating()
+                    self.view.isUserInteractionEnabled = true
+                    completion(false)
+                }
+                self.showAlert("Не удалось удалить сотрудника")
+            }
         }
     }
     
@@ -147,32 +170,7 @@ extension EmployeesViewController: UITableViewDelegate {
     ) -> UISwipeActionsConfiguration? {
         switch mode {
         case .normal:
-            let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {[weak self] _, _, completion in
-                self?.loadingIndicator.startAnimating()
-                self?.view.isUserInteractionEnabled = false
-                let employee = self?.employees[indexPath.row]
-                guard let employee else {
-                    completion(false)
-                    return
-                }
-                Task {
-                    do {
-                        try await self?.server.deleteEmployee(employee.id)
-                        self?.refreshView()
-                        DispatchQueue.main.async {
-                            completion(true)
-                        }
-                    } catch {
-                        DispatchQueue.main.async {
-                            self?.loadingIndicator.stopAnimating()
-                            self?.view.isUserInteractionEnabled = true
-                            completion(false)
-                        }
-                        self?.showAlert("Не удалось удалить сотрудника")
-                    }
-                }
-            }
-            
+            let deleteAction = createDeleteAction(at: indexPath)
             return UISwipeActionsConfiguration(actions: [deleteAction])
         case .selection:
             return nil
@@ -192,6 +190,13 @@ extension EmployeesViewController: UITableViewDelegate {
             navigationController?.popViewController(animated: true)
         }
     }
+    
+    private func createDeleteAction(at indexPath: IndexPath) -> UIContextualAction {
+        let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {[weak self] _,_,completion in
+            self?.performDelete(at: indexPath, completion: completion)
+        }
+        return deleteAction
+    }
 }
 
 extension EmployeesViewController: EmployeesViewControllerDelegate {
@@ -199,17 +204,17 @@ extension EmployeesViewController: EmployeesViewControllerDelegate {
         let maxRecords = SettingsManager.shared.maxRecords
         if employees.count >= maxRecords {
             employees.removeLast()
-            employeeTable.deleteRows(at: [IndexPath(row: maxRecords - 1, section: 0)], with: .automatic)
+            tableView.deleteRows(at: [IndexPath(row: maxRecords - 1, section: 0)], with: .automatic)
         }
         employees.insert(employee, at: 0)
-        employeeTable.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
+        tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
         updateEmptyState()
     }
     
     func didUpdateEmployee(_ employee: Employee) {
         if let index = employees.firstIndex(where: {$0.id == employee.id}) {
             employees[index] = employee
-            employeeTable.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+            tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
         }
     }
 }

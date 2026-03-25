@@ -2,13 +2,14 @@ import UIKit
 
 final class EditProjectViewController: UIViewController {
     weak var delegate: ProjectsViewControllerDelegate?
+    var saveButton: UIBarButtonItem!
     
+    private let server = ServerManager.shared.currentServer
     private var project: Project? = nil
-    private var projectNameTF: UITextField!
-    private var projectDescriptionTF: UITextField!
-    private var saveButton: UIBarButtonItem!
+    private var nameTextField: UITextField!
+    private var descriptionTextField: UITextField!
     private var cancelButton: UIBarButtonItem!
-    private let loadingIndicator = UIActivityIndicatorView(style: .large)
+    private var loadingIndicator: UIActivityIndicatorView!
     
     init() {
         super.init(nibName: nil, bundle: nil)
@@ -39,13 +40,13 @@ final class EditProjectViewController: UIViewController {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            projectNameTF.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            projectNameTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            projectNameTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            nameTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            nameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            nameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            projectDescriptionTF.topAnchor.constraint(equalTo: projectNameTF.bottomAnchor, constant: 30),
-            projectDescriptionTF.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            projectDescriptionTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+            descriptionTextField.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 30),
+            descriptionTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            descriptionTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
     }
     
@@ -56,78 +57,108 @@ final class EditProjectViewController: UIViewController {
     }
     
     private func setupLoadingIndicator() {
+        loadingIndicator = UIActivityIndicatorView(style: .large)
         loadingIndicator.hidesWhenStopped = true
         loadingIndicator.center = view.center
+        view.addSubview(loadingIndicator)
     }
     
     private func setupTextFields() {
         var isEdit = false
         if let project {
             isEdit = true
-            projectNameTF = UITextField.create(text: "\(project.projectName)", placeholder: "Введите название", isEdit: isEdit)
-            projectDescriptionTF = UITextField.create(text: "\(project.description)", placeholder: "Введите описание", isEdit: isEdit)
+            nameTextField = UITextField.create(text: "\(project.projectName)", placeholder: "Введите название", isEdit: isEdit)
+            descriptionTextField = UITextField.create(text: "\(project.description)", placeholder: "Введите описание", isEdit: isEdit)
         } else {
-            projectNameTF = UITextField.create(placeholder: "Введите название", isEdit: isEdit)
-            projectDescriptionTF = UITextField.create(placeholder: "Введите описание", isEdit: isEdit)
+            nameTextField = UITextField.create(placeholder: "Введите название", isEdit: isEdit)
+            descriptionTextField = UITextField.create(placeholder: "Введите описание", isEdit: isEdit)
         }
-        view.addSubview(projectNameTF)
-        view.addSubview(projectDescriptionTF)
-        view.addSubview(loadingIndicator)
+        nameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        descriptionTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
         
-        projectNameTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        projectDescriptionTF.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        view.addSubview(nameTextField)
+        view.addSubview(descriptionTextField)
     }
     
-    @objc private func saveProject() {
-        let server = ServerManager.shared.currentServer
+    private func startLoading() {
         loadingIndicator.startAnimating()
         view.isUserInteractionEnabled = false
         saveButton.isEnabled = false
+    }
+    
+    private func stopLoading() {
+        loadingIndicator.stopAnimating()
+        view.isUserInteractionEnabled = true
+        saveButton.isEnabled = true
+    }
+    
+    private func prepareUpdateData() -> Project {
+        var updatedProject = project!
+        updatedProject.projectName = nameTextField.text?.trimmed ?? ""
+        updatedProject.description = descriptionTextField.text?.trimmed ?? ""
+        return updatedProject
+    }
+    
+    private func prepareCreateData() -> Project {
+        return Project(
+            projectName: nameTextField.text?.trimmed ?? "",
+            description: descriptionTextField.text?.trimmed ?? ""
+        )
+    }
+    
+    private func handleSuccess(savedProject: Project) {
+        if project != nil {
+            delegate?.didUpdateProject(savedProject)
+        } else {
+            delegate?.didAddProject(savedProject)
+        }
+        stopLoading()
+        self.navigationController?.popViewController(animated: true)
+    }
+    
+    private func performSave() async throws -> Project {
+        if project != nil {
+            let updatedProject = prepareUpdateData()
+            return try await server.updateProject(updatedProject)
+        } else {
+            let createdProject = prepareCreateData()
+            return try await server.createProject(createdProject)
+            
+        }
+    }
+    
+    @objc private func saveProject() {
+        startLoading()
         Task {
             do {
-                if let project {
-                    var newProject = project
-                    newProject.projectName = projectNameTF.text?.trimmed ?? ""
-                    newProject.description = projectDescriptionTF.text?.trimmed ?? ""
-                    let savedProject = try await server.updateProject(newProject)
-                    DispatchQueue.main.async {
-                        self.delegate?.didUpdateProject(savedProject)
-                        self.loadingIndicator.stopAnimating()
-                        self.view.isUserInteractionEnabled = true
-                        self.saveButton.isEnabled = true
-                        self.navigationController?.popViewController(animated: true)
-                    }
-                } else {
-                    let newProject = Project(
-                        projectName: projectNameTF.text?.trimmed ?? "",
-                        description: projectDescriptionTF.text?.trimmed ?? ""
-                    )
-                    let savedProject = try await server.createProject(newProject)
-                    DispatchQueue.main.async {
-                        self.delegate?.didAddProject(savedProject)
-                        self.loadingIndicator.stopAnimating()
-                        self.view.isUserInteractionEnabled = true
-                        self.saveButton.isEnabled = true
-                        self.navigationController?.popViewController(animated: true)
-                    }
+                let savedProject = try await performSave()
+                DispatchQueue.main.async {
+                    self.handleSuccess(savedProject: savedProject)
                 }
-                    
-                } catch {
-                    await MainActor.run {
-                        self.showAlert("Не удалось сохранить проект")
-                    }
+            } catch {
+                await MainActor.run {
+                    self.showAlert("Не удалось сохранить проект")
                 }
             }
+        }
     }
     
     @objc private func updateSaveButtonState() {
-        var isFieldsMatched = false
-        if let project {
-            isFieldsMatched = (projectNameTF.text?.trimmed ?? "" == project.projectName.trimmed) && (projectDescriptionTF.text?.trimmed ?? "" == project.description.trimmed)
-        }
-        let isNameFilled = !(projectNameTF.text?.trimmed.isBlank ?? true)
-        let isDescriptionFilled = !(projectDescriptionTF.text?.trimmed.isBlank ?? true)
-        
-        saveButton.isEnabled = !isFieldsMatched && isNameFilled && isDescriptionFilled
+        saveButton.isEnabled = isFormValid
+    }
+}
+
+extension EditProjectViewController: FormValidatable {
+    var isFieldsChanged: Bool {
+        guard let project = project else { return true }
+            let nameChanged = (nameTextField.text?.trimmed ?? "") != project.projectName.trimmed
+            let descriptionChanged = (descriptionTextField.text?.trimmed ?? "") != project.description.trimmed
+            return nameChanged || descriptionChanged
+    }
+    
+    var isFormFilled: Bool {
+        let isNameFilled = !(nameTextField.text?.trimmed.isBlank ?? true)
+        let isDescriptionFilled = !(descriptionTextField.text?.trimmed.isBlank ?? true)
+        return isNameFilled && isDescriptionFilled
     }
 }
