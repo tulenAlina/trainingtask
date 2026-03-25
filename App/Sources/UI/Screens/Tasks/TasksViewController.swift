@@ -231,21 +231,34 @@ extension TasksViewController: UITableViewDelegate {
 }
 
 extension TasksViewController: TasksViewControllerDelegate {
+    private var lastRowIndexWithinLimit: Int {
+        return SettingsManager.shared.maxRecords - 1
+    }
+
+    private var lastIndexPathWithinLimit: IndexPath {
+        return IndexPath(row: lastRowIndexWithinLimit, section: 0)
+    }
+
+    private var firstIndexPath: IndexPath {
+        return IndexPath(row: 0, section: 0)
+    }
+    
     func didAddTask(_ task: ProjectTask) {
         let maxRecords = SettingsManager.shared.maxRecords
         if tasks.count >= maxRecords {
             tasks.removeLast()
-            tableView.deleteRows(at: [IndexPath(row: maxRecords - 1, section: 0)], with: .automatic)
+            tableView.deleteRows(at: [lastIndexPathWithinLimit], with: .automatic)
         }
         tasks.insert(task, at: 0)
-        tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
+        tableView.insertRows(at: [firstIndexPath], with: .automatic)
         updateEmptyState()
     }
     
     func didUpdateTask(_ task: ProjectTask) {
         if let index = tasks.firstIndex(where: {$0.id == task.id}) {
             tasks[index] = task
-            tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+            let indexPath = IndexPath(row: index, section: 0)
+            tableView.reloadRows(at: [indexPath], with: .automatic)
         }
     }
 }

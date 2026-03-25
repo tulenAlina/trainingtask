@@ -200,21 +200,34 @@ extension EmployeesViewController: UITableViewDelegate {
 }
 
 extension EmployeesViewController: EmployeesViewControllerDelegate {
+    private var lastRowIndexWithinLimit: Int {
+        return SettingsManager.shared.maxRecords - 1
+    }
+
+    private var lastIndexPathWithinLimit: IndexPath {
+        return IndexPath(row: lastRowIndexWithinLimit, section: 0)
+    }
+
+    private var firstIndexPath: IndexPath {
+        return IndexPath(row: 0, section: 0)
+    }
+    
     func didAddEmployee(_ employee: Employee) {
         let maxRecords = SettingsManager.shared.maxRecords
         if employees.count >= maxRecords {
             employees.removeLast()
-            tableView.deleteRows(at: [IndexPath(row: maxRecords - 1, section: 0)], with: .automatic)
+            tableView.deleteRows(at: [lastIndexPathWithinLimit], with: .automatic)
         }
         employees.insert(employee, at: 0)
-        tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
+        tableView.insertRows(at: [firstIndexPath], with: .automatic)
         updateEmptyState()
     }
     
     func didUpdateEmployee(_ employee: Employee) {
         if let index = employees.firstIndex(where: {$0.id == employee.id}) {
             employees[index] = employee
-            tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+            let indexPath = IndexPath(row: index, section: 0)
+            tableView.reloadRows(at: [indexPath], with: .automatic)
         }
     }
 }

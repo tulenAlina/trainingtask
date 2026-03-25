@@ -220,21 +220,34 @@ extension ProjectsViewController: UITableViewDelegate {
 }
 
 extension ProjectsViewController: ProjectsViewControllerDelegate {
+    private var lastRowIndexWithinLimit: Int {
+        return SettingsManager.shared.maxRecords - 1
+    }
+
+    private var lastIndexPathWithinLimit: IndexPath {
+        return IndexPath(row: lastRowIndexWithinLimit, section: 0)
+    }
+
+    private var firstIndexPath: IndexPath {
+        return IndexPath(row: 0, section: 0)
+    }
+    
     func didAddProject(_ project: Project) {
         let maxRecords = SettingsManager.shared.maxRecords
         if projects.count >= maxRecords {
             projects.removeLast()
-            tableView.deleteRows(at: [IndexPath(row: maxRecords - 1, section: 0)], with: .automatic)
+            tableView.deleteRows(at: [lastIndexPathWithinLimit], with: .automatic)
         }
         projects.insert(project, at: 0)
-        tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
+        tableView.insertRows(at: [firstIndexPath], with: .automatic)
         updateEmptyState()
     }
     
     func didUpdateProject(_ project: Project) {
         if let index = projects.firstIndex(where: {$0.id == project.id}) {
             projects[index] = project
-            tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+            let indexPath = IndexPath(row: index, section: 0)
+            tableView.reloadRows(at: [indexPath], with: .automatic)
         }
     }
 }
