@@ -61,14 +61,12 @@ final class EditProjectViewController: UIViewController {
     }
     
     private func setupTextFields() {
-        var isEdit = false
+        nameTextField = UITextField.create(placeholder: Localized.Placeholder.projectName.localized)
+        descriptionTextField = UITextField.create(placeholder: Localized.Placeholder.projectDescription.localized)
+        
         if let project {
-            isEdit = true
-            nameTextField = UITextField.create(text: "\(project.projectName)", placeholder: Localized.Placeholder.projectName.localized, isEdit: isEdit)
-            descriptionTextField = UITextField.create(text: "\(project.description)", placeholder: Localized.Placeholder.projectDescription.localized, isEdit: isEdit)
-        } else {
-            nameTextField = UITextField.create(placeholder: Localized.Placeholder.projectName.localized, isEdit: isEdit)
-            descriptionTextField = UITextField.create(placeholder: Localized.Placeholder.projectDescription.localized, isEdit: isEdit)
+            nameTextField.text = "\(project.projectName)"
+            descriptionTextField.text = "\(project.description)"
         }
         nameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
         descriptionTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)

@@ -178,48 +178,38 @@ final class EditTaskViewController: UIViewController {
     }
         
     private func setupTextFields() {
-        var isEdit = false
-        if let task {
-            isEdit = true
-            if let contextProject {
-                projectTextField = UITextField.create(text: "\(contextProject.projectName)", placeholder: Localized.Placeholder.projectName.localized, isEdit: isEdit)
-                projectTextField.isEnabled = false
-                projectTextField.textColor = .lightGray
-            } else {
-                projectTextField = UITextField.create(text: "\(projects.first(where: {$0.id == task.projectID})?.projectName ?? "")", placeholder: Localized.Placeholder.projectName.localized, isEdit: isEdit)
-            }
-            taskNameTextField = UITextField.create(text: "\(task.taskName)", placeholder: Localized.Placeholder.taskName.localized, isEdit: isEdit)
-            
-            workTimeTextField = UITextField.create(text: "\(task.workTime)", placeholder: Localized.Placeholder.workTime.localized, isEdit: isEdit)
-            workTimeTextField.keyboardType = .numberPad
-            workTimeTextField.delegate = self
-            
-            startDateTextField = UITextField.create(text: dateFormatter.string(from: task.startDate), placeholder: Localized.Placeholder.startDate.localized,  isEdit: isEdit)
-            endDateTextField = UITextField.create(text: dateFormatter.string(from: task.endDate), placeholder: Localized.Placeholder.endDate.localized, isEdit: isEdit)
-            var fio: String = ""
-            if let emp = employees.first(where: {$0.id == task.employeeID}) {
-                fio = emp.fullName
-            }
-            employeeTextField = UITextField.create(text: "\(fio)", placeholder: Localized.Placeholder.employeeName.localized, isEdit: isEdit)
-        } else {
-            if let contextProject {
-                projectTextField = UITextField.create(text: "\(contextProject.projectName)", placeholder: Localized.Placeholder.projectName.localized, isEdit: !isEdit)
-                projectTextField.isEnabled = false
-                projectTextField.textColor = .lightGray
-            } else {
-                projectTextField = UITextField.create(placeholder: Localized.Placeholder.projectName.localized, isEdit: isEdit)
-            }
-            taskNameTextField = UITextField.create(placeholder: Localized.Placeholder.taskName.localized, isEdit: isEdit)
-            
-            workTimeTextField = UITextField.create(placeholder: Localized.Placeholder.workTime.localized, isEdit: isEdit)
-            workTimeTextField.keyboardType = .numberPad
-            workTimeTextField.delegate = self
-            
-            startDateTextField = UITextField.create(text: dateFormatter.string(from: Date()), placeholder: Localized.Placeholder.startDate.localized, isEdit: !isEdit)
-            endDateTextField = UITextField.create(text: dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()), placeholder: Localized.Placeholder.endDate.localized, isEdit: !isEdit)
-            employeeTextField = UITextField.create(placeholder: Localized.Placeholder.employeeName.localized, isEdit: isEdit)
+        
+        taskNameTextField = UITextField.create(placeholder: Localized.Placeholder.taskName.localized)
+        projectTextField = UITextField.create(placeholder: Localized.Placeholder.projectName.localized)
+        
+        if let contextProject {
+            projectTextField.text = "\(contextProject.projectName)"
+            projectTextField.isEnabled = false
+            projectTextField.textColor = .lightGray
         }
         
+        workTimeTextField = UITextField.create(placeholder: Localized.Placeholder.workTime.localized)
+        workTimeTextField.keyboardType = .numberPad
+        workTimeTextField.delegate = self
+        
+        startDateTextField = UITextField.create(text: dateFormatter.string(from: Date()), placeholder: Localized.Placeholder.startDate.localized)
+        endDateTextField = UITextField.create(text: dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()), placeholder: Localized.Placeholder.endDate.localized)
+        employeeTextField = UITextField.create(placeholder: Localized.Placeholder.employeeName.localized)
+        
+        if let task {
+            if contextProject == nil {
+                projectTextField.text = "\(projects.first(where: {$0.id == task.projectID})?.projectName ?? "")"
+            }
+            taskNameTextField.text = "\(task.taskName)"
+            workTimeTextField.text = "\(task.workTime)"
+            startDateTextField.text = dateFormatter.string(from: task.startDate)
+            endDateTextField.text = dateFormatter.string(from: task.endDate)
+            
+            if let emp = employees.first(where: {$0.id == task.employeeID}) {
+                employeeTextField.text = emp.fullName
+            }
+        }
+
         taskNameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
         projectTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
         workTimeTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)

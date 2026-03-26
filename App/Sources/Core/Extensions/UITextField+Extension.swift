@@ -1,11 +1,9 @@
 import UIKit
 
 extension UITextField {
-    static func create(text: String = "", placeholder: String, isEdit: Bool = false) -> UITextField {
+    static func create(text: String = "", placeholder: String) -> UITextField {
         let textField = UITextField()
-        if isEdit {
-            textField.text = text
-        }
+        textField.text = text
         textField.placeholder = placeholder
         textField.borderStyle = .roundedRect
         textField.backgroundColor = UIColor(white: 0.95, alpha: 1)

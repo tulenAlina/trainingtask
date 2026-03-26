@@ -71,19 +71,18 @@ final class EditEmployeeViewController: UIViewController {
     }
     
     private func setupTextFields() {
-        var isEdit = false
+        firstNameTextField = UITextField.create(placeholder: Localized.Placeholder.firstName.localized)
+        lastNameTextField = UITextField.create(placeholder: Localized.Placeholder.lastName.localized)
+        surNameTextField = UITextField.create(placeholder: Localized.Placeholder.surname.localized)
+        positionTextField = UITextField.create(placeholder: Localized.Placeholder.position.localized)
+        
         if let employee {
-            isEdit = true
-            firstNameTextField = UITextField.create(text: "\(employee.firstName)", placeholder: Localized.Placeholder.firstName.localized, isEdit: isEdit)
-            lastNameTextField = UITextField.create(text: "\(employee.lastName)", placeholder: Localized.Placeholder.lastName.localized, isEdit: isEdit)
-            surNameTextField = UITextField.create(text: "\(employee.surName ?? "")", placeholder: Localized.Placeholder.surname.localized, isEdit: isEdit)
-            positionTextField = UITextField.create(text: "\(employee.position)", placeholder: Localized.Placeholder.position.localized, isEdit: isEdit)
-        } else {
-            firstNameTextField = UITextField.create(placeholder: Localized.Placeholder.firstName.localized, isEdit: isEdit)
-            lastNameTextField = UITextField.create(placeholder: Localized.Placeholder.lastName.localized, isEdit: isEdit)
-            surNameTextField = UITextField.create(placeholder: Localized.Placeholder.surname.localized, isEdit: isEdit)
-            positionTextField = UITextField.create(placeholder: Localized.Placeholder.position.localized, isEdit: isEdit)
+            firstNameTextField.text = "\(employee.firstName)"
+            lastNameTextField.text = "\(employee.lastName)"
+            surNameTextField.text = "\(employee.surName ?? "")"
+            positionTextField.text = "\(employee.position)"
         }
+        
         view.addSubview(firstNameTextField)
         view.addSubview(lastNameTextField)
         view.addSubview(surNameTextField)
