@@ -377,6 +377,7 @@ final class EditTaskViewController: UIViewController {
             } catch {
                 await MainActor.run {
                     self.showAlert(Localized.Error.saveFailed.localized)
+                    stopLoading()
                 }
             }
         }

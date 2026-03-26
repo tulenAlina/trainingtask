@@ -135,6 +135,7 @@ final class EditProjectViewController: UIViewController {
             } catch {
                 await MainActor.run {
                     self.showAlert(Localized.Error.saveFailed.localized)
+                    stopLoading()
                 }
             }
         }

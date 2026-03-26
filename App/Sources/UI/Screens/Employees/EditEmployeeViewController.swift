@@ -102,6 +102,12 @@ final class EditEmployeeViewController: UIViewController {
         saveButton.isEnabled = false
     }
     
+    private func stopLoading() {
+        loadingIndicator.stopAnimating()
+        view.isUserInteractionEnabled = true
+        saveButton.isEnabled = true
+    }
+    
     private func prepareUpdateData() -> Employee {
         var updatedEmployee = employee!
         updatedEmployee.firstName = firstNameTextField.text?.trimmed ?? ""
@@ -126,9 +132,7 @@ final class EditEmployeeViewController: UIViewController {
         } else {
             delegate?.didAddEmployee(savedEmployee)
         }
-        self.loadingIndicator.stopAnimating()
-        self.view.isUserInteractionEnabled = true
-        self.saveButton.isEnabled = true
+        stopLoading()
         self.navigationController?.popViewController(animated: true)
     }
     
@@ -154,6 +158,7 @@ final class EditEmployeeViewController: UIViewController {
             } catch {
                 await MainActor.run {
                     self.showAlert(Localized.Error.saveFailed.localized)
+                    stop
                 }
             }
         }
