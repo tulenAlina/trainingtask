@@ -1,10 +1,14 @@
 import Foundation
 
 enum TaskStatus: String, CaseIterable {
-    case notStarted = "Не начата"
-    case inProgress = "В процессе"
-    case completed = "Завершена"
-    case postponed = "Отложена"
+    case notStarted = "not_started"
+    case inProgress = "in_progress"
+    case completed = "completed"
+    case postponed = "postponed"
+    
+    var localized: String {
+        return self.rawValue.localized
+    }
 }
 
 struct ProjectTask {

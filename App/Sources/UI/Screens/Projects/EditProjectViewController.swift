@@ -28,7 +28,7 @@ final class EditProjectViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        title = (project != nil) ? "Редактирование" : "Создание"
+        title = (project != nil) ? Localized.Screen.editProject.localized : Localized.Screen.addProject.localized
         setupTextFields()
         setupNavigationBar()
         setupLoadingIndicator()
@@ -48,7 +48,7 @@ final class EditProjectViewController: UIViewController {
     }
     
     private func setupNavigationBar() {
-        saveButton = UIBarButtonItem(title: "Сохранить", style: .done, target: self, action: #selector(saveProject))
+        saveButton = UIBarButtonItem(title: Localized.Action.save.localized, style: .done, target: self, action: #selector(saveProject))
         navigationItem.rightBarButtonItem = saveButton
         saveButton.isEnabled = false
     }
@@ -64,11 +64,11 @@ final class EditProjectViewController: UIViewController {
         var isEdit = false
         if let project {
             isEdit = true
-            nameTextField = UITextField.create(text: "\(project.projectName)", placeholder: "Введите название", isEdit: isEdit)
-            descriptionTextField = UITextField.create(text: "\(project.description)", placeholder: "Введите описание", isEdit: isEdit)
+            nameTextField = UITextField.create(text: "\(project.projectName)", placeholder: Localized.Placeholder.projectName.localized, isEdit: isEdit)
+            descriptionTextField = UITextField.create(text: "\(project.description)", placeholder: Localized.Placeholder.projectDescription.localized, isEdit: isEdit)
         } else {
-            nameTextField = UITextField.create(placeholder: "Введите название", isEdit: isEdit)
-            descriptionTextField = UITextField.create(placeholder: "Введите описание", isEdit: isEdit)
+            nameTextField = UITextField.create(placeholder: Localized.Placeholder.projectName.localized, isEdit: isEdit)
+            descriptionTextField = UITextField.create(placeholder: Localized.Placeholder.projectDescription.localized, isEdit: isEdit)
         }
         nameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
         descriptionTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
@@ -134,7 +134,7 @@ final class EditProjectViewController: UIViewController {
                 }
             } catch {
                 await MainActor.run {
-                    self.showAlert("Не удалось сохранить проект")
+                    self.showAlert(Localized.Error.saveFailed.localized)
                 }
             }
         }

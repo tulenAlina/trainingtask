@@ -43,7 +43,7 @@ final class EmployeesViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        title = "Сотрудники"
+        title = Localized.Screen.employees.localized
         setupTableView()
         setupNavigationBar()
         setupLoadingIndicator()
@@ -100,7 +100,7 @@ final class EmployeesViewController: UIViewController {
     private func updateEmptyState() {
         if employees.isEmpty {
             let label = UILabel()
-            label.text = "Нет сотрудников"
+            label.text = Localized.Empty.noEmployees.localized
             label.textAlignment = .center
             label.textColor = .gray
             tableView.backgroundView = label
@@ -127,7 +127,7 @@ final class EmployeesViewController: UIViewController {
                     self.view.isUserInteractionEnabled = true
                     completion(false)
                 }
-                self.showAlert("Не удалось удалить сотрудника")
+                self.showAlert(Localized.Error.deleteFailed.localized)
             }
         }
     }
@@ -142,7 +142,7 @@ final class EmployeesViewController: UIViewController {
             } catch {
                 await MainActor.run {
                     refreshControl.endRefreshing()
-                    showAlert("Не удалось загрузить сотрудников")
+                    showAlert(Localized.Error.loadFailed.localized)
                 }
             }
         }
@@ -195,7 +195,7 @@ extension EmployeesViewController: UITableViewDelegate {
     }
     
     private func createDeleteAction(at indexPath: IndexPath) -> UIContextualAction {
-        let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {[weak self] _,_,completion in
+        let deleteAction = UIContextualAction(style: .destructive, title: Localized.Action.delete.localized) {[weak self] _,_,completion in
             self?.performDelete(at: indexPath, completion: completion)
         }
         return deleteAction

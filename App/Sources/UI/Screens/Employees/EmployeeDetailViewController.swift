@@ -28,14 +28,14 @@ final class EmployeeDetailViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        title = "Детали сотрудника"
+        title = Localized.Screen.employeeDetails.localized
         setupLabels()
         setupNavigationBar()
         setupConstraints()
     }
     
     private func setupNavigationBar() {
-        let changeButton = UIBarButtonItem(title: "Изменить", style: .plain, target: self, action: #selector(changeTapped))
+        let changeButton = UIBarButtonItem(title: Localized.Action.edit.localized, style: .plain, target: self, action: #selector(changeTapped))
         navigationItem.rightBarButtonItem = changeButton
     }
     
@@ -60,18 +60,18 @@ final class EmployeeDetailViewController: UIViewController {
     }
     
     private func updateLabels() {
-        firstNameLabel.text = "Имя: \(employee.firstName)"
-        lastNameLabel.text = "Фамилия: \(employee.lastName)"
+        firstNameLabel.text = "\(Localized.Label.firstName.localized) \(employee.firstName)"
+        lastNameLabel.text = "\(Localized.Label.lastName.localized) \(employee.lastName)"
         
         let surNameText: String
         if let surName = employee.surName, !surName.isEmpty {
             surNameText = surName
         } else {
-            surNameText = "нет"
+            surNameText = Localized.Label.no.localized
         }
-        surNameLabel.text = "Отчество: \(surNameText)"
+        surNameLabel.text = "\(Localized.Label.surname.localized) \(surNameText)"
         
-        positionLabel.text = "Должность: \(employee.position) "
+        positionLabel.text = "\(Localized.Label.position.localized) \(employee.position) "
     }
     
     private func setupLabels() {

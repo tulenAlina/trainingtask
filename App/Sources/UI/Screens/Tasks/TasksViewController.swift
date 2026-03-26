@@ -39,7 +39,7 @@ final class TasksViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        title = "Задачи"
+        title = Localized.Screen.tasks.localized
         setupTableView()
         setupNavigationBar()
         setupLoadingIndicator()
@@ -95,7 +95,7 @@ final class TasksViewController: UIViewController {
     private func updateEmptyState() {
         if tasks.isEmpty {
             let label = UILabel()
-            label.text = "Нет задач"
+            label.text = Localized.Empty.noTasks.localized
             label.textAlignment = .center
             label.textColor = .gray
             tableView.backgroundView = label
@@ -122,7 +122,7 @@ final class TasksViewController: UIViewController {
                     self.view.isUserInteractionEnabled = true
                     completion(false)
                 }
-                self.showAlert("Не удалось удалить задачу")
+                self.showAlert(Localized.Error.deleteFailed.localized)
             }
         }
     }
@@ -137,7 +137,7 @@ final class TasksViewController: UIViewController {
             } catch {
                 await MainActor.run {
                     refreshControl.endRefreshing()
-                    showAlert("Не удалось загрузить задачи")
+                    showAlert(Localized.Error.loadFailed.localized)
                 }
             }
         }
@@ -199,7 +199,7 @@ extension TasksViewController: UITableViewDelegate {
     }
     
     private func createDeleteAction(at indexPath: IndexPath) -> UIContextualAction {
-        let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {[weak self] _,_,completion in
+        let deleteAction = UIContextualAction(style: .destructive, title: Localized.Action.delete.localized) {[weak self] _,_,completion in
             self?.performDelete(at: indexPath, completion: completion)
         }
         return deleteAction

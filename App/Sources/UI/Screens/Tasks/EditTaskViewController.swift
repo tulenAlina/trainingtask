@@ -39,20 +39,20 @@ final class EditTaskViewController: UIViewController {
     
     private let projectButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Выбрать", for: .normal)
+        button.setTitle(Localized.Action.select.localized, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
 
     private let employeeButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Выбрать", for: .normal)
+        button.setTitle(Localized.Action.select.localized, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
     private var statusSegmentedControl: UISegmentedControl = {
-        let items = TaskStatus.allCases.map {$0.rawValue}
+        let items = TaskStatus.allCases.map {$0.rawValue.localized}
         let sc = UISegmentedControl(items: items)
         sc.translatesAutoresizingMaskIntoConstraints = false
         return sc
@@ -73,7 +73,7 @@ final class EditTaskViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        title = (task != nil) ? "Редактирование" : "Cоздание"
+        title = (task != nil) ? Localized.Screen.editTask.localized : Localized.Screen.addTask.localized
         setupLoadingIndicator()
         loadInitialData()
     }
@@ -137,7 +137,7 @@ final class EditTaskViewController: UIViewController {
     }
     
     private func setupNavigationBar() {
-        saveButton = UIBarButtonItem(title: "Сохранить", style: .done, target: self, action: #selector(saveTask))
+        saveButton = UIBarButtonItem(title: Localized.Action.save.localized, style: .done, target: self, action: #selector(saveTask))
         navigationItem.rightBarButtonItem = saveButton
         saveButton.isEnabled = false
     }
@@ -182,42 +182,42 @@ final class EditTaskViewController: UIViewController {
         if let task {
             isEdit = true
             if let contextProject {
-                projectTextField = UITextField.create(text: "\(contextProject.projectName)", placeholder: "Введите проект", isEdit: isEdit)
+                projectTextField = UITextField.create(text: "\(contextProject.projectName)", placeholder: Localized.Placeholder.projectName.localized, isEdit: isEdit)
                 projectTextField.isEnabled = false
                 projectTextField.textColor = .lightGray
             } else {
-                projectTextField = UITextField.create(text: "\(projects.first(where: {$0.id == task.projectID})?.projectName ?? "")", placeholder: "Введите проект", isEdit: isEdit)
+                projectTextField = UITextField.create(text: "\(projects.first(where: {$0.id == task.projectID})?.projectName ?? "")", placeholder: Localized.Placeholder.projectName.localized, isEdit: isEdit)
             }
-            taskNameTextField = UITextField.create(text: "\(task.taskName)", placeholder: "Введите задачу", isEdit: isEdit)
+            taskNameTextField = UITextField.create(text: "\(task.taskName)", placeholder: Localized.Placeholder.taskName.localized, isEdit: isEdit)
             
-            workTimeTextField = UITextField.create(text: "\(task.workTime)", placeholder: "Введите количество часов", isEdit: isEdit)
+            workTimeTextField = UITextField.create(text: "\(task.workTime)", placeholder: Localized.Placeholder.workTime.localized, isEdit: isEdit)
             workTimeTextField.keyboardType = .numberPad
             workTimeTextField.delegate = self
             
-            startDateTextField = UITextField.create(text: dateFormatter.string(from: task.startDate), placeholder: "Введите дату начала (ГГГГ-ММ-ДД)",  isEdit: isEdit)
-            endDateTextField = UITextField.create(text: dateFormatter.string(from: task.endDate), placeholder: "Введите дату окончания (ГГГГ-ММ-ДД)", isEdit: isEdit)
+            startDateTextField = UITextField.create(text: dateFormatter.string(from: task.startDate), placeholder: Localized.Placeholder.startDate.localized,  isEdit: isEdit)
+            endDateTextField = UITextField.create(text: dateFormatter.string(from: task.endDate), placeholder: Localized.Placeholder.endDate.localized, isEdit: isEdit)
             var fio: String = ""
             if let emp = employees.first(where: {$0.id == task.employeeID}) {
                 fio = emp.fullName
             }
-            employeeTextField = UITextField.create(text: "\(fio)", placeholder: "Введите сотрудника", isEdit: isEdit)
+            employeeTextField = UITextField.create(text: "\(fio)", placeholder: Localized.Placeholder.employeeName.localized, isEdit: isEdit)
         } else {
             if let contextProject {
-                projectTextField = UITextField.create(text: "\(contextProject.projectName)", placeholder: "Введите проект", isEdit: !isEdit)
+                projectTextField = UITextField.create(text: "\(contextProject.projectName)", placeholder: Localized.Placeholder.projectName.localized, isEdit: !isEdit)
                 projectTextField.isEnabled = false
                 projectTextField.textColor = .lightGray
             } else {
-                projectTextField = UITextField.create(placeholder: "Введите проект", isEdit: isEdit)
+                projectTextField = UITextField.create(placeholder: Localized.Placeholder.projectName.localized, isEdit: isEdit)
             }
-            taskNameTextField = UITextField.create(placeholder: "Введите задачу", isEdit: isEdit)
+            taskNameTextField = UITextField.create(placeholder: Localized.Placeholder.taskName.localized, isEdit: isEdit)
             
-            workTimeTextField = UITextField.create(placeholder: "Введите количество часов", isEdit: isEdit)
+            workTimeTextField = UITextField.create(placeholder: Localized.Placeholder.workTime.localized, isEdit: isEdit)
             workTimeTextField.keyboardType = .numberPad
             workTimeTextField.delegate = self
             
-            startDateTextField = UITextField.create(text: dateFormatter.string(from: Date()), placeholder: "Введите дату начала (ГГГГ-ММ-ДД)", isEdit: !isEdit)
-            endDateTextField = UITextField.create(text: dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()), placeholder: "Введите дату окончания (ГГГГ-ММ-ДД)", isEdit: !isEdit)
-            employeeTextField = UITextField.create(placeholder: "Введите сотрудника", isEdit: isEdit)
+            startDateTextField = UITextField.create(text: dateFormatter.string(from: Date()), placeholder: Localized.Placeholder.startDate.localized, isEdit: !isEdit)
+            endDateTextField = UITextField.create(text: dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()), placeholder: Localized.Placeholder.endDate.localized, isEdit: !isEdit)
+            employeeTextField = UITextField.create(placeholder: Localized.Placeholder.employeeName.localized, isEdit: isEdit)
         }
         
         taskNameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
@@ -240,12 +240,12 @@ final class EditTaskViewController: UIViewController {
         guard let startDate = dateFormatter.date(from: startDateTextField.text ?? ""),
               let endDate = dateFormatter.date(from: endDateTextField.text ?? "")
         else {
-            showAlert("Неверный формат даты")
+            showAlert(Localized.Error.invalidDate.localized)
             return false
         }
         
         guard endDate >= startDate else {
-            showAlert("Дата окончания должна быть позже даты начала")
+            showAlert(Localized.Error.dateEndBeforeStart.localized)
             return false
         }
         return true
@@ -254,7 +254,7 @@ final class EditTaskViewController: UIViewController {
     private func validateProject() -> Project?{
         guard let inputProject = projects.first(where: {$0.projectName.trimmed == projectTextField.text?.trimmed ?? ""})
         else {
-            showAlert("Выберите проект из списка")
+            showAlert(Localized.Error.selectProject.localized)
             return nil
         }
         return inputProject
@@ -269,7 +269,7 @@ final class EditTaskViewController: UIViewController {
             return emp.fullName == employeeTextField.text?.trimmed ?? ""
         })
         else {
-            showAlert("Выберите сотрудника из списка")
+            showAlert(Localized.Error.selectEmployee.localized)
             return (nil, false)
         }
         return (inputEmployee, true)
@@ -300,7 +300,7 @@ final class EditTaskViewController: UIViewController {
             DispatchQueue.main.async {
                 self.view.isUserInteractionEnabled = true
             }
-            self.showAlert("Не удалось загрузить данные")
+            self.showAlert(Localized.Error.loadFailed.localized)
         }
     }
     
@@ -376,7 +376,7 @@ final class EditTaskViewController: UIViewController {
                 }
             } catch {
                 await MainActor.run {
-                    self.showAlert("Не удалось сохранить задачу")
+                    self.showAlert(Localized.Error.saveFailed.localized)
                 }
             }
         }

@@ -39,7 +39,7 @@ final class ProjectsViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        title = "Проекты"
+        title = Localized.Screen.projects.localized
         setupTableView()
         setupNavigationBar()
         setupLoadingIndicator()
@@ -102,7 +102,7 @@ final class ProjectsViewController: UIViewController {
     private func updateEmptyState() {
         if projects.isEmpty {
             let label = UILabel()
-            label.text = "Нет проектов"
+            label.text = Localized.Empty.noProjects.localized
             label.textAlignment = .center
             label.textColor = .gray
             tableView.backgroundView = label
@@ -129,7 +129,7 @@ final class ProjectsViewController: UIViewController {
                     self.view.isUserInteractionEnabled = true
                     completion(false)
                 }
-                self.showAlert("Не удалось удалить проект")
+                self.showAlert(Localized.Error.deleteFailed.localized)
             }
         }
     }
@@ -153,7 +153,7 @@ final class ProjectsViewController: UIViewController {
             } catch {
                 await MainActor.run {
                     refreshControl.endRefreshing()
-                    showAlert("Не удалось загрузить проекты")
+                    showAlert(Localized.Error.loadFailed.localized)
                 }
             }
         }
@@ -208,14 +208,14 @@ extension ProjectsViewController: UITableViewDelegate {
     }
     
     private func createDeleteAction(at indexPath: IndexPath) -> UIContextualAction {
-        let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {[weak self] _,_,completion in
+        let deleteAction = UIContextualAction(style: .destructive, title: Localized.Action.delete.localized) {[weak self] _,_,completion in
             self?.performDelete(at: indexPath, completion: completion)
         }
         return deleteAction
     }
     
     private func createEditAction(at indexPath: IndexPath) -> UIContextualAction {
-        let editAction = UIContextualAction(style: .normal, title: "Изменить") {[weak self] _,_,completion in
+        let editAction = UIContextualAction(style: .normal, title: Localized.Action.edit.localized) {[weak self] _,_,completion in
             self?.performEdit(at: indexPath, completion: completion)
         }
         return editAction

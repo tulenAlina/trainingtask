@@ -28,7 +28,7 @@ final class SplashViewController: UIViewController {
     private func setupLabels() {
         nameLabel.text = "TrainingApp"
         if let version = loadVersion()?.replacingOccurrences(of: "version=", with: "") {
-            versionLabel.text = "Версия \(version)"
+            versionLabel.text = "\(Localized.Splash.version.localized) \(version)"
         }
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         versionLabel.translatesAutoresizingMaskIntoConstraints = false

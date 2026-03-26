@@ -1,0 +1,92 @@
+"app_name" = "TrainingTask";
+"main_menu" = "Главное меню";
+
+// Screen Titles
+"projects" = "Проекты";
+"tasks" = "Задачи";
+"employees" = "Сотрудники";
+"settings" = "Настройки";
+"add_project" = "Добавление проекта";
+"edit_project" = "Редактирование проекта";
+"add_task" = "Добавление задачи";
+"edit_task" = "Редактирование задачи";
+"add_employee" = "Добавление сотрудника";
+"edit_employee" = "Редактирование сотрудника";
+"task_details" = "Детали задачи";
+"employee_details" = "Детали сотрудника";
+
+// Actions
+"save" = "Сохранить";
+"cancel" = "Отмена";
+"delete" = "Удалить";
+"edit" = "Изменить";
+"add" = "Добавить";
+"refresh" = "Обновить";
+"select" = "Выбрать";
+"done" = "Готово";
+
+// Task Status
+"not_started" = "Не начата";
+"in_progress" = "В процессе";
+"completed" = "Завершена";
+"postponed" = "Отложена";
+
+// Placeholders
+"task_name_placeholder" = "Введите задачу";
+"project_name_placeholder" = "Введите проект";
+"project_description_placeholder" = "Введите описание";
+"work_time_placeholder" = "Введите количество часов";
+"start_date_placeholder" = "Введите дату начала (ГГГГ-ММ-ДД)";
+"end_date_placeholder" = "Введите дату окончания (ГГГГ-ММ-ДД)";
+"employee_name_placeholder" = "Введите сотрудника";
+"first_name_placeholder" = "Введите имя";
+"last_name_placeholder" = "Введите фамилию";
+"surname_placeholder" = "Введите отчество (если есть)";
+"position_placeholder" = "Введите должность";
+"server_url_placeholder" = "Введите url сервера";
+"max_records_placeholder" = "Введите максимальное количество записей в списках";
+"default_days_between_placeholder" = "Введите количество дней между начальной и конечной датами в задаче";
+"name_placeholder" = "Введите название";
+"description_placeholder" = "Введите описание";
+
+// Labels
+"name_label" = "Название:";
+"first_name_label" = "Имя:";
+"last_name_label" = "Фамилия:";
+"surname_label" = "Отчество:";
+"patronymic_label" = "Отчество:";
+"position_label" = "Должность:";
+"task_label" = "Задача:";
+"project_label" = "Проект:";
+"hours_label" = "Часы:";
+"start_date_label" = "Дата начала:";
+"end_date_label" = "Дата окончания:";
+"employee_label" = "Сотрудник:";
+"status_label" = "Статус:";
+"server_url_label" = "URL сервера:";
+"max_records_label" = "Максимальное количество записей в списках:";
+"default_days_between_label" = "Количество дней по умолчанию между начальной и конечной датами в задаче:";
+"not_assigned" = "не назначен";
+"unknown_project" = "неизвестный проект";
+"no" = "нет";
+
+// Empty States
+"no_projects" = "Нет проектов";
+"no_tasks" = "Нет задач";
+"no_employees" = "Нет сотрудников";
+
+// Alerts
+"alert_title" = "Внимание";
+"ok" = "Ок";
+
+// Errors
+"load_failed" = "Не удалось загрузить данные";
+"save_failed" = "Не удалось сохранить";
+"delete_failed" = "Не удалось удалить";
+"invalid_date" = "Неверный формат даты";
+"select_project" = "Выберите проект из списка";
+"select_employee" = "Выберите сотрудника из списка";
+"date_end_before_start" = "Дата окончания должна быть позже даты начала";
+
+// Splash
+"version_prefix" = "Версия";

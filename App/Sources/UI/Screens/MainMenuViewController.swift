@@ -31,7 +31,7 @@ final class MainMenuViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        title = "Главное меню"
+        title = Localized.Screen.mainMenu.localized
         view.addSubview(stackView)
         setupConstraints()
     }

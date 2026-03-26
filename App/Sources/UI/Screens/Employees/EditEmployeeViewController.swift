@@ -31,7 +31,7 @@ final class EditEmployeeViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        title = (employee != nil) ? "Редактирование" : "Создание"
+        title = (employee != nil) ? Localized.Screen.editEmployee.localized : Localized.Screen.addEmployee.localized
         setupTextFields()
         setupNavigationBar()
         setupLoadingIndicator()
@@ -45,7 +45,7 @@ final class EditEmployeeViewController: UIViewController {
     }
     
     private func setupNavigationBar() {
-        saveButton = UIBarButtonItem(title: "Сохранить", style: .done, target: self, action: #selector(saveEmployee))
+        saveButton = UIBarButtonItem(title: Localized.Action.save.localized, style: .done, target: self, action: #selector(saveEmployee))
         navigationItem.rightBarButtonItem = saveButton
         saveButton.isEnabled = false
     }
@@ -74,15 +74,15 @@ final class EditEmployeeViewController: UIViewController {
         var isEdit = false
         if let employee {
             isEdit = true
-            firstNameTextField = UITextField.create(text: "\(employee.firstName)", placeholder: "Введите имя", isEdit: isEdit)
-            lastNameTextField = UITextField.create(text: "\(employee.lastName)", placeholder: "Введите фамилию", isEdit: isEdit)
-            surNameTextField = UITextField.create(text: "\(employee.surName ?? "")", placeholder: "Введите отчество(если есть)", isEdit: isEdit)
-            positionTextField = UITextField.create(text: "\(employee.position)", placeholder: "Введите должность", isEdit: isEdit)
+            firstNameTextField = UITextField.create(text: "\(employee.firstName)", placeholder: Localized.Placeholder.firstName.localized, isEdit: isEdit)
+            lastNameTextField = UITextField.create(text: "\(employee.lastName)", placeholder: Localized.Placeholder.lastName.localized, isEdit: isEdit)
+            surNameTextField = UITextField.create(text: "\(employee.surName ?? "")", placeholder: Localized.Placeholder.surname.localized, isEdit: isEdit)
+            positionTextField = UITextField.create(text: "\(employee.position)", placeholder: Localized.Placeholder.position.localized, isEdit: isEdit)
         } else {
-            firstNameTextField = UITextField.create(placeholder: "Введите имя", isEdit: isEdit)
-            lastNameTextField = UITextField.create(placeholder: "Введите фамилию", isEdit: isEdit)
-            surNameTextField = UITextField.create(placeholder: "Введите отчество(если есть)", isEdit: isEdit)
-            positionTextField = UITextField.create(placeholder: "Введите должность", isEdit: isEdit)
+            firstNameTextField = UITextField.create(placeholder: Localized.Placeholder.firstName.localized, isEdit: isEdit)
+            lastNameTextField = UITextField.create(placeholder: Localized.Placeholder.lastName.localized, isEdit: isEdit)
+            surNameTextField = UITextField.create(placeholder: Localized.Placeholder.surname.localized, isEdit: isEdit)
+            positionTextField = UITextField.create(placeholder: Localized.Placeholder.position.localized, isEdit: isEdit)
         }
         view.addSubview(firstNameTextField)
         view.addSubview(lastNameTextField)
@@ -153,7 +153,7 @@ final class EditEmployeeViewController: UIViewController {
                 }
             } catch {
                 await MainActor.run {
-                    self.showAlert("Не удалось сохранить сотрудника")
+                    self.showAlert(Localized.Error.saveFailed.localized)
                 }
             }
         }

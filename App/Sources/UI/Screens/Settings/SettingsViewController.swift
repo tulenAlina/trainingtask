@@ -28,7 +28,7 @@ final class SettingsViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        title = "Настройки"
+        title = Localized.Screen.settings.localized
         setupTextFields()
         setupLabels()
         setupTapGesture()
@@ -37,7 +37,7 @@ final class SettingsViewController: UIViewController {
     }
     
     private func setupNavigationBar() {
-        saveButton = UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(saveSettings))
+        saveButton = UIBarButtonItem(title: Localized.Action.save.localized, style: .done, target: self, action: #selector(saveSettings))
         navigationItem.rightBarButtonItem = saveButton
         saveButton.isEnabled = false
     }
@@ -77,20 +77,20 @@ final class SettingsViewController: UIViewController {
     }
     
     private func setupTextFields() {
-        serverUrlTextField = UITextField.create(placeholder: "Введите url сервера")
+        serverUrlTextField = UITextField.create(placeholder: Localized.Placeholder.serverUrl.localized)
         serverUrlTextField.keyboardType = .URL
         serverUrlTextField.translatesAutoresizingMaskIntoConstraints = false
         serverUrlTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
         view.addSubview(serverUrlTextField)
         
-        maxRecordsTextField = UITextField.create(placeholder: "Введите максимальное количество записей в списках")
+        maxRecordsTextField = UITextField.create(placeholder: Localized.Placeholder.maxRecords.localized)
         maxRecordsTextField.keyboardType = .numberPad
         maxRecordsTextField.delegate = self
         maxRecordsTextField.translatesAutoresizingMaskIntoConstraints = false
         maxRecordsTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
         view.addSubview(maxRecordsTextField)
         
-        defaultDaysBetweenTextField = UITextField.create(placeholder: "Введите количество дней между начальной и конечной датами в задаче")
+        defaultDaysBetweenTextField = UITextField.create(placeholder: Localized.Placeholder.defaultDaysBetween.localized)
         defaultDaysBetweenTextField.keyboardType = .numberPad
         defaultDaysBetweenTextField.delegate = self
         defaultDaysBetweenTextField.translatesAutoresizingMaskIntoConstraints = false
@@ -101,18 +101,18 @@ final class SettingsViewController: UIViewController {
     }
     
     private func setupLabels() {
-        serverUrlLabel.text = "URL сервера:"
+        serverUrlLabel.text = Localized.Label.serverUrl.localized
         serverUrlLabel.font = UIFont.boldSystemFont(ofSize: serverUrlLabel.font.pointSize)
         serverUrlLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(serverUrlLabel)
         
-        maxRecordsLabel.text = "Максимальное количество записей в списках:"
+        maxRecordsLabel.text = Localized.Label.maxRecords.localized
         maxRecordsLabel.font = UIFont.boldSystemFont(ofSize: serverUrlLabel.font.pointSize)
         maxRecordsLabel.numberOfLines = 0
         maxRecordsLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(maxRecordsLabel)
         
-        defaultDaysBetweenLabel.text = "Количество дней по умолчанию между начальной и конечной датами в задаче:"
+        defaultDaysBetweenLabel.text = Localized.Label.defaultDaysBetween.localized
         defaultDaysBetweenLabel.font = UIFont.boldSystemFont(ofSize: serverUrlLabel.font.pointSize)
         defaultDaysBetweenLabel.numberOfLines = 0
         defaultDaysBetweenLabel.translatesAutoresizingMaskIntoConstraints = false

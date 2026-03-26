@@ -42,7 +42,7 @@ final class TaskDetailViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        title = "Детали задачи"
+        title = Localized.Screen.taskDetails.localized
         setupLabels()
         setupNavigationBar()
         setupLoadingIndicator()
@@ -82,7 +82,7 @@ final class TaskDetailViewController: UIViewController {
     }
     
     private func setupNavigationBar() {
-        let changeButton = UIBarButtonItem(title: "Изменить", style: .plain, target: self, action: #selector(changeTapped))
+        let changeButton = UIBarButtonItem(title: Localized.Action.edit.localized, style: .plain, target: self, action: #selector(changeTapped))
         navigationItem.rightBarButtonItem = changeButton
     }
     
@@ -114,22 +114,22 @@ final class TaskDetailViewController: UIViewController {
     }
     
     private func updateLabels() {
-        taskNameLabel.text = "Задача: \(task.taskName)"
-        projectLabel.text = "Проект: \(project?.projectName ?? "неизвестный проект")"
-        workTimeLabel.text = "Часы: \(task.workTime)"
+        taskNameLabel.text = "\(Localized.Label.task.localized) \(task.taskName)"
+        projectLabel.text = "\(Localized.Label.project.localized) \(project?.projectName ?? Localized.Label.unknownProject.localized)"
+        workTimeLabel.text = "\(Localized.Label.hours.localized) \(task.workTime)"
         
-        startDateLabel.text = "Дата начала: \(dateFormatter.string(from: task.startDate))"
-        endDateLabel.text = "Дата окончания: \(dateFormatter.string(from: task.endDate))"
+        startDateLabel.text = "\(Localized.Label.startDate.localized) \(dateFormatter.string(from: task.startDate))"
+        endDateLabel.text = "\(Localized.Label.endDate.localized) \(dateFormatter.string(from: task.endDate))"
         
         let employeeFIO: String
         if let employee {
             employeeFIO = employee.fullName
         }
         else {
-            employeeFIO = "не назначен"
+            employeeFIO = Localized.Label.notAssigned.localized
         }
-        employeeLabel.text = "Сотрудник: \(employeeFIO)"
-        statusLabel.text = "Статус: \(task.status.rawValue)"
+        employeeLabel.text = "\(Localized.Label.employee.localized) \(employeeFIO)"
+        statusLabel.text = "\(Localized.Label.status.localized) \(task.status.rawValue.localized)"
     }
     
     private func loadRelatedData() async {
@@ -147,7 +147,7 @@ final class TaskDetailViewController: UIViewController {
             }
         } catch {
             await MainActor.run {
-                showAlert("Не удалось загрузить проект или сотрудника")
+                showAlert(Localized.Error.loadFailed.localized)
             }
         }
     }
