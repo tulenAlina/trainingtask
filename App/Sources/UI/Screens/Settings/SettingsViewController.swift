@@ -102,21 +102,15 @@ final class SettingsViewController: UIViewController {
     
     private func setupLabels() {
         serverUrlLabel.text = Localized.Label.serverUrl.localized
-        serverUrlLabel.font = UIFont.boldSystemFont(ofSize: serverUrlLabel.font.pointSize)
-        serverUrlLabel.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(serverUrlLabel)
-        
         maxRecordsLabel.text = Localized.Label.maxRecords.localized
-        maxRecordsLabel.font = UIFont.boldSystemFont(ofSize: serverUrlLabel.font.pointSize)
-        maxRecordsLabel.numberOfLines = 0
-        maxRecordsLabel.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(maxRecordsLabel)
-        
         defaultDaysBetweenLabel.text = Localized.Label.defaultDaysBetween.localized
-        defaultDaysBetweenLabel.font = UIFont.boldSystemFont(ofSize: serverUrlLabel.font.pointSize)
-        defaultDaysBetweenLabel.numberOfLines = 0
-        defaultDaysBetweenLabel.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(defaultDaysBetweenLabel)
+        
+        for label in [serverUrlLabel, maxRecordsLabel, defaultDaysBetweenLabel] {
+            label.font = UIFont.boldSystemFont(ofSize: label.font.pointSize)
+            label.numberOfLines = 0
+            label.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview(label)
+        }
     }
     
     private func loadCurrentSettings() {
