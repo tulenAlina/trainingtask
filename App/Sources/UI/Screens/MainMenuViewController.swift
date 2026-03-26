@@ -4,7 +4,7 @@ final class MainMenuViewController: UIViewController {
     
     private let settings: SettingsManager
     private let server: Server
-    private let menuItems = [MenuConstants.projects, MenuConstants.tasks, MenuConstants.employees, MenuConstants.settings]
+    private let menuItems = [Localized.Screen.projects.localized, Localized.Screen.tasks.localized, Localized.Screen.employees.localized, Localized.Screen.settings.localized]
     
     private lazy var buttons: [UIButton] = {
         menuItems.map { title in
@@ -62,16 +62,16 @@ final class MainMenuViewController: UIViewController {
         guard let title = sender.titleLabel?.text else { return }
         
         switch title {
-        case MenuConstants.projects:
+        case Localized.Screen.projects.localized:
             let projectsViewController = ProjectsViewController(server: server, settings: settings)
             navigationController?.pushViewController(projectsViewController, animated: true)
-        case MenuConstants.tasks:
+        case Localized.Screen.tasks.localized:
             let tasksViewController = TasksViewController(server: server, settings: settings)
             navigationController?.pushViewController(tasksViewController, animated: true)
-        case MenuConstants.employees:
+        case Localized.Screen.employees.localized:
             let employeesViewController = EmployeesViewController(server: server, settings: settings)
             navigationController?.pushViewController(employeesViewController, animated: true)
-        case MenuConstants.settings:
+        case Localized.Screen.settings.localized:
             let settingsViewController = SettingsViewController(settings: settings)
             navigationController?.pushViewController(settingsViewController, animated: true)
         default:
