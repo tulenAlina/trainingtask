@@ -7,7 +7,8 @@ final class TaskDetailViewController: UIViewController {
     private var task: ProjectTask
     private var project: Project?
     private var employee: Employee?
-    private let server = ServerManager.shared.currentServer
+    private let server: Server
+    private let settings: SettingsManager
     private let isContextProject: Bool
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private var taskNameLabel = UILabel()
@@ -20,11 +21,13 @@ final class TaskDetailViewController: UIViewController {
     
     private let dateFormatter = DateHelper.self
     
-    init(task: ProjectTask, project: Project?, employee: Employee?, isContextProject: Bool) {
+    init(task: ProjectTask, project: Project?, employee: Employee?, isContextProject: Bool, server: Server, settings: SettingsManager) {
         self.task = task
         self.project = project
         self.employee = employee
         self.isContextProject = isContextProject
+        self.server = server
+        self.settings = settings
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -151,11 +154,11 @@ final class TaskDetailViewController: UIViewController {
     
     @objc private func changeTapped() {
         if let project {
-            let editViewController = isContextProject ? EditTaskViewController(task, project: project) : EditTaskViewController(task)
+            let editViewController = isContextProject ? EditTaskViewController(task: task, project: project, server: server, settings: settings) : EditTaskViewController(task: task, server: server, settings: settings)
             editViewController.delegate = self
             navigationController?.pushViewController(editViewController, animated: true)
         } else {
-            let editViewController = EditTaskViewController(task)
+            let editViewController = EditTaskViewController(task: task, server: server, settings: settings)
             editViewController.delegate = self
             navigationController?.pushViewController(editViewController, animated: true)
         }

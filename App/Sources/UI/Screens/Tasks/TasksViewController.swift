@@ -11,7 +11,8 @@ extension TasksViewControllerDelegate {
 
 final class TasksViewController: UIViewController {
     private let project: Project?
-    private let server = ServerManager.shared.currentServer
+    private let server: Server
+    private let settings: SettingsManager
     private var tasks: [ProjectTask] = []
     private var projects: [Project] = []
     private var employees: [Employee] = []
@@ -19,8 +20,10 @@ final class TasksViewController: UIViewController {
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private let refreshControl = UIRefreshControl()
         
-    init(project: Project? = nil) {
+    init(project: Project? = nil, server: Server, settings: SettingsManager) {
         self.project = project
+        self.server = server
+        self.settings = settings
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -80,7 +83,7 @@ final class TasksViewController: UIViewController {
             projects = try await server.fetchProjects()
         }
         employees = try await server.fetchEmployees()
-        tasks = Array(allTasks.prefix(SettingsManager.shared.maxRecords))
+        tasks = Array(allTasks.prefix(settings.maxRecords))
         DispatchQueue.main.async {
             self.tableView.reloadData()
             self.updateEmptyState()
@@ -143,9 +146,9 @@ final class TasksViewController: UIViewController {
     @objc private func addTapped() {
         let editViewController: EditTaskViewController
         if let project {
-            editViewController = EditTaskViewController(project: project)
+            editViewController = EditTaskViewController(project: project, server: server, settings: settings)
         } else {
-            editViewController = EditTaskViewController()
+            editViewController = EditTaskViewController(server: server, settings: settings)
         }
         editViewController.delegate = self
         navigationController?.pushViewController(editViewController, animated: true)
@@ -219,7 +222,9 @@ extension TasksViewController: UITableViewDelegate {
             task: task,
             project: currentProject,
             employee: currentEmployee,
-            isContextProject: isContextProject)
+            isContextProject: isContextProject,
+            server: server,
+            settings: settings)
         detailViewController.delegate = self
         return detailViewController
     }
@@ -227,7 +232,7 @@ extension TasksViewController: UITableViewDelegate {
 
 extension TasksViewController: TasksViewControllerDelegate {
     private var lastRowIndexWithinLimit: Int {
-        return SettingsManager.shared.maxRecords - 1
+        return settings.maxRecords - 1
     }
 
     private var lastIndexPathWithinLimit: IndexPath {
@@ -239,7 +244,7 @@ extension TasksViewController: TasksViewControllerDelegate {
     }
     
     func didAddTask(_ task: ProjectTask) {
-        let maxRecords = SettingsManager.shared.maxRecords
+        let maxRecords = settings.maxRecords
         if tasks.count >= maxRecords {
             tasks.removeLast()
             tableView.deleteRows(at: [lastIndexPathWithinLimit], with: .automatic)

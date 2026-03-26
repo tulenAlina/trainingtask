@@ -16,15 +16,18 @@ final class EmployeesViewController: UIViewController {
         case selection(completion: (Employee) -> Void)
     }
     
+    private let server: Server
+    private let settings: SettingsManager
     private let mode: Mode
     private let tableView = UITableView()
-    private let server = ServerManager.shared.currentServer
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private let refreshControl = UIRefreshControl()
     private var employees: [Employee] = []
     
-    init(mode: Mode = .normal) {
+    init(mode: Mode = .normal, server: Server, settings: SettingsManager) {
         self.mode = mode
+        self.server = server
+        self.settings = settings
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -85,7 +88,7 @@ final class EmployeesViewController: UIViewController {
     
     private func loadEmployees() async throws{
         let allEmployees = try await server.fetchEmployees()
-        employees = Array(allEmployees.prefix(SettingsManager.shared.maxRecords))
+        employees = Array(allEmployees.prefix(settings.maxRecords))
         DispatchQueue.main.async {
             self.tableView.reloadData()
             self.updateEmptyState()
@@ -146,7 +149,7 @@ final class EmployeesViewController: UIViewController {
     }
     
     @objc private func addTapped() {
-        let editVC = EditEmployeeViewController()
+        let editVC = EditEmployeeViewController(server: server)
         editVC.delegate = self
         navigationController?.pushViewController(editVC, animated: true)
     }
@@ -182,7 +185,7 @@ extension EmployeesViewController: UITableViewDelegate {
         let employee = employees[indexPath.row]
         switch mode {
         case .normal:
-            let detailViewController = EmployeeDetailViewController(employee: employee)
+            let detailViewController = EmployeeDetailViewController(employee: employee, server: server)
             detailViewController.delegate = self
             navigationController?.pushViewController(detailViewController, animated: true)
         case .selection(let completion):
@@ -201,7 +204,7 @@ extension EmployeesViewController: UITableViewDelegate {
 
 extension EmployeesViewController: EmployeesViewControllerDelegate {
     private var lastRowIndexWithinLimit: Int {
-        return SettingsManager.shared.maxRecords - 1
+        return settings.maxRecords - 1
     }
 
     private var lastIndexPathWithinLimit: IndexPath {
@@ -213,7 +216,7 @@ extension EmployeesViewController: EmployeesViewControllerDelegate {
     }
     
     func didAddEmployee(_ employee: Employee) {
-        let maxRecords = SettingsManager.shared.maxRecords
+        let maxRecords = settings.maxRecords
         if employees.count >= maxRecords {
             employees.removeLast()
             tableView.deleteRows(at: [lastIndexPathWithinLimit], with: .automatic)

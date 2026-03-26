@@ -1,8 +1,7 @@
 import Foundation
 
 final class SettingsManager {
-    static let shared = SettingsManager()
-    
+
     var serverURL: String {
         get {
             UserDefaults.standard.string(forKey: UserDefaultsKeys.serverURL) ?? ""
@@ -32,7 +31,7 @@ final class SettingsManager {
     
     private var config: [String: Any]?
     
-    private init() {
+    init() {
         loadConfig()
         registerDefaults()
     }

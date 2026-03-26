@@ -48,18 +48,22 @@ final class MainMenuViewController: UIViewController {
     @objc private func buttonTapped(_ sender: UIButton) {
         guard let title = sender.titleLabel?.text else { return }
         
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {return}
+        let server = appDelegate.server
+        let settings = appDelegate.settings
+        
         switch title {
         case MenuConstants.projects:
-            let projectsViewController = ProjectsViewController()
+            let projectsViewController = ProjectsViewController(server: server, settings: settings)
             navigationController?.pushViewController(projectsViewController, animated: true)
         case MenuConstants.tasks:
-            let tasksViewController = TasksViewController()
+            let tasksViewController = TasksViewController(server: server, settings: settings)
             navigationController?.pushViewController(tasksViewController, animated: true)
         case MenuConstants.employees:
-            let employeesViewController = EmployeesViewController()
+            let employeesViewController = EmployeesViewController(server: server, settings: settings)
             navigationController?.pushViewController(employeesViewController, animated: true)
         case MenuConstants.settings:
-            let settingsViewController = SettingsViewController()
+            let settingsViewController = SettingsViewController(settings: settings)
             navigationController?.pushViewController(settingsViewController, animated: true)
         default:
             break

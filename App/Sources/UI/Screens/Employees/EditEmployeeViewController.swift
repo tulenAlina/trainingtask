@@ -12,10 +12,11 @@ final class EditEmployeeViewController: UIViewController {
     private var surNameTextField: UITextField!
     private var positionTextField: UITextField!
     private var cancelButton: UIBarButtonItem!
-    private let server = ServerManager.shared.currentServer
+    private let server: Server
     
-    init(_ employee: Employee? = nil) {
+    init(employee: Employee? = nil, server: Server) {
         self.employee = employee
+        self.server = server
         super.init(nibName: nil, bundle: nil)
     }
     

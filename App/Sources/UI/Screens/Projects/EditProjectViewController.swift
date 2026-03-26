@@ -4,15 +4,16 @@ final class EditProjectViewController: UIViewController {
     weak var delegate: ProjectsViewControllerDelegate?
     var saveButton: UIBarButtonItem!
     
-    private let server = ServerManager.shared.currentServer
+    private let server: Server
     private var project: Project?
     private var nameTextField: UITextField!
     private var descriptionTextField: UITextField!
     private var cancelButton: UIBarButtonItem!
     private var loadingIndicator: UIActivityIndicatorView!
     
-    init(_ project: Project? = nil) {
+    init(project: Project? = nil, server: Server) {
         self.project = project
+        self.server = server
         super.init(nibName: nil, bundle: nil)
     }
     

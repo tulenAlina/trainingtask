@@ -5,7 +5,8 @@ final class EditTaskViewController: UIViewController {
     weak var delegate: TasksViewControllerDelegate?
     var saveButton: UIBarButtonItem!
     
-    private let server = ServerManager.shared.currentServer
+    private let server: Server
+    private let settings: SettingsManager
     private let dateFormatter = DateHelper.self
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private var task: ProjectTask?
@@ -57,9 +58,11 @@ final class EditTaskViewController: UIViewController {
         return sc
     }()
     
-    init(_ task: ProjectTask? = nil, project: Project? = nil) {
+    init(task: ProjectTask? = nil, project: Project? = nil, server: Server, settings: SettingsManager) {
         self.task = task
         self.contextProject = project
+        self.server = server
+        self.settings = settings
         super.init(nibName: nil, bundle: nil)
     }
         
@@ -213,7 +216,7 @@ final class EditTaskViewController: UIViewController {
             workTimeTextField.delegate = self
             
             startDateTextField = UITextField.create(text: dateFormatter.string(from: Date()), placeholder: "Введите дату начала (ГГГГ-ММ-ДД)", isEdit: !isEdit)
-            endDateTextField = UITextField.create(text: dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: SettingsManager.shared.defaultDaysBetween, to: Date()) ?? Date()), placeholder: "Введите дату окончания (ГГГГ-ММ-ДД)", isEdit: !isEdit)
+            endDateTextField = UITextField.create(text: dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()), placeholder: "Введите дату окончания (ГГГГ-ММ-ДД)", isEdit: !isEdit)
             employeeTextField = UITextField.create(placeholder: "Введите сотрудника", isEdit: isEdit)
         }
         
@@ -319,7 +322,7 @@ final class EditTaskViewController: UIViewController {
         updatedTask.projectID = inputProject.id
         updatedTask.workTime = Int(workTimeTextField.text ?? "") ?? 0
         updatedTask.startDate = dateFormatter.date(from: startDateTextField.text ?? "") ?? Date()
-        updatedTask.endDate = dateFormatter.date(from: endDateTextField.text ?? "") ?? Calendar.current.date(byAdding: .day, value: SettingsManager.shared.defaultDaysBetween, to: Date()) ?? Date()
+        updatedTask.endDate = dateFormatter.date(from: endDateTextField.text ?? "") ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()
         updatedTask.status = TaskStatus.allCases[statusSegmentedControl.selectedSegmentIndex]
         updatedTask.employeeID = inputEmployee?.id
         return updatedTask
@@ -331,7 +334,7 @@ final class EditTaskViewController: UIViewController {
             projectID: inputProject.id,
             workTime: Int(workTimeTextField.text ?? "") ?? 0,
             startDate: dateFormatter.date(from: startDateTextField.text ?? "") ?? Date(),
-            endDate: dateFormatter.date(from: endDateTextField.text ?? "") ?? Calendar.current.date(byAdding: .day, value: SettingsManager.shared.defaultDaysBetween, to: Date()) ?? Date(),
+            endDate: dateFormatter.date(from: endDateTextField.text ?? "") ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date(),
             status: TaskStatus.allCases[statusSegmentedControl.selectedSegmentIndex],
             employeeID: inputEmployee?.id
         )
@@ -403,7 +406,7 @@ final class EditTaskViewController: UIViewController {
         let projectsViewController = ProjectsViewController(mode: .selection {[weak self] selectedProject in
             self?.projectTextField.text = selectedProject.projectName
             self?.updateSaveButtonState()
-        })
+        }, server: server, settings: settings)
         navigationController?.pushViewController(projectsViewController, animated: true)
     }
     
@@ -411,7 +414,7 @@ final class EditTaskViewController: UIViewController {
         let employeesViewController = EmployeesViewController(mode: .selection {[weak self] selectedEmployee in
             self?.employeeTextField.text = selectedEmployee.fullName
             self?.updateSaveButtonState()
-        })
+        }, server: server, settings: settings)
         navigationController?.pushViewController(employeesViewController, animated: true)
     }
 }

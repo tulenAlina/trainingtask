@@ -13,14 +13,17 @@ final class ProjectsViewController: UIViewController {
     }
     
     private let mode: Mode
-    private let server = ServerManager.shared.currentServer
+    private let server: Server
+    private let settings: SettingsManager
     private var projects: [Project] = []
     private var tableView: UITableView!
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private var refreshControl: UIRefreshControl!
     
-    init(mode: Mode = .normal) {
+    init(mode: Mode = .normal, server: Server, settings: SettingsManager) {
         self.mode = mode
+        self.server = server
+        self.settings = settings
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -83,7 +86,7 @@ final class ProjectsViewController: UIViewController {
     
     private func loadProjects() async throws {
         let allProjects = try await server.fetchProjects()
-        projects = Array(allProjects.prefix(SettingsManager.shared.maxRecords))
+        projects = Array(allProjects.prefix(settings.maxRecords))
         DispatchQueue.main.async {
             self.updateUIAfterLoading()
         }
@@ -133,7 +136,7 @@ final class ProjectsViewController: UIViewController {
     
     private func performEdit(at indexPath: IndexPath, completion: @escaping (Bool) -> Void) {
         let project = self.projects[indexPath.row]
-        let editViewController = EditProjectViewController(project)
+        let editViewController = EditProjectViewController(project: project, server: server)
         editViewController.delegate = self
         self.navigationController?.pushViewController(editViewController, animated: true)
         completion(true)
@@ -157,7 +160,7 @@ final class ProjectsViewController: UIViewController {
     }
     
     @objc private func addTapped() {
-        let editViewController = EditProjectViewController()
+        let editViewController = EditProjectViewController(server: server)
         editViewController.delegate = self
         navigationController?.pushViewController(editViewController, animated: true)
     }
@@ -196,7 +199,7 @@ extension ProjectsViewController: UITableViewDelegate {
         
         switch mode {
         case .normal:
-            let tasksViewConttroller = TasksViewController(project: project)
+            let tasksViewConttroller = TasksViewController(project: project, server: server, settings: settings)
             navigationController?.pushViewController(tasksViewConttroller, animated: true)
         case .selection(let completion):
             completion(project)
@@ -221,7 +224,7 @@ extension ProjectsViewController: UITableViewDelegate {
 
 extension ProjectsViewController: ProjectsViewControllerDelegate {
     private var lastRowIndexWithinLimit: Int {
-        return SettingsManager.shared.maxRecords - 1
+        return settings.maxRecords - 1
     }
 
     private var lastIndexPathWithinLimit: IndexPath {
@@ -233,7 +236,7 @@ extension ProjectsViewController: ProjectsViewControllerDelegate {
     }
     
     func didAddProject(_ project: Project) {
-        let maxRecords = SettingsManager.shared.maxRecords
+        let maxRecords = settings.maxRecords
         if projects.count >= maxRecords {
             projects.removeLast()
             tableView.deleteRows(at: [lastIndexPathWithinLimit], with: .automatic)

@@ -4,12 +4,22 @@ final class SettingsViewController: UIViewController {
     
     var saveButton: UIBarButtonItem!
     
+    private let settings: SettingsManager
     private var serverUrlTextField: UITextField!
     private var maxRecordsTextField: UITextField!
     private var defaultDaysBetweenTextField: UITextField!
     private var serverUrlLabel = UILabel()
     private var maxRecordsLabel = UILabel()
     private var defaultDaysBetweenLabel = UILabel()
+    
+    init(settings: SettingsManager) {
+        self.settings = settings
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -110,15 +120,15 @@ final class SettingsViewController: UIViewController {
     }
     
     private func loadCurrentSettings() {
-        serverUrlTextField.text = SettingsManager.shared.serverURL
-        maxRecordsTextField.text = String(SettingsManager.shared.maxRecords)
-        defaultDaysBetweenTextField.text = String(SettingsManager.shared.defaultDaysBetween)
+        serverUrlTextField.text = settings.serverURL
+        maxRecordsTextField.text = String(settings.maxRecords)
+        defaultDaysBetweenTextField.text = String(settings.defaultDaysBetween)
     }
     
     @objc private func saveSettings() {
-        SettingsManager.shared.serverURL = serverUrlTextField.text?.trimmed ?? ""
-        SettingsManager.shared.maxRecords = Int(maxRecordsTextField.text ?? "") ?? 0
-        SettingsManager.shared.defaultDaysBetween = Int(defaultDaysBetweenTextField.text ?? "") ?? 0
+        settings.serverURL = serverUrlTextField.text?.trimmed ?? ""
+        settings.maxRecords = Int(maxRecordsTextField.text ?? "") ?? 0
+        settings.defaultDaysBetween = Int(defaultDaysBetweenTextField.text ?? "") ?? 0
         self.navigationController?.popViewController(animated: true)
     }
     
@@ -144,9 +154,9 @@ extension SettingsViewController: UITextFieldDelegate {
 
 extension SettingsViewController: FormValidatable {
     var isFieldsChanged: Bool {
-        let urlChanged = serverUrlTextField.text?.trimmed ?? "" != SettingsManager.shared.serverURL
-        let maxRecordsChanged = maxRecordsTextField.text?.trimmed ?? "" != String(SettingsManager.shared.maxRecords)
-        let defaultDaysBetweenChanged = defaultDaysBetweenTextField.text?.trimmed ?? "" != String(SettingsManager.shared.defaultDaysBetween)
+        let urlChanged = serverUrlTextField.text?.trimmed ?? "" != settings.serverURL
+        let maxRecordsChanged = maxRecordsTextField.text?.trimmed ?? "" != String(settings.maxRecords)
+        let defaultDaysBetweenChanged = defaultDaysBetweenTextField.text?.trimmed ?? "" != String(settings.defaultDaysBetween)
         
         return urlChanged || maxRecordsChanged || defaultDaysBetweenChanged
     }

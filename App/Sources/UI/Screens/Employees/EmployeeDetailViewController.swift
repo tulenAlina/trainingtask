@@ -4,14 +4,16 @@ final class EmployeeDetailViewController: UIViewController {
     
     weak var delegate: EmployeesViewControllerDelegate?
     
+    private let server: Server
     private var employee: Employee
     private var firstNameLabel = UILabel()
     private var lastNameLabel = UILabel()
     private var surNameLabel = UILabel()
     private var positionLabel = UILabel()
     
-    init(employee: Employee) {
+    init(employee: Employee, server: Server) {
         self.employee = employee
+        self.server = server
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -87,7 +89,7 @@ final class EmployeeDetailViewController: UIViewController {
     }
     
     @objc private func changeTapped() {
-        let editViewController = EditEmployeeViewController(employee)
+        let editViewController = EditEmployeeViewController(employee: employee, server: server)
         editViewController.delegate = self
         navigationController?.pushViewController(editViewController, animated: true)
     }
