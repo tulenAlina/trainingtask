@@ -32,7 +32,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     private func showMainMenu() {
-        let mainMenuViewController = MainMenuViewController()
+        let mainMenuViewController = MainMenuViewController(server: server, settings: settings)
         let navigationController = UINavigationController(rootViewController: mainMenuViewController)
         window?.rootViewController = navigationController
     }

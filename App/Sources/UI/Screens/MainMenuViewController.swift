@@ -2,7 +2,10 @@ import UIKit
 
 final class MainMenuViewController: UIViewController {
     
+    private let settings: SettingsManager
+    private let server: Server
     private let menuItems = [MenuConstants.projects, MenuConstants.tasks, MenuConstants.employees, MenuConstants.settings]
+    
     private lazy var buttons: [UIButton] = {
         menuItems.map { title in
             let button = UIButton()
@@ -23,6 +26,16 @@ final class MainMenuViewController: UIViewController {
         stack.translatesAutoresizingMaskIntoConstraints = false
         return stack
     }()
+    
+    init(server: Server, settings: SettingsManager) {
+        self.settings = settings
+        self.server = server
+        super.init(nibName: nil, bundle: nil)
+    }
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,8 +62,6 @@ final class MainMenuViewController: UIViewController {
         guard let title = sender.titleLabel?.text else { return }
         
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {return}
-        let server = appDelegate.server
-        let settings = appDelegate.settings
         
         switch title {
         case MenuConstants.projects:
