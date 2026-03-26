@@ -158,7 +158,7 @@ final class EditEmployeeViewController: UIViewController {
             } catch {
                 await MainActor.run {
                     self.showAlert(Localized.Error.saveFailed.localized)
-                    stop
+                    stopLoading()
                 }
             }
         }
