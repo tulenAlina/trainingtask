@@ -237,6 +237,7 @@ extension ProjectsViewController: ProjectsViewControllerDelegate {
     
     func didAddProject(_ project: Project) {
         let maxRecords = settings.maxRecords
+        guard settings.maxRecords > 0 else { return }
         if projects.count >= maxRecords {
             projects.removeLast()
             tableView.deleteRows(at: [lastIndexPathWithinLimit], with: .automatic)

@@ -217,6 +217,7 @@ extension EmployeesViewController: EmployeesViewControllerDelegate {
     
     func didAddEmployee(_ employee: Employee) {
         let maxRecords = settings.maxRecords
+        guard settings.maxRecords > 0 else { return }
         if employees.count >= maxRecords {
             employees.removeLast()
             tableView.deleteRows(at: [lastIndexPathWithinLimit], with: .automatic)

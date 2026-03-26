@@ -245,6 +245,7 @@ extension TasksViewController: TasksViewControllerDelegate {
     
     func didAddTask(_ task: ProjectTask) {
         let maxRecords = settings.maxRecords
+        guard settings.maxRecords > 0 else { return }
         if tasks.count >= maxRecords {
             tasks.removeLast()
             tableView.deleteRows(at: [lastIndexPathWithinLimit], with: .automatic)
