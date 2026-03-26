@@ -61,8 +61,6 @@ final class MainMenuViewController: UIViewController {
     @objc private func buttonTapped(_ sender: UIButton) {
         guard let title = sender.titleLabel?.text else { return }
         
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {return}
-        
         switch title {
         case MenuConstants.projects:
             let projectsViewController = ProjectsViewController(server: server, settings: settings)
