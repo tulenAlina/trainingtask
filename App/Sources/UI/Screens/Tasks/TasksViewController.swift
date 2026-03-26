@@ -10,13 +10,14 @@ extension TasksViewControllerDelegate {
 }
 
 final class TasksViewController: UIViewController {
+    let settings: SettingsManager
+    let tableView = UITableView()
+    
     private let project: Project?
     private let server: Server
-    private let settings: SettingsManager
     private var tasks: [ProjectTask] = []
     private var projects: [Project] = []
     private var employees: [Employee] = []
-    private let tableView = UITableView()
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private let refreshControl = UIRefreshControl()
         
@@ -89,18 +90,6 @@ final class TasksViewController: UIViewController {
             self.updateEmptyState()
             self.loadingIndicator.stopAnimating()
             self.view.isUserInteractionEnabled = true
-        }
-    }
-    
-    private func updateEmptyState() {
-        if tasks.isEmpty {
-            let label = UILabel()
-            label.text = Localized.Empty.noTasks.localized
-            label.textAlignment = .center
-            label.textColor = .gray
-            tableView.backgroundView = label
-        } else {
-            tableView.backgroundView = nil
         }
     }
     
@@ -230,36 +219,24 @@ extension TasksViewController: UITableViewDelegate {
     }
 }
 
-extension TasksViewController: TasksViewControllerDelegate {
-    private var lastRowIndexWithinLimit: Int {
-        return settings.maxRecords - 1
-    }
-
-    private var lastIndexPathWithinLimit: IndexPath {
-        return IndexPath(row: lastRowIndexWithinLimit, section: 0)
-    }
-
-    private var firstIndexPath: IndexPath {
-        return IndexPath(row: 0, section: 0)
+extension TasksViewController: ListUpdatable {
+    var items: [ProjectTask] {
+        get { tasks }
+        set { tasks = newValue }
     }
     
+    var emptyStateText: String {
+        return Localized.Empty.noTasks.localized
+    }
+}
+
+extension TasksViewController: TasksViewControllerDelegate {
+    
     func didAddTask(_ task: ProjectTask) {
-        let maxRecords = settings.maxRecords
-        guard settings.maxRecords > 0 else { return }
-        if tasks.count >= maxRecords {
-            tasks.removeLast()
-            tableView.deleteRows(at: [lastIndexPathWithinLimit], with: .automatic)
-        }
-        tasks.insert(task, at: 0)
-        tableView.insertRows(at: [firstIndexPath], with: .automatic)
-        updateEmptyState()
+        addItem(task)
     }
     
     func didUpdateTask(_ task: ProjectTask) {
-        if let index = tasks.firstIndex(where: {$0.id == task.id}) {
-            tasks[index] = task
-            let indexPath = IndexPath(row: index, section: 0)
-            tableView.reloadRows(at: [indexPath], with: .automatic)
-        }
+        updateItem(task) { $0.id == task.id }
     }
 }

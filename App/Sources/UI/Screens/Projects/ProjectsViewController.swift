@@ -12,11 +12,12 @@ final class ProjectsViewController: UIViewController {
         case selection(completion: (Project) -> Void)
     }
     
+    let settings: SettingsManager
+    let tableView = UITableView()
+    
     private let mode: Mode
     private let server: Server
-    private let settings: SettingsManager
     private var projects: [Project] = []
-    private var tableView: UITableView!
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private var refreshControl: UIRefreshControl!
     
@@ -47,7 +48,6 @@ final class ProjectsViewController: UIViewController {
     }
     
     private func setupTableView() {
-        tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableView)
         refreshControl = UIRefreshControl()
@@ -97,18 +97,6 @@ final class ProjectsViewController: UIViewController {
         updateEmptyState()
         loadingIndicator.stopAnimating()
         view.isUserInteractionEnabled = true
-    }
-    
-    private func updateEmptyState() {
-        if projects.isEmpty {
-            let label = UILabel()
-            label.text = Localized.Empty.noProjects.localized
-            label.textAlignment = .center
-            label.textColor = .gray
-            tableView.backgroundView = label
-        } else {
-            tableView.backgroundView = nil
-        }
     }
     
     private func performDelete(at indexPath: IndexPath, completion: @escaping (Bool) -> Void) {
@@ -222,36 +210,23 @@ extension ProjectsViewController: UITableViewDelegate {
     }
 }
 
-extension ProjectsViewController: ProjectsViewControllerDelegate {
-    private var lastRowIndexWithinLimit: Int {
-        return settings.maxRecords - 1
-    }
-
-    private var lastIndexPathWithinLimit: IndexPath {
-        return IndexPath(row: lastRowIndexWithinLimit, section: 0)
-    }
-
-    private var firstIndexPath: IndexPath {
-        return IndexPath(row: 0, section: 0)
+extension ProjectsViewController: ListUpdatable {
+    var items: [Project] {
+        get { projects }
+        set { projects = newValue }
     }
     
+    var emptyStateText: String {
+        return Localized.Empty.noProjects.localized
+    }
+}
+
+extension ProjectsViewController: ProjectsViewControllerDelegate {
     func didAddProject(_ project: Project) {
-        let maxRecords = settings.maxRecords
-        guard settings.maxRecords > 0 else { return }
-        if projects.count >= maxRecords {
-            projects.removeLast()
-            tableView.deleteRows(at: [lastIndexPathWithinLimit], with: .automatic)
-        }
-        projects.insert(project, at: 0)
-        tableView.insertRows(at: [firstIndexPath], with: .automatic)
-        updateEmptyState()
+        addItem(project)
     }
     
     func didUpdateProject(_ project: Project) {
-        if let index = projects.firstIndex(where: {$0.id == project.id}) {
-            projects[index] = project
-            let indexPath = IndexPath(row: index, section: 0)
-            tableView.reloadRows(at: [indexPath], with: .automatic)
-        }
+        updateItem(project) { $0.id == project.id }
     }
 }

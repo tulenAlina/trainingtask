@@ -16,10 +16,12 @@ final class EmployeesViewController: UIViewController {
         case selection(completion: (Employee) -> Void)
     }
     
+    
+    let settings: SettingsManager
+    let tableView = UITableView()
+    
     private let server: Server
-    private let settings: SettingsManager
     private let mode: Mode
-    private let tableView = UITableView()
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private let refreshControl = UIRefreshControl()
     private var employees: [Employee] = []
@@ -94,18 +96,6 @@ final class EmployeesViewController: UIViewController {
             self.updateEmptyState()
             self.loadingIndicator.stopAnimating()
             self.view.isUserInteractionEnabled = true
-        }
-    }
-    
-    private func updateEmptyState() {
-        if employees.isEmpty {
-            let label = UILabel()
-            label.text = Localized.Empty.noEmployees.localized
-            label.textAlignment = .center
-            label.textColor = .gray
-            tableView.backgroundView = label
-        } else {
-            tableView.backgroundView = nil
         }
     }
     
@@ -202,36 +192,24 @@ extension EmployeesViewController: UITableViewDelegate {
     }
 }
 
-extension EmployeesViewController: EmployeesViewControllerDelegate {
-    private var lastRowIndexWithinLimit: Int {
-        return settings.maxRecords - 1
-    }
-
-    private var lastIndexPathWithinLimit: IndexPath {
-        return IndexPath(row: lastRowIndexWithinLimit, section: 0)
-    }
-
-    private var firstIndexPath: IndexPath {
-        return IndexPath(row: 0, section: 0)
+extension EmployeesViewController: ListUpdatable {
+    var items: [Employee] {
+        get { employees }
+        set { employees = newValue }
     }
     
+    var emptyStateText: String {
+        return Localized.Empty.noEmployees.localized
+    }
+}
+
+extension EmployeesViewController: EmployeesViewControllerDelegate {
+    
     func didAddEmployee(_ employee: Employee) {
-        let maxRecords = settings.maxRecords
-        guard settings.maxRecords > 0 else { return }
-        if employees.count >= maxRecords {
-            employees.removeLast()
-            tableView.deleteRows(at: [lastIndexPathWithinLimit], with: .automatic)
-        }
-        employees.insert(employee, at: 0)
-        tableView.insertRows(at: [firstIndexPath], with: .automatic)
-        updateEmptyState()
+        addItem(employee)
     }
     
     func didUpdateEmployee(_ employee: Employee) {
-        if let index = employees.firstIndex(where: {$0.id == employee.id}) {
-            employees[index] = employee
-            let indexPath = IndexPath(row: index, section: 0)
-            tableView.reloadRows(at: [indexPath], with: .automatic)
-        }
+        updateItem(employee) { $0.id == employee.id }
     }
 }
