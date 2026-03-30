@@ -31,6 +31,7 @@ enum Localized {
     enum Action {
         static let save = "save"
         static let cancel = "cancel"
+        static let clear = "clear"
         static let delete = "delete"
         static let edit = "edit"
         static let add = "add"
@@ -50,6 +51,7 @@ enum Localized {
     
     enum Placeholder {
         static let taskName = "task_name_placeholder"
+        static let selectedProjectName = "select_project_placeholder"
         static let projectName = "project_name_placeholder"
         static let projectDescription = "project_description_placeholder"
         static let workTime = "work_time_placeholder"

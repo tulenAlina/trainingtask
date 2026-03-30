@@ -11,6 +11,9 @@ final class EditProjectViewController: UIViewController {
     private var cancelButton: UIBarButtonItem!
     private var loadingIndicator: UIActivityIndicatorView!
     
+    private let nameLabel = UIFactory.createLabel(text: Localized.Label.name.localized)
+    private let descriptionLabel = UIFactory.createLabel(text: Localized.Label.description.localized)
+    
     init(project: Project? = nil, server: Server) {
         self.project = project
         self.server = server
@@ -29,7 +32,7 @@ final class EditProjectViewController: UIViewController {
     private func setupUI() {
         view.backgroundColor = .white
         title = (project != nil) ? Localized.Screen.editProject.localized : Localized.Screen.addProject.localized
-        setupTextFields()
+        setupTextFieldsAndLabels()
         setupNavigationBar()
         setupLoadingIndicator()
         setupConstraints()
@@ -37,11 +40,19 @@ final class EditProjectViewController: UIViewController {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            nameTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            nameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            nameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            nameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            nameTextField.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 5),
             nameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             nameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            descriptionTextField.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 30),
+            descriptionLabel.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 10),
+            descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            descriptionTextField.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 5),
             descriptionTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             descriptionTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
@@ -60,9 +71,9 @@ final class EditProjectViewController: UIViewController {
         view.addSubview(loadingIndicator)
     }
     
-    private func setupTextFields() {
-        nameTextField = UITextField.create(placeholder: Localized.Placeholder.projectName.localized)
-        descriptionTextField = UITextField.create(placeholder: Localized.Placeholder.projectDescription.localized)
+    private func setupTextFieldsAndLabels() {
+        nameTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.projectName.localized)
+        descriptionTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.projectDescription.localized)
         
         if let project {
             nameTextField.text = "\(project.projectName)"
@@ -71,8 +82,13 @@ final class EditProjectViewController: UIViewController {
         nameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
         descriptionTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
         
+        nameTextField.delegate = self
+        descriptionTextField.delegate = self
+        
         view.addSubview(nameTextField)
+        view.addSubview(nameLabel)
         view.addSubview(descriptionTextField)
+        view.addSubview(descriptionLabel)
     }
     
     private func startLoading() {
@@ -141,6 +157,13 @@ final class EditProjectViewController: UIViewController {
     
     @objc private func updateSaveButtonState() {
         saveButton.isEnabled = isFormValid
+    }
+}
+
+extension EditProjectViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }
 

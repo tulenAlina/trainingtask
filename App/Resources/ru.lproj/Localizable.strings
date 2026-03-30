@@ -19,6 +19,7 @@
 // Actions
 "save" = "Сохранить";
 "cancel" = "Отмена";
+"clear" = "Очистить";
 "delete" = "Удалить";
 "edit" = "Изменить";
 "add" = "Добавить";
@@ -35,12 +36,13 @@
 
 // Placeholders
 "task_name_placeholder" = "Введите задачу";
+"select_project_placeholder" = "Выберите проект";
 "project_name_placeholder" = "Введите проект";
 "project_description_placeholder" = "Введите описание";
 "work_time_placeholder" = "Введите количество часов";
 "start_date_placeholder" = "Введите дату начала (ГГГГ-ММ-ДД)";
 "end_date_placeholder" = "Введите дату окончания (ГГГГ-ММ-ДД)";
-"employee_name_placeholder" = "Введите сотрудника";
+"employee_name_placeholder" = "Выберите сотрудника";
 "first_name_placeholder" = "Введите имя";
 "last_name_placeholder" = "Введите фамилию";
 "surname_placeholder" = "Введите отчество (если есть)";
@@ -87,8 +89,8 @@
 "save_failed" = "Не удалось сохранить";
 "delete_failed" = "Не удалось удалить";
 "invalid_date" = "Неверный формат даты";
-"select_project" = "Выберите проект из списка";
-"select_employee" = "Выберите сотрудника из списка";
+"select_project" = "Выберите проект";
+"select_employee" = "Выберите сотрудника";
 "date_end_before_start" = "Дата окончания должна быть позже даты начала";
 
 // Splash

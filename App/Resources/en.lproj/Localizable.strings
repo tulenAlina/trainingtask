@@ -19,6 +19,7 @@
 // Actions
 "save" = "Save";
 "cancel" = "Cancel";
+"clear" = "Clear";
 "delete" = "Delete";
 "edit" = "Edit";
 "add" = "Add";
@@ -35,12 +36,13 @@
 
 // Placeholders
 "task_name_placeholder" = "Enter task name";
+"select_project_placeholder" = "Select project";
 "project_name_placeholder" = "Enter project name";
 "project_description_placeholder" = "Enter description";
 "work_time_placeholder" = "Enter hours";
 "start_date_placeholder" = "Enter start date (YYYY-MM-DD)";
 "end_date_placeholder" = "Enter end date (YYYY-MM-DD)";
-"employee_name_placeholder" = "Enter employee name";
+"employee_name_placeholder" = "Select employee";
 "first_name_placeholder" = "Enter first name";
 "last_name_placeholder" = "Enter last name";
 "surname_placeholder" = "Enter patronymic (if any)";
@@ -86,8 +88,8 @@
 "save_failed" = "Failed to save";
 "delete_failed" = "Failed to delete";
 "invalid_date" = "Invalid date format";
-"select_project" = "Select a project from the list";
-"select_employee" = "Select an employee from the list";
+"select_project" = "Select a project";
+"select_employee" = "Select an employee";
 "date_end_before_start" = "End date must be after start date";
 
 // Splash

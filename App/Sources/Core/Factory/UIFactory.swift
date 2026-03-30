@@ -1,7 +1,7 @@
 import UIKit
 
-extension UITextField {
-    static func create(text: String = "", placeholder: String) -> UITextField {
+enum UIFactory {
+    static func createTextField(text: String = "", placeholder: String) -> UITextField {
         let textField = UITextField()
         textField.text = text
         textField.placeholder = placeholder
@@ -11,5 +11,15 @@ extension UITextField {
         textField.layer.borderColor = UIColor(white: 0.8, alpha: 1).cgColor
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
+    }
+    
+    static func createLabel(text: String) -> UILabel {
+        let label = UILabel()
+        label.text = text
+        label.textColor = .secondaryLabel
+        label.font = .systemFont(ofSize: 13, weight: .medium)
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
     }
 }

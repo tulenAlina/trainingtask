@@ -14,6 +14,11 @@ final class EditEmployeeViewController: UIViewController {
     private var cancelButton: UIBarButtonItem!
     private let server: Server
     
+    private let firstNameLabel = UIFactory.createLabel(text: Localized.Label.firstName.localized)
+    private let lastNameLabel = UIFactory.createLabel(text: Localized.Label.lastName.localized)
+    private let surNameLabel = UIFactory.createLabel(text: Localized.Label.surname.localized)
+    private let positionLabel = UIFactory.createLabel(text: Localized.Label.position.localized)
+    
     init(employee: Employee? = nil, server: Server) {
         self.employee = employee
         self.server = server
@@ -32,7 +37,7 @@ final class EditEmployeeViewController: UIViewController {
     private func setupUI() {
         view.backgroundColor = .white
         title = (employee != nil) ? Localized.Screen.editEmployee.localized : Localized.Screen.addEmployee.localized
-        setupTextFields()
+        setupTextFieldsAndLabels()
         setupNavigationBar()
         setupLoadingIndicator()
         setupConstraints()
@@ -52,29 +57,45 @@ final class EditEmployeeViewController: UIViewController {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            firstNameTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            firstNameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            firstNameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            firstNameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            firstNameTextField.topAnchor.constraint(equalTo: firstNameLabel.bottomAnchor, constant: 5),
             firstNameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             firstNameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            lastNameTextField.topAnchor.constraint(equalTo: firstNameTextField.bottomAnchor, constant: 30),
+            lastNameLabel.topAnchor.constraint(equalTo: firstNameTextField.bottomAnchor, constant: 10),
+            lastNameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            lastNameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            lastNameTextField.topAnchor.constraint(equalTo: lastNameLabel.bottomAnchor, constant: 5),
             lastNameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             lastNameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            surNameTextField.topAnchor.constraint(equalTo: lastNameTextField.bottomAnchor, constant: 30),
+            surNameLabel.topAnchor.constraint(equalTo: lastNameTextField.bottomAnchor, constant: 10),
+            surNameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            surNameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            surNameTextField.topAnchor.constraint(equalTo: surNameLabel.bottomAnchor, constant: 5),
             surNameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             surNameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            positionTextField.topAnchor.constraint(equalTo: surNameTextField.bottomAnchor, constant: 30),
+            positionLabel.topAnchor.constraint(equalTo: surNameTextField.bottomAnchor, constant: 10),
+            positionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            positionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            positionTextField.topAnchor.constraint(equalTo: positionLabel.bottomAnchor, constant: 5),
             positionTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             positionTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
     }
     
-    private func setupTextFields() {
-        firstNameTextField = UITextField.create(placeholder: Localized.Placeholder.firstName.localized)
-        lastNameTextField = UITextField.create(placeholder: Localized.Placeholder.lastName.localized)
-        surNameTextField = UITextField.create(placeholder: Localized.Placeholder.surname.localized)
-        positionTextField = UITextField.create(placeholder: Localized.Placeholder.position.localized)
+    private func setupTextFieldsAndLabels() {
+        firstNameTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.firstName.localized)
+        lastNameTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.lastName.localized)
+        surNameTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.surname.localized)
+        positionTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.position.localized)
         
         if let employee {
             firstNameTextField.text = "\(employee.firstName)"
@@ -83,16 +104,24 @@ final class EditEmployeeViewController: UIViewController {
             positionTextField.text = "\(employee.position)"
         }
         
-        view.addSubview(firstNameTextField)
-        view.addSubview(lastNameTextField)
-        view.addSubview(surNameTextField)
-        view.addSubview(positionTextField)
-        
-        
         firstNameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
         lastNameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
         surNameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
         positionTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        
+        firstNameTextField.delegate = self
+        lastNameTextField.delegate = self
+        surNameTextField.delegate = self
+        positionTextField.delegate = self
+        
+        view.addSubview(firstNameLabel)
+        view.addSubview(firstNameTextField)
+        view.addSubview(lastNameLabel)
+        view.addSubview(lastNameTextField)
+        view.addSubview(surNameLabel)
+        view.addSubview(surNameTextField)
+        view.addSubview(positionLabel)
+        view.addSubview(positionTextField)
     }
     
     private func startLoading() {
@@ -165,6 +194,13 @@ final class EditEmployeeViewController: UIViewController {
     
     @objc private func updateSaveButtonState() {
         saveButton.isEnabled = isFormValid
+    }
+}
+
+extension EditEmployeeViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }
 

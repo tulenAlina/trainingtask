@@ -13,13 +13,33 @@ final class EditTaskViewController: UIViewController {
     private var contextProject: Project?
     private var projects: [Project] = []
     private var employees: [Employee] = []
+    
     private var cancelButton: UIBarButtonItem!
+    
     private var taskNameTextField: UITextField!
     private var projectTextField: UITextField!
     private var workTimeTextField: UITextField!
     private var startDateTextField: UITextField!
     private var endDateTextField: UITextField!
     private var employeeTextField: UITextField!
+    
+    private let taskNameLabel = UIFactory.createLabel(text: Localized.Label.name.localized)
+    private let projectLabel = UIFactory.createLabel(text: Localized.Label.project.localized)
+    private let workTimeLabel = UIFactory.createLabel(text: Localized.Label.hours.localized)
+    private let startDateLabel = UIFactory.createLabel(text: Localized.Label.startDate.localized)
+    private let endDateLabel = UIFactory.createLabel(text: Localized.Label.endDate.localized)
+    private let employeeLabel = UIFactory.createLabel(text: Localized.Label.employee.localized)
+    private let statusLabel = UIFactory.createLabel(text: Localized.Label.status.localized)
+    
+    private var selectedProject: Project?
+    private var selectedEmployee: Employee?
+    
+    private let clearEmployeeButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle(Localized.Action.clear.localized, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
     
     private let startDatePicker: UIDatePicker = {
         let picker = UIDatePicker()
@@ -35,20 +55,6 @@ final class EditTaskViewController: UIViewController {
         picker.preferredDatePickerStyle = .inline
         picker.locale = Locale(identifier: "ru_RU")
         return picker
-    }()
-    
-    private let projectButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle(Localized.Action.select.localized, for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-
-    private let employeeButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle(Localized.Action.select.localized, for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
     }()
     
     private var statusSegmentedControl: UISegmentedControl = {
@@ -78,9 +84,14 @@ final class EditTaskViewController: UIViewController {
         loadInitialData()
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        view.endEditing(true)
+    }
+    
     private func setupUI() {
-        setupTextFields()
-        setupButtons()
+        setupTextFieldsAndLabels()
+        setupClearEmployeeButton()
         setupSegmentedControl()
         setupDatePickers()
         setupNavigationBar()
@@ -88,51 +99,66 @@ final class EditTaskViewController: UIViewController {
         setupConstraints()
     }
     
-    private func setupButtons() {
-        projectButton.addTarget(self, action: #selector(selectProjectTapped), for: .touchUpInside)
-        employeeButton.addTarget(self, action: #selector(selectEmployeeTapped), for: .touchUpInside)
-        if contextProject != nil {
-            projectButton.isEnabled = false
-        }
-        view.addSubview(projectButton)
-        view.addSubview(employeeButton)
-    }
-    
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            taskNameTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            taskNameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            taskNameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            taskNameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            taskNameTextField.topAnchor.constraint(equalTo: taskNameLabel.bottomAnchor, constant: 5),
             taskNameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             taskNameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            projectTextField.topAnchor.constraint(equalTo: taskNameTextField.bottomAnchor, constant: 30),
+            projectLabel.topAnchor.constraint(equalTo: taskNameTextField.bottomAnchor, constant: 10),
+            projectLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            projectLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            projectTextField.topAnchor.constraint(equalTo: projectLabel.bottomAnchor, constant: 5),
             projectTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            projectTextField.trailingAnchor.constraint(equalTo: projectButton.leadingAnchor, constant: -20),
+            projectTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            projectButton.topAnchor.constraint(equalTo: taskNameTextField.bottomAnchor, constant: 30),
-            projectButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            workTimeLabel.topAnchor.constraint(equalTo: projectTextField.bottomAnchor, constant: 10),
+            workTimeLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            workTimeLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            workTimeTextField.topAnchor.constraint(equalTo: projectTextField.bottomAnchor, constant: 30),
+            workTimeTextField.topAnchor.constraint(equalTo: workTimeLabel.bottomAnchor, constant: 5),
             workTimeTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             workTimeTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            startDateTextField.topAnchor.constraint(equalTo: workTimeTextField.bottomAnchor, constant: 30),
+            startDateLabel.topAnchor.constraint(equalTo: workTimeTextField.bottomAnchor, constant: 10),
+            startDateLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            startDateLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            startDateTextField.topAnchor.constraint(equalTo: startDateLabel.bottomAnchor, constant: 5),
             startDateTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             startDateTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            endDateTextField.topAnchor.constraint(equalTo: startDateTextField.bottomAnchor, constant: 30),
+            endDateLabel.topAnchor.constraint(equalTo: startDateTextField.bottomAnchor, constant: 10),
+            endDateLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            endDateLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            endDateTextField.topAnchor.constraint(equalTo: endDateLabel.bottomAnchor, constant: 5),
             endDateTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             endDateTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            statusSegmentedControl.topAnchor.constraint(equalTo: endDateTextField.bottomAnchor, constant: 30),
-            statusSegmentedControl.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            statusSegmentedControl.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            employeeLabel.topAnchor.constraint(equalTo: endDateTextField.bottomAnchor, constant: 10),
+            employeeLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            employeeLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            employeeButton.topAnchor.constraint(equalTo: statusSegmentedControl.bottomAnchor, constant: 30),
-            employeeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            employeeTextField.topAnchor.constraint(equalTo: statusSegmentedControl.bottomAnchor, constant: 30),
+            employeeTextField.topAnchor.constraint(equalTo: employeeLabel.bottomAnchor, constant: 5),
             employeeTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            employeeTextField.trailingAnchor.constraint(equalTo: employeeButton.leadingAnchor, constant: -20)
+            employeeTextField.trailingAnchor.constraint(equalTo: clearEmployeeButton.leadingAnchor, constant: -20),
+            
+            clearEmployeeButton.topAnchor.constraint(equalTo: employeeLabel.bottomAnchor, constant: 5),
+            clearEmployeeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            statusLabel.topAnchor.constraint(equalTo: employeeTextField.bottomAnchor, constant: 10),
+            statusLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            statusLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            statusSegmentedControl.topAnchor.constraint(equalTo: statusLabel.bottomAnchor, constant: 5),
+            statusSegmentedControl.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            statusSegmentedControl.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
     }
     
@@ -165,6 +191,7 @@ final class EditTaskViewController: UIViewController {
         }
         
         statusSegmentedControl.addTarget(self, action: #selector(updateSaveButtonState), for: .valueChanged)
+        view.addSubview(statusSegmentedControl)
     }
     
     private func setupDatePickers() {
@@ -177,10 +204,9 @@ final class EditTaskViewController: UIViewController {
         endDatePicker.addTarget(self, action: #selector(dateChanged), for: .valueChanged)
     }
         
-    private func setupTextFields() {
-        
-        taskNameTextField = UITextField.create(placeholder: Localized.Placeholder.taskName.localized)
-        projectTextField = UITextField.create(placeholder: Localized.Placeholder.projectName.localized)
+    private func setupTextFieldsAndLabels() {
+        taskNameTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.taskName.localized)
+        projectTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.selectedProjectName.localized)
         
         if let contextProject {
             projectTextField.text = "\(contextProject.projectName)"
@@ -188,28 +214,39 @@ final class EditTaskViewController: UIViewController {
             projectTextField.textColor = .lightGray
         }
         
-        workTimeTextField = UITextField.create(placeholder: Localized.Placeholder.workTime.localized)
+        workTimeTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.workTime.localized)
         workTimeTextField.keyboardType = .numberPad
-        workTimeTextField.delegate = self
+        workTimeTextField.returnKeyType = .done
         
-        startDateTextField = UITextField.create(text: dateFormatter.string(from: Date()), placeholder: Localized.Placeholder.startDate.localized)
-        endDateTextField = UITextField.create(text: dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()), placeholder: Localized.Placeholder.endDate.localized)
-        employeeTextField = UITextField.create(placeholder: Localized.Placeholder.employeeName.localized)
+        startDateTextField = UIFactory.createTextField(text: dateFormatter.string(from: Date()), placeholder: Localized.Placeholder.startDate.localized)
+        
+        endDateTextField = UIFactory.createTextField(text: dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()), placeholder: Localized.Placeholder.endDate.localized)
+        
+        employeeTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.employeeName.localized)
         
         if let task {
             if contextProject == nil {
-                projectTextField.text = "\(projects.first(where: {$0.id == task.projectID})?.projectName ?? "")"
+                selectedProject = projects.first(where: { $0.id == task.projectID })
+                projectTextField.text = "\(selectedProject?.projectName ?? "")"
             }
             taskNameTextField.text = "\(task.taskName)"
             workTimeTextField.text = "\(task.workTime)"
             startDateTextField.text = dateFormatter.string(from: task.startDate)
             endDateTextField.text = dateFormatter.string(from: task.endDate)
             
-            if let emp = employees.first(where: {$0.id == task.employeeID}) {
-                employeeTextField.text = emp.fullName
+            selectedEmployee = employees.first(where: { $0.id == task.employeeID })
+            if selectedEmployee != nil {
+                employeeTextField.text = selectedEmployee?.fullName
             }
         }
 
+        taskNameTextField.delegate = self
+        projectTextField.delegate = self
+        workTimeTextField.delegate = self
+        startDateTextField.delegate = self
+        endDateTextField.delegate = self
+        employeeTextField.delegate = self
+        
         taskNameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
         projectTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
         workTimeTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
@@ -218,12 +255,23 @@ final class EditTaskViewController: UIViewController {
         employeeTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
         
         view.addSubview(taskNameTextField)
+        view.addSubview(taskNameLabel)
         view.addSubview(projectTextField)
+        view.addSubview(projectLabel)
         view.addSubview(workTimeTextField)
+        view.addSubview(workTimeLabel)
         view.addSubview(startDateTextField)
+        view.addSubview(startDateLabel)
         view.addSubview(endDateTextField)
-        view.addSubview(statusSegmentedControl)
+        view.addSubview(endDateLabel)
         view.addSubview(employeeTextField)
+        view.addSubview(employeeLabel)
+        view.addSubview(statusLabel)
+    }
+    
+    private func setupClearEmployeeButton() {
+        clearEmployeeButton.addTarget(self, action: #selector(clearEmployeeTapped), for: .touchUpInside)
+        view.addSubview(clearEmployeeButton)
     }
     
     private func validateDates() -> Bool{
@@ -239,30 +287,6 @@ final class EditTaskViewController: UIViewController {
             return false
         }
         return true
-    }
-    
-    private func validateProject() -> Project?{
-        guard let inputProject = projects.first(where: {$0.projectName.trimmed == projectTextField.text?.trimmed ?? ""})
-        else {
-            showAlert(Localized.Error.selectProject.localized)
-            return nil
-        }
-        return inputProject
-    }
-    
-    private func validateEmployee() -> (Employee?, Bool) {
-        if employeeTextField.text?.trimmed.isBlank ?? true {
-            return (nil, true)
-        }
-        
-        guard let inputEmployee = employees.first(where: {emp in
-            return emp.fullName == employeeTextField.text?.trimmed ?? ""
-        })
-        else {
-            showAlert(Localized.Error.selectEmployee.localized)
-            return (nil, false)
-        }
-        return (inputEmployee, true)
     }
     
     private func loadInitialData() {
@@ -352,15 +376,16 @@ final class EditTaskViewController: UIViewController {
     }
     
     @objc private func saveTask() {
-        let isValidateEmployee = validateEmployee()
-        guard validateDates() && isValidateEmployee.1 else {return}
-        guard let inputProject = validateProject() else {return}
-        let inputEmployee = isValidateEmployee.0
+        guard let selectedProject = selectedProject else {
+            showAlert(Localized.Error.selectProject.localized)
+            return
+        }
+        guard validateDates() else {return}
         startLoading()
         
         Task {
             do {
-                let savedTask = try await performSave(inputProject, inputEmployee)
+                let savedTask = try await performSave(selectedProject, selectedEmployee)
                 DispatchQueue.main.async {
                     self.handleSuccess(savedTask: savedTask)
                 }
@@ -395,6 +420,7 @@ final class EditTaskViewController: UIViewController {
     
     @objc private func selectProjectTapped() {
         let projectsViewController = ProjectsViewController(mode: .selection {[weak self] selectedProject in
+            self?.selectedProject = selectedProject
             self?.projectTextField.text = selectedProject.projectName
             self?.updateSaveButtonState()
         }, server: server, settings: settings)
@@ -403,32 +429,57 @@ final class EditTaskViewController: UIViewController {
     
     @objc private func selectEmployeeTapped() {
         let employeesViewController = EmployeesViewController(mode: .selection {[weak self] selectedEmployee in
+            self?.selectedEmployee = selectedEmployee
             self?.employeeTextField.text = selectedEmployee.fullName
             self?.updateSaveButtonState()
         }, server: server, settings: settings)
         navigationController?.pushViewController(employeesViewController, animated: true)
     }
+    
+    @objc private func clearEmployeeTapped() {
+        selectedEmployee = nil
+        employeeTextField.text = nil
+        updateSaveButtonState()
+    }
 }
 
 extension EditTaskViewController: UITextFieldDelegate {
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if textField == workTimeTextField {
-            let allowedCharacters = CharacterSet.decimalDigits
-            let characterSet = CharacterSet(charactersIn: string)
-            return allowedCharacters.isSuperset(of: characterSet)
-        }
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
         return true
     }
     
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        switch textField {
+        case workTimeTextField:
+            let allowedCharacters = CharacterSet.decimalDigits
+            let characterSet = CharacterSet(charactersIn: string)
+            return allowedCharacters.isSuperset(of: characterSet)
+        case projectTextField:
+            return false
+        case employeeTextField:
+            return false
+        default:
+            return true
+        }
+    }
+    
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        if textField == startDateTextField {
+        switch textField {
+        case startDateTextField:
             if let text = textField.text, let date = dateFormatter.date(from: text) {
                 startDatePicker.date = date
             }
-        } else if textField == endDateTextField {
+        case endDateTextField:
             if let text = textField.text, let date = dateFormatter.date(from: text) {
                 endDatePicker.date = date
             }
+        case projectTextField:
+            selectProjectTapped()
+        case employeeTextField:
+            selectEmployeeTapped()
+        default:
+            break
         }
     }
 }
