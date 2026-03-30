@@ -11,15 +11,14 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    private(set) var server: Server = StubServer()
-    private(set) var settings: SettingsManager = SettingsManager()
+    private let server: Server = StubServer()
+    private let settings: SettingsManager = SettingsManager()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        let window = UIWindow(frame: UIScreen.main.bounds)
+        window = UIWindow(frame: UIScreen.main.bounds)
         let splashViewController = SplashViewController()
-        window.rootViewController = splashViewController
-        self.window = window
-        window.makeKeyAndVisible()
+        window?.rootViewController = splashViewController
+        window?.makeKeyAndVisible()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
             self?.showMainMenu()
