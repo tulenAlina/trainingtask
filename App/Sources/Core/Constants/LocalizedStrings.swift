@@ -24,6 +24,7 @@ enum Localized {
         static let editEmployee = "edit_employee"
         static let taskDetails = "task_details"
         static let employeeDetails = "employee_details"
+        static let projectDetails = "project_details"
         static let mainMenu = "main_menu"
     }
     
@@ -37,6 +38,7 @@ enum Localized {
         static let select = "select"
         static let change = "change"
         static let done = "done"
+        static let openTasks = "open_tasks"
     }
     
     enum Status {
@@ -67,6 +69,7 @@ enum Localized {
     
     enum Label {
         static let name = "name_label"
+        static let description = "description_label"
         static let firstName = "first_name_label"
         static let lastName = "last_name_label"
         static let surname = "surname_label"

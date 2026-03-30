@@ -1,17 +1,25 @@
 import UIKit
 
+protocol EmployeeDetailViewControllerDelegate: AnyObject {
+    func didDeleteEmployee(_ employee: Employee, at indexPath: IndexPath)
+}
+
 final class EmployeeDetailViewController: UIViewController {
     
     weak var delegate: EmployeesViewControllerDelegate?
+    weak var deleteDelegate: EmployeeDetailViewControllerDelegate?
     
+    private let indexPath: IndexPath
     private let server: Server
     private var employee: Employee
     private var firstNameLabel = UILabel()
     private var lastNameLabel = UILabel()
     private var surNameLabel = UILabel()
     private var positionLabel = UILabel()
+    private var deleteButton = UIButton()
     
-    init(employee: Employee, server: Server) {
+    init(indexPath: IndexPath, employee: Employee, server: Server) {
+        self.indexPath = indexPath
         self.employee = employee
         self.server = server
         super.init(nibName: nil, bundle: nil)
@@ -30,6 +38,7 @@ final class EmployeeDetailViewController: UIViewController {
         view.backgroundColor = .white
         title = Localized.Screen.employeeDetails.localized
         setupLabels()
+        setupButtons()
         setupNavigationBar()
         setupConstraints()
     }
@@ -55,7 +64,12 @@ final class EmployeeDetailViewController: UIViewController {
             
             positionLabel.topAnchor.constraint(equalTo: surNameLabel.bottomAnchor, constant: 30),
             positionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            positionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+            positionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            deleteButton.topAnchor.constraint(equalTo: positionLabel.bottomAnchor, constant: 30),
+            deleteButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            deleteButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05),
+            deleteButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5)
         ])
     }
     
@@ -88,10 +102,27 @@ final class EmployeeDetailViewController: UIViewController {
         positionLabel.translatesAutoresizingMaskIntoConstraints = false
     }
     
+    private func setupButtons() {
+        deleteButton.setTitle(Localized.Action.delete.localized, for: .normal)
+        deleteButton.setTitleColor(.red, for: .normal)
+        deleteButton.backgroundColor = UIColor.systemRed.withAlphaComponent(0.1)
+        deleteButton.layer.borderWidth = 0.5
+        deleteButton.layer.borderColor = UIColor.red.cgColor
+        deleteButton.layer.cornerRadius = 12
+        deleteButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(deleteButton)
+        deleteButton.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
+    }
+    
     @objc private func changeTapped() {
         let editViewController = EditEmployeeViewController(employee: employee, server: server)
         editViewController.delegate = self
         navigationController?.pushViewController(editViewController, animated: true)
+    }
+    
+    @objc private func deleteTapped() {
+        deleteDelegate?.didDeleteEmployee(employee, at: indexPath)
+        navigationController?.popViewController(animated: true)
     }
 }
 

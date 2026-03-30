@@ -14,6 +14,7 @@
 "edit_employee" = "Edit Employee";
 "task_details" = "Task Details";
 "employee_details" = "Employee Details";
+"project_details" = "Project Details";
 
 // Actions
 "save" = "Save";
@@ -24,6 +25,7 @@
 "refresh" = "Refresh";
 "select" = "Select";
 "done" = "Done";
+"open_tasks" = "Open tasks";
 
 // Task Status
 "not_started" = "Not started";
@@ -51,6 +53,7 @@
 
 // Labels
 "name_label" = "Name:";
+"description_label" = "Description:";
 "first_name_label" = "First name:";
 "last_name_label" = "Last name:";
 "surname_label" = "Patronymic:";

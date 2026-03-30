@@ -5,6 +5,10 @@ protocol ProjectsViewControllerDelegate: AnyObject {
     func didUpdateProject(_ project: Project)
 }
 
+extension ProjectsViewControllerDelegate {
+    func didAddProject(_ project: Project) {}
+}
+
 final class ProjectsViewController: UIViewController {
     
     enum Mode {
@@ -15,8 +19,8 @@ final class ProjectsViewController: UIViewController {
     let settings: SettingsManager
     let tableView = UITableView()
     
-    private let mode: Mode
     private let server: Server
+    private let mode: Mode
     private var projects: [Project] = []
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private var refreshControl: UIRefreshControl!
@@ -99,7 +103,7 @@ final class ProjectsViewController: UIViewController {
         view.isUserInteractionEnabled = true
     }
     
-    private func performDelete(at indexPath: IndexPath, completion: @escaping (Bool) -> Void) {
+    private func performDelete(at indexPath: IndexPath) {
         self.loadingIndicator.startAnimating()
         self.view.isUserInteractionEnabled = false
         let project = self.projects[indexPath.row]
@@ -108,28 +112,15 @@ final class ProjectsViewController: UIViewController {
             do {
                 try await self.server.deleteProject(project.id)
                 self.refreshView()
-                DispatchQueue.main.async {
-                    completion(true)
-                }
             } catch {
                 DispatchQueue.main.async {
                     self.loadingIndicator.stopAnimating()
                     self.view.isUserInteractionEnabled = true
-                    completion(false)
                 }
                 self.showAlert(Localized.Error.deleteFailed.localized)
             }
         }
     }
-    
-    private func performEdit(at indexPath: IndexPath, completion: @escaping (Bool) -> Void) {
-        let project = self.projects[indexPath.row]
-        let editViewController = EditProjectViewController(project: project, server: server)
-        editViewController.delegate = self
-        self.navigationController?.pushViewController(editViewController, animated: true)
-        completion(true)
-    }
-    
     
     @objc private func refreshView() {
         Task {
@@ -168,45 +159,20 @@ extension ProjectsViewController: UITableViewDataSource {
 }
 
 extension ProjectsViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
-    ) -> UISwipeActionsConfiguration? {
-        switch mode {
-        case .normal:
-            let deleteAction = createDeleteAction(at: indexPath)
-            let editAction = createEditAction(at: indexPath)
-            return UISwipeActionsConfiguration(actions: [deleteAction, editAction])
-        case .selection:
-            return nil
-        }
-        
-    }
-    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let project = projects[indexPath.row]
         
         switch mode {
         case .normal:
-            let tasksViewConttroller = TasksViewController(project: project, server: server, settings: settings)
-            navigationController?.pushViewController(tasksViewConttroller, animated: true)
+            let detailViewController = ProjectDetailViewController(indexPath: indexPath, project: project, server: server, settings: settings)
+            detailViewController.delegate = self
+            detailViewController.deleteDelegate = self
+            navigationController?.pushViewController(detailViewController, animated: true)
         case .selection(let completion):
             completion(project)
             navigationController?.popViewController(animated: true)
         }
-    }
-    
-    private func createDeleteAction(at indexPath: IndexPath) -> UIContextualAction {
-        let deleteAction = UIContextualAction(style: .destructive, title: Localized.Action.delete.localized) {[weak self] _,_,completion in
-            self?.performDelete(at: indexPath, completion: completion)
-        }
-        return deleteAction
-    }
-    
-    private func createEditAction(at indexPath: IndexPath) -> UIContextualAction {
-        let editAction = UIContextualAction(style: .normal, title: Localized.Action.edit.localized) {[weak self] _,_,completion in
-            self?.performEdit(at: indexPath, completion: completion)
-        }
-        return editAction
     }
 }
 
@@ -228,5 +194,11 @@ extension ProjectsViewController: ProjectsViewControllerDelegate {
     
     func didUpdateProject(_ project: Project) {
         updateItem(project) { $0.id == project.id }
+    }
+}
+
+extension ProjectsViewController: ProjectDetailViewControllerDelegate {
+    func didDeleteProject(_ project: Project, at indexPath: IndexPath) {
+        performDelete(at: indexPath)
     }
 }

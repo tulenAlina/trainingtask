@@ -14,6 +14,7 @@
 "edit_employee" = "Редактирование сотрудника";
 "task_details" = "Детали задачи";
 "employee_details" = "Детали сотрудника";
+"project_details" = "Детали проекта";
 
 // Actions
 "save" = "Сохранить";
@@ -24,6 +25,7 @@
 "refresh" = "Обновить";
 "select" = "Выбрать";
 "done" = "Готово";
+"open_tasks" = "Открыть задачи";
 
 // Task Status
 "not_started" = "Не начата";
@@ -51,6 +53,7 @@
 
 // Labels
 "name_label" = "Название:";
+"description_label" = "Описание:";
 "first_name_label" = "Имя:";
 "last_name_label" = "Фамилия:";
 "surname_label" = "Отчество:";

@@ -1,9 +1,15 @@
 import UIKit
 
+protocol TaskDetailViewControllerDelegate: AnyObject {
+    func didDeleteTask(_ task: ProjectTask, at indexPath: IndexPath)
+}
+
 final class TaskDetailViewController: UIViewController {
     
     weak var delegate: TasksViewControllerDelegate?
+    weak var deleteDelegate: TaskDetailViewControllerDelegate?
     
+    private let indexPath: IndexPath
     private var task: ProjectTask
     private var project: Project?
     private var employee: Employee?
@@ -18,10 +24,12 @@ final class TaskDetailViewController: UIViewController {
     private var endDateLabel = UILabel()
     private var employeeLabel = UILabel()
     private var statusLabel = UILabel()
+    private var deleteButton = UIButton()
     
     private let dateFormatter = DateHelper.self
     
-    init(task: ProjectTask, project: Project?, employee: Employee?, isContextProject: Bool, server: Server, settings: SettingsManager) {
+    init(indexPath: IndexPath, task: ProjectTask, project: Project?, employee: Employee?, isContextProject: Bool, server: Server, settings: SettingsManager) {
+        self.indexPath = indexPath
         self.task = task
         self.project = project
         self.employee = employee
@@ -44,6 +52,7 @@ final class TaskDetailViewController: UIViewController {
         view.backgroundColor = .white
         title = Localized.Screen.taskDetails.localized
         setupLabels()
+        setupButtons()
         setupNavigationBar()
         setupLoadingIndicator()
         setupConstraints()
@@ -77,7 +86,13 @@ final class TaskDetailViewController: UIViewController {
             
             statusLabel.topAnchor.constraint(equalTo: employeeLabel.bottomAnchor, constant: 30),
             statusLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            statusLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+            statusLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            
+            deleteButton.topAnchor.constraint(equalTo: statusLabel.bottomAnchor, constant: 30),
+            deleteButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            deleteButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05),
+            deleteButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5)
         ])
     }
     
@@ -111,6 +126,18 @@ final class TaskDetailViewController: UIViewController {
         view.addSubview(endDateLabel)
         view.addSubview(employeeLabel)
         view.addSubview(statusLabel)
+    }
+    
+    private func setupButtons() {
+        deleteButton.setTitle(Localized.Action.delete.localized, for: .normal)
+        deleteButton.setTitleColor(.red, for: .normal)
+        deleteButton.backgroundColor = UIColor.systemRed.withAlphaComponent(0.1)
+        deleteButton.layer.borderWidth = 0.5
+        deleteButton.layer.borderColor = UIColor.red.cgColor
+        deleteButton.layer.cornerRadius = 12
+        deleteButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(deleteButton)
+        deleteButton.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
     }
     
     private func updateLabels() {
@@ -150,6 +177,11 @@ final class TaskDetailViewController: UIViewController {
                 showAlert(Localized.Error.loadFailed.localized)
             }
         }
+    }
+    
+    @objc private func deleteTapped() {
+        deleteDelegate?.didDeleteTask(task, at: indexPath)
+        navigationController?.popViewController(animated: true)
     }
     
     @objc private func changeTapped() {

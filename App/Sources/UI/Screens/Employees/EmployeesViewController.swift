@@ -16,7 +16,6 @@ final class EmployeesViewController: UIViewController {
         case selection(completion: (Employee) -> Void)
     }
     
-    
     let settings: SettingsManager
     let tableView = UITableView()
     
@@ -99,7 +98,7 @@ final class EmployeesViewController: UIViewController {
         }
     }
     
-    private func performDelete(at indexPath: IndexPath, completion: @escaping (Bool) -> Void) {
+    private func performDelete(at indexPath: IndexPath) {
         self.loadingIndicator.startAnimating()
         self.view.isUserInteractionEnabled = false
         let employee = self.employees[indexPath.row]
@@ -108,14 +107,10 @@ final class EmployeesViewController: UIViewController {
             do {
                 try await self.server.deleteEmployee(employee.id)
                 self.refreshView()
-                DispatchQueue.main.async {
-                    completion(true)
-                }
             } catch {
                 DispatchQueue.main.async {
                     self.loadingIndicator.stopAnimating()
                     self.view.isUserInteractionEnabled = true
-                    completion(false)
                 }
                 self.showAlert(Localized.Error.deleteFailed.localized)
             }
@@ -159,36 +154,19 @@ extension EmployeesViewController: UITableViewDataSource {
 }
 
 extension EmployeesViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
-    ) -> UISwipeActionsConfiguration? {
-        switch mode {
-        case .normal:
-            let deleteAction = createDeleteAction(at: indexPath)
-            return UISwipeActionsConfiguration(actions: [deleteAction])
-        case .selection:
-            return nil
-        }
-    }
-    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let employee = employees[indexPath.row]
         switch mode {
         case .normal:
-            let detailViewController = EmployeeDetailViewController(employee: employee, server: server)
+            let detailViewController = EmployeeDetailViewController(indexPath: indexPath, employee: employee, server: server)
             detailViewController.delegate = self
+            detailViewController.deleteDelegate = self
             navigationController?.pushViewController(detailViewController, animated: true)
         case .selection(let completion):
             completion(employee)
             navigationController?.popViewController(animated: true)
         }
-    }
-    
-    private func createDeleteAction(at indexPath: IndexPath) -> UIContextualAction {
-        let deleteAction = UIContextualAction(style: .destructive, title: Localized.Action.delete.localized) {[weak self] _,_,completion in
-            self?.performDelete(at: indexPath, completion: completion)
-        }
-        return deleteAction
     }
 }
 
@@ -211,5 +189,11 @@ extension EmployeesViewController: EmployeesViewControllerDelegate {
     
     func didUpdateEmployee(_ employee: Employee) {
         updateItem(employee) { $0.id == employee.id }
+    }
+}
+
+extension EmployeesViewController: EmployeeDetailViewControllerDelegate {
+    func didDeleteEmployee(_ employee: Employee, at indexPath: IndexPath) {
+        performDelete(at: indexPath)
     }
 }

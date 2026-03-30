@@ -93,7 +93,7 @@ final class TasksViewController: UIViewController {
         }
     }
     
-    private func performDelete(at indexPath: IndexPath, completion: @escaping (Bool) -> Void) {
+    private func performDelete(at indexPath: IndexPath) {
         self.loadingIndicator.startAnimating()
         self.view.isUserInteractionEnabled = false
         let task = self.tasks[indexPath.row]
@@ -102,14 +102,10 @@ final class TasksViewController: UIViewController {
             do {
                 try await self.server.deleteTask(task.id)
                 self.refreshView()
-                DispatchQueue.main.async {
-                    completion(true)
-                }
             } catch {
                 DispatchQueue.main.async {
                     self.loadingIndicator.stopAnimating()
                     self.view.isUserInteractionEnabled = true
-                    completion(false)
                 }
                 self.showAlert(Localized.Error.deleteFailed.localized)
             }
@@ -174,27 +170,13 @@ extension TasksViewController: UITableViewDataSource {
 }
 
 extension TasksViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
-    ) -> UISwipeActionsConfiguration? {
-        let deleteAction = createDeleteAction(at: indexPath)
-        
-        return UISwipeActionsConfiguration(actions: [deleteAction])
-    }
-    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let detailViewController = createTaskDetailViewController(for: tasks[indexPath.row])
+        let detailViewController = createTaskDetailViewController(for: tasks[indexPath.row], indexPath: indexPath)
         navigationController?.pushViewController(detailViewController, animated: true)
     }
     
-    private func createDeleteAction(at indexPath: IndexPath) -> UIContextualAction {
-        let deleteAction = UIContextualAction(style: .destructive, title: Localized.Action.delete.localized) {[weak self] _,_,completion in
-            self?.performDelete(at: indexPath, completion: completion)
-        }
-        return deleteAction
-    }
-    
-    private func createTaskDetailViewController(for task: ProjectTask) -> TaskDetailViewController {
+    private func createTaskDetailViewController(for task: ProjectTask, indexPath: IndexPath) -> TaskDetailViewController {
         let currentProject: Project?
         var isContextProject = false
         
@@ -208,6 +190,7 @@ extension TasksViewController: UITableViewDelegate {
         let currentEmployee = employees.first { $0.id == task.employeeID }
         
         let detailViewController = TaskDetailViewController(
+            indexPath: indexPath,
             task: task,
             project: currentProject,
             employee: currentEmployee,
@@ -215,6 +198,7 @@ extension TasksViewController: UITableViewDelegate {
             server: server,
             settings: settings)
         detailViewController.delegate = self
+        detailViewController.deleteDelegate = self
         return detailViewController
     }
 }
@@ -231,12 +215,17 @@ extension TasksViewController: ListUpdatable {
 }
 
 extension TasksViewController: TasksViewControllerDelegate {
-    
     func didAddTask(_ task: ProjectTask) {
         addItem(task)
     }
     
     func didUpdateTask(_ task: ProjectTask) {
         updateItem(task) { $0.id == task.id }
+    }
+}
+
+extension TasksViewController: TaskDetailViewControllerDelegate {
+    func didDeleteTask(_ task: ProjectTask, at indexPath: IndexPath) {
+        performDelete(at: indexPath)
     }
 }
