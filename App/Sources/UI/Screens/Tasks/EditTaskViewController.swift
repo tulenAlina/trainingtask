@@ -97,6 +97,7 @@ final class EditTaskViewController: UIViewController {
         setupNavigationBar()
         setupTapGesture()
         setupConstraints()
+        view.bringSubviewToFront(loadingIndicator)
     }
     
     private func setupConstraints() {
@@ -305,8 +306,14 @@ final class EditTaskViewController: UIViewController {
     
     private func loadData() async {
         do {
-            projects = try await server.fetchProjects()
-            employees = try await server.fetchEmployees()
+            async let allProjects = try await server.fetchProjects()
+            async let allEmployees = try await server.fetchEmployees()
+            
+            let (projects, employees) = try await (allProjects, allEmployees)
+            
+            self.projects = projects
+            self.employees = employees
+            
             DispatchQueue.main.async {
                 self.view.isUserInteractionEnabled = true
             }

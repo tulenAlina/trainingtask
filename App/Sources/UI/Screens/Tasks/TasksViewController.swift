@@ -79,12 +79,20 @@ final class TasksViewController: UIViewController {
     }
     
     private func loadTasks() async throws {
-        let allTasks = try await server.fetchTasks(projectID: project?.id)
+        async let allTasks = try await server.fetchTasks(projectID: project?.id)
+        async let allEmployees = server.fetchEmployees()
         if project == nil {
-            projects = try await server.fetchProjects()
+            async let allProjects = server.fetchProjects()
+            let (tasks, projects, employees) = try await (allTasks, allProjects, allEmployees)
+            self.projects = projects
+            self.employees = employees
+            self.tasks = Array(tasks.prefix(settings.maxRecords))
+        } else {
+            let (tasks, employees) = try await (allTasks, allEmployees)
+            self.employees = employees
+            self.tasks = Array(tasks.prefix(settings.maxRecords))
         }
-        employees = try await server.fetchEmployees()
-        tasks = Array(allTasks.prefix(settings.maxRecords))
+        
         DispatchQueue.main.async {
             self.tableView.reloadData()
             self.updateEmptyState()
