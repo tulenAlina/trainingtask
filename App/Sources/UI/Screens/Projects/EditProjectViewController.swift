@@ -2,17 +2,18 @@ import UIKit
 
 final class EditProjectViewController: UIViewController {
     weak var delegate: ProjectsViewControllerDelegate?
-    var saveButton: UIBarButtonItem!
+    var saveButton = UIBarButtonItem()
     
     private let server: Server
     private var project: Project?
-    private var nameTextField: UITextField!
-    private var descriptionTextField: UITextField!
-    private var cancelButton: UIBarButtonItem!
-    private var loadingIndicator: UIActivityIndicatorView!
+    
+    private var nameTextField = UIFactory.createTextField(placeholder: Localized.projectNamePlaceholder)
+    private var descriptionTextField = UIFactory.createTextField(placeholder: Localized.projectDescriptionPlaceholder)
     
     private let nameLabel = UIFactory.createLabel(text: Localized.nameLabel)
     private let descriptionLabel = UIFactory.createLabel(text: Localized.descriptionLabel)
+    
+    private var loadingIndicator = UIActivityIndicatorView(style: .large)
     
     init(project: Project? = nil, server: Server) {
         self.project = project
@@ -39,9 +40,6 @@ final class EditProjectViewController: UIViewController {
     }
     
     private func setupTextFieldsAndLabels() {
-        nameTextField = UIFactory.createTextField(placeholder: Localized.projectNamePlaceholder)
-        descriptionTextField = UIFactory.createTextField(placeholder: Localized.projectDescriptionPlaceholder)
-        
         if let project {
             nameTextField.text = "\(project.projectName)"
             descriptionTextField.text = "\(project.description)"
@@ -79,13 +77,15 @@ final class EditProjectViewController: UIViewController {
     }
     
     private func setupNavigationBar() {
-        saveButton = UIBarButtonItem(title: Localized.save, style: .done, target: self, action: #selector(saveProject))
+        saveButton.title = Localized.save
+        saveButton.style = .done
+        saveButton.target = self
+        saveButton.action = #selector(saveProject)
         navigationItem.rightBarButtonItem = saveButton
         saveButton.isEnabled = false
     }
     
     private func setupLoadingIndicator() {
-        loadingIndicator = UIActivityIndicatorView(style: .large)
         loadingIndicator.hidesWhenStopped = true
         loadingIndicator.center = view.center
         view.addSubview(loadingIndicator)

@@ -3,7 +3,7 @@ import UIKit
 final class EditTaskViewController: UIViewController {
     
     weak var delegate: TasksViewControllerDelegate?
-    var saveButton: UIBarButtonItem!
+    var saveButton = UIBarButtonItem()
     
     private let server: Server
     private let settings: SettingsManager
@@ -16,14 +16,12 @@ final class EditTaskViewController: UIViewController {
     
     private let toolbar = UIToolbar()
     
-    private var cancelButton: UIBarButtonItem!
-    
-    private var taskNameTextField: UITextField!
-    private var projectTextField: UITextField!
-    private var workTimeTextField: UITextField!
-    private var startDateTextField: UITextField!
-    private var endDateTextField: UITextField!
-    private var employeeTextField: UITextField!
+    private var taskNameTextField = UIFactory.createTextField(placeholder: Localized.taskNamePlaceholder)
+    private var projectTextField = UIFactory.createTextField(placeholder: Localized.selectedProjectNamePlaceholder)
+    private var workTimeTextField = UIFactory.createTextField(placeholder: Localized.workTimePlaceholder)
+    private var startDateTextField = UIFactory.createTextField(placeholder: Localized.startDatePlaceholder)
+    private var endDateTextField = UIFactory.createTextField(placeholder: Localized.endDatePlaceholder)
+    private var employeeTextField = UIFactory.createTextField(placeholder: Localized.employeeNamePlaceholder)
     
     private let taskNameLabel = UIFactory.createLabel(text: Localized.nameLabel)
     private let projectLabel = UIFactory.createLabel(text: Localized.projectLabel)
@@ -103,29 +101,23 @@ final class EditTaskViewController: UIViewController {
     }
         
     private func setupTextFieldsAndLabels() {
-        taskNameTextField = UIFactory.createTextField(placeholder: Localized.taskNamePlaceholder)
-        projectTextField = UIFactory.createTextField(placeholder: Localized.selectedProjectNamePlaceholder)
-        
         if let contextProject {
             projectTextField.text = "\(contextProject.projectName)"
             projectTextField.isEnabled = false
             projectTextField.textColor = .lightGray
         }
         
-        workTimeTextField = UIFactory.createTextField(placeholder: Localized.workTimePlaceholder)
         workTimeTextField.keyboardType = .numberPad
         
-        startDateTextField = UIFactory.createTextField(text: dateFormatter.string(from: Date()), placeholder: Localized.startDatePlaceholder)
+        startDateTextField.text = dateFormatter.string(from: Date())
         startDateTextField.inputView = startDatePicker
         startDateTextField.inputAccessoryView = toolbar
         startDateTextField.delegate = self
         
-        endDateTextField = UIFactory.createTextField(text: dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()), placeholder: Localized.endDatePlaceholder)
+        endDateTextField.text = dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date())
         endDateTextField.inputView = endDatePicker
         endDateTextField.inputAccessoryView = toolbar
         endDateTextField.delegate = self
-        
-        employeeTextField = UIFactory.createTextField(placeholder: Localized.employeeNamePlaceholder)
         
         if let task {
             if contextProject == nil {
@@ -263,7 +255,10 @@ final class EditTaskViewController: UIViewController {
     }
     
     private func setupNavigationBar() {
-        saveButton = UIBarButtonItem(title: Localized.save, style: .done, target: self, action: #selector(saveTask))
+        saveButton.title = Localized.save
+        saveButton.style = .done
+        saveButton.target = self
+        saveButton.action = #selector(saveTask)
         navigationItem.rightBarButtonItem = saveButton
         saveButton.isEnabled = false
     }

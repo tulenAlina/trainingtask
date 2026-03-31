@@ -23,7 +23,7 @@ final class ProjectsViewController: UIViewController {
     private let mode: Mode
     private var projects: [Project] = []
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
-    private var refreshControl: UIRefreshControl!
+    private var refreshControl = UIRefreshControl()
     
     init(mode: Mode = .normal, server: Server, settings: SettingsManager) {
         self.mode = mode
@@ -53,7 +53,6 @@ final class ProjectsViewController: UIViewController {
     
     private func setupTableView() {
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshView), for: .valueChanged)
         tableView.dataSource = self
         tableView.delegate = self

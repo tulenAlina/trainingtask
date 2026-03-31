@@ -3,21 +3,22 @@ import UIKit
 final class EditEmployeeViewController: UIViewController {
     
     weak var delegate: EmployeesViewControllerDelegate?
-    var saveButton: UIBarButtonItem!
+    var saveButton = UIBarButtonItem()
     
-    private let loadingIndicator = UIActivityIndicatorView(style: .large)
-    private var employee: Employee?
-    private var firstNameTextField: UITextField!
-    private var lastNameTextField: UITextField!
-    private var surNameTextField: UITextField!
-    private var positionTextField: UITextField!
-    private var cancelButton: UIBarButtonItem!
     private let server: Server
+    private var employee: Employee?
+    
+    private var firstNameTextField = UIFactory.createTextField(placeholder: Localized.firstNamePlaceholder)
+    private var lastNameTextField = UIFactory.createTextField(placeholder: Localized.lastNamePlaceholder)
+    private var surNameTextField = UIFactory.createTextField(placeholder: Localized.surnamePlaceholder)
+    private var positionTextField = UIFactory.createTextField(placeholder: Localized.positionPlaceholder)
     
     private let firstNameLabel = UIFactory.createLabel(text: Localized.firstNameLabel)
     private let lastNameLabel = UIFactory.createLabel(text: Localized.lastNameLabel)
     private let surNameLabel = UIFactory.createLabel(text: Localized.surnameLabel)
     private let positionLabel = UIFactory.createLabel(text: Localized.positionLabel)
+    
+    private let loadingIndicator = UIActivityIndicatorView(style: .large)
     
     init(employee: Employee? = nil, server: Server) {
         self.employee = employee
@@ -44,10 +45,6 @@ final class EditEmployeeViewController: UIViewController {
     }
     
     private func setupTextFieldsAndLabels() {
-        firstNameTextField = UIFactory.createTextField(placeholder: Localized.firstNamePlaceholder)
-        lastNameTextField = UIFactory.createTextField(placeholder: Localized.lastNamePlaceholder)
-        surNameTextField = UIFactory.createTextField(placeholder: Localized.surnamePlaceholder)
-        positionTextField = UIFactory.createTextField(placeholder: Localized.positionPlaceholder)
         
         if let employee {
             firstNameTextField.text = "\(employee.firstName)"
@@ -113,7 +110,10 @@ final class EditEmployeeViewController: UIViewController {
     }
     
     private func setupNavigationBar() {
-        saveButton = UIBarButtonItem(title: Localized.save, style: .done, target: self, action: #selector(saveEmployee))
+        saveButton.title = Localized.save
+        saveButton.style = .done
+        saveButton.target = self
+        saveButton.action = #selector(saveEmployee)
         navigationItem.rightBarButtonItem = saveButton
         saveButton.isEnabled = false
     }
