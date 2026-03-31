@@ -67,7 +67,6 @@ final class ProjectDetailViewController: UIViewController {
         openTasksButton.layer.borderColor = UIColor.darkGray.cgColor
         openTasksButton.layer.cornerRadius = 12
         openTasksButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(openTasksButton)
         openTasksButton.addTarget(self, action: #selector(openTasksTapped), for: .touchUpInside)
         
         deleteButton.setTitle(Localized.delete, for: .normal)
@@ -77,8 +76,10 @@ final class ProjectDetailViewController: UIViewController {
         deleteButton.layer.borderColor = UIColor.red.cgColor
         deleteButton.layer.cornerRadius = 12
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(deleteButton)
         deleteButton.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
+        
+        view.addSubview(openTasksButton)
+        view.addSubview(deleteButton)
     }
     
     private func setupConstraints() {

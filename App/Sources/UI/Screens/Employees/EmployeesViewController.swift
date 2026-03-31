@@ -57,6 +57,7 @@ final class EmployeesViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.refreshControl = refreshControl
         refreshControl.addTarget(self, action: #selector(refreshView), for: .valueChanged)
+        
         view.addSubview(tableView)
     }
     

@@ -106,8 +106,9 @@ final class TaskDetailViewController: UIViewController {
         deleteButton.layer.borderColor = UIColor.red.cgColor
         deleteButton.layer.cornerRadius = 12
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(deleteButton)
         deleteButton.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
+        
+        view.addSubview(deleteButton)
     }
     
     private func setupConstraints() {

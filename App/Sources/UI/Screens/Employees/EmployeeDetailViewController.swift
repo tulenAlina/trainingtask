@@ -61,15 +61,15 @@ final class EmployeeDetailViewController: UIViewController {
     private func setupLabels() {
         updateLabels()
         
-        view.addSubview(firstNameLabel)
-        view.addSubview(lastNameLabel)
-        view.addSubview(surNameLabel)
-        view.addSubview(positionLabel)
-        
         firstNameLabel.translatesAutoresizingMaskIntoConstraints = false
         lastNameLabel.translatesAutoresizingMaskIntoConstraints = false
         surNameLabel.translatesAutoresizingMaskIntoConstraints = false
         positionLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(firstNameLabel)
+        view.addSubview(lastNameLabel)
+        view.addSubview(surNameLabel)
+        view.addSubview(positionLabel)
     }
     
     private func setupButtons() {
@@ -80,8 +80,9 @@ final class EmployeeDetailViewController: UIViewController {
         deleteButton.layer.borderColor = UIColor.red.cgColor
         deleteButton.layer.cornerRadius = 12
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(deleteButton)
         deleteButton.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
+        
+        view.addSubview(deleteButton)
     }
     
     private func setupConstraints() {

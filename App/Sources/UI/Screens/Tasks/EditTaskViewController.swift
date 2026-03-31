@@ -177,8 +177,8 @@ final class EditTaskViewController: UIViewController {
         } else {
             statusSegmentedControl.selectedSegmentIndex = 0
         }
-        
         statusSegmentedControl.addTarget(self, action: #selector(updateSaveButtonState), for: .valueChanged)
+        
         view.addSubview(statusSegmentedControl)
     }
     

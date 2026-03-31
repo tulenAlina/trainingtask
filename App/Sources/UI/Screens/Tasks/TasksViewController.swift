@@ -49,11 +49,12 @@ final class TasksViewController: UIViewController {
     
     private func setupTableView() {
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(tableView)
         refreshControl.addTarget(self, action: #selector(refreshView), for: .valueChanged)
         tableView.dataSource = self
         tableView.delegate = self
         tableView.refreshControl = refreshControl
+        
+        view.addSubview(tableView)
     }
     
     private func setupConstraints() {
