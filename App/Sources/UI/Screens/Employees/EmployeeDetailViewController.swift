@@ -12,10 +12,9 @@ final class EmployeeDetailViewController: UIViewController {
     private let indexPath: IndexPath
     private let server: Server
     private var employee: Employee
-    private var firstNameLabel = UILabel()
-    private var lastNameLabel = UILabel()
-    private var surNameLabel = UILabel()
+    private var nameLabel = UILabel()
     private var positionLabel = UILabel()
+    private var positionTitleLabel = UILabel()
     private var deleteButton = UIButton()
     
     init(indexPath: IndexPath, employee: Employee, server: Server) {
@@ -44,31 +43,27 @@ final class EmployeeDetailViewController: UIViewController {
     }
     
     private func updateLabels() {
-        firstNameLabel.text = "\(Localized.firstNameLabel) \(employee.firstName)"
-        lastNameLabel.text = "\(Localized.lastNameLabel) \(employee.lastName)"
-        
-        let surNameText: String
-        if let surName = employee.surName, !surName.isEmpty {
-            surNameText = surName
-        } else {
-            surNameText = Localized.noLabel
-        }
-        surNameLabel.text = "\(Localized.surnameLabel) \(surNameText)"
-        
-        positionLabel.text = "\(Localized.positionLabel) \(employee.position) "
+        nameLabel.text = employee.fullName
+        positionLabel.text = employee.position
     }
     
     private func setupLabels() {
         updateLabels()
         
-        firstNameLabel.translatesAutoresizingMaskIntoConstraints = false
-        lastNameLabel.translatesAutoresizingMaskIntoConstraints = false
-        surNameLabel.translatesAutoresizingMaskIntoConstraints = false
+        nameLabel.font = .systemFont(ofSize: 18, weight: .semibold)
+        nameLabel.numberOfLines = 0
+        
+        positionTitleLabel.text = Localized.positionLabel
+        positionTitleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
+        positionTitleLabel.setContentHuggingPriority(.required, for: .horizontal)
+        positionTitleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        
+        nameLabel.translatesAutoresizingMaskIntoConstraints = false
+        positionTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         positionLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        view.addSubview(firstNameLabel)
-        view.addSubview(lastNameLabel)
-        view.addSubview(surNameLabel)
+        view.addSubview(nameLabel)
+        view.addSubview(positionTitleLabel)
         view.addSubview(positionLabel)
     }
     
@@ -87,20 +82,15 @@ final class EmployeeDetailViewController: UIViewController {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            firstNameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            firstNameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            firstNameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            nameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            nameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            nameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            lastNameLabel.topAnchor.constraint(equalTo: firstNameLabel.bottomAnchor, constant: 30),
-            lastNameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            lastNameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            positionTitleLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 10),
+            positionTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             
-            surNameLabel.topAnchor.constraint(equalTo: lastNameLabel.bottomAnchor, constant: 30),
-            surNameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            surNameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            positionLabel.topAnchor.constraint(equalTo: surNameLabel.bottomAnchor, constant: 30),
-            positionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            positionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 10),
+            positionLabel.leadingAnchor.constraint(equalTo: positionTitleLabel.trailingAnchor, constant: 5),
             positionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
             deleteButton.topAnchor.constraint(equalTo: positionLabel.bottomAnchor, constant: 30),

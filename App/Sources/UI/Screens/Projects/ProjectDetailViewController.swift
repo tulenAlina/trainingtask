@@ -45,18 +45,22 @@ final class ProjectDetailViewController: UIViewController {
     }
     
     private func updateLabels() {
-        nameLabel.text = "\(Localized.nameLabel) \(project.projectName)"
-        descriptionLabel.text = "\(Localized.descriptionLabel) \(project.description)"
+        nameLabel.text = project.projectName
+        descriptionLabel.text = project.description
     }
     
     private func setupLabels() {
         updateLabels()
         
+        nameLabel.font = .systemFont(ofSize: 18, weight: .semibold)
+        nameLabel.numberOfLines = 0
+        nameLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        descriptionLabel.numberOfLines = 0
+        descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
+        
         view.addSubview(nameLabel)
         view.addSubview(descriptionLabel)
-        
-        nameLabel.translatesAutoresizingMaskIntoConstraints = false
-        descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
     }
     
     private func setupButtons() {
@@ -88,7 +92,7 @@ final class ProjectDetailViewController: UIViewController {
             nameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             nameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            descriptionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 30),
+            descriptionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 40),
             descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
