@@ -23,20 +23,20 @@ final class EditTaskViewController: UIViewController {
     private var endDateTextField: UITextField!
     private var employeeTextField: UITextField!
     
-    private let taskNameLabel = UIFactory.createLabel(text: Localized.Label.name.localized)
-    private let projectLabel = UIFactory.createLabel(text: Localized.Label.project.localized)
-    private let workTimeLabel = UIFactory.createLabel(text: Localized.Label.hours.localized)
-    private let startDateLabel = UIFactory.createLabel(text: Localized.Label.startDate.localized)
-    private let endDateLabel = UIFactory.createLabel(text: Localized.Label.endDate.localized)
-    private let employeeLabel = UIFactory.createLabel(text: Localized.Label.employee.localized)
-    private let statusLabel = UIFactory.createLabel(text: Localized.Label.status.localized)
+    private let taskNameLabel = UIFactory.createLabel(text: Localized.nameLabel)
+    private let projectLabel = UIFactory.createLabel(text: Localized.projectLabel)
+    private let workTimeLabel = UIFactory.createLabel(text: Localized.hoursLabel)
+    private let startDateLabel = UIFactory.createLabel(text: Localized.startDateLabel)
+    private let endDateLabel = UIFactory.createLabel(text: Localized.endDateLabel)
+    private let employeeLabel = UIFactory.createLabel(text: Localized.employeeLabel)
+    private let statusLabel = UIFactory.createLabel(text: Localized.statusLabel)
     
     private var selectedProject: Project?
     private var selectedEmployee: Employee?
     
     private let clearEmployeeButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle(Localized.Action.clear.localized, for: .normal)
+        button.setTitle(Localized.clear, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -79,7 +79,7 @@ final class EditTaskViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        title = (task != nil) ? Localized.Screen.editTask.localized : Localized.Screen.addTask.localized
+        title = (task != nil) ? Localized.editTask : Localized.addTask
         setupLoadingIndicator()
         loadInitialData()
     }
@@ -164,7 +164,7 @@ final class EditTaskViewController: UIViewController {
     }
     
     private func setupNavigationBar() {
-        saveButton = UIBarButtonItem(title: Localized.Action.save.localized, style: .done, target: self, action: #selector(saveTask))
+        saveButton = UIBarButtonItem(title: Localized.save, style: .done, target: self, action: #selector(saveTask))
         navigationItem.rightBarButtonItem = saveButton
         saveButton.isEnabled = false
     }
@@ -206,8 +206,8 @@ final class EditTaskViewController: UIViewController {
     }
         
     private func setupTextFieldsAndLabels() {
-        taskNameTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.taskName.localized)
-        projectTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.selectedProjectName.localized)
+        taskNameTextField = UIFactory.createTextField(placeholder: Localized.taskNamePlaceholder)
+        projectTextField = UIFactory.createTextField(placeholder: Localized.selectedProjectNamePlaceholder)
         
         if let contextProject {
             projectTextField.text = "\(contextProject.projectName)"
@@ -215,15 +215,15 @@ final class EditTaskViewController: UIViewController {
             projectTextField.textColor = .lightGray
         }
         
-        workTimeTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.workTime.localized)
+        workTimeTextField = UIFactory.createTextField(placeholder: Localized.workTimePlaceholder)
         workTimeTextField.keyboardType = .numberPad
         workTimeTextField.returnKeyType = .done
         
-        startDateTextField = UIFactory.createTextField(text: dateFormatter.string(from: Date()), placeholder: Localized.Placeholder.startDate.localized)
+        startDateTextField = UIFactory.createTextField(text: dateFormatter.string(from: Date()), placeholder: Localized.startDatePlaceholder)
         
-        endDateTextField = UIFactory.createTextField(text: dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()), placeholder: Localized.Placeholder.endDate.localized)
+        endDateTextField = UIFactory.createTextField(text: dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()), placeholder: Localized.endDatePlaceholder)
         
-        employeeTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.employeeName.localized)
+        employeeTextField = UIFactory.createTextField(placeholder: Localized.employeeNamePlaceholder)
         
         if let task {
             if contextProject == nil {
@@ -279,12 +279,12 @@ final class EditTaskViewController: UIViewController {
         guard let startDate = dateFormatter.date(from: startDateTextField.text ?? ""),
               let endDate = dateFormatter.date(from: endDateTextField.text ?? "")
         else {
-            showAlert(Localized.Error.invalidDate.localized)
+            showAlert(Localized.invalidDate)
             return false
         }
         
         guard endDate >= startDate else {
-            showAlert(Localized.Error.dateEndBeforeStart.localized)
+            showAlert(Localized.dateEndBeforeStart)
             return false
         }
         return true
@@ -321,7 +321,7 @@ final class EditTaskViewController: UIViewController {
             DispatchQueue.main.async {
                 self.view.isUserInteractionEnabled = true
             }
-            self.showAlert(Localized.Error.loadFailed.localized)
+            self.showAlert(Localized.loadFailed)
         }
     }
     
@@ -384,7 +384,7 @@ final class EditTaskViewController: UIViewController {
     
     @objc private func saveTask() {
         guard let selectedProject = selectedProject else {
-            showAlert(Localized.Error.selectProject.localized)
+            showAlert(Localized.selectProject)
             return
         }
         guard validateDates() else {return}
@@ -398,7 +398,7 @@ final class EditTaskViewController: UIViewController {
                 }
             } catch {
                 await MainActor.run {
-                    self.showAlert(Localized.Error.saveFailed.localized)
+                    self.showAlert(Localized.saveFailed)
                     stopLoading()
                 }
             }

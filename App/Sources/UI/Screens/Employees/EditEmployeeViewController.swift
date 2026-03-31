@@ -14,10 +14,10 @@ final class EditEmployeeViewController: UIViewController {
     private var cancelButton: UIBarButtonItem!
     private let server: Server
     
-    private let firstNameLabel = UIFactory.createLabel(text: Localized.Label.firstName.localized)
-    private let lastNameLabel = UIFactory.createLabel(text: Localized.Label.lastName.localized)
-    private let surNameLabel = UIFactory.createLabel(text: Localized.Label.surname.localized)
-    private let positionLabel = UIFactory.createLabel(text: Localized.Label.position.localized)
+    private let firstNameLabel = UIFactory.createLabel(text: Localized.firstNameLabel)
+    private let lastNameLabel = UIFactory.createLabel(text: Localized.lastNameLabel)
+    private let surNameLabel = UIFactory.createLabel(text: Localized.surnameLabel)
+    private let positionLabel = UIFactory.createLabel(text: Localized.positionLabel)
     
     init(employee: Employee? = nil, server: Server) {
         self.employee = employee
@@ -36,7 +36,7 @@ final class EditEmployeeViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        title = (employee != nil) ? Localized.Screen.editEmployee.localized : Localized.Screen.addEmployee.localized
+        title = (employee != nil) ? Localized.editEmployee : Localized.addEmployee
         setupTextFieldsAndLabels()
         setupNavigationBar()
         setupLoadingIndicator()
@@ -50,7 +50,7 @@ final class EditEmployeeViewController: UIViewController {
     }
     
     private func setupNavigationBar() {
-        saveButton = UIBarButtonItem(title: Localized.Action.save.localized, style: .done, target: self, action: #selector(saveEmployee))
+        saveButton = UIBarButtonItem(title: Localized.save, style: .done, target: self, action: #selector(saveEmployee))
         navigationItem.rightBarButtonItem = saveButton
         saveButton.isEnabled = false
     }
@@ -92,10 +92,10 @@ final class EditEmployeeViewController: UIViewController {
     }
     
     private func setupTextFieldsAndLabels() {
-        firstNameTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.firstName.localized)
-        lastNameTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.lastName.localized)
-        surNameTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.surname.localized)
-        positionTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.position.localized)
+        firstNameTextField = UIFactory.createTextField(placeholder: Localized.firstNamePlaceholder)
+        lastNameTextField = UIFactory.createTextField(placeholder: Localized.lastNamePlaceholder)
+        surNameTextField = UIFactory.createTextField(placeholder: Localized.surnamePlaceholder)
+        positionTextField = UIFactory.createTextField(placeholder: Localized.positionPlaceholder)
         
         if let employee {
             firstNameTextField.text = "\(employee.firstName)"
@@ -185,7 +185,7 @@ final class EditEmployeeViewController: UIViewController {
                 }
             } catch {
                 await MainActor.run {
-                    self.showAlert(Localized.Error.saveFailed.localized)
+                    self.showAlert(Localized.saveFailed)
                     stopLoading()
                 }
             }

@@ -4,7 +4,7 @@ final class MainMenuViewController: UIViewController {
     
     private let settings: SettingsManager
     private let server: Server
-    private let menuItems = [Localized.Screen.projects.localized, Localized.Screen.tasks.localized, Localized.Screen.employees.localized, Localized.Screen.settings.localized]
+    private let menuItems = [Localized.projects, Localized.tasks, Localized.employees, Localized.settings]
     
     private lazy var buttons: [UIButton] = {
         menuItems.map { title in
@@ -44,7 +44,7 @@ final class MainMenuViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        title = Localized.Screen.mainMenu.localized
+        title = Localized.mainMenu
         view.addSubview(stackView)
         setupConstraints()
     }
@@ -62,16 +62,16 @@ final class MainMenuViewController: UIViewController {
         guard let title = sender.titleLabel?.text else { return }
         
         switch title {
-        case Localized.Screen.projects.localized:
+        case Localized.projects:
             let projectsViewController = ProjectsViewController(server: server, settings: settings)
             navigationController?.pushViewController(projectsViewController, animated: true)
-        case Localized.Screen.tasks.localized:
+        case Localized.tasks:
             let tasksViewController = TasksViewController(server: server, settings: settings)
             navigationController?.pushViewController(tasksViewController, animated: true)
-        case Localized.Screen.employees.localized:
+        case Localized.employees:
             let employeesViewController = EmployeesViewController(server: server, settings: settings)
             navigationController?.pushViewController(employeesViewController, animated: true)
-        case Localized.Screen.settings.localized:
+        case Localized.settings:
             let settingsViewController = SettingsViewController(settings: settings)
             navigationController?.pushViewController(settingsViewController, animated: true)
         default:

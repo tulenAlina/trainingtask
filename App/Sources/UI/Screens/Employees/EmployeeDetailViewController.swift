@@ -36,7 +36,7 @@ final class EmployeeDetailViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        title = Localized.Screen.employeeDetails.localized
+        title = Localized.employeeDetails
         setupLabels()
         setupButtons()
         setupNavigationBar()
@@ -44,7 +44,7 @@ final class EmployeeDetailViewController: UIViewController {
     }
     
     private func setupNavigationBar() {
-        let changeButton = UIBarButtonItem(title: Localized.Action.edit.localized, style: .plain, target: self, action: #selector(changeTapped))
+        let changeButton = UIBarButtonItem(title: Localized.edit, style: .plain, target: self, action: #selector(changeTapped))
         navigationItem.rightBarButtonItem = changeButton
     }
     
@@ -74,18 +74,18 @@ final class EmployeeDetailViewController: UIViewController {
     }
     
     private func updateLabels() {
-        firstNameLabel.text = "\(Localized.Label.firstName.localized) \(employee.firstName)"
-        lastNameLabel.text = "\(Localized.Label.lastName.localized) \(employee.lastName)"
+        firstNameLabel.text = "\(Localized.firstNameLabel) \(employee.firstName)"
+        lastNameLabel.text = "\(Localized.lastNameLabel) \(employee.lastName)"
         
         let surNameText: String
         if let surName = employee.surName, !surName.isEmpty {
             surNameText = surName
         } else {
-            surNameText = Localized.Label.no.localized
+            surNameText = Localized.noLabel
         }
-        surNameLabel.text = "\(Localized.Label.surname.localized) \(surNameText)"
+        surNameLabel.text = "\(Localized.surnameLabel) \(surNameText)"
         
-        positionLabel.text = "\(Localized.Label.position.localized) \(employee.position) "
+        positionLabel.text = "\(Localized.positionLabel) \(employee.position) "
     }
     
     private func setupLabels() {
@@ -103,7 +103,7 @@ final class EmployeeDetailViewController: UIViewController {
     }
     
     private func setupButtons() {
-        deleteButton.setTitle(Localized.Action.delete.localized, for: .normal)
+        deleteButton.setTitle(Localized.delete, for: .normal)
         deleteButton.setTitleColor(.red, for: .normal)
         deleteButton.backgroundColor = UIColor.systemRed.withAlphaComponent(0.1)
         deleteButton.layer.borderWidth = 0.5

@@ -44,7 +44,7 @@ final class EmployeesViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        title = Localized.Screen.employees.localized
+        title = Localized.employees
         setupTableView()
         setupNavigationBar()
         setupLoadingIndicator()
@@ -112,7 +112,7 @@ final class EmployeesViewController: UIViewController {
                     self.loadingIndicator.stopAnimating()
                     self.view.isUserInteractionEnabled = true
                 }
-                self.showAlert(Localized.Error.deleteFailed.localized)
+                self.showAlert(Localized.deleteFailed)
             }
         }
     }
@@ -127,7 +127,7 @@ final class EmployeesViewController: UIViewController {
             } catch {
                 await MainActor.run {
                     refreshControl.endRefreshing()
-                    showAlert(Localized.Error.loadFailed.localized)
+                    showAlert(Localized.loadFailed)
                 }
             }
         }
@@ -177,7 +177,7 @@ extension EmployeesViewController: ListUpdatable {
     }
     
     var emptyStateText: String {
-        return Localized.Empty.noEmployees.localized
+        return Localized.noEmployees
     }
 }
 

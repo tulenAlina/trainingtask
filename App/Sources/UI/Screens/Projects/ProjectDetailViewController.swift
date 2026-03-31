@@ -37,7 +37,7 @@ final class ProjectDetailViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        title = Localized.Screen.projectDetails.localized
+        title = Localized.projectDetails
         setupLabels()
         setupButtons()
         setupNavigationBar()
@@ -45,7 +45,7 @@ final class ProjectDetailViewController: UIViewController {
     }
     
     private func setupNavigationBar() {
-        let changeButton = UIBarButtonItem(title: Localized.Action.edit.localized, style: .plain, target: self, action: #selector(changeTapped))
+        let changeButton = UIBarButtonItem(title: Localized.edit, style: .plain, target: self, action: #selector(changeTapped))
         navigationItem.rightBarButtonItem = changeButton
     }
     
@@ -72,8 +72,8 @@ final class ProjectDetailViewController: UIViewController {
     }
     
     private func updateLabels() {
-        nameLabel.text = "\(Localized.Label.name.localized) \(project.projectName)"
-        descriptionLabel.text = "\(Localized.Label.description.localized) \(project.description)"
+        nameLabel.text = "\(Localized.nameLabel) \(project.projectName)"
+        descriptionLabel.text = "\(Localized.descriptionLabel) \(project.description)"
     }
     
     private func setupLabels() {
@@ -87,7 +87,7 @@ final class ProjectDetailViewController: UIViewController {
     }
     
     private func setupButtons() {
-        openTasksButton.setTitle(Localized.Action.openTasks.localized, for: .normal)
+        openTasksButton.setTitle(Localized.openTasks, for: .normal)
         openTasksButton.setTitleColor(.black, for: .normal)
         openTasksButton.backgroundColor = UIColor(white: 0.95, alpha: 1)
         openTasksButton.layer.borderWidth = 0.5
@@ -97,7 +97,7 @@ final class ProjectDetailViewController: UIViewController {
         view.addSubview(openTasksButton)
         openTasksButton.addTarget(self, action: #selector(openTasksTapped), for: .touchUpInside)
         
-        deleteButton.setTitle(Localized.Action.delete.localized, for: .normal)
+        deleteButton.setTitle(Localized.delete, for: .normal)
         deleteButton.setTitleColor(.red, for: .normal)
         deleteButton.backgroundColor = UIColor.systemRed.withAlphaComponent(0.1)
         deleteButton.layer.borderWidth = 0.5

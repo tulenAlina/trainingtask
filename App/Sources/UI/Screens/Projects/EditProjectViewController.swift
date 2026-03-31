@@ -11,8 +11,8 @@ final class EditProjectViewController: UIViewController {
     private var cancelButton: UIBarButtonItem!
     private var loadingIndicator: UIActivityIndicatorView!
     
-    private let nameLabel = UIFactory.createLabel(text: Localized.Label.name.localized)
-    private let descriptionLabel = UIFactory.createLabel(text: Localized.Label.description.localized)
+    private let nameLabel = UIFactory.createLabel(text: Localized.nameLabel)
+    private let descriptionLabel = UIFactory.createLabel(text: Localized.descriptionLabel)
     
     init(project: Project? = nil, server: Server) {
         self.project = project
@@ -31,7 +31,7 @@ final class EditProjectViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        title = (project != nil) ? Localized.Screen.editProject.localized : Localized.Screen.addProject.localized
+        title = (project != nil) ? Localized.editProject : Localized.addProject
         setupTextFieldsAndLabels()
         setupNavigationBar()
         setupLoadingIndicator()
@@ -59,7 +59,7 @@ final class EditProjectViewController: UIViewController {
     }
     
     private func setupNavigationBar() {
-        saveButton = UIBarButtonItem(title: Localized.Action.save.localized, style: .done, target: self, action: #selector(saveProject))
+        saveButton = UIBarButtonItem(title: Localized.save, style: .done, target: self, action: #selector(saveProject))
         navigationItem.rightBarButtonItem = saveButton
         saveButton.isEnabled = false
     }
@@ -72,8 +72,8 @@ final class EditProjectViewController: UIViewController {
     }
     
     private func setupTextFieldsAndLabels() {
-        nameTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.projectName.localized)
-        descriptionTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.projectDescription.localized)
+        nameTextField = UIFactory.createTextField(placeholder: Localized.projectNamePlaceholder)
+        descriptionTextField = UIFactory.createTextField(placeholder: Localized.projectDescriptionPlaceholder)
         
         if let project {
             nameTextField.text = "\(project.projectName)"
@@ -148,7 +148,7 @@ final class EditProjectViewController: UIViewController {
                 }
             } catch {
                 await MainActor.run {
-                    self.showAlert(Localized.Error.saveFailed.localized)
+                    self.showAlert(Localized.saveFailed)
                     stopLoading()
                 }
             }

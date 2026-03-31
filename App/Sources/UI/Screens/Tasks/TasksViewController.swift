@@ -40,7 +40,7 @@ final class TasksViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        title = Localized.Screen.tasks.localized
+        title = Localized.tasks
         setupTableView()
         setupNavigationBar()
         setupLoadingIndicator()
@@ -115,7 +115,7 @@ final class TasksViewController: UIViewController {
                     self.loadingIndicator.stopAnimating()
                     self.view.isUserInteractionEnabled = true
                 }
-                self.showAlert(Localized.Error.deleteFailed.localized)
+                self.showAlert(Localized.deleteFailed)
             }
         }
     }
@@ -130,7 +130,7 @@ final class TasksViewController: UIViewController {
             } catch {
                 await MainActor.run {
                     refreshControl.endRefreshing()
-                    showAlert(Localized.Error.loadFailed.localized)
+                    showAlert(Localized.loadFailed)
                 }
             }
         }
@@ -218,7 +218,7 @@ extension TasksViewController: ListUpdatable {
     }
     
     var emptyStateText: String {
-        return Localized.Empty.noTasks.localized
+        return Localized.noTasks
     }
 }
 

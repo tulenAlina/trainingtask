@@ -44,7 +44,7 @@ final class ProjectsViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        title = Localized.Screen.projects.localized
+        title = Localized.projects
         setupTableView()
         setupNavigationBar()
         setupLoadingIndicator()
@@ -117,7 +117,7 @@ final class ProjectsViewController: UIViewController {
                     self.loadingIndicator.stopAnimating()
                     self.view.isUserInteractionEnabled = true
                 }
-                self.showAlert(Localized.Error.deleteFailed.localized)
+                self.showAlert(Localized.deleteFailed)
             }
         }
     }
@@ -132,7 +132,7 @@ final class ProjectsViewController: UIViewController {
             } catch {
                 await MainActor.run {
                     refreshControl.endRefreshing()
-                    showAlert(Localized.Error.loadFailed.localized)
+                    showAlert(Localized.loadFailed)
                 }
             }
         }
@@ -183,7 +183,7 @@ extension ProjectsViewController: ListUpdatable {
     }
     
     var emptyStateText: String {
-        return Localized.Empty.noProjects.localized
+        return Localized.noProjects
     }
 }
 

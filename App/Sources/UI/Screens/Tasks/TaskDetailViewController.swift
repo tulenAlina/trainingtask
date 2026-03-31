@@ -50,7 +50,7 @@ final class TaskDetailViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        title = Localized.Screen.taskDetails.localized
+        title = Localized.taskDetails
         setupLabels()
         setupButtons()
         setupNavigationBar()
@@ -97,7 +97,7 @@ final class TaskDetailViewController: UIViewController {
     }
     
     private func setupNavigationBar() {
-        let changeButton = UIBarButtonItem(title: Localized.Action.edit.localized, style: .plain, target: self, action: #selector(changeTapped))
+        let changeButton = UIBarButtonItem(title: Localized.edit, style: .plain, target: self, action: #selector(changeTapped))
         navigationItem.rightBarButtonItem = changeButton
     }
     
@@ -129,7 +129,7 @@ final class TaskDetailViewController: UIViewController {
     }
     
     private func setupButtons() {
-        deleteButton.setTitle(Localized.Action.delete.localized, for: .normal)
+        deleteButton.setTitle(Localized.delete, for: .normal)
         deleteButton.setTitleColor(.red, for: .normal)
         deleteButton.backgroundColor = UIColor.systemRed.withAlphaComponent(0.1)
         deleteButton.layer.borderWidth = 0.5
@@ -141,22 +141,22 @@ final class TaskDetailViewController: UIViewController {
     }
     
     private func updateLabels() {
-        taskNameLabel.text = "\(Localized.Label.task.localized) \(task.taskName)"
-        projectLabel.text = "\(Localized.Label.project.localized) \(project?.projectName ?? Localized.Label.unknownProject.localized)"
-        workTimeLabel.text = "\(Localized.Label.hours.localized) \(task.workTime)"
+        taskNameLabel.text = "\(Localized.taskLabel) \(task.taskName)"
+        projectLabel.text = "\(Localized.projectLabel) \(project?.projectName ?? Localized.unknownProjectLabel)"
+        workTimeLabel.text = "\(Localized.hoursLabel) \(task.workTime)"
         
-        startDateLabel.text = "\(Localized.Label.startDate.localized) \(dateFormatter.string(from: task.startDate))"
-        endDateLabel.text = "\(Localized.Label.endDate.localized) \(dateFormatter.string(from: task.endDate))"
+        startDateLabel.text = "\(Localized.startDateLabel) \(dateFormatter.string(from: task.startDate))"
+        endDateLabel.text = "\(Localized.endDateLabel) \(dateFormatter.string(from: task.endDate))"
         
         let employeeFIO: String
         if let employee {
             employeeFIO = employee.fullName
         }
         else {
-            employeeFIO = Localized.Label.notAssigned.localized
+            employeeFIO = Localized.notAssignedLabel
         }
-        employeeLabel.text = "\(Localized.Label.employee.localized) \(employeeFIO)"
-        statusLabel.text = "\(Localized.Label.status.localized) \(task.status.rawValue.localized)"
+        employeeLabel.text = "\(Localized.employeeLabel) \(employeeFIO)"
+        statusLabel.text = "\(Localized.statusLabel) \(task.status.rawValue.localized)"
     }
     
     private func loadRelatedData() async {
@@ -174,7 +174,7 @@ final class TaskDetailViewController: UIViewController {
             }
         } catch {
             await MainActor.run {
-                showAlert(Localized.Error.loadFailed.localized)
+                showAlert(Localized.loadFailed)
             }
         }
     }

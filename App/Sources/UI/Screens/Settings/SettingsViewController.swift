@@ -8,9 +8,9 @@ final class SettingsViewController: UIViewController {
     private var serverUrlTextField: UITextField!
     private var maxRecordsTextField: UITextField!
     private var defaultDaysBetweenTextField: UITextField!
-    private let serverUrlLabel = UIFactory.createLabel(text: Localized.Label.serverUrl.localized)
-    private let maxRecordsLabel = UIFactory.createLabel(text: Localized.Label.maxRecords.localized)
-    private let defaultDaysBetweenLabel = UIFactory.createLabel(text: Localized.Label.defaultDaysBetween.localized)
+    private let serverUrlLabel = UIFactory.createLabel(text: Localized.serverUrlLabel)
+    private let maxRecordsLabel = UIFactory.createLabel(text: Localized.maxRecordsLabel)
+    private let defaultDaysBetweenLabel = UIFactory.createLabel(text: Localized.defaultDaysBetweenLabel)
     
     init(settings: SettingsManager) {
         self.settings = settings
@@ -28,7 +28,7 @@ final class SettingsViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        title = Localized.Screen.settings.localized
+        title = Localized.settings
         setupTextFields()
         setupLabels()
         setupTapGesture()
@@ -37,7 +37,7 @@ final class SettingsViewController: UIViewController {
     }
     
     private func setupNavigationBar() {
-        saveButton = UIBarButtonItem(title: Localized.Action.save.localized, style: .done, target: self, action: #selector(saveSettings))
+        saveButton = UIBarButtonItem(title: Localized.save, style: .done, target: self, action: #selector(saveSettings))
         navigationItem.rightBarButtonItem = saveButton
         saveButton.isEnabled = false
     }
@@ -77,21 +77,21 @@ final class SettingsViewController: UIViewController {
     }
     
     private func setupTextFields() {
-        serverUrlTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.serverUrl.localized)
+        serverUrlTextField = UIFactory.createTextField(placeholder: Localized.serverUrlPlaceholder)
         serverUrlTextField.keyboardType = .URL
         serverUrlTextField.delegate = self
         serverUrlTextField.translatesAutoresizingMaskIntoConstraints = false
         serverUrlTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
         view.addSubview(serverUrlTextField)
         
-        maxRecordsTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.maxRecords.localized)
+        maxRecordsTextField = UIFactory.createTextField(placeholder: Localized.maxRecordsPlaceholder)
         maxRecordsTextField.keyboardType = .numberPad
         maxRecordsTextField.delegate = self
         maxRecordsTextField.translatesAutoresizingMaskIntoConstraints = false
         maxRecordsTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
         view.addSubview(maxRecordsTextField)
         
-        defaultDaysBetweenTextField = UIFactory.createTextField(placeholder: Localized.Placeholder.defaultDaysBetween.localized)
+        defaultDaysBetweenTextField = UIFactory.createTextField(placeholder: Localized.defaultDaysBetweenPlaceholder)
         defaultDaysBetweenTextField.keyboardType = .numberPad
         defaultDaysBetweenTextField.delegate = self
         defaultDaysBetweenTextField.translatesAutoresizingMaskIntoConstraints = false
