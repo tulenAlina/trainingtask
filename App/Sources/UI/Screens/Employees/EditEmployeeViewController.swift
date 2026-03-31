@@ -136,8 +136,8 @@ final class EditEmployeeViewController: UIViewController {
         saveButton.isEnabled = true
     }
     
-    private func prepareUpdateData() -> Employee {
-        var updatedEmployee = employee!
+    private func prepareUpdateData(_ employee: Employee) -> Employee {
+        var updatedEmployee = employee
         updatedEmployee.firstName = firstNameTextField.text?.trimmed ?? ""
         updatedEmployee.lastName = lastNameTextField.text?.trimmed ?? ""
         updatedEmployee.surName = surNameTextField.text?.trimmed ?? nil
@@ -165,8 +165,8 @@ final class EditEmployeeViewController: UIViewController {
     }
     
     private func performSave() async throws -> Employee {
-        if employee != nil {
-            let updatedEmployee = prepareUpdateData()
+        if let employee {
+            let updatedEmployee = prepareUpdateData(employee)
             return try await server.updateEmployee(updatedEmployee)
         } else {
             let createdEmployee = prepareCreateData()

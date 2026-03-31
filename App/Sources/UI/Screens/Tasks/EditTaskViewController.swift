@@ -339,8 +339,8 @@ final class EditTaskViewController: UIViewController {
         saveButton.isEnabled = true
     }
     
-    private func prepareUpdateData(_ inputProject: Project, _ inputEmployee: Employee?) -> ProjectTask {
-        var updatedTask = task!
+    private func prepareUpdateData(_ task: ProjectTask, _ inputProject: Project, _ inputEmployee: Employee?) -> ProjectTask {
+        var updatedTask = task
         updatedTask.taskName = taskNameTextField.text?.trimmed ?? ""
         updatedTask.projectID = inputProject.id
         updatedTask.workTime = Int(workTimeTextField.text ?? "") ?? 0
@@ -374,8 +374,8 @@ final class EditTaskViewController: UIViewController {
     }
     
     private func performSave(_ inputProject: Project, _ inputEmployee: Employee?) async throws -> ProjectTask {
-        if task != nil {
-            let updatedTask = prepareUpdateData(inputProject, inputEmployee)
+        if let task {
+            let updatedTask = prepareUpdateData(task, inputProject, inputEmployee)
             return try await server.updateTask(updatedTask)
         } else {
             let createdTask = prepareCreateData(inputProject, inputEmployee)

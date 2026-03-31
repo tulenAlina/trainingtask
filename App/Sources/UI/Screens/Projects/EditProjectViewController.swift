@@ -103,8 +103,8 @@ final class EditProjectViewController: UIViewController {
         saveButton.isEnabled = true
     }
     
-    private func prepareUpdateData() -> Project {
-        var updatedProject = project!
+    private func prepareUpdateData(_ project: Project) -> Project {
+        var updatedProject = project
         updatedProject.projectName = nameTextField.text?.trimmed ?? ""
         updatedProject.description = descriptionTextField.text?.trimmed ?? ""
         return updatedProject
@@ -128,8 +128,8 @@ final class EditProjectViewController: UIViewController {
     }
     
     private func performSave() async throws -> Project {
-        if project != nil {
-            let updatedProject = prepareUpdateData()
+        if let project {
+            let updatedProject = prepareUpdateData(project)
             return try await server.updateProject(updatedProject)
         } else {
             let createdProject = prepareCreateData()
