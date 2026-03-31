@@ -42,9 +42,9 @@ final class TasksViewController: UIViewController {
         view.backgroundColor = .white
         title = Localized.tasks
         setupTableView()
+        setupConstraints()
         setupNavigationBar()
         setupLoadingIndicator()
-        setupConstraints()
     }
     
     private func setupTableView() {

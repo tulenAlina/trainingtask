@@ -53,9 +53,61 @@ final class TaskDetailViewController: UIViewController {
         title = Localized.taskDetails
         setupLabels()
         setupButtons()
+        setupConstraints()
         setupNavigationBar()
         setupLoadingIndicator()
-        setupConstraints()
+    }
+    
+    private func updateLabels() {
+        taskNameLabel.text = "\(Localized.taskLabel) \(task.taskName)"
+        projectLabel.text = "\(Localized.projectLabel) \(project?.projectName ?? Localized.unknownProjectLabel)"
+        workTimeLabel.text = "\(Localized.hoursLabel) \(task.workTime)"
+        
+        startDateLabel.text = "\(Localized.startDateLabel) \(dateFormatter.string(from: task.startDate))"
+        endDateLabel.text = "\(Localized.endDateLabel) \(dateFormatter.string(from: task.endDate))"
+        
+        let employeeFIO: String
+        if let employee {
+            employeeFIO = employee.fullName
+        }
+        else {
+            employeeFIO = Localized.notAssignedLabel
+        }
+        employeeLabel.text = "\(Localized.employeeLabel) \(employeeFIO)"
+        statusLabel.text = "\(Localized.statusLabel) \(task.status.rawValue.localized)"
+    }
+    
+    private func setupLabels() {
+        updateLabels()
+        taskNameLabel.translatesAutoresizingMaskIntoConstraints = false
+        projectLabel.translatesAutoresizingMaskIntoConstraints = false
+        workTimeLabel.translatesAutoresizingMaskIntoConstraints = false
+        startDateLabel.translatesAutoresizingMaskIntoConstraints = false
+        endDateLabel.translatesAutoresizingMaskIntoConstraints = false
+        employeeLabel.translatesAutoresizingMaskIntoConstraints = false
+        statusLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        employeeLabel.numberOfLines = 0
+        
+        view.addSubview(taskNameLabel)
+        view.addSubview(projectLabel)
+        view.addSubview(workTimeLabel)
+        view.addSubview(startDateLabel)
+        view.addSubview(endDateLabel)
+        view.addSubview(employeeLabel)
+        view.addSubview(statusLabel)
+    }
+    
+    private func setupButtons() {
+        deleteButton.setTitle(Localized.delete, for: .normal)
+        deleteButton.setTitleColor(.red, for: .normal)
+        deleteButton.backgroundColor = UIColor.systemRed.withAlphaComponent(0.1)
+        deleteButton.layer.borderWidth = 0.5
+        deleteButton.layer.borderColor = UIColor.red.cgColor
+        deleteButton.layer.cornerRadius = 12
+        deleteButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(deleteButton)
+        deleteButton.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
     }
     
     private func setupConstraints() {
@@ -105,58 +157,6 @@ final class TaskDetailViewController: UIViewController {
         loadingIndicator.center = view.center
         loadingIndicator.hidesWhenStopped = true
         view.addSubview(loadingIndicator)
-    }
-    
-    private func setupLabels() {
-        updateLabels()
-        taskNameLabel.translatesAutoresizingMaskIntoConstraints = false
-        projectLabel.translatesAutoresizingMaskIntoConstraints = false
-        workTimeLabel.translatesAutoresizingMaskIntoConstraints = false
-        startDateLabel.translatesAutoresizingMaskIntoConstraints = false
-        endDateLabel.translatesAutoresizingMaskIntoConstraints = false
-        employeeLabel.translatesAutoresizingMaskIntoConstraints = false
-        statusLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        employeeLabel.numberOfLines = 0
-        
-        view.addSubview(taskNameLabel)
-        view.addSubview(projectLabel)
-        view.addSubview(workTimeLabel)
-        view.addSubview(startDateLabel)
-        view.addSubview(endDateLabel)
-        view.addSubview(employeeLabel)
-        view.addSubview(statusLabel)
-    }
-    
-    private func setupButtons() {
-        deleteButton.setTitle(Localized.delete, for: .normal)
-        deleteButton.setTitleColor(.red, for: .normal)
-        deleteButton.backgroundColor = UIColor.systemRed.withAlphaComponent(0.1)
-        deleteButton.layer.borderWidth = 0.5
-        deleteButton.layer.borderColor = UIColor.red.cgColor
-        deleteButton.layer.cornerRadius = 12
-        deleteButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(deleteButton)
-        deleteButton.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
-    }
-    
-    private func updateLabels() {
-        taskNameLabel.text = "\(Localized.taskLabel) \(task.taskName)"
-        projectLabel.text = "\(Localized.projectLabel) \(project?.projectName ?? Localized.unknownProjectLabel)"
-        workTimeLabel.text = "\(Localized.hoursLabel) \(task.workTime)"
-        
-        startDateLabel.text = "\(Localized.startDateLabel) \(dateFormatter.string(from: task.startDate))"
-        endDateLabel.text = "\(Localized.endDateLabel) \(dateFormatter.string(from: task.endDate))"
-        
-        let employeeFIO: String
-        if let employee {
-            employeeFIO = employee.fullName
-        }
-        else {
-            employeeFIO = Localized.notAssignedLabel
-        }
-        employeeLabel.text = "\(Localized.employeeLabel) \(employeeFIO)"
-        statusLabel.text = "\(Localized.statusLabel) \(task.status.rawValue.localized)"
     }
     
     private func loadRelatedData() async {

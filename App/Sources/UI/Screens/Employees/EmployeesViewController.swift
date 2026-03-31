@@ -46,9 +46,9 @@ final class EmployeesViewController: UIViewController {
         view.backgroundColor = .white
         title = Localized.employees
         setupTableView()
+        setupConstraints()
         setupNavigationBar()
         setupLoadingIndicator()
-        setupConstraints()
     }
     
     private func setupTableView() {
@@ -60,6 +60,15 @@ final class EmployeesViewController: UIViewController {
         view.addSubview(tableView)
     }
     
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
+    }
+    
     private func setupNavigationBar() {
         switch mode {
         case .normal:
@@ -68,15 +77,6 @@ final class EmployeesViewController: UIViewController {
         case .selection:
             break
         }
-    }
-    
-    private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
-        ])
     }
     
     private func setupLoadingIndicator() {

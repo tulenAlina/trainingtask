@@ -46,9 +46,9 @@ final class ProjectsViewController: UIViewController {
         view.backgroundColor = .white
         title = Localized.projects
         setupTableView()
+        setupConstraints()
         setupNavigationBar()
         setupLoadingIndicator()
-        setupConstraints()
     }
     
     private func setupTableView() {

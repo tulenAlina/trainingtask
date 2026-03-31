@@ -40,35 +40,8 @@ final class ProjectDetailViewController: UIViewController {
         title = Localized.projectDetails
         setupLabels()
         setupButtons()
-        setupNavigationBar()
         setupConstraints()
-    }
-    
-    private func setupNavigationBar() {
-        let changeButton = UIBarButtonItem(title: Localized.edit, style: .plain, target: self, action: #selector(changeTapped))
-        navigationItem.rightBarButtonItem = changeButton
-    }
-    
-    private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            nameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            nameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            nameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            descriptionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 30),
-            descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            openTasksButton.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 30),
-            openTasksButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            openTasksButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05),
-            openTasksButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5),
-            
-            deleteButton.topAnchor.constraint(equalTo: openTasksButton.bottomAnchor, constant: 10),
-            deleteButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            deleteButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05),
-            deleteButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5)
-        ])
+        setupNavigationBar()
     }
     
     private func updateLabels() {
@@ -106,6 +79,33 @@ final class ProjectDetailViewController: UIViewController {
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(deleteButton)
         deleteButton.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
+    }
+    
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            nameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            nameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            nameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            descriptionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 30),
+            descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            openTasksButton.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 30),
+            openTasksButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            openTasksButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05),
+            openTasksButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5),
+            
+            deleteButton.topAnchor.constraint(equalTo: openTasksButton.bottomAnchor, constant: 10),
+            deleteButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            deleteButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05),
+            deleteButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5)
+        ])
+    }
+    
+    private func setupNavigationBar() {
+        let changeButton = UIBarButtonItem(title: Localized.edit, style: .plain, target: self, action: #selector(changeTapped))
+        navigationItem.rightBarButtonItem = changeButton
     }
         
     @objc private func changeTapped() {

@@ -38,21 +38,42 @@ final class EditEmployeeViewController: UIViewController {
         view.backgroundColor = .white
         title = (employee != nil) ? Localized.editEmployee : Localized.addEmployee
         setupTextFieldsAndLabels()
+        setupConstraints()
         setupNavigationBar()
         setupLoadingIndicator()
-        setupConstraints()
     }
     
-    private func setupLoadingIndicator() {
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.center = view.center
-        view.addSubview(loadingIndicator)
-    }
-    
-    private func setupNavigationBar() {
-        saveButton = UIBarButtonItem(title: Localized.save, style: .done, target: self, action: #selector(saveEmployee))
-        navigationItem.rightBarButtonItem = saveButton
-        saveButton.isEnabled = false
+    private func setupTextFieldsAndLabels() {
+        firstNameTextField = UIFactory.createTextField(placeholder: Localized.firstNamePlaceholder)
+        lastNameTextField = UIFactory.createTextField(placeholder: Localized.lastNamePlaceholder)
+        surNameTextField = UIFactory.createTextField(placeholder: Localized.surnamePlaceholder)
+        positionTextField = UIFactory.createTextField(placeholder: Localized.positionPlaceholder)
+        
+        if let employee {
+            firstNameTextField.text = "\(employee.firstName)"
+            lastNameTextField.text = "\(employee.lastName)"
+            surNameTextField.text = "\(employee.surName ?? "")"
+            positionTextField.text = "\(employee.position)"
+        }
+        
+        firstNameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        lastNameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        surNameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        positionTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        
+        firstNameTextField.delegate = self
+        lastNameTextField.delegate = self
+        surNameTextField.delegate = self
+        positionTextField.delegate = self
+        
+        view.addSubview(firstNameLabel)
+        view.addSubview(firstNameTextField)
+        view.addSubview(lastNameLabel)
+        view.addSubview(lastNameTextField)
+        view.addSubview(surNameLabel)
+        view.addSubview(surNameTextField)
+        view.addSubview(positionLabel)
+        view.addSubview(positionTextField)
     }
     
     private func setupConstraints() {
@@ -91,37 +112,16 @@ final class EditEmployeeViewController: UIViewController {
         ])
     }
     
-    private func setupTextFieldsAndLabels() {
-        firstNameTextField = UIFactory.createTextField(placeholder: Localized.firstNamePlaceholder)
-        lastNameTextField = UIFactory.createTextField(placeholder: Localized.lastNamePlaceholder)
-        surNameTextField = UIFactory.createTextField(placeholder: Localized.surnamePlaceholder)
-        positionTextField = UIFactory.createTextField(placeholder: Localized.positionPlaceholder)
-        
-        if let employee {
-            firstNameTextField.text = "\(employee.firstName)"
-            lastNameTextField.text = "\(employee.lastName)"
-            surNameTextField.text = "\(employee.surName ?? "")"
-            positionTextField.text = "\(employee.position)"
-        }
-        
-        firstNameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        lastNameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        surNameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        positionTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        
-        firstNameTextField.delegate = self
-        lastNameTextField.delegate = self
-        surNameTextField.delegate = self
-        positionTextField.delegate = self
-        
-        view.addSubview(firstNameLabel)
-        view.addSubview(firstNameTextField)
-        view.addSubview(lastNameLabel)
-        view.addSubview(lastNameTextField)
-        view.addSubview(surNameLabel)
-        view.addSubview(surNameTextField)
-        view.addSubview(positionLabel)
-        view.addSubview(positionTextField)
+    private func setupNavigationBar() {
+        saveButton = UIBarButtonItem(title: Localized.save, style: .done, target: self, action: #selector(saveEmployee))
+        navigationItem.rightBarButtonItem = saveButton
+        saveButton.isEnabled = false
+    }
+    
+    private func setupLoadingIndicator() {
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.center = view.center
+        view.addSubview(loadingIndicator)
     }
     
     private func startLoading() {

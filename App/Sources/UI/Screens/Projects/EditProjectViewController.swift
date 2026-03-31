@@ -33,9 +33,29 @@ final class EditProjectViewController: UIViewController {
         view.backgroundColor = .white
         title = (project != nil) ? Localized.editProject : Localized.addProject
         setupTextFieldsAndLabels()
+        setupConstraints()
         setupNavigationBar()
         setupLoadingIndicator()
-        setupConstraints()
+    }
+    
+    private func setupTextFieldsAndLabels() {
+        nameTextField = UIFactory.createTextField(placeholder: Localized.projectNamePlaceholder)
+        descriptionTextField = UIFactory.createTextField(placeholder: Localized.projectDescriptionPlaceholder)
+        
+        if let project {
+            nameTextField.text = "\(project.projectName)"
+            descriptionTextField.text = "\(project.description)"
+        }
+        nameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        descriptionTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        
+        nameTextField.delegate = self
+        descriptionTextField.delegate = self
+        
+        view.addSubview(nameTextField)
+        view.addSubview(nameLabel)
+        view.addSubview(descriptionTextField)
+        view.addSubview(descriptionLabel)
     }
     
     private func setupConstraints() {
@@ -69,26 +89,6 @@ final class EditProjectViewController: UIViewController {
         loadingIndicator.hidesWhenStopped = true
         loadingIndicator.center = view.center
         view.addSubview(loadingIndicator)
-    }
-    
-    private func setupTextFieldsAndLabels() {
-        nameTextField = UIFactory.createTextField(placeholder: Localized.projectNamePlaceholder)
-        descriptionTextField = UIFactory.createTextField(placeholder: Localized.projectDescriptionPlaceholder)
-        
-        if let project {
-            nameTextField.text = "\(project.projectName)"
-            descriptionTextField.text = "\(project.description)"
-        }
-        nameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        descriptionTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        
-        nameTextField.delegate = self
-        descriptionTextField.delegate = self
-        
-        view.addSubview(nameTextField)
-        view.addSubview(nameLabel)
-        view.addSubview(descriptionTextField)
-        view.addSubview(descriptionLabel)
     }
     
     private func startLoading() {

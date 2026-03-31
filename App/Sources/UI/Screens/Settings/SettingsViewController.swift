@@ -31,49 +31,9 @@ final class SettingsViewController: UIViewController {
         title = Localized.settings
         setupTextFields()
         setupLabels()
+        setupConstraints()
         setupTapGesture()
         setupNavigationBar()
-        setupConstraints()
-    }
-    
-    private func setupNavigationBar() {
-        saveButton = UIBarButtonItem(title: Localized.save, style: .done, target: self, action: #selector(saveSettings))
-        navigationItem.rightBarButtonItem = saveButton
-        saveButton.isEnabled = false
-    }
-    
-    private func setupTapGesture() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        tapGesture.cancelsTouchesInView = false
-        view.addGestureRecognizer(tapGesture)
-    }
-    
-    private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            serverUrlLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            serverUrlLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            serverUrlLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            serverUrlTextField.topAnchor.constraint(equalTo: serverUrlLabel.bottomAnchor, constant: 5),
-            serverUrlTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            serverUrlTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            maxRecordsLabel.topAnchor.constraint(equalTo: serverUrlTextField.bottomAnchor, constant: 30),
-            maxRecordsLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            maxRecordsLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            maxRecordsTextField.topAnchor.constraint(equalTo: maxRecordsLabel.bottomAnchor, constant: 5),
-            maxRecordsTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            maxRecordsTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            defaultDaysBetweenLabel.topAnchor.constraint(equalTo: maxRecordsTextField.bottomAnchor, constant: 30),
-            defaultDaysBetweenLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            defaultDaysBetweenLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            defaultDaysBetweenTextField.topAnchor.constraint(equalTo: defaultDaysBetweenLabel.bottomAnchor, constant: 5),
-            defaultDaysBetweenTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            defaultDaysBetweenTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
-        ])
     }
     
     private func setupTextFields() {
@@ -105,6 +65,46 @@ final class SettingsViewController: UIViewController {
         view.addSubview(serverUrlLabel)
         view.addSubview(maxRecordsLabel)
         view.addSubview(defaultDaysBetweenLabel)
+    }
+    
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            serverUrlLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            serverUrlLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            serverUrlLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            serverUrlTextField.topAnchor.constraint(equalTo: serverUrlLabel.bottomAnchor, constant: 5),
+            serverUrlTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            serverUrlTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            maxRecordsLabel.topAnchor.constraint(equalTo: serverUrlTextField.bottomAnchor, constant: 30),
+            maxRecordsLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            maxRecordsLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            maxRecordsTextField.topAnchor.constraint(equalTo: maxRecordsLabel.bottomAnchor, constant: 5),
+            maxRecordsTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            maxRecordsTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            defaultDaysBetweenLabel.topAnchor.constraint(equalTo: maxRecordsTextField.bottomAnchor, constant: 30),
+            defaultDaysBetweenLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            defaultDaysBetweenLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            defaultDaysBetweenTextField.topAnchor.constraint(equalTo: defaultDaysBetweenLabel.bottomAnchor, constant: 5),
+            defaultDaysBetweenTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            defaultDaysBetweenTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+        ])
+    }
+    
+    private func setupNavigationBar() {
+        saveButton = UIBarButtonItem(title: Localized.save, style: .done, target: self, action: #selector(saveSettings))
+        navigationItem.rightBarButtonItem = saveButton
+        saveButton.isEnabled = false
+    }
+    
+    private func setupTapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
     }
     
     private func loadCurrentSettings() {
