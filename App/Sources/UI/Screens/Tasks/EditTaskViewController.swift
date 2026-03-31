@@ -14,6 +14,8 @@ final class EditTaskViewController: UIViewController {
     private var projects: [Project] = []
     private var employees: [Employee] = []
     
+    private let toolbar = UIToolbar()
+    
     private var cancelButton: UIBarButtonItem!
     
     private var taskNameTextField: UITextField!
@@ -94,7 +96,7 @@ final class EditTaskViewController: UIViewController {
         setupClearEmployeeButton()
         setupSegmentedControl()
         setupConstraints()
-        setupDatePickers()
+        setupToolbar()
         setupNavigationBar()
         setupTapGesture()
         view.bringSubviewToFront(loadingIndicator)
@@ -112,11 +114,16 @@ final class EditTaskViewController: UIViewController {
         
         workTimeTextField = UIFactory.createTextField(placeholder: Localized.workTimePlaceholder)
         workTimeTextField.keyboardType = .numberPad
-        workTimeTextField.returnKeyType = .done
         
         startDateTextField = UIFactory.createTextField(text: dateFormatter.string(from: Date()), placeholder: Localized.startDatePlaceholder)
+        startDateTextField.inputView = startDatePicker
+        startDateTextField.inputAccessoryView = toolbar
+        startDateTextField.delegate = self
         
         endDateTextField = UIFactory.createTextField(text: dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()), placeholder: Localized.endDatePlaceholder)
+        endDateTextField.inputView = endDatePicker
+        endDateTextField.inputAccessoryView = toolbar
+        endDateTextField.delegate = self
         
         employeeTextField = UIFactory.createTextField(placeholder: Localized.employeeNamePlaceholder)
         
@@ -245,14 +252,14 @@ final class EditTaskViewController: UIViewController {
         ])
     }
     
-    private func setupDatePickers() {
-        startDateTextField.inputView = startDatePicker
-        endDateTextField.inputView = endDatePicker
-        startDateTextField.delegate = self
-        endDateTextField.delegate = self
+    private func setupToolbar() {
+        toolbar.sizeToFit()
         
-        startDatePicker.addTarget(self, action: #selector(dateChanged), for: .valueChanged)
-        endDatePicker.addTarget(self, action: #selector(dateChanged), for: .valueChanged)
+        let doneButton = UIBarButtonItem(title: "Выбрать", style: .done, target: self, action: #selector(dateChanged))
+        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let cancelButton = UIBarButtonItem(title: "Отмена", style: .plain, target: self, action: #selector(dismissObjects))
+    
+        toolbar.setItems([cancelButton, flexibleSpace, doneButton], animated: false)
     }
     
     private func setupNavigationBar() {
@@ -406,15 +413,16 @@ final class EditTaskViewController: UIViewController {
     }
     
     @objc private func dateChanged(_ sender: UIDatePicker) {
-        let dateString = dateFormatter.string(from: sender.date)
-        
-        if sender == startDatePicker {
+        if startDateTextField.isFirstResponder {
+            let dateString = dateFormatter.string(from: startDatePicker.date)
             startDateTextField.text = dateString
-        } else if sender == endDatePicker {
+        } else if endDateTextField.isFirstResponder {
+            let dateString = dateFormatter.string(from: endDatePicker.date)
             endDateTextField.text = dateString
         }
         
         updateSaveButtonState()
+        dismissObjects()
     }
     
     @objc private func dismissObjects() {
