@@ -7,15 +7,15 @@ final class EditEmployeeViewController: BaseFormViewController {
     private let server: Server
     private var employee: Employee?
     
-    private var firstNameTextField = UIFactory.createTextField(placeholder: Localized.firstNamePlaceholder)
-    private var lastNameTextField = UIFactory.createTextField(placeholder: Localized.lastNamePlaceholder)
-    private var surNameTextField = UIFactory.createTextField(placeholder: Localized.surnamePlaceholder)
-    private var positionTextField = UIFactory.createTextField(placeholder: Localized.positionPlaceholder)
-    
     private let firstNameLabel = UIFactory.createLabel(text: Localized.firstNameLabel)
     private let lastNameLabel = UIFactory.createLabel(text: Localized.lastNameLabel)
     private let surNameLabel = UIFactory.createLabel(text: Localized.surnameLabel)
     private let positionLabel = UIFactory.createLabel(text: Localized.positionLabel)
+    
+    private var firstNameTextField = UIFactory.createTextField(placeholder: Localized.firstNamePlaceholder)
+    private var lastNameTextField = UIFactory.createTextField(placeholder: Localized.lastNamePlaceholder)
+    private var surNameTextField = UIFactory.createTextField(placeholder: Localized.surnamePlaceholder)
+    private var positionTextField = UIFactory.createTextField(placeholder: Localized.positionPlaceholder)
     
     init(employee: Employee? = nil, server: Server) {
         self.employee = employee
@@ -29,8 +29,8 @@ final class EditEmployeeViewController: BaseFormViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
         setupRequiredFields()
+        setupUI()
     }
     
     private func setupRequiredFields() {
@@ -108,8 +108,8 @@ final class EditEmployeeViewController: BaseFormViewController {
         ])
     }
     
-    private func prepareUpdateData(_ employee: Employee) -> Employee {
-        var updatedEmployee = employee
+    private func updatedEmployee(from existing: Employee) -> Employee {
+        var updatedEmployee = existing
         updatedEmployee.firstName = firstNameTextField.text?.trimmed ?? ""
         updatedEmployee.lastName = lastNameTextField.text?.trimmed ?? ""
         updatedEmployee.surName = surNameTextField.text?.trimmed ?? nil
@@ -117,13 +117,24 @@ final class EditEmployeeViewController: BaseFormViewController {
         return updatedEmployee
     }
     
-    private func prepareCreateData() -> Employee {
+    private func newEmployeeFromForm() -> Employee {
         return Employee(
             firstName: firstNameTextField.text?.trimmed ?? "",
             lastName: lastNameTextField.text?.trimmed ?? "",
             surName: surNameTextField.text?.trimmed ?? nil,
             position: positionTextField.text?.trimmed ?? ""
         )
+    }
+    
+    private func fetchSavedEmployee() async throws -> Employee {
+        if let employee {
+            let updatedEmployee = updatedEmployee(from: employee)
+            return try await server.updateEmployee(updatedEmployee)
+        } else {
+            let createdEmployee = newEmployeeFromForm()
+            return try await server.createEmployee(createdEmployee)
+            
+        }
     }
     
     private func handleSuccess(savedEmployee: Employee) {
@@ -134,17 +145,6 @@ final class EditEmployeeViewController: BaseFormViewController {
         }
         stopLoading()
         self.navigationController?.popViewController(animated: true)
-    }
-    
-    private func performSave() async throws -> Employee {
-        if let employee {
-            let updatedEmployee = prepareUpdateData(employee)
-            return try await server.updateEmployee(updatedEmployee)
-        } else {
-            let createdEmployee = prepareCreateData()
-            return try await server.createEmployee(createdEmployee)
-            
-        }
     }
     
     override func isFieldsChanged() -> Bool {
@@ -168,7 +168,7 @@ final class EditEmployeeViewController: BaseFormViewController {
         startLoading()
         Task {
             do {
-                let savedEmployee = try await performSave()
+                let savedEmployee = try await fetchSavedEmployee()
                 await MainActor.run {
                     handleSuccess(savedEmployee: savedEmployee)
                 }

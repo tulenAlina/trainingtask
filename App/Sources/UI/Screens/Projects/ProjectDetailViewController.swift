@@ -9,10 +9,11 @@ final class ProjectDetailViewController: BaseViewController {
     weak var delegate: ProjectsViewControllerDelegate?
     weak var deleteDelegate: ProjectDetailViewControllerDelegate?
     
-    private let indexPath: IndexPath
     private let server: Server
     private let settings: SettingsManager
+    private let indexPath: IndexPath
     private var project: Project
+    
     private var nameLabel = UILabel()
     private var descriptionLabel = UILabel()
     private var openTasksButton = UIButton()
@@ -40,12 +41,7 @@ final class ProjectDetailViewController: BaseViewController {
         setupLabels()
         setupButtons()
         setupConstraints()
-        addRightBarButton(title: Localized.edit, action: #selector(changeTapped))
-    }
-    
-    private func updateLabels() {
-        nameLabel.text = project.projectName
-        descriptionLabel.text = project.description
+        addRightBarButton(title: Localized.edit, action: #selector(changeProject))
     }
     
     private func setupLabels() {
@@ -70,7 +66,7 @@ final class ProjectDetailViewController: BaseViewController {
         openTasksButton.layer.borderColor = UIColor.darkGray.cgColor
         openTasksButton.layer.cornerRadius = 12
         openTasksButton.translatesAutoresizingMaskIntoConstraints = false
-        openTasksButton.addTarget(self, action: #selector(openTasksTapped), for: .touchUpInside)
+        openTasksButton.addTarget(self, action: #selector(openTasks), for: .touchUpInside)
         
         deleteButton.setTitle(Localized.delete, for: .normal)
         deleteButton.setTitleColor(.red, for: .normal)
@@ -79,7 +75,7 @@ final class ProjectDetailViewController: BaseViewController {
         deleteButton.layer.borderColor = UIColor.red.cgColor
         deleteButton.layer.cornerRadius = 12
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
-        deleteButton.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
+        deleteButton.addTarget(self, action: #selector(deleteProject), for: .touchUpInside)
         
         view.addSubview(openTasksButton)
         view.addSubview(deleteButton)
@@ -106,19 +102,24 @@ final class ProjectDetailViewController: BaseViewController {
             deleteButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5)
         ])
     }
+    
+    private func updateLabels() {
+        nameLabel.text = project.projectName
+        descriptionLabel.text = project.description
+    }
         
-    @objc private func changeTapped() {
+    @objc private func changeProject() {
         let editViewController = EditProjectViewController(project: project, server: server)
         editViewController.delegate = self
         navigationController?.pushViewController(editViewController, animated: true)
     }
     
-    @objc private func deleteTapped() {
+    @objc private func deleteProject() {
         deleteDelegate?.didDeleteProject(project, at: indexPath)
         navigationController?.popViewController(animated: true)
     }
     
-    @objc private func openTasksTapped() {
+    @objc private func openTasks() {
         let tasksViewConttroller = TasksViewController(project: project, server: server, settings: settings)
         navigationController?.pushViewController(tasksViewConttroller, animated: true)
     }

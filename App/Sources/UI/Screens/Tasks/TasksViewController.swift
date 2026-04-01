@@ -34,20 +34,20 @@ final class TasksViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        refreshView()
+        refreshData()
     }
     
     private func setupUI() {
         setupNavigationTitle(Localized.tasks)
         setupTableView()
         setupConstraints()
-        addRightBarButton(systemItem: .add, action: #selector(addTapped))
+        addRightBarButton(systemItem: .add, action: #selector(addTask))
         startLoading()
     }
     
     private func setupTableView() {
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        refreshControl.addTarget(self, action: #selector(refreshView), for: .valueChanged)
+        refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
         tableView.dataSource = self
         tableView.delegate = self
         tableView.refreshControl = refreshControl
@@ -93,7 +93,7 @@ final class TasksViewController: BaseViewController {
         Task {
             do {
                 try await self.server.deleteTask(task.id)
-                self.refreshView()
+                self.refreshData()
             } catch {
                 DispatchQueue.main.async {
                     self.stopLoading()
@@ -103,7 +103,7 @@ final class TasksViewController: BaseViewController {
         }
     }
     
-    @objc private func refreshView() {
+    @objc private func refreshData() {
         Task {
             do {
                 try await loadTasks()
@@ -119,7 +119,7 @@ final class TasksViewController: BaseViewController {
         }
     }
     
-    @objc private func addTapped() {
+    @objc private func addTask() {
         let editViewController: EditTaskViewController
         if let project {
             editViewController = EditTaskViewController(project: project, server: server, settings: settings)

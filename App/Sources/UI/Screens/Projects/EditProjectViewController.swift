@@ -6,11 +6,11 @@ final class EditProjectViewController: BaseFormViewController {
     private let server: Server
     private var project: Project?
     
-    private var nameTextField = UIFactory.createTextField(placeholder: Localized.projectNamePlaceholder)
-    private var descriptionTextField = UIFactory.createTextField(placeholder: Localized.projectDescriptionPlaceholder)
-    
     private let nameLabel = UIFactory.createLabel(text: Localized.nameLabel)
     private let descriptionLabel = UIFactory.createLabel(text: Localized.descriptionLabel)
+    
+    private var nameTextField = UIFactory.createTextField(placeholder: Localized.projectNamePlaceholder)
+    private var descriptionTextField = UIFactory.createTextField(placeholder: Localized.projectDescriptionPlaceholder)
     
     init(project: Project? = nil, server: Server) {
         self.project = project
@@ -24,8 +24,8 @@ final class EditProjectViewController: BaseFormViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
         setupRequiredFields()
+        setupUI()
     }
     
     private func setupRequiredFields() {
@@ -76,18 +76,29 @@ final class EditProjectViewController: BaseFormViewController {
         ])
     }
 
-    private func prepareUpdateData(_ project: Project) -> Project {
+    private func updatedProject(_ project: Project) -> Project {
         var updatedProject = project
         updatedProject.projectName = nameTextField.text?.trimmed ?? ""
         updatedProject.description = descriptionTextField.text?.trimmed ?? ""
         return updatedProject
     }
     
-    private func prepareCreateData() -> Project {
+    private func newProjectFromForm() -> Project {
         return Project(
             projectName: nameTextField.text?.trimmed ?? "",
             description: descriptionTextField.text?.trimmed ?? ""
         )
+    }
+
+    private func fetchSavedProject() async throws -> Project {
+        if let project {
+            let updatedProject = updatedProject(project)
+            return try await server.updateProject(updatedProject)
+        } else {
+            let createdProject = newProjectFromForm()
+            return try await server.createProject(createdProject)
+            
+        }
     }
     
     private func handleSuccess(savedProject: Project) {
@@ -98,17 +109,6 @@ final class EditProjectViewController: BaseFormViewController {
         }
         stopLoading()
         self.navigationController?.popViewController(animated: true)
-    }
-    
-    private func performSave() async throws -> Project {
-        if let project {
-            let updatedProject = prepareUpdateData(project)
-            return try await server.updateProject(updatedProject)
-        } else {
-            let createdProject = prepareCreateData()
-            return try await server.createProject(createdProject)
-            
-        }
     }
     
     override func isFieldsChanged() -> Bool {
@@ -128,7 +128,7 @@ final class EditProjectViewController: BaseFormViewController {
         startLoading()
         Task {
             do {
-                let savedProject = try await performSave()
+                let savedProject = try await fetchSavedProject()
                 DispatchQueue.main.async {
                     self.handleSuccess(savedProject: savedProject)
                 }

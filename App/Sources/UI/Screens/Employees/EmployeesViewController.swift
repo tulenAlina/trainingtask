@@ -21,8 +21,8 @@ final class EmployeesViewController: BaseViewController {
     
     private let server: Server
     private let mode: Mode
-    private let refreshControl = UIRefreshControl()
     private var employees: [Employee] = []
+    private let refreshControl = UIRefreshControl()
     
     init(mode: Mode = .normal, server: Server, settings: SettingsManager) {
         self.mode = mode
@@ -38,7 +38,7 @@ final class EmployeesViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        refreshView()
+        refreshData()
     }
     
     private func setupUI() {
@@ -54,7 +54,7 @@ final class EmployeesViewController: BaseViewController {
         tableView.delegate = self
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.refreshControl = refreshControl
-        refreshControl.addTarget(self, action: #selector(refreshView), for: .valueChanged)
+        refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
         
         view.addSubview(tableView)
     }
@@ -71,7 +71,7 @@ final class EmployeesViewController: BaseViewController {
     private func setupNavigationBar() {
         switch mode {
         case .normal:
-            addRightBarButton(systemItem: .add, action: #selector(addTapped))
+            addRightBarButton(systemItem: .add, action: #selector(addEmployee))
         case .selection:
             break
         }
@@ -94,7 +94,7 @@ final class EmployeesViewController: BaseViewController {
         Task {
             do {
                 try await server.deleteEmployee(employee.id)
-                refreshView()
+                refreshData()
             } catch {
                 await MainActor.run {
                     stopLoading()
@@ -104,7 +104,7 @@ final class EmployeesViewController: BaseViewController {
         }
     }
     
-    @objc private func refreshView() {
+    @objc private func refreshData() {
         Task {
             do {
                 try await loadEmployees()
@@ -120,7 +120,7 @@ final class EmployeesViewController: BaseViewController {
         }
     }
     
-    @objc private func addTapped() {
+    @objc private func addEmployee() {
         let editVC = EditEmployeeViewController(server: server)
         editVC.delegate = self
         navigationController?.pushViewController(editVC, animated: true)

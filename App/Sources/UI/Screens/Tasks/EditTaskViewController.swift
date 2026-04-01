@@ -14,13 +14,6 @@ final class EditTaskViewController: BaseFormViewController {
     
     private let toolbar = UIToolbar()
     
-    private var taskNameTextField = UIFactory.createTextField(placeholder: Localized.taskNamePlaceholder)
-    private var projectTextField = UIFactory.createTextField(placeholder: Localized.selectedProjectNamePlaceholder)
-    private var workTimeTextField = UIFactory.createTextField(placeholder: Localized.workTimePlaceholder)
-    private var startDateTextField = UIFactory.createTextField(placeholder: Localized.startDatePlaceholder)
-    private var endDateTextField = UIFactory.createTextField(placeholder: Localized.endDatePlaceholder)
-    private var employeeTextField = UIFactory.createTextField(placeholder: Localized.employeeNamePlaceholder)
-    
     private let taskNameLabel = UIFactory.createLabel(text: Localized.nameLabel)
     private let projectLabel = UIFactory.createLabel(text: Localized.projectLabel)
     private let workTimeLabel = UIFactory.createLabel(text: Localized.hoursLabel)
@@ -29,6 +22,13 @@ final class EditTaskViewController: BaseFormViewController {
     private let employeeLabel = UIFactory.createLabel(text: Localized.employeeLabel)
     private let statusLabel = UIFactory.createLabel(text: Localized.statusLabel)
     
+    private var taskNameTextField = UIFactory.createTextField(placeholder: Localized.taskNamePlaceholder)
+    private var projectTextField = UIFactory.createTextField(placeholder: Localized.selectedProjectNamePlaceholder)
+    private var workTimeTextField = UIFactory.createTextField(placeholder: Localized.workTimePlaceholder)
+    private var startDateTextField = UIFactory.createTextField(placeholder: Localized.startDatePlaceholder)
+    private var endDateTextField = UIFactory.createTextField(placeholder: Localized.endDatePlaceholder)
+    private var employeeTextField = UIFactory.createTextField(placeholder: Localized.employeeNamePlaceholder)
+   
     private var selectedProject: Project?
     private var selectedEmployee: Employee?
     
@@ -77,8 +77,8 @@ final class EditTaskViewController: BaseFormViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationTitle((task != nil) ? Localized.editTask : Localized.addTask)
-        loadInitialData()
         setupRequiredFields()
+        loadInitialData()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -248,19 +248,28 @@ final class EditTaskViewController: BaseFormViewController {
         toolbar.setItems([cancelButton, flexibleSpace, doneButton], animated: false)
     }
     
-    private func validateDates() -> Bool{
-        guard let startDate = dateFormatter.date(from: startDateTextField.text ?? ""),
-              let endDate = dateFormatter.date(from: endDateTextField.text ?? "")
-        else {
-            showAlert(Localized.invalidDate)
-            return false
-        }
-        
-        guard endDate >= startDate else {
-            showAlert(Localized.dateEndBeforeStart)
-            return false
-        }
-        return true
+    private func updatedTask(_ task: ProjectTask, _ inputProject: Project, _ inputEmployee: Employee?) -> ProjectTask {
+        var updatedTask = task
+        updatedTask.taskName = taskNameTextField.text?.trimmed ?? ""
+        updatedTask.projectID = inputProject.id
+        updatedTask.workTime = Int(workTimeTextField.text ?? "") ?? 0
+        updatedTask.startDate = dateFormatter.date(from: startDateTextField.text ?? "") ?? Date()
+        updatedTask.endDate = dateFormatter.date(from: endDateTextField.text ?? "") ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()
+        updatedTask.status = TaskStatus.allCases[statusSegmentedControl.selectedSegmentIndex]
+        updatedTask.employeeID = inputEmployee?.id
+        return updatedTask
+    }
+    
+    private func newTaskFromForm(_ inputProject: Project, _ inputEmployee: Employee?) -> ProjectTask {
+        return ProjectTask(
+            taskName: taskNameTextField.text?.trimmed ?? "",
+            projectID: inputProject.id,
+            workTime: Int(workTimeTextField.text ?? "") ?? 0,
+            startDate: dateFormatter.date(from: startDateTextField.text ?? "") ?? Date(),
+            endDate: dateFormatter.date(from: endDateTextField.text ?? "") ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date(),
+            status: TaskStatus.allCases[statusSegmentedControl.selectedSegmentIndex],
+            employeeID: inputEmployee?.id
+        )
     }
     
     private func loadInitialData() {
@@ -295,28 +304,15 @@ final class EditTaskViewController: BaseFormViewController {
         }
     }
     
-    private func prepareUpdateData(_ task: ProjectTask, _ inputProject: Project, _ inputEmployee: Employee?) -> ProjectTask {
-        var updatedTask = task
-        updatedTask.taskName = taskNameTextField.text?.trimmed ?? ""
-        updatedTask.projectID = inputProject.id
-        updatedTask.workTime = Int(workTimeTextField.text ?? "") ?? 0
-        updatedTask.startDate = dateFormatter.date(from: startDateTextField.text ?? "") ?? Date()
-        updatedTask.endDate = dateFormatter.date(from: endDateTextField.text ?? "") ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()
-        updatedTask.status = TaskStatus.allCases[statusSegmentedControl.selectedSegmentIndex]
-        updatedTask.employeeID = inputEmployee?.id
-        return updatedTask
-    }
-    
-    private func prepareCreateData(_ inputProject: Project, _ inputEmployee: Employee?) -> ProjectTask {
-        return ProjectTask(
-            taskName: taskNameTextField.text?.trimmed ?? "",
-            projectID: inputProject.id,
-            workTime: Int(workTimeTextField.text ?? "") ?? 0,
-            startDate: dateFormatter.date(from: startDateTextField.text ?? "") ?? Date(),
-            endDate: dateFormatter.date(from: endDateTextField.text ?? "") ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date(),
-            status: TaskStatus.allCases[statusSegmentedControl.selectedSegmentIndex],
-            employeeID: inputEmployee?.id
-        )
+    private func fetchSavedTask(_ inputProject: Project, _ inputEmployee: Employee?) async throws -> ProjectTask {
+        if let task {
+            let updatedTask = updatedTask(task, inputProject, inputEmployee)
+            return try await server.updateTask(updatedTask)
+        } else {
+            let createdTask = newTaskFromForm(inputProject, inputEmployee)
+            return try await server.createTask(createdTask)
+            
+        }
     }
     
     private func handleSuccess(savedTask: ProjectTask) {
@@ -329,15 +325,19 @@ final class EditTaskViewController: BaseFormViewController {
         self.navigationController?.popViewController(animated: true)
     }
     
-    private func performSave(_ inputProject: Project, _ inputEmployee: Employee?) async throws -> ProjectTask {
-        if let task {
-            let updatedTask = prepareUpdateData(task, inputProject, inputEmployee)
-            return try await server.updateTask(updatedTask)
-        } else {
-            let createdTask = prepareCreateData(inputProject, inputEmployee)
-            return try await server.createTask(createdTask)
-            
+    private func validateDates() -> Bool{
+        guard let startDate = dateFormatter.date(from: startDateTextField.text ?? ""),
+              let endDate = dateFormatter.date(from: endDateTextField.text ?? "")
+        else {
+            showAlert(Localized.invalidDate)
+            return false
         }
+        
+        guard endDate >= startDate else {
+            showAlert(Localized.dateEndBeforeStart)
+            return false
+        }
+        return true
     }
     
     override func isFieldsChanged() -> Bool {
@@ -378,7 +378,7 @@ final class EditTaskViewController: BaseFormViewController {
         
         Task {
             do {
-                let savedTask = try await performSave(selectedProject, selectedEmployee)
+                let savedTask = try await fetchSavedTask(selectedProject, selectedEmployee)
                 DispatchQueue.main.async {
                     self.handleSuccess(savedTask: savedTask)
                 }

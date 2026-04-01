@@ -15,16 +15,6 @@ final class SplashViewController: UIViewController {
         setupConstraints()
     }
     
-    private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            nameLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
-            nameLabel.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor, constant: -5),
-            
-            versionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 5),
-            versionLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor)
-        ])
-    }
-    
     private func setupLabels() {
         nameLabel.text = "TrainingApp"
         if let version = loadVersion()?.replacingOccurrences(of: "version=", with: "") {
@@ -34,6 +24,16 @@ final class SplashViewController: UIViewController {
         versionLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(nameLabel)
         view.addSubview(versionLabel)
+    }
+    
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            nameLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+            nameLabel.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor, constant: -5),
+            
+            versionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 5),
+            versionLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor)
+        ])
     }
     
     private func loadVersion() -> String? {

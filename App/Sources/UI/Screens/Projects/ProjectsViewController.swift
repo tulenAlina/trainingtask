@@ -10,7 +10,6 @@ extension ProjectsViewControllerDelegate {
 }
 
 final class ProjectsViewController: BaseViewController {
-    
     enum Mode {
         case normal
         case selection(completion: (Project) -> Void)
@@ -38,7 +37,7 @@ final class ProjectsViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        refreshView()
+        refreshData()
     }
     
     private func setupUI() {
@@ -51,7 +50,7 @@ final class ProjectsViewController: BaseViewController {
     
     private func setupTableView() {
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        refreshControl.addTarget(self, action: #selector(refreshView), for: .valueChanged)
+        refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
         tableView.dataSource = self
         tableView.delegate = self
         tableView.refreshControl = refreshControl
@@ -71,7 +70,7 @@ final class ProjectsViewController: BaseViewController {
     private func setupNavigationBar() {
         switch mode {
         case .normal:
-            addRightBarButton(systemItem: .add, action: #selector(addTapped))
+            addRightBarButton(systemItem: .add, action: #selector(addProject))
         case .selection:
             break
         }
@@ -98,7 +97,7 @@ final class ProjectsViewController: BaseViewController {
         Task {
             do {
                 try await self.server.deleteProject(project.id)
-                self.refreshView()
+                self.refreshData()
             } catch {
                 await MainActor.run {
                     self.stopLoading()
@@ -108,7 +107,7 @@ final class ProjectsViewController: BaseViewController {
         }
     }
     
-    @objc private func refreshView() {
+    @objc private func refreshData() {
         Task {
             do {
                 try await loadProjects()
@@ -124,7 +123,7 @@ final class ProjectsViewController: BaseViewController {
         }
     }
     
-    @objc private func addTapped() {
+    @objc private func addProject() {
         let editViewController = EditProjectViewController(server: server)
         editViewController.delegate = self
         navigationController?.pushViewController(editViewController, animated: true)

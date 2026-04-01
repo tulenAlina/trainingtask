@@ -9,13 +9,14 @@ final class TaskDetailViewController: BaseViewController {
     weak var delegate: TasksViewControllerDelegate?
     weak var deleteDelegate: TaskDetailViewControllerDelegate?
     
+    private let server: Server
+    private let settings: SettingsManager
     private let indexPath: IndexPath
     private var task: ProjectTask
     private var project: Project?
     private var employee: Employee?
-    private let server: Server
-    private let settings: SettingsManager
     private let isContextProject: Bool
+    private let dateFormatter = DateHelper.self
     
     private var projectTitleLabel = UILabel()
     private var workTimeTitleLabel = UILabel()
@@ -32,7 +33,6 @@ final class TaskDetailViewController: BaseViewController {
     private var statusLabel = UILabel()
     private var deleteButton = UIButton()
     
-    private let dateFormatter = DateHelper.self
     
     private let timeCard: UIView = {
         let view = UIView()
@@ -72,38 +72,7 @@ final class TaskDetailViewController: BaseViewController {
         setupButtons()
         setupTimeCard()
         setupConstraints()
-        addRightBarButton(title: Localized.edit, action: #selector(changeTapped))
-    }
-    
-    private func updateLabels() {
-        taskNameLabel.text = task.taskName
-        projectLabel.text = project?.projectName ?? Localized.unknownProjectLabel
-        workTimeLabel.text = "\(task.workTime)"
-        startDateLabel.text =  dateFormatter.string(from: task.startDate)
-        endDateLabel.text = dateFormatter.string(from: task.endDate)
-        employeeLabel.text = employee?.fullName ?? Localized.notAssignedLabel
-        statusLabel.text = task.status.rawValue.localized
-        
-        switch statusLabel.text {
-        case TaskStatus.notStarted.rawValue.localized:
-            statusLabel.textColor = .red
-            statusLabel.layer.borderColor = UIColor.red.cgColor
-            statusLabel.backgroundColor = UIColor.systemRed.withAlphaComponent(0.1)
-        case TaskStatus.inProgress.rawValue.localized:
-            statusLabel.textColor = .blue
-            statusLabel.layer.borderColor = UIColor.blue.cgColor
-            statusLabel.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.1)
-        case TaskStatus.completed.rawValue.localized:
-            statusLabel.textColor = .green
-            statusLabel.layer.borderColor = UIColor.green.cgColor
-            statusLabel.backgroundColor = UIColor.systemGreen.withAlphaComponent(0.1)
-        case TaskStatus.postponed.rawValue.localized:
-            statusLabel.textColor = .orange
-            statusLabel.layer.borderColor = UIColor.orange.cgColor
-            statusLabel.backgroundColor = UIColor.systemOrange.withAlphaComponent(0.1)
-        default:
-            break
-        }
+        addRightBarButton(title: Localized.edit, action: #selector(changeTask))
     }
     
     private func setupLabels() {
@@ -164,7 +133,7 @@ final class TaskDetailViewController: BaseViewController {
         deleteButton.layer.borderColor = UIColor.red.cgColor
         deleteButton.layer.cornerRadius = 12
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
-        deleteButton.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
+        deleteButton.addTarget(self, action: #selector(deleteTask), for: .touchUpInside)
         
         view.addSubview(deleteButton)
     }
@@ -227,6 +196,37 @@ final class TaskDetailViewController: BaseViewController {
         ])
     }
     
+    private func updateLabels() {
+        taskNameLabel.text = task.taskName
+        projectLabel.text = project?.projectName ?? Localized.unknownProjectLabel
+        workTimeLabel.text = "\(task.workTime)"
+        startDateLabel.text =  dateFormatter.string(from: task.startDate)
+        endDateLabel.text = dateFormatter.string(from: task.endDate)
+        employeeLabel.text = employee?.fullName ?? Localized.notAssignedLabel
+        statusLabel.text = task.status.rawValue.localized
+        
+        switch statusLabel.text {
+        case TaskStatus.notStarted.rawValue.localized:
+            statusLabel.textColor = .red
+            statusLabel.layer.borderColor = UIColor.red.cgColor
+            statusLabel.backgroundColor = UIColor.systemRed.withAlphaComponent(0.1)
+        case TaskStatus.inProgress.rawValue.localized:
+            statusLabel.textColor = .blue
+            statusLabel.layer.borderColor = UIColor.blue.cgColor
+            statusLabel.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.1)
+        case TaskStatus.completed.rawValue.localized:
+            statusLabel.textColor = .green
+            statusLabel.layer.borderColor = UIColor.green.cgColor
+            statusLabel.backgroundColor = UIColor.systemGreen.withAlphaComponent(0.1)
+        case TaskStatus.postponed.rawValue.localized:
+            statusLabel.textColor = .orange
+            statusLabel.layer.borderColor = UIColor.orange.cgColor
+            statusLabel.backgroundColor = UIColor.systemOrange.withAlphaComponent(0.1)
+        default:
+            break
+        }
+    }
+    
     private func loadRelatedData() async {
         do {
             async let projects = server.fetchProjects()
@@ -247,12 +247,12 @@ final class TaskDetailViewController: BaseViewController {
         }
     }
     
-    @objc private func deleteTapped() {
+    @objc private func deleteTask() {
         deleteDelegate?.didDeleteTask(task, at: indexPath)
         navigationController?.popViewController(animated: true)
     }
     
-    @objc private func changeTapped() {
+    @objc private func changeTask() {
         if let project {
             let editViewController = isContextProject ? EditTaskViewController(task: task, project: project, server: server, settings: settings) : EditTaskViewController(task: task, server: server, settings: settings)
             editViewController.delegate = self

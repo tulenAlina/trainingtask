@@ -9,9 +9,10 @@ final class EmployeeDetailViewController: BaseViewController {
     weak var delegate: EmployeesViewControllerDelegate?
     weak var deleteDelegate: EmployeeDetailViewControllerDelegate?
     
-    private let indexPath: IndexPath
     private let server: Server
+    private let indexPath: IndexPath
     private var employee: Employee
+    
     private var nameLabel = UILabel()
     private var positionLabel = UILabel()
     private var positionTitleLabel = UILabel()
@@ -38,12 +39,7 @@ final class EmployeeDetailViewController: BaseViewController {
         setupLabels()
         setupButtons()
         setupConstraints()
-        addRightBarButton(title: Localized.edit, action: #selector(changeTapped))
-    }
-    
-    private func updateLabels() {
-        nameLabel.text = employee.fullName
-        positionLabel.text = employee.position
+        addRightBarButton(title: Localized.edit, action: #selector(changeEmployee))
     }
     
     private func setupLabels() {
@@ -74,7 +70,7 @@ final class EmployeeDetailViewController: BaseViewController {
         deleteButton.layer.borderColor = UIColor.red.cgColor
         deleteButton.layer.cornerRadius = 12
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
-        deleteButton.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
+        deleteButton.addTarget(self, action: #selector(deleteEmployee), for: .touchUpInside)
         
         view.addSubview(deleteButton)
     }
@@ -99,13 +95,18 @@ final class EmployeeDetailViewController: BaseViewController {
         ])
     }
     
-    @objc private func changeTapped() {
+    private func updateLabels() {
+        nameLabel.text = employee.fullName
+        positionLabel.text = employee.position
+    }
+    
+    @objc private func changeEmployee() {
         let editViewController = EditEmployeeViewController(employee: employee, server: server)
         editViewController.delegate = self
         navigationController?.pushViewController(editViewController, animated: true)
     }
     
-    @objc private func deleteTapped() {
+    @objc private func deleteEmployee() {
         deleteDelegate?.didDeleteEmployee(employee, at: indexPath)
         navigationController?.popViewController(animated: true)
     }

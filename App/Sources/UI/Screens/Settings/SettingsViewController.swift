@@ -3,13 +3,13 @@ import UIKit
 final class SettingsViewController: BaseFormViewController {
     private let settings: SettingsManager
     
-    private var serverUrlTextField = UIFactory.createTextField(placeholder: Localized.serverUrlPlaceholder)
-    private var maxRecordsTextField = UIFactory.createTextField(placeholder: Localized.maxRecordsPlaceholder)
-    private var defaultDaysBetweenTextField = UIFactory.createTextField(placeholder: Localized.defaultDaysBetweenPlaceholder)
-    
     private let serverUrlLabel = UIFactory.createLabel(text: Localized.serverUrlLabel)
     private let maxRecordsLabel = UIFactory.createLabel(text: Localized.maxRecordsLabel)
     private let defaultDaysBetweenLabel = UIFactory.createLabel(text: Localized.defaultDaysBetweenLabel)
+    
+    private var serverUrlTextField = UIFactory.createTextField(placeholder: Localized.serverUrlPlaceholder)
+    private var maxRecordsTextField = UIFactory.createTextField(placeholder: Localized.maxRecordsPlaceholder)
+    private var defaultDaysBetweenTextField = UIFactory.createTextField(placeholder: Localized.defaultDaysBetweenPlaceholder)
     
     init(settings: SettingsManager) {
         self.settings = settings
@@ -22,8 +22,8 @@ final class SettingsViewController: BaseFormViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
         setupRequiredFields()
+        setupUI()
     }
     
     private func setupRequiredFields() {
