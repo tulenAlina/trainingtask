@@ -91,6 +91,7 @@
 "select_project" = "Select a project";
 "select_employee" = "Select an employee";
 "date_end_before_start" = "End date must be after start date";
+"empty_fields" = "Please, fill in all required fields";
 
 // Splash
 "version_prefix" = "Version";

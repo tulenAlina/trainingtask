@@ -1,6 +1,6 @@
 import UIKit
 
-final class EditProjectViewController: BaseViewController {
+final class EditProjectViewController: BaseFormViewController {
     weak var delegate: ProjectsViewControllerDelegate?
     
     private let server: Server
@@ -25,6 +25,11 @@ final class EditProjectViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        setupRequiredFields()
+    }
+    
+    private func setupRequiredFields() {
+        requiredFields = [nameTextField, descriptionTextField]
     }
     
     private func setupUI() {
@@ -39,8 +44,8 @@ final class EditProjectViewController: BaseViewController {
             nameTextField.text = "\(project.projectName)"
             descriptionTextField.text = "\(project.description)"
         }
-        nameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        descriptionTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        nameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        descriptionTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         
         nameTextField.delegate = self
         descriptionTextField.delegate = self
@@ -106,7 +111,20 @@ final class EditProjectViewController: BaseViewController {
         }
     }
     
+    override func isFieldsChanged() -> Bool {
+        guard let project = project else { return true }
+        let nameChanged = (nameTextField.text?.trimmed ?? "") != project.projectName.trimmed
+        let descriptionChanged = (descriptionTextField.text?.trimmed ?? "") != project.description.trimmed
+        return nameChanged || descriptionChanged
+    }
+    
     @objc private func saveProject() {
+        guard validateFields() else { return }
+        guard isFieldsChanged() else {
+            navigationController?.popViewController(animated: true)
+            return
+        }
+        
         startLoading()
         Task {
             do {
@@ -122,30 +140,11 @@ final class EditProjectViewController: BaseViewController {
             }
         }
     }
-    
-    @objc private func updateSaveButtonState() {
-        saveButton?.isEnabled = isFormValid
-    }
 }
 
 extension EditProjectViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
-    }
-}
-
-extension EditProjectViewController: FormValidatable {
-    var isFieldsChanged: Bool {
-        guard let project = project else { return true }
-            let nameChanged = (nameTextField.text?.trimmed ?? "") != project.projectName.trimmed
-            let descriptionChanged = (descriptionTextField.text?.trimmed ?? "") != project.description.trimmed
-            return nameChanged || descriptionChanged
-    }
-    
-    var isFormFilled: Bool {
-        let isNameFilled = !(nameTextField.text?.trimmed.isBlank ?? true)
-        let isDescriptionFilled = !(descriptionTextField.text?.trimmed.isBlank ?? true)
-        return isNameFilled && isDescriptionFilled
     }
 }

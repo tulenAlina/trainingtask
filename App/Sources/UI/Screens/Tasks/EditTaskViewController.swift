@@ -1,9 +1,11 @@
 import UIKit
 
-final class EditTaskViewController: BaseViewController {
+final class EditTaskViewController: BaseFormViewController {
     
     weak var delegate: TasksViewControllerDelegate?
     
+    private let server: Server
+    private let settings: SettingsManager
     private let dateFormatter = DateHelper.self
     private var task: ProjectTask?
     private var contextProject: Project?
@@ -76,11 +78,16 @@ final class EditTaskViewController: BaseViewController {
         super.viewDidLoad()
         setupNavigationTitle((task != nil) ? Localized.editTask : Localized.addTask)
         loadInitialData()
+        setupRequiredFields()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         view.endEditing(true)
+    }
+    
+    private func setupRequiredFields() {
+        requiredFields = [taskNameTextField, projectTextField, workTimeTextField]
     }
     
     private func setupUI() {
@@ -90,7 +97,6 @@ final class EditTaskViewController: BaseViewController {
         setupConstraints()
         setupToolbar()
         addSaveButton(action: #selector(saveTask))
-        setupTapGesture()
     }
         
     private func setupTextFieldsAndLabels() {
@@ -131,16 +137,11 @@ final class EditTaskViewController: BaseViewController {
         taskNameTextField.delegate = self
         projectTextField.delegate = self
         workTimeTextField.delegate = self
-        startDateTextField.delegate = self
-        endDateTextField.delegate = self
         employeeTextField.delegate = self
         
-        taskNameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        projectTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        workTimeTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        startDateTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        endDateTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        employeeTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        taskNameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        projectTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        workTimeTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         
         view.addSubview(taskNameTextField)
         view.addSubview(taskNameLabel)
@@ -169,7 +170,6 @@ final class EditTaskViewController: BaseViewController {
         } else {
             statusSegmentedControl.selectedSegmentIndex = 0
         }
-        statusSegmentedControl.addTarget(self, action: #selector(updateSaveButtonState), for: .valueChanged)
         
         view.addSubview(statusSegmentedControl)
     }
@@ -226,6 +226,7 @@ final class EditTaskViewController: BaseViewController {
             
             clearEmployeeButton.topAnchor.constraint(equalTo: employeeLabel.bottomAnchor, constant: 5),
             clearEmployeeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            clearEmployeeButton.widthAnchor.constraint(equalToConstant: 70),
             
             statusLabel.topAnchor.constraint(equalTo: employeeTextField.bottomAnchor, constant: 10),
             statusLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -245,12 +246,6 @@ final class EditTaskViewController: BaseViewController {
         let cancelButton = UIBarButtonItem(title: "Отмена", style: .plain, target: self, action: #selector(dismissObjects))
     
         toolbar.setItems([cancelButton, flexibleSpace, doneButton], animated: false)
-    }
-    
-    private func setupTapGesture() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissObjects))
-        tapGesture.cancelsTouchesInView = false
-        view.addGestureRecognizer(tapGesture)
     }
     
     private func validateDates() -> Bool{
@@ -275,7 +270,6 @@ final class EditTaskViewController: BaseViewController {
             await MainActor.run {
                 setupUI()
                 stopLoading()
-                updateSaveButtonState()
             }
         }
     }
@@ -346,7 +340,35 @@ final class EditTaskViewController: BaseViewController {
         }
     }
     
+    override func isFieldsChanged() -> Bool {
+        guard let task = task else { return true }
+        
+        var projectName: String = ""
+        if let prj = projects.first(where: {$0.id == task.projectID}) {
+            projectName = prj.projectName
+        }
+        
+        var empFio: String = ""
+        if let emp = employees.first(where: {$0.id == task.employeeID}) {
+            empFio = emp.fullName
+        }
+        
+        let taskNameChanged = taskNameTextField.text?.trimmed ?? "" != task.taskName.trimmed
+        let projectChanged = projectTextField.text?.trimmed ?? "" != projectName
+        let workTimeChanged = Int(workTimeTextField.text?.trimmed ?? "") ?? 0 != task.workTime
+        let startDateChanged = startDateTextField.text?.trimmed ?? "" != dateFormatter.string(from: task.startDate)
+        let endDateChanged = endDateTextField.text?.trimmed ?? "" != dateFormatter.string(from: task.endDate)
+        let employeeChanged = employeeTextField.text?.trimmed ?? "" != empFio
+        let statusChanged = statusSegmentedControl.selectedSegmentIndex != TaskStatus.allCases.firstIndex { $0 == task.status } ?? 0
+        return taskNameChanged || projectChanged || workTimeChanged || startDateChanged || endDateChanged || employeeChanged || statusChanged
+    }
+    
     @objc private func saveTask() {
+        guard validateFields() else { return }
+        guard isFieldsChanged() else {
+            navigationController?.popViewController(animated: true)
+            return
+        }
         guard let selectedProject = selectedProject else {
             showAlert(Localized.selectProject)
             return
@@ -378,23 +400,16 @@ final class EditTaskViewController: BaseViewController {
             endDateTextField.text = dateString
         }
         
-        updateSaveButtonState()
         dismissObjects()
-    }
-    
-    @objc private func dismissObjects() {
-        view.endEditing(true)
-    }
-    
-    @objc private func updateSaveButtonState() {
-        saveButton?.isEnabled = isFormValid
     }
     
     @objc private func selectProjectTapped() {
         let projectsViewController = ProjectsViewController(mode: .selection {[weak self] selectedProject in
-            self?.selectedProject = selectedProject
-            self?.projectTextField.text = selectedProject.projectName
-            self?.updateSaveButtonState()
+            if let self {
+                self.selectedProject = selectedProject
+                self.projectTextField.text = selectedProject.projectName
+                self.textFieldDidChange(sender: self.projectTextField)
+            }
         }, server: server, settings: settings)
         navigationController?.pushViewController(projectsViewController, animated: true)
     }
@@ -403,7 +418,6 @@ final class EditTaskViewController: BaseViewController {
         let employeesViewController = EmployeesViewController(mode: .selection {[weak self] selectedEmployee in
             self?.selectedEmployee = selectedEmployee
             self?.employeeTextField.text = selectedEmployee.fullName
-            self?.updateSaveButtonState()
         }, server: server, settings: settings)
         navigationController?.pushViewController(employeesViewController, animated: true)
     }
@@ -411,7 +425,6 @@ final class EditTaskViewController: BaseViewController {
     @objc private func clearEmployeeTapped() {
         selectedEmployee = nil
         employeeTextField.text = nil
-        updateSaveButtonState()
     }
 }
 
@@ -430,6 +443,10 @@ extension EditTaskViewController: UITextFieldDelegate {
         case projectTextField:
             return false
         case employeeTextField:
+            return false
+        case startDateTextField:
+            return false
+        case endDateTextField:
             return false
         default:
             return true
@@ -453,39 +470,5 @@ extension EditTaskViewController: UITextFieldDelegate {
         default:
             break
         }
-    }
-}
-
-extension EditTaskViewController: FormValidatable {
-    var isFieldsChanged: Bool {
-        guard let task = task else { return true }
-        
-        var projectName: String = ""
-        if let prj = projects.first(where: {$0.id == task.projectID}) {
-            projectName = prj.projectName
-        }
-        
-        var empFio: String = ""
-        if let emp = employees.first(where: {$0.id == task.employeeID}) {
-            empFio = emp.fullName
-        }
-        
-        let taskNameChanged = taskNameTextField.text?.trimmed ?? "" != task.taskName.trimmed
-        let projectChanged = projectTextField.text?.trimmed ?? "" != projectName
-        let workTimeChanged = Int(workTimeTextField.text?.trimmed ?? "") ?? 0 != task.workTime
-        let startDateChanged = startDateTextField.text?.trimmed ?? "" != dateFormatter.string(from: task.startDate)
-        let endDateChanged = endDateTextField.text?.trimmed ?? "" != dateFormatter.string(from: task.endDate)
-        let employeeChanged = employeeTextField.text?.trimmed ?? "" != empFio
-        let statusChanged = statusSegmentedControl.selectedSegmentIndex != TaskStatus.allCases.firstIndex { $0 == task.status } ?? 0
-        return taskNameChanged || projectChanged || workTimeChanged || startDateChanged || endDateChanged || employeeChanged || statusChanged
-    }
-                                                                                   
-    var isFormFilled: Bool {
-        let isTaskNameFilled = !(taskNameTextField.text?.trimmed.isBlank ?? true)
-        let isProjectFilled = !(projectTextField.text?.trimmed.isBlank ?? true)
-        let isWorkTimeFilled = !(workTimeTextField.text?.trimmed.isBlank ?? true)
-        let isStartDateFilled = !(startDateTextField.text?.trimmed.isBlank ?? true)
-        let isEndDateFilled = !(endDateTextField.text?.trimmed.isBlank ?? true)
-        return isTaskNameFilled && isProjectFilled && isWorkTimeFilled && isStartDateFilled && isEndDateFilled
     }
 }

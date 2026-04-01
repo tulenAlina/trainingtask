@@ -94,6 +94,7 @@ enum Localized {
     static let fillAllFields = "fill_all_fields".localized
     static let dateEndBeforeStart = "date_end_before_start".localized
     static let maxRecordsReached = "max_records_reached".localized
+    static let emptyFields = "empty_fields".localized
 
     static let deleteProject = "delete_project_confirmation".localized
     static let deleteTask = "delete_task_confirmation".localized

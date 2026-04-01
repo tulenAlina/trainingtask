@@ -1,6 +1,6 @@
 import UIKit
 
-final class SettingsViewController: BaseViewController {
+final class SettingsViewController: BaseFormViewController {
     private let settings: SettingsManager
     
     private var serverUrlTextField = UIFactory.createTextField(placeholder: Localized.serverUrlPlaceholder)
@@ -23,6 +23,11 @@ final class SettingsViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        setupRequiredFields()
+    }
+    
+    private func setupRequiredFields() {
+        requiredFields = [serverUrlTextField, maxRecordsTextField, defaultDaysBetweenTextField]
     }
     
     private func setupUI() {
@@ -30,7 +35,6 @@ final class SettingsViewController: BaseViewController {
         setupTextFields()
         setupLabels()
         setupConstraints()
-        setupTapGesture()
         addSaveButton(action: #selector(saveSettings))
     }
     
@@ -38,19 +42,19 @@ final class SettingsViewController: BaseViewController {
         serverUrlTextField.keyboardType = .URL
         serverUrlTextField.delegate = self
         serverUrlTextField.translatesAutoresizingMaskIntoConstraints = false
-        serverUrlTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        serverUrlTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         view.addSubview(serverUrlTextField)
         
         maxRecordsTextField.keyboardType = .numberPad
         maxRecordsTextField.delegate = self
         maxRecordsTextField.translatesAutoresizingMaskIntoConstraints = false
-        maxRecordsTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        maxRecordsTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         view.addSubview(maxRecordsTextField)
         
         defaultDaysBetweenTextField.keyboardType = .numberPad
         defaultDaysBetweenTextField.delegate = self
         defaultDaysBetweenTextField.translatesAutoresizingMaskIntoConstraints = false
-        defaultDaysBetweenTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        defaultDaysBetweenTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         view.addSubview(defaultDaysBetweenTextField)
         
         loadCurrentSettings()
@@ -90,31 +94,31 @@ final class SettingsViewController: BaseViewController {
         ])
     }
     
-    private func setupTapGesture() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        tapGesture.cancelsTouchesInView = false
-        view.addGestureRecognizer(tapGesture)
-    }
-    
     private func loadCurrentSettings() {
         serverUrlTextField.text = settings.serverURL
         maxRecordsTextField.text = String(settings.maxRecords)
         defaultDaysBetweenTextField.text = String(settings.defaultDaysBetween)
     }
     
+    override func isFieldsChanged() -> Bool {
+        let urlChanged = serverUrlTextField.text?.trimmed ?? "" != settings.serverURL
+        let maxRecordsChanged = maxRecordsTextField.text?.trimmed ?? "" != String(settings.maxRecords)
+        let defaultDaysBetweenChanged = defaultDaysBetweenTextField.text?.trimmed ?? "" != String(settings.defaultDaysBetween)
+        
+        return urlChanged || maxRecordsChanged || defaultDaysBetweenChanged
+    }
+    
     @objc private func saveSettings() {
+        guard validateFields() else { return }
+        guard isFieldsChanged() else {
+            navigationController?.popViewController(animated: true)
+            return
+        }
+        
         settings.serverURL = serverUrlTextField.text?.trimmed ?? ""
         settings.maxRecords = Int(maxRecordsTextField.text ?? "") ?? 0
         settings.defaultDaysBetween = Int(defaultDaysBetweenTextField.text ?? "") ?? 0
         self.navigationController?.popViewController(animated: true)
-    }
-    
-    @objc private func dismissKeyboard() {
-        view.endEditing(true)
-    }
-    
-    @objc private func updateSaveButtonState() {
-        saveButton?.isEnabled = isFormValid
     }
 }
 
@@ -131,22 +135,5 @@ extension SettingsViewController: UITextFieldDelegate {
             return allowedCharacters.isSuperset(of: characterSet)
         }
         return true
-    }
-}
-
-extension SettingsViewController: FormValidatable {
-    var isFieldsChanged: Bool {
-        let urlChanged = serverUrlTextField.text?.trimmed ?? "" != settings.serverURL
-        let maxRecordsChanged = maxRecordsTextField.text?.trimmed ?? "" != String(settings.maxRecords)
-        let defaultDaysBetweenChanged = defaultDaysBetweenTextField.text?.trimmed ?? "" != String(settings.defaultDaysBetween)
-        
-        return urlChanged || maxRecordsChanged || defaultDaysBetweenChanged
-    }
-                                                                                   
-    var isFormFilled: Bool {
-        let isUrlFilled = !(serverUrlTextField.text?.trimmed.isBlank ?? true)
-        let isMaxRecordsFilled = !(maxRecordsTextField.text?.trimmed.isBlank ?? true)
-        let isDefaultDaysBetweenFilled = !(defaultDaysBetweenTextField.text?.trimmed.isBlank ?? true)
-        return isUrlFilled && isMaxRecordsFilled && isDefaultDaysBetweenFilled
     }
 }

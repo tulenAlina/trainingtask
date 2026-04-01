@@ -1,6 +1,6 @@
 import UIKit
 
-final class EditEmployeeViewController: BaseViewController {
+final class EditEmployeeViewController: BaseFormViewController {
     
     weak var delegate: EmployeesViewControllerDelegate?
     
@@ -30,6 +30,11 @@ final class EditEmployeeViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        setupRequiredFields()
+    }
+    
+    private func setupRequiredFields() {
+        requiredFields = [firstNameTextField, lastNameTextField, positionTextField]
     }
     
     private func setupUI() {
@@ -48,10 +53,9 @@ final class EditEmployeeViewController: BaseViewController {
             positionTextField.text = "\(employee.position)"
         }
         
-        firstNameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        lastNameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        surNameTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
-        positionTextField.addTarget(self, action: #selector(updateSaveButtonState), for: .editingChanged)
+        firstNameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        lastNameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        positionTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         
         firstNameTextField.delegate = self
         lastNameTextField.delegate = self
@@ -143,7 +147,24 @@ final class EditEmployeeViewController: BaseViewController {
         }
     }
     
+    override func isFieldsChanged() -> Bool {
+        guard let employee = employee else { return true }
+        
+        let firstNameChanged = firstNameTextField.text?.trimmed ?? "" != employee.firstName.trimmed
+        let lastNameChanged = lastNameTextField.text?.trimmed ?? "" != employee.lastName.trimmed
+        let surNameChanged = surNameTextField.text?.trimmed ?? "" != employee.surName?.trimmed ?? ""
+        let positionChanged = positionTextField.text?.trimmed ?? "" != employee.position.trimmed
+        
+        return firstNameChanged || lastNameChanged || surNameChanged || positionChanged
+    }
+    
     @objc private func saveEmployee() {
+        guard validateFields() else { return }
+        guard isFieldsChanged() else {
+            navigationController?.popViewController(animated: true)
+            return
+        }
+        
         startLoading()
         Task {
             do {
@@ -159,35 +180,11 @@ final class EditEmployeeViewController: BaseViewController {
             }
         }
     }
-    
-    @objc private func updateSaveButtonState() {
-        saveButton?.isEnabled = isFormValid
-    }
 }
 
 extension EditEmployeeViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
-    }
-}
-
-extension EditEmployeeViewController: FormValidatable {
-    var isFieldsChanged: Bool {
-        guard let employee = employee else { return true }
-        
-        let firstNameChanged = firstNameTextField.text?.trimmed ?? "" != employee.firstName.trimmed
-        let lastNameChanged = lastNameTextField.text?.trimmed ?? "" != employee.lastName.trimmed
-        let surNameChanged = surNameTextField.text?.trimmed ?? "" != employee.surName?.trimmed ?? ""
-        let positionChanged = positionTextField.text?.trimmed ?? "" != employee.position.trimmed
-        
-        return firstNameChanged || lastNameChanged || surNameChanged || positionChanged
-    }
-                                                                                   
-    var isFormFilled: Bool {
-        let isFirstnameFilled = !(firstNameTextField.text?.trimmed.isBlank ?? true)
-        let isLastnameFilled = !(lastNameTextField.text?.trimmed.isBlank ?? true)
-        let isPositionFilled = !(positionTextField.text?.trimmed.isBlank ?? true)
-        return isFirstnameFilled && isLastnameFilled && isPositionFilled
     }
 }

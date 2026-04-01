@@ -22,6 +22,7 @@ class BaseViewController: UIViewController {
     private func setupBaseUI() {
         view.backgroundColor = .systemBackground
         setupLoadingIndicator()
+        setupTapGesture()
     }
     
     private func setupLoadingIndicator() {
@@ -30,6 +31,12 @@ class BaseViewController: UIViewController {
             loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
+    }
+    
+    private func setupTapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissObjects))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
     }
     
     func startLoading() {
@@ -61,6 +68,9 @@ class BaseViewController: UIViewController {
     func addSaveButton(action: Selector) {
         saveButton = UIBarButtonItem(title: Localized.save, style: .done, target: self, action: action)
         navigationItem.rightBarButtonItem = saveButton
-        saveButton?.isEnabled = false
+    }
+    
+    @objc func dismissObjects() {
+        view.endEditing(true)
     }
 }

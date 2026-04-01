@@ -92,6 +92,7 @@
 "select_project" = "Выберите проект";
 "select_employee" = "Выберите сотрудника";
 "date_end_before_start" = "Дата окончания должна быть позже даты начала";
+"empty_fields" = "Пожалуйста, заполните все обязательные поля";
 
 // Splash
 "version_prefix" = "Версия";
