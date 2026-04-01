@@ -11,8 +11,8 @@ extension EmployeesViewControllerDelegate {
 
 final class EmployeesViewController: BaseViewController {
     
-    enum Mode {
-        case normal
+    enum EmployeesDisplayMode {
+        case list
         case selection(completion: (Employee) -> Void)
     }
     
@@ -20,11 +20,11 @@ final class EmployeesViewController: BaseViewController {
     let tableView = UITableView()
     
     private let server: Server
-    private let mode: Mode
+    private let mode: EmployeesDisplayMode
     private var employees: [Employee] = []
     private let refreshControl = UIRefreshControl()
     
-    init(mode: Mode = .normal, server: Server, settings: SettingsManager) {
+    init(mode: EmployeesDisplayMode = .list, server: Server, settings: SettingsManager) {
         self.mode = mode
         self.server = server
         self.settings = settings
@@ -70,7 +70,7 @@ final class EmployeesViewController: BaseViewController {
     
     private func setupNavigationBar() {
         switch mode {
-        case .normal:
+        case .list:
             addRightBarButton(systemItem: .add, action: #selector(addEmployee))
         case .selection:
             break
@@ -145,7 +145,7 @@ extension EmployeesViewController: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
         let employee = employees[indexPath.row]
         switch mode {
-        case .normal:
+        case .list:
             let detailViewController = EmployeeDetailViewController(indexPath: indexPath, employee: employee, server: server)
             detailViewController.delegate = self
             detailViewController.deleteDelegate = self

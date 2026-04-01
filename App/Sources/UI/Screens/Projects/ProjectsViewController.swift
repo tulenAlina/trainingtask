@@ -10,8 +10,8 @@ extension ProjectsViewControllerDelegate {
 }
 
 final class ProjectsViewController: BaseViewController {
-    enum Mode {
-        case normal
+    enum ProjectsDisplayMode {
+        case list
         case selection(completion: (Project) -> Void)
     }
     
@@ -19,11 +19,11 @@ final class ProjectsViewController: BaseViewController {
     let tableView = UITableView()
     
     private let server: Server
-    private let mode: Mode
+    private let mode: ProjectsDisplayMode
     private var projects: [Project] = []
     private var refreshControl = UIRefreshControl()
     
-    init(mode: Mode = .normal, server: Server, settings: SettingsManager) {
+    init(mode: ProjectsDisplayMode = .list, server: Server, settings: SettingsManager) {
         self.mode = mode
         self.server = server
         self.settings = settings
@@ -69,7 +69,7 @@ final class ProjectsViewController: BaseViewController {
     
     private func setupNavigationBar() {
         switch mode {
-        case .normal:
+        case .list:
             addRightBarButton(systemItem: .add, action: #selector(addProject))
         case .selection:
             break
@@ -149,7 +149,7 @@ extension ProjectsViewController: UITableViewDelegate {
         let project = projects[indexPath.row]
         
         switch mode {
-        case .normal:
+        case .list:
             let detailViewController = ProjectDetailViewController(indexPath: indexPath, project: project, server: server, settings: settings)
             detailViewController.delegate = self
             detailViewController.deleteDelegate = self
