@@ -1,14 +1,10 @@
 import UIKit
 
-final class EditTaskViewController: UIViewController {
+final class EditTaskViewController: BaseViewController {
     
     weak var delegate: TasksViewControllerDelegate?
-    var saveButton = UIBarButtonItem()
     
-    private let server: Server
-    private let settings: SettingsManager
     private let dateFormatter = DateHelper.self
-    private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private var task: ProjectTask?
     private var contextProject: Project?
     private var projects: [Project] = []
@@ -78,9 +74,7 @@ final class EditTaskViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
-        title = (task != nil) ? Localized.editTask : Localized.addTask
-        setupLoadingIndicator()
+        setupNavigationTitle((task != nil) ? Localized.editTask : Localized.addTask)
         loadInitialData()
     }
     
@@ -95,9 +89,8 @@ final class EditTaskViewController: UIViewController {
         setupSegmentedControl()
         setupConstraints()
         setupToolbar()
-        setupNavigationBar()
+        addSaveButton(action: #selector(saveTask))
         setupTapGesture()
-        view.bringSubviewToFront(loadingIndicator)
     }
         
     private func setupTextFieldsAndLabels() {
@@ -254,23 +247,6 @@ final class EditTaskViewController: UIViewController {
         toolbar.setItems([cancelButton, flexibleSpace, doneButton], animated: false)
     }
     
-    private func setupNavigationBar() {
-        saveButton.title = Localized.save
-        saveButton.style = .done
-        saveButton.target = self
-        saveButton.action = #selector(saveTask)
-        navigationItem.rightBarButtonItem = saveButton
-        saveButton.isEnabled = false
-    }
-    
-    private func setupLoadingIndicator() {
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.center = view.center
-        view.addSubview(loadingIndicator)
-        loadingIndicator.startAnimating()
-        view.isUserInteractionEnabled = false
-    }
-    
     private func setupTapGesture() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissObjects))
         tapGesture.cancelsTouchesInView = false
@@ -293,14 +269,12 @@ final class EditTaskViewController: UIViewController {
     }
     
     private func loadInitialData() {
-        loadingIndicator.startAnimating()
-        view.isUserInteractionEnabled = false
+        startLoading()
         Task {
             await loadData()
             await MainActor.run {
                 setupUI()
-                loadingIndicator.stopAnimating()
-                view.isUserInteractionEnabled = true
+                stopLoading()
                 updateSaveButtonState()
             }
         }
@@ -316,27 +290,15 @@ final class EditTaskViewController: UIViewController {
             self.projects = projects
             self.employees = employees
             
-            DispatchQueue.main.async {
-                self.view.isUserInteractionEnabled = true
+            await MainActor.run {
+                view.isUserInteractionEnabled = true
             }
         } catch {
-            DispatchQueue.main.async {
-                self.view.isUserInteractionEnabled = true
+            await MainActor.run {
+                view.isUserInteractionEnabled = true
             }
             self.showAlert(Localized.loadFailed)
         }
-    }
-    
-    private func startLoading() {
-        loadingIndicator.startAnimating()
-        view.isUserInteractionEnabled = false
-        saveButton.isEnabled = false
-    }
-    
-    private func stopLoading() {
-        loadingIndicator.stopAnimating()
-        view.isUserInteractionEnabled = true
-        saveButton.isEnabled = true
     }
     
     private func prepareUpdateData(_ task: ProjectTask, _ inputProject: Project, _ inputEmployee: Employee?) -> ProjectTask {
@@ -425,7 +387,7 @@ final class EditTaskViewController: UIViewController {
     }
     
     @objc private func updateSaveButtonState() {
-        saveButton.isEnabled = isFormValid
+        saveButton?.isEnabled = isFormValid
     }
     
     @objc private func selectProjectTapped() {

@@ -1,8 +1,7 @@
 import UIKit
 
-final class EditProjectViewController: UIViewController {
+final class EditProjectViewController: BaseViewController {
     weak var delegate: ProjectsViewControllerDelegate?
-    var saveButton = UIBarButtonItem()
     
     private let server: Server
     private var project: Project?
@@ -12,8 +11,6 @@ final class EditProjectViewController: UIViewController {
     
     private let nameLabel = UIFactory.createLabel(text: Localized.nameLabel)
     private let descriptionLabel = UIFactory.createLabel(text: Localized.descriptionLabel)
-    
-    private var loadingIndicator = UIActivityIndicatorView(style: .large)
     
     init(project: Project? = nil, server: Server) {
         self.project = project
@@ -31,12 +28,10 @@ final class EditProjectViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
-        title = (project != nil) ? Localized.editProject : Localized.addProject
+        setupNavigationTitle((project != nil) ? Localized.editProject : Localized.addProject)
         setupTextFieldsAndLabels()
         setupConstraints()
-        setupNavigationBar()
-        setupLoadingIndicator()
+        addSaveButton(action: #selector(saveProject))
     }
     
     private func setupTextFieldsAndLabels() {
@@ -75,34 +70,7 @@ final class EditProjectViewController: UIViewController {
             descriptionTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
     }
-    
-    private func setupNavigationBar() {
-        saveButton.title = Localized.save
-        saveButton.style = .done
-        saveButton.target = self
-        saveButton.action = #selector(saveProject)
-        navigationItem.rightBarButtonItem = saveButton
-        saveButton.isEnabled = false
-    }
-    
-    private func setupLoadingIndicator() {
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.center = view.center
-        view.addSubview(loadingIndicator)
-    }
-    
-    private func startLoading() {
-        loadingIndicator.startAnimating()
-        view.isUserInteractionEnabled = false
-        saveButton.isEnabled = false
-    }
-    
-    private func stopLoading() {
-        loadingIndicator.stopAnimating()
-        view.isUserInteractionEnabled = true
-        saveButton.isEnabled = true
-    }
-    
+
     private func prepareUpdateData(_ project: Project) -> Project {
         var updatedProject = project
         updatedProject.projectName = nameTextField.text?.trimmed ?? ""
@@ -156,7 +124,7 @@ final class EditProjectViewController: UIViewController {
     }
     
     @objc private func updateSaveButtonState() {
-        saveButton.isEnabled = isFormValid
+        saveButton?.isEnabled = isFormValid
     }
 }
 

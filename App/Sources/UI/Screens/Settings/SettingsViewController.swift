@@ -1,9 +1,6 @@
 import UIKit
 
-final class SettingsViewController: UIViewController {
-    
-    var saveButton = UIBarButtonItem()
-    
+final class SettingsViewController: BaseViewController {
     private let settings: SettingsManager
     
     private var serverUrlTextField = UIFactory.createTextField(placeholder: Localized.serverUrlPlaceholder)
@@ -29,13 +26,12 @@ final class SettingsViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
-        title = Localized.settings
+        setupNavigationTitle(Localized.settings)
         setupTextFields()
         setupLabels()
         setupConstraints()
         setupTapGesture()
-        setupNavigationBar()
+        addSaveButton(action: #selector(saveSettings))
     }
     
     private func setupTextFields() {
@@ -94,15 +90,6 @@ final class SettingsViewController: UIViewController {
         ])
     }
     
-    private func setupNavigationBar() {
-        saveButton.title = Localized.save
-        saveButton.style = .done
-        saveButton.target = self
-        saveButton.action = #selector(saveSettings)
-        navigationItem.rightBarButtonItem = saveButton
-        saveButton.isEnabled = false
-    }
-    
     private func setupTapGesture() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
@@ -127,7 +114,7 @@ final class SettingsViewController: UIViewController {
     }
     
     @objc private func updateSaveButtonState() {
-        saveButton.isEnabled = isFormValid
+        saveButton?.isEnabled = isFormValid
     }
 }
 

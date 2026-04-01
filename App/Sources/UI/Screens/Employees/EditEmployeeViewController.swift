@@ -1,9 +1,8 @@
 import UIKit
 
-final class EditEmployeeViewController: UIViewController {
+final class EditEmployeeViewController: BaseViewController {
     
     weak var delegate: EmployeesViewControllerDelegate?
-    var saveButton = UIBarButtonItem()
     
     private let server: Server
     private var employee: Employee?
@@ -17,8 +16,6 @@ final class EditEmployeeViewController: UIViewController {
     private let lastNameLabel = UIFactory.createLabel(text: Localized.lastNameLabel)
     private let surNameLabel = UIFactory.createLabel(text: Localized.surnameLabel)
     private let positionLabel = UIFactory.createLabel(text: Localized.positionLabel)
-    
-    private let loadingIndicator = UIActivityIndicatorView(style: .large)
     
     init(employee: Employee? = nil, server: Server) {
         self.employee = employee
@@ -36,12 +33,10 @@ final class EditEmployeeViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
-        title = (employee != nil) ? Localized.editEmployee : Localized.addEmployee
+        setupNavigationTitle((employee != nil) ? Localized.editEmployee : Localized.addEmployee)
         setupTextFieldsAndLabels()
         setupConstraints()
-        setupNavigationBar()
-        setupLoadingIndicator()
+        addSaveButton(action: #selector(saveEmployee))
     }
     
     private func setupTextFieldsAndLabels() {
@@ -109,33 +104,6 @@ final class EditEmployeeViewController: UIViewController {
         ])
     }
     
-    private func setupNavigationBar() {
-        saveButton.title = Localized.save
-        saveButton.style = .done
-        saveButton.target = self
-        saveButton.action = #selector(saveEmployee)
-        navigationItem.rightBarButtonItem = saveButton
-        saveButton.isEnabled = false
-    }
-    
-    private func setupLoadingIndicator() {
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.center = view.center
-        view.addSubview(loadingIndicator)
-    }
-    
-    private func startLoading() {
-        loadingIndicator.startAnimating()
-        view.isUserInteractionEnabled = false
-        saveButton.isEnabled = false
-    }
-    
-    private func stopLoading() {
-        loadingIndicator.stopAnimating()
-        view.isUserInteractionEnabled = true
-        saveButton.isEnabled = true
-    }
-    
     private func prepareUpdateData(_ employee: Employee) -> Employee {
         var updatedEmployee = employee
         updatedEmployee.firstName = firstNameTextField.text?.trimmed ?? ""
@@ -180,12 +148,12 @@ final class EditEmployeeViewController: UIViewController {
         Task {
             do {
                 let savedEmployee = try await performSave()
-                DispatchQueue.main.async {
-                    self.handleSuccess(savedEmployee: savedEmployee)
+                await MainActor.run {
+                    handleSuccess(savedEmployee: savedEmployee)
                 }
             } catch {
                 await MainActor.run {
-                    self.showAlert(Localized.saveFailed)
+                    showAlert(Localized.saveFailed)
                     stopLoading()
                 }
             }
@@ -193,7 +161,7 @@ final class EditEmployeeViewController: UIViewController {
     }
     
     @objc private func updateSaveButtonState() {
-        saveButton.isEnabled = isFormValid
+        saveButton?.isEnabled = isFormValid
     }
 }
 

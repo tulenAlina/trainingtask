@@ -4,7 +4,7 @@ protocol ProjectDetailViewControllerDelegate: AnyObject {
     func didDeleteProject(_ project: Project, at indexPath: IndexPath)
 }
 
-final class ProjectDetailViewController: UIViewController {
+final class ProjectDetailViewController: BaseViewController {
     
     weak var delegate: ProjectsViewControllerDelegate?
     weak var deleteDelegate: ProjectDetailViewControllerDelegate?
@@ -36,12 +36,11 @@ final class ProjectDetailViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
-        title = Localized.projectDetails
+        setupNavigationTitle(Localized.projectDetails)
         setupLabels()
         setupButtons()
         setupConstraints()
-        setupNavigationBar()
+        addRightBarButton(title: Localized.edit, action: #selector(changeTapped))
     }
     
     private func updateLabels() {
@@ -106,11 +105,6 @@ final class ProjectDetailViewController: UIViewController {
             deleteButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05),
             deleteButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5)
         ])
-    }
-    
-    private func setupNavigationBar() {
-        let changeButton = UIBarButtonItem(title: Localized.edit, style: .plain, target: self, action: #selector(changeTapped))
-        navigationItem.rightBarButtonItem = changeButton
     }
         
     @objc private func changeTapped() {

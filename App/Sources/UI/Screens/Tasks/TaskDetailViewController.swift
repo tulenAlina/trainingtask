@@ -4,7 +4,7 @@ protocol TaskDetailViewControllerDelegate: AnyObject {
     func didDeleteTask(_ task: ProjectTask, at indexPath: IndexPath)
 }
 
-final class TaskDetailViewController: UIViewController {
+final class TaskDetailViewController: BaseViewController {
     
     weak var delegate: TasksViewControllerDelegate?
     weak var deleteDelegate: TaskDetailViewControllerDelegate?
@@ -16,7 +16,6 @@ final class TaskDetailViewController: UIViewController {
     private let server: Server
     private let settings: SettingsManager
     private let isContextProject: Bool
-    private let loadingIndicator = UIActivityIndicatorView(style: .large)
     
     private var projectTitleLabel = UILabel()
     private var workTimeTitleLabel = UILabel()
@@ -68,14 +67,12 @@ final class TaskDetailViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
-        title = Localized.taskDetails
+        setupNavigationTitle(Localized.taskDetails)
         setupLabels()
         setupButtons()
         setupTimeCard()
         setupConstraints()
-        setupNavigationBar()
-        setupLoadingIndicator()
+        addRightBarButton(title: Localized.edit, action: #selector(changeTapped))
     }
     
     private func updateLabels() {
@@ -230,17 +227,6 @@ final class TaskDetailViewController: UIViewController {
         ])
     }
     
-    private func setupNavigationBar() {
-        let changeButton = UIBarButtonItem(title: Localized.edit, style: .plain, target: self, action: #selector(changeTapped))
-        navigationItem.rightBarButtonItem = changeButton
-    }
-    
-    private func setupLoadingIndicator() {
-        loadingIndicator.center = view.center
-        loadingIndicator.hidesWhenStopped = true
-        view.addSubview(loadingIndicator)
-    }
-    
     private func loadRelatedData() async {
         do {
             async let projects = server.fetchProjects()
@@ -284,13 +270,11 @@ extension TaskDetailViewController: TasksViewControllerDelegate {
         self.task = task
         self.delegate?.didUpdateTask(task)
         
-        loadingIndicator.startAnimating()
-        view.isUserInteractionEnabled = false
+        startLoading()
         Task {
             await loadRelatedData()
             await MainActor.run {
-                loadingIndicator.stopAnimating()
-                view.isUserInteractionEnabled = true
+                stopLoading()
             }
         }
     }

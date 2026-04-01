@@ -4,7 +4,7 @@ protocol EmployeeDetailViewControllerDelegate: AnyObject {
     func didDeleteEmployee(_ employee: Employee, at indexPath: IndexPath)
 }
 
-final class EmployeeDetailViewController: UIViewController {
+final class EmployeeDetailViewController: BaseViewController {
     
     weak var delegate: EmployeesViewControllerDelegate?
     weak var deleteDelegate: EmployeeDetailViewControllerDelegate?
@@ -34,12 +34,11 @@ final class EmployeeDetailViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
-        title = Localized.employeeDetails
+        setupNavigationTitle(Localized.employeeDetails)
         setupLabels()
         setupButtons()
         setupConstraints()
-        setupNavigationBar()
+        addRightBarButton(title: Localized.edit, action: #selector(changeTapped))
     }
     
     private func updateLabels() {
@@ -98,11 +97,6 @@ final class EmployeeDetailViewController: UIViewController {
             deleteButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05),
             deleteButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5)
         ])
-    }
-    
-    private func setupNavigationBar() {
-        let changeButton = UIBarButtonItem(title: Localized.edit, style: .plain, target: self, action: #selector(changeTapped))
-        navigationItem.rightBarButtonItem = changeButton
     }
     
     @objc private func changeTapped() {

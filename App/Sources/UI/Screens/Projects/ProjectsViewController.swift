@@ -9,7 +9,7 @@ extension ProjectsViewControllerDelegate {
     func didAddProject(_ project: Project) {}
 }
 
-final class ProjectsViewController: UIViewController {
+final class ProjectsViewController: BaseViewController {
     
     enum Mode {
         case normal
@@ -22,7 +22,6 @@ final class ProjectsViewController: UIViewController {
     private let server: Server
     private let mode: Mode
     private var projects: [Project] = []
-    private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private var refreshControl = UIRefreshControl()
     
     init(mode: Mode = .normal, server: Server, settings: SettingsManager) {
@@ -43,12 +42,11 @@ final class ProjectsViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
-        title = Localized.projects
+        setupNavigationTitle(Localized.projects)
         setupTableView()
         setupConstraints()
         setupNavigationBar()
-        setupLoadingIndicator()
+        startLoading()
     }
     
     private func setupTableView() {
@@ -73,25 +71,16 @@ final class ProjectsViewController: UIViewController {
     private func setupNavigationBar() {
         switch mode {
         case .normal:
-            let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
-            navigationItem.rightBarButtonItem = addButton
+            addRightBarButton(systemItem: .add, action: #selector(addTapped))
         case .selection:
             break
         }
     }
     
-    private func setupLoadingIndicator() {
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.center = view.center
-        view.addSubview(loadingIndicator)
-        loadingIndicator.startAnimating()
-        view.isUserInteractionEnabled = false
-    }
-    
     private func loadProjects() async throws {
         let allProjects = try await server.fetchProjects()
         projects = Array(allProjects.prefix(settings.maxRecords))
-        DispatchQueue.main.async {
+        await MainActor.run {
             self.updateUIAfterLoading()
         }
     }
@@ -99,13 +88,11 @@ final class ProjectsViewController: UIViewController {
     private func updateUIAfterLoading() {
         tableView.reloadData()
         updateEmptyState()
-        loadingIndicator.stopAnimating()
-        view.isUserInteractionEnabled = true
+        stopLoading()
     }
     
     private func performDelete(at indexPath: IndexPath) {
-        self.loadingIndicator.startAnimating()
-        self.view.isUserInteractionEnabled = false
+        startLoading()
         let project = self.projects[indexPath.row]
         
         Task {
@@ -113,9 +100,8 @@ final class ProjectsViewController: UIViewController {
                 try await self.server.deleteProject(project.id)
                 self.refreshView()
             } catch {
-                DispatchQueue.main.async {
-                    self.loadingIndicator.stopAnimating()
-                    self.view.isUserInteractionEnabled = true
+                await MainActor.run {
+                    self.stopLoading()
                 }
                 self.showAlert(Localized.deleteFailed)
             }

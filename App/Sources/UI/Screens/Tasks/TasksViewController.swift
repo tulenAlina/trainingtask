@@ -9,7 +9,7 @@ extension TasksViewControllerDelegate {
     func didAddTask(_ task: ProjectTask) {}
 }
 
-final class TasksViewController: UIViewController {
+final class TasksViewController: BaseViewController {
     let settings: SettingsManager
     let tableView = UITableView()
     
@@ -18,7 +18,6 @@ final class TasksViewController: UIViewController {
     private var tasks: [ProjectTask] = []
     private var projects: [Project] = []
     private var employees: [Employee] = []
-    private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private let refreshControl = UIRefreshControl()
         
     init(project: Project? = nil, server: Server, settings: SettingsManager) {
@@ -39,12 +38,11 @@ final class TasksViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
-        title = Localized.tasks
+        setupNavigationTitle(Localized.tasks)
         setupTableView()
         setupConstraints()
-        setupNavigationBar()
-        setupLoadingIndicator()
+        addRightBarButton(systemItem: .add, action: #selector(addTapped))
+        startLoading()
     }
     
     private func setupTableView() {
@@ -66,19 +64,6 @@ final class TasksViewController: UIViewController {
         ])
     }
     
-    private func setupNavigationBar() {
-        let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
-        navigationItem.rightBarButtonItem = addButton
-    }
-    
-    private func setupLoadingIndicator() {
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.center = view.center
-        view.addSubview(loadingIndicator)
-        loadingIndicator.startAnimating()
-        view.isUserInteractionEnabled = false
-    }
-    
     private func loadTasks() async throws {
         async let allTasks = try await server.fetchTasks(projectID: project?.id)
         async let allEmployees = server.fetchEmployees()
@@ -97,14 +82,12 @@ final class TasksViewController: UIViewController {
         DispatchQueue.main.async {
             self.tableView.reloadData()
             self.updateEmptyState()
-            self.loadingIndicator.stopAnimating()
-            self.view.isUserInteractionEnabled = true
+            self.stopLoading()
         }
     }
     
     private func performDelete(at indexPath: IndexPath) {
-        self.loadingIndicator.startAnimating()
-        self.view.isUserInteractionEnabled = false
+        startLoading()
         let task = self.tasks[indexPath.row]
 
         Task {
@@ -113,8 +96,7 @@ final class TasksViewController: UIViewController {
                 self.refreshView()
             } catch {
                 DispatchQueue.main.async {
-                    self.loadingIndicator.stopAnimating()
-                    self.view.isUserInteractionEnabled = true
+                    self.stopLoading()
                 }
                 self.showAlert(Localized.deleteFailed)
             }

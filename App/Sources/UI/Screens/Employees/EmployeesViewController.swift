@@ -9,7 +9,7 @@ extension EmployeesViewControllerDelegate {
     func didAddEmployee(_ employee: Employee) {}
 }
 
-final class EmployeesViewController: UIViewController {
+final class EmployeesViewController: BaseViewController {
     
     enum Mode {
         case normal
@@ -21,7 +21,6 @@ final class EmployeesViewController: UIViewController {
     
     private let server: Server
     private let mode: Mode
-    private let loadingIndicator = UIActivityIndicatorView(style: .large)
     private let refreshControl = UIRefreshControl()
     private var employees: [Employee] = []
     
@@ -43,12 +42,11 @@ final class EmployeesViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
-        title = Localized.employees
+        setupNavigationTitle(Localized.employees)
         setupTableView()
         setupConstraints()
         setupNavigationBar()
-        setupLoadingIndicator()
+        startLoading()
     }
     
     private func setupTableView() {
@@ -73,19 +71,10 @@ final class EmployeesViewController: UIViewController {
     private func setupNavigationBar() {
         switch mode {
         case .normal:
-            let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
-            navigationItem.rightBarButtonItem = addButton
+            addRightBarButton(systemItem: .add, action: #selector(addTapped))
         case .selection:
             break
         }
-    }
-    
-    private func setupLoadingIndicator() {
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.center = view.center
-        view.addSubview(loadingIndicator)
-        loadingIndicator.startAnimating()
-        view.isUserInteractionEnabled = false
     }
     
     private func loadEmployees() async throws{
@@ -94,24 +83,21 @@ final class EmployeesViewController: UIViewController {
         DispatchQueue.main.async {
             self.tableView.reloadData()
             self.updateEmptyState()
-            self.loadingIndicator.stopAnimating()
-            self.view.isUserInteractionEnabled = true
+            self.stopLoading()
         }
     }
     
     private func performDelete(at indexPath: IndexPath) {
-        self.loadingIndicator.startAnimating()
-        self.view.isUserInteractionEnabled = false
+        startLoading()
         let employee = self.employees[indexPath.row]
 
         Task {
             do {
-                try await self.server.deleteEmployee(employee.id)
-                self.refreshView()
+                try await server.deleteEmployee(employee.id)
+                refreshView()
             } catch {
-                DispatchQueue.main.async {
-                    self.loadingIndicator.stopAnimating()
-                    self.view.isUserInteractionEnabled = true
+                await MainActor.run {
+                    stopLoading()
                 }
                 self.showAlert(Localized.deleteFailed)
             }
