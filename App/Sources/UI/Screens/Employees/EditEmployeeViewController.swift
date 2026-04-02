@@ -17,10 +17,20 @@ final class EditEmployeeViewController: BaseFormViewController {
     private var surNameTextField = UIFactory.createTextField(placeholder: Localized.surnamePlaceholder)
     private var positionTextField = UIFactory.createTextField(placeholder: Localized.positionPlaceholder)
     
-    init(employee: Employee? = nil, server: Server) {
+    private init(employee: Employee? = nil, server: Server) {
         self.employee = employee
         self.server = server
         super.init(nibName: nil, bundle: nil)
+    }
+    
+    convenience init(employee: Employee? = nil, server: Server, updateDelegate: EmployeeUpdateDelegate) {
+        self.init(employee: employee, server: server)
+        self.updateDelegate = updateDelegate
+    }
+    
+    convenience init(employee: Employee? = nil, server: Server, createDelegate: EmployeeCreateDelegate) {
+        self.init(employee: employee, server: server)
+        self.createDelegate = createDelegate
     }
     
     required init?(coder: NSCoder) {

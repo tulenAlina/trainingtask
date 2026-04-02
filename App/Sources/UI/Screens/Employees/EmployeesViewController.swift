@@ -107,8 +107,7 @@ final class EmployeesViewController: BaseListViewController<Employee> {
     }
     
     @objc private func addEmployee() {
-        let editViewController = EditEmployeeViewController(server: server)
-        editViewController.createDelegate = self
+        let editViewController = EditEmployeeViewController(server: server, createDelegate: self)
         navigationController?.pushViewController(editViewController, animated: true)
     }
 }
@@ -132,9 +131,7 @@ extension EmployeesViewController: UITableViewDelegate {
         let employee = items[indexPath.row]
         switch mode {
         case .list:
-            let detailViewController = EmployeeDetailViewController(indexPath: indexPath, employee: employee, server: server)
-            detailViewController.updateDelegate = self
-            detailViewController.deleteDelegate = self
+            let detailViewController = EmployeeDetailViewController(indexPath: indexPath, employee: employee, server: server, updateDelegate: self, deleteDelegate: self)
             navigationController?.pushViewController(detailViewController, animated: true)
         case .selection(let completion):
             completion(employee)

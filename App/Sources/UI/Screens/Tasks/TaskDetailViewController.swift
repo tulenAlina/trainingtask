@@ -10,8 +10,7 @@ final class TaskDetailViewController: BaseViewController {
     private var task: ProjectTask
     private var project: Project?
     private var employee: Employee?
-    private let isContextProject: Bool
-    private let dateFormatter = DateHelper.self
+    private let isOpenedFromProject: Bool
     
     private var projectTitleLabel = UILabel()
     private var workTimeTitleLabel = UILabel()
@@ -41,14 +40,16 @@ final class TaskDetailViewController: BaseViewController {
         return view
     }()
     
-    init(indexPath: IndexPath, task: ProjectTask, project: Project?, employee: Employee?, isContextProject: Bool, server: Server, settings: SettingsManager) {
+    init(indexPath: IndexPath, task: ProjectTask, project: Project?, employee: Employee?, isOpenedFromProject: Bool, server: Server, settings: SettingsManager, updateDelegate: TaskUpdateDelegate, deleteDelegate: TaskDeleteDelegate) {
         self.indexPath = indexPath
         self.task = task
         self.project = project
         self.employee = employee
-        self.isContextProject = isContextProject
+        self.isOpenedFromProject = isOpenedFromProject
         self.server = server
         self.settings = settings
+        self.updateDelegate = updateDelegate
+        self.deleteDelegate = deleteDelegate
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -195,8 +196,8 @@ final class TaskDetailViewController: BaseViewController {
         taskNameLabel.text = task.taskName
         projectLabel.text = project?.projectName ?? Localized.unknownProjectLabel
         workTimeLabel.text = "\(task.workTime)"
-        startDateLabel.text =  dateFormatter.string(from: task.startDate)
-        endDateLabel.text = dateFormatter.string(from: task.endDate)
+        startDateLabel.text =  DateHelper.string(from: task.startDate)
+        endDateLabel.text = DateHelper.string(from: task.endDate)
         employeeLabel.text = employee?.fullName ?? Localized.notAssignedLabel
         statusLabel.text = task.status.rawValue.localized
         
@@ -222,7 +223,7 @@ final class TaskDetailViewController: BaseViewController {
         }
     }
     
-    private func loadRelatedData() async {
+    private func loadProjectsAndEmployees() async {
         do {
             async let projects = server.fetchProjects()
             async let employees = server.fetchEmployees()
@@ -251,12 +252,10 @@ final class TaskDetailViewController: BaseViewController {
     
     @objc private func changeTask() {
         if let project {
-            let editViewController = isContextProject ? EditTaskViewController(task: task, project: project, server: server, settings: settings) : EditTaskViewController(task: task, server: server, settings: settings)
-            editViewController.updateDelegate = self
+            let editViewController = isOpenedFromProject ? EditTaskViewController(task: task, project: project, server: server, settings: settings, updateDelegate: self) : EditTaskViewController(task: task, server: server, settings: settings, updateDelegate: self)
             navigationController?.pushViewController(editViewController, animated: true)
         } else {
-            let editViewController = EditTaskViewController(task: task, server: server, settings: settings)
-            editViewController.updateDelegate = self
+            let editViewController = EditTaskViewController(task: task, server: server, settings: settings, updateDelegate: self)
             navigationController?.pushViewController(editViewController, animated: true)
         }
     }
@@ -269,7 +268,7 @@ extension TaskDetailViewController: TaskUpdateDelegate {
         
         startLoading()
         Task {
-            await loadRelatedData()
+            await loadProjectsAndEmployees()
         }
     }
 }

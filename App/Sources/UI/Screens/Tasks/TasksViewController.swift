@@ -109,9 +109,9 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
     @objc private func addTask() {
         let editViewController: EditTaskViewController
         if let project {
-            editViewController = EditTaskViewController(project: project, server: server, settings: settings)
+            editViewController = EditTaskViewController(project: project, server: server, settings: settings, createDelegate: self)
         } else {
-            editViewController = EditTaskViewController(server: server, settings: settings)
+            editViewController = EditTaskViewController(server: server, settings: settings, createDelegate: self)
         }
         editViewController.createDelegate = self
         navigationController?.pushViewController(editViewController, animated: true)
@@ -156,11 +156,11 @@ extension TasksViewController: UITableViewDelegate {
     
     private func createTaskDetailViewController(for task: ProjectTask, indexPath: IndexPath) -> TaskDetailViewController {
         let currentProject: Project?
-        var isContextProject = false
+        var isOpenedFromProject = false
         
         if let project {
             currentProject = project
-            isContextProject = true
+            isOpenedFromProject = true
         } else {
             currentProject = projects.first { $0.id == task.projectID }
         }
@@ -172,11 +172,12 @@ extension TasksViewController: UITableViewDelegate {
             task: task,
             project: currentProject,
             employee: currentEmployee,
-            isContextProject: isContextProject,
+            isOpenedFromProject: isOpenedFromProject,
             server: server,
-            settings: settings)
-        detailViewController.updateDelegate = self
-        detailViewController.deleteDelegate = self
+            settings: settings,
+            updateDelegate: self,
+            deleteDelegate: self
+        )
         return detailViewController
     }
 }

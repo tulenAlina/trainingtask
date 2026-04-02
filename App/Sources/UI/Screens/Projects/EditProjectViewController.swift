@@ -13,10 +13,20 @@ final class EditProjectViewController: BaseFormViewController {
     private var nameTextField = UIFactory.createTextField(placeholder: Localized.projectNamePlaceholder)
     private var descriptionTextField = UIFactory.createTextField(placeholder: Localized.projectDescriptionPlaceholder)
     
-    init(project: Project? = nil, server: Server) {
+    private init(project: Project? = nil, server: Server) {
         self.project = project
         self.server = server
         super.init(nibName: nil, bundle: nil)
+    }
+    
+    convenience init(project: Project? = nil, server: Server, updateDelegate: ProjectUpdateDelegate) {
+        self.init(project: project, server: server)
+        self.updateDelegate = updateDelegate
+    }
+    
+    convenience init(project: Project? = nil, server: Server, createDelegate: ProjectCreateDelegate) {
+        self.init(project: project, server: server)
+        self.createDelegate = createDelegate
     }
     
     required init?(coder: NSCoder) {

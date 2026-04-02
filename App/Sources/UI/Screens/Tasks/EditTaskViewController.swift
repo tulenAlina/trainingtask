@@ -6,7 +6,6 @@ final class EditTaskViewController: BaseFormViewController {
     
     private let server: Server
     private let settings: SettingsManager
-    private let dateFormatter = DateHelper.self
     private var task: ProjectTask?
     private var contextProject: Project?
     private var projects: [Project] = []
@@ -62,12 +61,22 @@ final class EditTaskViewController: BaseFormViewController {
         return sc
     }()
     
-    init(task: ProjectTask? = nil, project: Project? = nil, server: Server, settings: SettingsManager) {
+    private init(task: ProjectTask? = nil, project: Project? = nil, server: Server, settings: SettingsManager) {
         self.task = task
         self.contextProject = project
         self.server = server
         self.settings = settings
         super.init(nibName: nil, bundle: nil)
+    }
+    
+    convenience init(task: ProjectTask? = nil, project: Project? = nil, server: Server, settings: SettingsManager, updateDelegate: TaskUpdateDelegate) {
+        self.init(task: task, project: project, server: server, settings: settings)
+        self.updateDelegate = updateDelegate
+    }
+    
+    convenience init(task: ProjectTask? = nil, project: Project? = nil, server: Server, settings: SettingsManager, createDelegate: TaskCreateDelegate) {
+        self.init(task: task, project: project, server: server, settings: settings)
+        self.createDelegate = createDelegate
     }
         
     required init?(coder: NSCoder) {
@@ -108,12 +117,12 @@ final class EditTaskViewController: BaseFormViewController {
         
         workTimeTextField.keyboardType = .numberPad
         
-        startDateTextField.text = dateFormatter.string(from: Date())
+        startDateTextField.text = DateHelper.string(from: Date())
         startDateTextField.inputView = startDatePicker
         startDateTextField.inputAccessoryView = toolbar
         startDateTextField.delegate = self
         
-        endDateTextField.text = dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date())
+        endDateTextField.text = DateHelper.string(from: Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date())
         endDateTextField.inputView = endDatePicker
         endDateTextField.inputAccessoryView = toolbar
         endDateTextField.delegate = self
@@ -125,8 +134,8 @@ final class EditTaskViewController: BaseFormViewController {
             }
             taskNameTextField.text = "\(task.taskName)"
             workTimeTextField.text = "\(task.workTime)"
-            startDateTextField.text = dateFormatter.string(from: task.startDate)
-            endDateTextField.text = dateFormatter.string(from: task.endDate)
+            startDateTextField.text = DateHelper.string(from: task.startDate)
+            endDateTextField.text = DateHelper.string(from: task.endDate)
             
             selectedEmployee = employees.first(where: { $0.id == task.employeeID })
             if selectedEmployee != nil {
@@ -253,8 +262,8 @@ final class EditTaskViewController: BaseFormViewController {
         updatedTask.taskName = taskNameTextField.text?.trimmed ?? ""
         updatedTask.projectID = inputProject.id
         updatedTask.workTime = Int(workTimeTextField.text ?? "") ?? 0
-        updatedTask.startDate = dateFormatter.date(from: startDateTextField.text ?? "") ?? Date()
-        updatedTask.endDate = dateFormatter.date(from: endDateTextField.text ?? "") ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()
+        updatedTask.startDate = DateHelper.date(from: startDateTextField.text ?? "") ?? Date()
+        updatedTask.endDate = DateHelper.date(from: endDateTextField.text ?? "") ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()
         updatedTask.status = TaskStatus.allCases[statusSegmentedControl.selectedSegmentIndex]
         updatedTask.employeeID = inputEmployee?.id
         return updatedTask
@@ -265,8 +274,8 @@ final class EditTaskViewController: BaseFormViewController {
             taskName: taskNameTextField.text?.trimmed ?? "",
             projectID: inputProject.id,
             workTime: Int(workTimeTextField.text ?? "") ?? 0,
-            startDate: dateFormatter.date(from: startDateTextField.text ?? "") ?? Date(),
-            endDate: dateFormatter.date(from: endDateTextField.text ?? "") ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date(),
+            startDate: DateHelper.date(from: startDateTextField.text ?? "") ?? Date(),
+            endDate: DateHelper.date(from: endDateTextField.text ?? "") ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date(),
             status: TaskStatus.allCases[statusSegmentedControl.selectedSegmentIndex],
             employeeID: inputEmployee?.id
         )
@@ -321,8 +330,8 @@ final class EditTaskViewController: BaseFormViewController {
     }
     
     private func validateDates() -> Bool{
-        guard let startDate = dateFormatter.date(from: startDateTextField.text ?? ""),
-              let endDate = dateFormatter.date(from: endDateTextField.text ?? "")
+        guard let startDate = DateHelper.date(from: startDateTextField.text ?? ""),
+              let endDate = DateHelper.date(from: endDateTextField.text ?? "")
         else {
             showAlert(Localized.invalidDate)
             return false
@@ -351,8 +360,8 @@ final class EditTaskViewController: BaseFormViewController {
         let taskNameChanged = taskNameTextField.text?.trimmed ?? "" != task.taskName.trimmed
         let projectChanged = projectTextField.text?.trimmed ?? "" != projectName
         let workTimeChanged = Int(workTimeTextField.text?.trimmed ?? "") ?? 0 != task.workTime
-        let startDateChanged = startDateTextField.text?.trimmed ?? "" != dateFormatter.string(from: task.startDate)
-        let endDateChanged = endDateTextField.text?.trimmed ?? "" != dateFormatter.string(from: task.endDate)
+        let startDateChanged = startDateTextField.text?.trimmed ?? "" != DateHelper.string(from: task.startDate)
+        let endDateChanged = endDateTextField.text?.trimmed ?? "" != DateHelper.string(from: task.endDate)
         let employeeChanged = employeeTextField.text?.trimmed ?? "" != empFio
         let statusChanged = statusSegmentedControl.selectedSegmentIndex != TaskStatus.allCases.firstIndex { $0 == task.status } ?? 0
         return taskNameChanged || projectChanged || workTimeChanged || startDateChanged || endDateChanged || employeeChanged || statusChanged
@@ -388,10 +397,10 @@ final class EditTaskViewController: BaseFormViewController {
     
     @objc private func dateChanged(_ sender: UIDatePicker) {
         if startDateTextField.isFirstResponder {
-            let dateString = dateFormatter.string(from: startDatePicker.date)
+            let dateString = DateHelper.string(from: startDatePicker.date)
             startDateTextField.text = dateString
         } else if endDateTextField.isFirstResponder {
-            let dateString = dateFormatter.string(from: endDatePicker.date)
+            let dateString = DateHelper.string(from: endDatePicker.date)
             endDateTextField.text = dateString
         }
         
@@ -451,11 +460,11 @@ extension EditTaskViewController: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         switch textField {
         case startDateTextField:
-            if let text = textField.text, let date = dateFormatter.date(from: text) {
+            if let text = textField.text, let date = DateHelper.date(from: text) {
                 startDatePicker.date = date
             }
         case endDateTextField:
-            if let text = textField.text, let date = dateFormatter.date(from: text) {
+            if let text = textField.text, let date = DateHelper.date(from: text) {
                 endDatePicker.date = date
             }
         case projectTextField:

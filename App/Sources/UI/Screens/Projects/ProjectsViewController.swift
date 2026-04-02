@@ -107,8 +107,7 @@ final class ProjectsViewController: BaseListViewController<Project> {
     }
     
     @objc private func addProject() {
-        let editViewController = EditProjectViewController(server: server)
-        editViewController.createDelegate = self
+        let editViewController = EditProjectViewController(server: server, createDelegate: self)
         navigationController?.pushViewController(editViewController, animated: true)
     }
 }
@@ -133,9 +132,7 @@ extension ProjectsViewController: UITableViewDelegate {
         
         switch mode {
         case .list:
-            let detailViewController = ProjectDetailViewController(indexPath: indexPath, project: project, server: server, settings: settings)
-            detailViewController.updateDelegate = self
-            detailViewController.deleteDelegate = self
+            let detailViewController = ProjectDetailViewController(indexPath: indexPath, project: project, server: server, settings: settings, updateDelegate: self, deleteDelegate: self)
             navigationController?.pushViewController(detailViewController, animated: true)
         case .selection(let completion):
             completion(project)

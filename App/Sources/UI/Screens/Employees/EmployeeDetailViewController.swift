@@ -13,10 +13,12 @@ final class EmployeeDetailViewController: BaseViewController {
     private var positionTitleLabel = UILabel()
     private var deleteButton = UIButton()
     
-    init(indexPath: IndexPath, employee: Employee, server: Server) {
+    init(indexPath: IndexPath, employee: Employee, server: Server, updateDelegate: EmployeeUpdateDelegate, deleteDelegate: EmployeeDeleteDelegate) {
         self.indexPath = indexPath
         self.employee = employee
         self.server = server
+        self.updateDelegate = updateDelegate
+        self.deleteDelegate = deleteDelegate
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -96,8 +98,7 @@ final class EmployeeDetailViewController: BaseViewController {
     }
     
     @objc private func changeEmployee() {
-        let editViewController = EditEmployeeViewController(employee: employee, server: server)
-        editViewController.updateDelegate = self
+        let editViewController = EditEmployeeViewController(employee: employee, server: server, updateDelegate: self)
         navigationController?.pushViewController(editViewController, animated: true)
     }
     

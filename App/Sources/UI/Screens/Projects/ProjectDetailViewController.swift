@@ -14,11 +14,13 @@ final class ProjectDetailViewController: BaseViewController {
     private var openTasksButton = UIButton()
     private var deleteButton = UIButton()
     
-    init(indexPath: IndexPath, project: Project, server: Server, settings: SettingsManager) {
+    init(indexPath: IndexPath, project: Project, server: Server, settings: SettingsManager, updateDelegate: ProjectUpdateDelegate, deleteDelegate: ProjectDeleteDelegate) {
         self.indexPath = indexPath
         self.project = project
         self.server = server
         self.settings = settings
+        self.updateDelegate = updateDelegate
+        self.deleteDelegate = deleteDelegate
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -104,8 +106,7 @@ final class ProjectDetailViewController: BaseViewController {
     }
         
     @objc private func changeProject() {
-        let editViewController = EditProjectViewController(project: project, server: server)
-        editViewController.updateDelegate = self
+        let editViewController = EditProjectViewController(project: project, server: server, updateDelegate: self)
         navigationController?.pushViewController(editViewController, animated: true)
     }
     
