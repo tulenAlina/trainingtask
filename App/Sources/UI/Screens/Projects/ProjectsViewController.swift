@@ -80,29 +80,26 @@ final class ProjectsViewController: BaseViewController {
         let allProjects = try await server.fetchProjects()
         projects = Array(allProjects.prefix(settings.maxRecords))
         await MainActor.run {
-            self.updateUIAfterLoading()
+            tableView.reloadData()
+            updateEmptyState()
+            stopLoading()
+            refreshControl.endRefreshing()
         }
-    }
-    
-    private func updateUIAfterLoading() {
-        tableView.reloadData()
-        updateEmptyState()
-        stopLoading()
     }
     
     private func performDelete(at indexPath: IndexPath) {
         startLoading()
-        let project = self.projects[indexPath.row]
+        let project = projects[indexPath.row]
         
         Task {
             do {
-                try await self.server.deleteProject(project.id)
-                self.refreshData()
+                try await server.deleteProject(project.id)
+                refreshData()
             } catch {
                 await MainActor.run {
-                    self.stopLoading()
+                    stopLoading()
+                    showAlert(Localized.deleteFailed)
                 }
-                self.showAlert(Localized.deleteFailed)
             }
         }
     }
@@ -111,9 +108,6 @@ final class ProjectsViewController: BaseViewController {
         Task {
             do {
                 try await loadProjects()
-                await MainActor.run {
-                    refreshControl.endRefreshing()
-                }
             } catch {
                 await MainActor.run {
                     refreshControl.endRefreshing()

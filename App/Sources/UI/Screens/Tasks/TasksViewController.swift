@@ -79,26 +79,27 @@ final class TasksViewController: BaseViewController {
             self.tasks = Array(tasks.prefix(settings.maxRecords))
         }
         
-        DispatchQueue.main.async {
-            self.tableView.reloadData()
-            self.updateEmptyState()
-            self.stopLoading()
+        await MainActor.run {
+            tableView.reloadData()
+            updateEmptyState()
+            stopLoading()
+            refreshControl.endRefreshing()
         }
     }
     
     private func performDelete(at indexPath: IndexPath) {
         startLoading()
-        let task = self.tasks[indexPath.row]
+        let task = tasks[indexPath.row]
 
         Task {
             do {
-                try await self.server.deleteTask(task.id)
-                self.refreshData()
+                try await server.deleteTask(task.id)
+                refreshData()
             } catch {
-                DispatchQueue.main.async {
-                    self.stopLoading()
+                await MainActor.run {
+                    stopLoading()
+                    showAlert(Localized.deleteFailed)
                 }
-                self.showAlert(Localized.deleteFailed)
             }
         }
     }
@@ -107,9 +108,6 @@ final class TasksViewController: BaseViewController {
         Task {
             do {
                 try await loadTasks()
-                await MainActor.run {
-                    refreshControl.endRefreshing()
-                }
             } catch {
                 await MainActor.run {
                     refreshControl.endRefreshing()

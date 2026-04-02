@@ -80,16 +80,17 @@ final class EmployeesViewController: BaseViewController {
     private func loadEmployees() async throws{
         let allEmployees = try await server.fetchEmployees()
         employees = Array(allEmployees.prefix(settings.maxRecords))
-        DispatchQueue.main.async {
-            self.tableView.reloadData()
-            self.updateEmptyState()
-            self.stopLoading()
+        await MainActor.run {
+            tableView.reloadData()
+            updateEmptyState()
+            stopLoading()
+            refreshControl.endRefreshing()
         }
     }
     
     private func performDelete(at indexPath: IndexPath) {
         startLoading()
-        let employee = self.employees[indexPath.row]
+        let employee = employees[indexPath.row]
 
         Task {
             do {
@@ -98,8 +99,8 @@ final class EmployeesViewController: BaseViewController {
             } catch {
                 await MainActor.run {
                     stopLoading()
+                    showAlert(Localized.deleteFailed)
                 }
-                self.showAlert(Localized.deleteFailed)
             }
         }
     }
@@ -108,9 +109,6 @@ final class EmployeesViewController: BaseViewController {
         Task {
             do {
                 try await loadEmployees()
-                await MainActor.run {
-                    refreshControl.endRefreshing()
-                }
             } catch {
                 await MainActor.run {
                     refreshControl.endRefreshing()
@@ -121,9 +119,9 @@ final class EmployeesViewController: BaseViewController {
     }
     
     @objc private func addEmployee() {
-        let editVC = EditEmployeeViewController(server: server)
-        editVC.delegate = self
-        navigationController?.pushViewController(editVC, animated: true)
+        let editViewController = EditEmployeeViewController(server: server)
+        editViewController.delegate = self
+        navigationController?.pushViewController(editViewController, animated: true)
     }
 }
 

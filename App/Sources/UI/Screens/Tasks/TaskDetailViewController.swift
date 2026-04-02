@@ -236,12 +236,14 @@ final class TaskDetailViewController: BaseViewController {
             let allEmployees = try await employees
             
             await MainActor.run {
-                self.project = allProjects.first { $0.id == task.projectID }
-                self.employee = allEmployees.first { $0.id == task.employeeID }
+                project = allProjects.first { $0.id == task.projectID }
+                employee = allEmployees.first { $0.id == task.employeeID }
                 updateLabels()
+                stopLoading()
             }
         } catch {
             await MainActor.run {
+                stopLoading()
                 showAlert(Localized.loadFailed)
             }
         }
@@ -273,9 +275,6 @@ extension TaskDetailViewController: TasksViewControllerDelegate {
         startLoading()
         Task {
             await loadRelatedData()
-            await MainActor.run {
-                stopLoading()
-            }
         }
     }
 }

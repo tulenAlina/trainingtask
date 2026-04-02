@@ -292,15 +292,10 @@ final class EditTaskViewController: BaseFormViewController {
             
             self.projects = projects
             self.employees = employees
-            
-            await MainActor.run {
-                view.isUserInteractionEnabled = true
-            }
         } catch {
             await MainActor.run {
-                view.isUserInteractionEnabled = true
+                showAlert(Localized.loadFailed)
             }
-            self.showAlert(Localized.loadFailed)
         }
     }
     
@@ -379,13 +374,13 @@ final class EditTaskViewController: BaseFormViewController {
         Task {
             do {
                 let savedTask = try await fetchSavedTask(selectedProject, selectedEmployee)
-                DispatchQueue.main.async {
-                    self.handleSuccess(savedTask: savedTask)
+                await MainActor.run {
+                    handleSuccess(savedTask: savedTask)
                 }
             } catch {
                 await MainActor.run {
-                    self.showAlert(Localized.saveFailed)
                     stopLoading()
+                    showAlert(Localized.saveFailed)
                 }
             }
         }

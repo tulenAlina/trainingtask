@@ -129,13 +129,13 @@ final class EditProjectViewController: BaseFormViewController {
         Task {
             do {
                 let savedProject = try await fetchSavedProject()
-                DispatchQueue.main.async {
-                    self.handleSuccess(savedProject: savedProject)
+                await MainActor.run {
+                    handleSuccess(savedProject: savedProject)
                 }
             } catch {
                 await MainActor.run {
-                    self.showAlert(Localized.saveFailed)
                     stopLoading()
+                    showAlert(Localized.saveFailed)
                 }
             }
         }
