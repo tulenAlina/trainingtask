@@ -1,10 +1,10 @@
 import UIKit
 
 class BaseListViewController<Item>: BaseViewController {
+    var settings: SettingsManager
     var items: [Item] = []
     var tableView = UITableView()
     var refreshControl = UIRefreshControl()
-    var settings: SettingsManager
     var emptyStateText: String { return "" }
 
     init(settings: SettingsManager) {
