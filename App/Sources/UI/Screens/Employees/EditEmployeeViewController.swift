@@ -1,8 +1,8 @@
 import UIKit
 
 final class EditEmployeeViewController: BaseFormViewController {
-    
-    weak var delegate: EmployeesViewControllerDelegate?
+    weak var updateDelegate: EmployeeUpdateDelegate?
+    weak var createDelegate: EmployeeCreateDelegate?
     
     private let server: Server
     private var employee: Employee?
@@ -139,9 +139,9 @@ final class EditEmployeeViewController: BaseFormViewController {
     
     private func handleSuccess(savedEmployee: Employee) {
         if employee != nil {
-            delegate?.didUpdateEmployee(savedEmployee)
+            updateDelegate?.didUpdateEmployee(savedEmployee)
         } else {
-            delegate?.didAddEmployee(savedEmployee)
+            createDelegate?.didCreateEmployee(savedEmployee)
         }
         stopLoading()
         self.navigationController?.popViewController(animated: true)

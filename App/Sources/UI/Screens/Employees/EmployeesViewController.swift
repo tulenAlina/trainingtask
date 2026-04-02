@@ -1,34 +1,22 @@
 import UIKit
 
-protocol EmployeesViewControllerDelegate: AnyObject {
-    func didAddEmployee(_ employee: Employee)
-    func didUpdateEmployee(_ employee: Employee)
-}
-
-extension EmployeesViewControllerDelegate {
-    func didAddEmployee(_ employee: Employee) {}
-}
-
-final class EmployeesViewController: BaseViewController {
-    
+final class EmployeesViewController: BaseListViewController<Employee> {
     enum EmployeesDisplayMode {
         case list
         case selection(completion: (Employee) -> Void)
     }
     
-    let settings: SettingsManager
-    let tableView = UITableView()
-    
     private let server: Server
     private let mode: EmployeesDisplayMode
-    private var employees: [Employee] = []
-    private let refreshControl = UIRefreshControl()
+    
+    override var emptyStateText: String {
+        return Localized.noEmployees
+    }
     
     init(mode: EmployeesDisplayMode = .list, server: Server, settings: SettingsManager) {
         self.mode = mode
         self.server = server
-        self.settings = settings
-        super.init(nibName: nil, bundle: nil)
+        super.init(settings: settings)
     }
     
     required init?(coder: NSCoder) {
@@ -79,7 +67,7 @@ final class EmployeesViewController: BaseViewController {
     
     private func loadEmployees() async throws{
         let allEmployees = try await server.fetchEmployees()
-        employees = Array(allEmployees.prefix(settings.maxRecords))
+        items = Array(allEmployees.prefix(settings.maxRecords))
         await MainActor.run {
             tableView.reloadData()
             updateEmptyState()
@@ -90,7 +78,7 @@ final class EmployeesViewController: BaseViewController {
     
     private func performDelete(at indexPath: IndexPath) {
         startLoading()
-        let employee = employees[indexPath.row]
+        let employee = items[indexPath.row]
 
         Task {
             do {
@@ -120,20 +108,20 @@ final class EmployeesViewController: BaseViewController {
     
     @objc private func addEmployee() {
         let editViewController = EditEmployeeViewController(server: server)
-        editViewController.delegate = self
+        editViewController.createDelegate = self
         navigationController?.pushViewController(editViewController, animated: true)
     }
 }
 
 extension EmployeesViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return employees.count
+        return items.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "EmployeeCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "EmployeeCell")
-        cell.textLabel?.text = employees[indexPath.row].fullName
-        cell.detailTextLabel?.text = employees[indexPath.row].position
+        cell.textLabel?.text = items[indexPath.row].fullName
+        cell.detailTextLabel?.text = items[indexPath.row].position
         return cell
     }
 }
@@ -141,11 +129,11 @@ extension EmployeesViewController: UITableViewDataSource {
 extension EmployeesViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let employee = employees[indexPath.row]
+        let employee = items[indexPath.row]
         switch mode {
         case .list:
             let detailViewController = EmployeeDetailViewController(indexPath: indexPath, employee: employee, server: server)
-            detailViewController.delegate = self
+            detailViewController.updateDelegate = self
             detailViewController.deleteDelegate = self
             navigationController?.pushViewController(detailViewController, animated: true)
         case .selection(let completion):
@@ -155,29 +143,19 @@ extension EmployeesViewController: UITableViewDelegate {
     }
 }
 
-extension EmployeesViewController: ListUpdatable {
-    var items: [Employee] {
-        get { employees }
-        set { employees = newValue }
-    }
-    
-    var emptyStateText: String {
-        return Localized.noEmployees
-    }
-}
-
-extension EmployeesViewController: EmployeesViewControllerDelegate {
-    
-    func didAddEmployee(_ employee: Employee) {
-        addItem(employee)
-    }
-    
+extension EmployeesViewController: EmployeeUpdateDelegate {
     func didUpdateEmployee(_ employee: Employee) {
         updateItem(employee) { $0.id == employee.id }
     }
 }
 
-extension EmployeesViewController: EmployeeDetailViewControllerDelegate {
+extension EmployeesViewController: EmployeeCreateDelegate {
+    func didCreateEmployee(_ employee: Employee) {
+        addItem(employee)
+    }
+}
+
+extension EmployeesViewController: EmployeeDeleteDelegate {
     func didDeleteEmployee(_ employee: Employee, at indexPath: IndexPath) {
         performDelete(at: indexPath)
     }

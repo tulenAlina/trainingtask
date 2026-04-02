@@ -1,8 +1,8 @@
 import UIKit
 
 final class EditTaskViewController: BaseFormViewController {
-    
-    weak var delegate: TasksViewControllerDelegate?
+    weak var updateDelegate: TaskUpdateDelegate?
+    weak var createDelegate: TaskCreateDelegate?
     
     private let server: Server
     private let settings: SettingsManager
@@ -312,9 +312,9 @@ final class EditTaskViewController: BaseFormViewController {
     
     private func handleSuccess(savedTask: ProjectTask) {
         if task != nil {
-            delegate?.didUpdateTask(savedTask)
+            updateDelegate?.didUpdateTask(savedTask)
         } else {
-            delegate?.didAddTask(savedTask)
+            createDelegate?.didCreateTask(savedTask)
         }
         stopLoading()
         self.navigationController?.popViewController(animated: true)

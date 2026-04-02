@@ -1,13 +1,8 @@
 import UIKit
 
-protocol ProjectDetailViewControllerDelegate: AnyObject {
-    func didDeleteProject(_ project: Project, at indexPath: IndexPath)
-}
-
 final class ProjectDetailViewController: BaseViewController {
-    
-    weak var delegate: ProjectsViewControllerDelegate?
-    weak var deleteDelegate: ProjectDetailViewControllerDelegate?
+    weak var updateDelegate: ProjectUpdateDelegate?
+    weak var deleteDelegate: ProjectDeleteDelegate?
     
     private let server: Server
     private let settings: SettingsManager
@@ -110,7 +105,7 @@ final class ProjectDetailViewController: BaseViewController {
         
     @objc private func changeProject() {
         let editViewController = EditProjectViewController(project: project, server: server)
-        editViewController.delegate = self
+        editViewController.updateDelegate = self
         navigationController?.pushViewController(editViewController, animated: true)
     }
     
@@ -125,10 +120,10 @@ final class ProjectDetailViewController: BaseViewController {
     }
 }
 
-extension ProjectDetailViewController: ProjectsViewControllerDelegate {
+extension ProjectDetailViewController: ProjectUpdateDelegate {
     func didUpdateProject(_ project: Project) {
         self.project = project
-        self.delegate?.didUpdateProject(project)
+        self.updateDelegate?.didUpdateProject(project)
         updateLabels()
     }
 }

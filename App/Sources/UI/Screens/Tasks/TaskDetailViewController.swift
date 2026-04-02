@@ -1,13 +1,8 @@
 import UIKit
 
-protocol TaskDetailViewControllerDelegate: AnyObject {
-    func didDeleteTask(_ task: ProjectTask, at indexPath: IndexPath)
-}
-
 final class TaskDetailViewController: BaseViewController {
-    
-    weak var delegate: TasksViewControllerDelegate?
-    weak var deleteDelegate: TaskDetailViewControllerDelegate?
+    weak var updateDelegate: TaskUpdateDelegate?
+    weak var deleteDelegate: TaskDeleteDelegate?
     
     private let server: Server
     private let settings: SettingsManager
@@ -257,20 +252,20 @@ final class TaskDetailViewController: BaseViewController {
     @objc private func changeTask() {
         if let project {
             let editViewController = isContextProject ? EditTaskViewController(task: task, project: project, server: server, settings: settings) : EditTaskViewController(task: task, server: server, settings: settings)
-            editViewController.delegate = self
+            editViewController.updateDelegate = self
             navigationController?.pushViewController(editViewController, animated: true)
         } else {
             let editViewController = EditTaskViewController(task: task, server: server, settings: settings)
-            editViewController.delegate = self
+            editViewController.updateDelegate = self
             navigationController?.pushViewController(editViewController, animated: true)
         }
     }
 }
 
-extension TaskDetailViewController: TasksViewControllerDelegate {
+extension TaskDetailViewController: TaskUpdateDelegate {
     func didUpdateTask(_ task: ProjectTask) {
         self.task = task
-        self.delegate?.didUpdateTask(task)
+        self.updateDelegate?.didUpdateTask(task)
         
         startLoading()
         Task {

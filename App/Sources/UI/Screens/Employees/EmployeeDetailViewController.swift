@@ -1,13 +1,8 @@
 import UIKit
 
-protocol EmployeeDetailViewControllerDelegate: AnyObject {
-    func didDeleteEmployee(_ employee: Employee, at indexPath: IndexPath)
-}
-
 final class EmployeeDetailViewController: BaseViewController {
-    
-    weak var delegate: EmployeesViewControllerDelegate?
-    weak var deleteDelegate: EmployeeDetailViewControllerDelegate?
+    weak var updateDelegate: EmployeeUpdateDelegate?
+    weak var deleteDelegate: EmployeeDeleteDelegate?
     
     private let server: Server
     private let indexPath: IndexPath
@@ -102,7 +97,7 @@ final class EmployeeDetailViewController: BaseViewController {
     
     @objc private func changeEmployee() {
         let editViewController = EditEmployeeViewController(employee: employee, server: server)
-        editViewController.delegate = self
+        editViewController.updateDelegate = self
         navigationController?.pushViewController(editViewController, animated: true)
     }
     
@@ -112,10 +107,10 @@ final class EmployeeDetailViewController: BaseViewController {
     }
 }
 
-extension EmployeeDetailViewController: EmployeesViewControllerDelegate {
+extension EmployeeDetailViewController: EmployeeUpdateDelegate {
     func didUpdateEmployee(_ employee: Employee) {
         self.employee = employee
-        self.delegate?.didUpdateEmployee(employee)
+        self.updateDelegate?.didUpdateEmployee(employee)
         updateLabels()
     }
 }

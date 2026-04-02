@@ -1,33 +1,22 @@
 import UIKit
 
-protocol ProjectsViewControllerDelegate: AnyObject {
-    func didAddProject(_ project: Project)
-    func didUpdateProject(_ project: Project)
-}
-
-extension ProjectsViewControllerDelegate {
-    func didAddProject(_ project: Project) {}
-}
-
-final class ProjectsViewController: BaseViewController {
+final class ProjectsViewController: BaseListViewController<Project> {
     enum ProjectsDisplayMode {
         case list
         case selection(completion: (Project) -> Void)
     }
     
-    let settings: SettingsManager
-    let tableView = UITableView()
-    
     private let server: Server
     private let mode: ProjectsDisplayMode
-    private var projects: [Project] = []
-    private var refreshControl = UIRefreshControl()
+    
+    override var emptyStateText: String {
+        return Localized.noProjects
+    }
     
     init(mode: ProjectsDisplayMode = .list, server: Server, settings: SettingsManager) {
         self.mode = mode
         self.server = server
-        self.settings = settings
-        super.init(nibName: nil, bundle: nil)
+        super.init(settings: settings)
     }
     
     required init?(coder: NSCoder) {
@@ -78,7 +67,7 @@ final class ProjectsViewController: BaseViewController {
     
     private func loadProjects() async throws {
         let allProjects = try await server.fetchProjects()
-        projects = Array(allProjects.prefix(settings.maxRecords))
+        items = Array(allProjects.prefix(settings.maxRecords))
         await MainActor.run {
             tableView.reloadData()
             updateEmptyState()
@@ -89,7 +78,7 @@ final class ProjectsViewController: BaseViewController {
     
     private func performDelete(at indexPath: IndexPath) {
         startLoading()
-        let project = projects[indexPath.row]
+        let project = items[indexPath.row]
         
         Task {
             do {
@@ -119,20 +108,20 @@ final class ProjectsViewController: BaseViewController {
     
     @objc private func addProject() {
         let editViewController = EditProjectViewController(server: server)
-        editViewController.delegate = self
+        editViewController.createDelegate = self
         navigationController?.pushViewController(editViewController, animated: true)
     }
 }
 
 extension ProjectsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return projects.count
+        return items.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ProjectCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "ProjectCell")
-        cell.textLabel?.text = projects[indexPath.row].projectName
-        cell.detailTextLabel?.text = projects[indexPath.row].description
+        cell.textLabel?.text = items[indexPath.row].projectName
+        cell.detailTextLabel?.text = items[indexPath.row].description
         return cell
     }
 }
@@ -140,12 +129,12 @@ extension ProjectsViewController: UITableViewDataSource {
 extension ProjectsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let project = projects[indexPath.row]
+        let project = items[indexPath.row]
         
         switch mode {
         case .list:
             let detailViewController = ProjectDetailViewController(indexPath: indexPath, project: project, server: server, settings: settings)
-            detailViewController.delegate = self
+            detailViewController.updateDelegate = self
             detailViewController.deleteDelegate = self
             navigationController?.pushViewController(detailViewController, animated: true)
         case .selection(let completion):
@@ -155,28 +144,19 @@ extension ProjectsViewController: UITableViewDelegate {
     }
 }
 
-extension ProjectsViewController: ListUpdatable {
-    var items: [Project] {
-        get { projects }
-        set { projects = newValue }
-    }
-    
-    var emptyStateText: String {
-        return Localized.noProjects
-    }
-}
-
-extension ProjectsViewController: ProjectsViewControllerDelegate {
-    func didAddProject(_ project: Project) {
-        addItem(project)
-    }
-    
+extension ProjectsViewController: ProjectUpdateDelegate {
     func didUpdateProject(_ project: Project) {
         updateItem(project) { $0.id == project.id }
     }
 }
 
-extension ProjectsViewController: ProjectDetailViewControllerDelegate {
+extension ProjectsViewController: ProjectCreateDelegate {
+    func didCreateProject(_ project: Project) {
+        addItem(project)
+    }
+}
+
+extension ProjectsViewController: ProjectDeleteDelegate {
     func didDeleteProject(_ project: Project, at indexPath: IndexPath) {
         performDelete(at: indexPath)
     }

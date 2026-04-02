@@ -1,7 +1,8 @@
 import UIKit
 
 final class EditProjectViewController: BaseFormViewController {
-    weak var delegate: ProjectsViewControllerDelegate?
+    weak var updateDelegate: ProjectUpdateDelegate?
+    weak var createDelegate: ProjectCreateDelegate?
     
     private let server: Server
     private var project: Project?
@@ -103,9 +104,9 @@ final class EditProjectViewController: BaseFormViewController {
     
     private func handleSuccess(savedProject: Project) {
         if project != nil {
-            delegate?.didUpdateProject(savedProject)
+            updateDelegate?.didUpdateProject(savedProject)
         } else {
-            delegate?.didAddProject(savedProject)
+            createDelegate?.didCreateProject(savedProject)
         }
         stopLoading()
         self.navigationController?.popViewController(animated: true)

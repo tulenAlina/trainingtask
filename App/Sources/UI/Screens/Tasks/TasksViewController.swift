@@ -1,30 +1,19 @@
 import UIKit
 
-protocol TasksViewControllerDelegate: AnyObject {
-    func didAddTask(_ task: ProjectTask)
-    func didUpdateTask(_ task: ProjectTask)
-}
-
-extension TasksViewControllerDelegate {
-    func didAddTask(_ task: ProjectTask) {}
-}
-
-final class TasksViewController: BaseViewController {
-    let settings: SettingsManager
-    let tableView = UITableView()
-    
+final class TasksViewController: BaseListViewController<ProjectTask> {
     private let project: Project?
     private let server: Server
-    private var tasks: [ProjectTask] = []
     private var projects: [Project] = []
     private var employees: [Employee] = []
-    private let refreshControl = UIRefreshControl()
         
+    override var emptyStateText: String {
+        return Localized.noTasks
+    }
+    
     init(project: Project? = nil, server: Server, settings: SettingsManager) {
         self.project = project
         self.server = server
-        self.settings = settings
-        super.init(nibName: nil, bundle: nil)
+        super.init(settings: settings)
     }
     
     required init?(coder: NSCoder) {
@@ -72,11 +61,11 @@ final class TasksViewController: BaseViewController {
             let (tasks, projects, employees) = try await (allTasks, allProjects, allEmployees)
             self.projects = projects
             self.employees = employees
-            self.tasks = Array(tasks.prefix(settings.maxRecords))
+            self.items = Array(tasks.prefix(settings.maxRecords))
         } else {
             let (tasks, employees) = try await (allTasks, allEmployees)
             self.employees = employees
-            self.tasks = Array(tasks.prefix(settings.maxRecords))
+            self.items = Array(tasks.prefix(settings.maxRecords))
         }
         
         await MainActor.run {
@@ -89,7 +78,7 @@ final class TasksViewController: BaseViewController {
     
     private func performDelete(at indexPath: IndexPath) {
         startLoading()
-        let task = tasks[indexPath.row]
+        let task = items[indexPath.row]
 
         Task {
             do {
@@ -124,19 +113,19 @@ final class TasksViewController: BaseViewController {
         } else {
             editViewController = EditTaskViewController(server: server, settings: settings)
         }
-        editViewController.delegate = self
+        editViewController.createDelegate = self
         navigationController?.pushViewController(editViewController, animated: true)
     }
 }
 
 extension TasksViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return tasks.count
+        return items.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TaskCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "TaskCell")
-        let task = tasks[indexPath.row]
+        let task = items[indexPath.row]
         cell.textLabel?.text = task.taskName
         
         if project == nil {
@@ -161,7 +150,7 @@ extension TasksViewController: UITableViewDataSource {
 extension TasksViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let detailViewController = createTaskDetailViewController(for: tasks[indexPath.row], indexPath: indexPath)
+        let detailViewController = createTaskDetailViewController(for: items[indexPath.row], indexPath: indexPath)
         navigationController?.pushViewController(detailViewController, animated: true)
     }
     
@@ -186,34 +175,25 @@ extension TasksViewController: UITableViewDelegate {
             isContextProject: isContextProject,
             server: server,
             settings: settings)
-        detailViewController.delegate = self
+        detailViewController.updateDelegate = self
         detailViewController.deleteDelegate = self
         return detailViewController
     }
 }
 
-extension TasksViewController: ListUpdatable {
-    var items: [ProjectTask] {
-        get { tasks }
-        set { tasks = newValue }
-    }
-    
-    var emptyStateText: String {
-        return Localized.noTasks
-    }
-}
-
-extension TasksViewController: TasksViewControllerDelegate {
-    func didAddTask(_ task: ProjectTask) {
-        addItem(task)
-    }
-    
+extension TasksViewController: TaskUpdateDelegate {
     func didUpdateTask(_ task: ProjectTask) {
         updateItem(task) { $0.id == task.id }
     }
 }
 
-extension TasksViewController: TaskDetailViewControllerDelegate {
+extension TasksViewController: TaskCreateDelegate {
+    func didCreateTask(_ task: ProjectTask) {
+        addItem(task)
+    }
+}
+
+extension TasksViewController: TaskDeleteDelegate {
     func didDeleteTask(_ task: ProjectTask, at indexPath: IndexPath) {
         performDelete(at: indexPath)
     }

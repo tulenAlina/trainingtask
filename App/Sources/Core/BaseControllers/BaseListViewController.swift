@@ -1,14 +1,21 @@
 import UIKit
 
-protocol ListUpdatable: AnyObject {
-    associatedtype ItemType
-    var items: [ItemType] { get set }
-    var tableView: UITableView { get }
-    var settings: SettingsManager { get }
-    var emptyStateText: String { get }
-}
+class BaseListViewController<Item>: BaseViewController {
+    var items: [Item] = []
+    var tableView = UITableView()
+    var refreshControl = UIRefreshControl()
+    var settings: SettingsManager
+    var emptyStateText: String { return "" }
 
-extension ListUpdatable {
+    init(settings: SettingsManager) {
+        self.settings = settings
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     func updateEmptyState() {
         if items.isEmpty {
             let label = UILabel()
@@ -21,7 +28,7 @@ extension ListUpdatable {
         }
     }
     
-    func addItem(_ item: ItemType) {
+    func addItem(_ item: Item) {
         let maxRecords = settings.maxRecords
         let lastRowIndexWithinLimit = maxRecords - 1
         let lastIndexPathWithinLimit = IndexPath(row: lastRowIndexWithinLimit, section: 0)
@@ -38,7 +45,7 @@ extension ListUpdatable {
         updateEmptyState()
     }
     
-    func updateItem(_ item: ItemType, where condition: (ItemType) -> Bool) {
+    func updateItem(_ item: Item, where condition: (Item) -> Bool) {
         if let index = items.firstIndex(where: condition) {
             items[index] = item
             let indexPath = IndexPath(row: index, section: 0)
