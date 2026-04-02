@@ -1,5 +1,7 @@
 import Foundation
 
+/// Протокол для работы с серверным API
+/// Определяет все операции для управления проектами, сотрудниками и задачами
 protocol Server {
     func fetchProjects() async throws -> [Project]
     func createProject(_ project: Project) async throws -> Project
