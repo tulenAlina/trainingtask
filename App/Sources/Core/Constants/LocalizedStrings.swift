@@ -89,10 +89,9 @@ enum Localized {
     static let deleteFailed = "delete_failed".localized
     static let invalidDate = "invalid_date".localized
     static let invalidHours = "invalid_hours".localized
-    static let selectProject = "select_project".localized
-    static let selectEmployee = "select_employee".localized
     static let fillAllFields = "fill_all_fields".localized
     static let dateEndBeforeStart = "date_end_before_start".localized
+    static let hoursExceedPeriod = "hours_exceed_period".localized
     static let maxRecordsReached = "max_records_reached".localized
     static let emptyFields = "empty_fields".localized
 

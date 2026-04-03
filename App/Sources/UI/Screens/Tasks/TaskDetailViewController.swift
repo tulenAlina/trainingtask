@@ -89,9 +89,12 @@ final class TaskDetailViewController: BaseViewController {
         }
         
         for label in [taskNameLabel, projectLabel, workTimeLabel, startDateLabel, endDateLabel, employeeLabel] {
-            label.numberOfLines = 0
             label.translatesAutoresizingMaskIntoConstraints = false
         }
+        
+        taskNameLabel.numberOfLines = 10
+        projectLabel.numberOfLines = 2
+        employeeLabel.numberOfLines = 2
         
         statusLabel.font = .systemFont(ofSize: 12)
         statusLabel.textAlignment = .center

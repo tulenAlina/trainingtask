@@ -43,7 +43,7 @@ final class EmployeeDetailViewController: BaseViewController {
         updateLabels()
         
         nameLabel.font = .systemFont(ofSize: 18, weight: .semibold)
-        nameLabel.numberOfLines = 0
+        nameLabel.numberOfLines = 5
         
         positionTitleLabel.text = Localized.positionLabel
         positionTitleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
@@ -53,6 +53,7 @@ final class EmployeeDetailViewController: BaseViewController {
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         positionTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         positionLabel.translatesAutoresizingMaskIntoConstraints = false
+        positionLabel.numberOfLines = 3
         
         view.addSubview(nameLabel)
         view.addSubview(positionTitleLabel)

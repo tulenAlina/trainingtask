@@ -66,6 +66,7 @@ final class EditTaskViewController: BaseFormViewController {
         self.contextProject = project
         self.server = server
         self.settings = settings
+        selectedProject = contextProject
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -261,7 +262,7 @@ final class EditTaskViewController: BaseFormViewController {
         var updatedTask = task
         updatedTask.taskName = taskNameTextField.text?.trimmed ?? ""
         updatedTask.projectID = inputProject.id
-        updatedTask.workTime = Int(workTimeTextField.text ?? "") ?? 0
+        updatedTask.workTime = Int(workTimeTextField.text?.replacingOccurrences(of: " ", with: "") ?? "") ?? 0
         updatedTask.startDate = DateHelper.date(from: startDateTextField.text ?? "") ?? Date()
         updatedTask.endDate = DateHelper.date(from: endDateTextField.text ?? "") ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()
         updatedTask.status = TaskStatus.allCases[statusSegmentedControl.selectedSegmentIndex]
@@ -273,7 +274,7 @@ final class EditTaskViewController: BaseFormViewController {
         return ProjectTask(
             taskName: taskNameTextField.text?.trimmed ?? "",
             projectID: inputProject.id,
-            workTime: Int(workTimeTextField.text ?? "") ?? 0,
+            workTime: Int(workTimeTextField.text?.replacingOccurrences(of: " ", with: "") ?? "") ?? 0,
             startDate: DateHelper.date(from: startDateTextField.text ?? "") ?? Date(),
             endDate: DateHelper.date(from: endDateTextField.text ?? "") ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date(),
             status: TaskStatus.allCases[statusSegmentedControl.selectedSegmentIndex],
@@ -341,6 +342,19 @@ final class EditTaskViewController: BaseFormViewController {
             showAlert(Localized.dateEndBeforeStart)
             return false
         }
+        
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.day], from: startDate, to: endDate)
+        let daysBetween = components.day ?? 0
+        let maxHours = (daysBetween + 1) * 24
+        
+        let workTime = Int(workTimeTextField.text?.trimmed ?? "") ?? 0
+        
+        guard workTime <= maxHours else {
+            showAlert(Localized.hoursExceedPeriod)
+            return false
+        }
+        
         return true
     }
     
@@ -359,7 +373,7 @@ final class EditTaskViewController: BaseFormViewController {
         
         let taskNameChanged = taskNameTextField.text?.trimmed ?? "" != task.taskName.trimmed
         let projectChanged = projectTextField.text?.trimmed ?? "" != projectName
-        let workTimeChanged = Int(workTimeTextField.text?.trimmed ?? "") ?? 0 != task.workTime
+        let workTimeChanged = Int(workTimeTextField.text?.trimmed.replacingOccurrences(of: " ", with: "") ?? "") ?? 0 != task.workTime
         let startDateChanged = startDateTextField.text?.trimmed ?? "" != DateHelper.string(from: task.startDate)
         let endDateChanged = endDateTextField.text?.trimmed ?? "" != DateHelper.string(from: task.endDate)
         let employeeChanged = employeeTextField.text?.trimmed ?? "" != empFio
@@ -373,10 +387,7 @@ final class EditTaskViewController: BaseFormViewController {
             navigationController?.popViewController(animated: true)
             return
         }
-        guard let selectedProject = selectedProject else {
-            showAlert(Localized.selectProject)
-            return
-        }
+        guard let selectedProject else { return }
         guard validateDates() else {return}
         startLoading()
         

@@ -45,10 +45,10 @@ final class ProjectDetailViewController: BaseViewController {
         updateLabels()
         
         nameLabel.font = .systemFont(ofSize: 18, weight: .semibold)
-        nameLabel.numberOfLines = 0
+        nameLabel.numberOfLines = 5
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        descriptionLabel.numberOfLines = 0
+        descriptionLabel.numberOfLines = 20
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         
         view.addSubview(nameLabel)
