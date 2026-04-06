@@ -68,7 +68,7 @@ final class TaskDetailViewController: BaseViewController {
         setupButtons()
         setupTimeCard()
         setupConstraints()
-        addRightBarButton(title: Localized.edit, action: #selector(changeTask))
+        setupRightBarButton(title: Localized.edit, action: #selector(didTapChangeButton))
     }
     
     private func setupLabels() {
@@ -132,7 +132,7 @@ final class TaskDetailViewController: BaseViewController {
         deleteButton.layer.borderColor = UIColor.red.cgColor
         deleteButton.layer.cornerRadius = 12
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
-        deleteButton.addTarget(self, action: #selector(deleteTask), for: .touchUpInside)
+        deleteButton.addTarget(self, action: #selector(didTapDeleteButton), for: .touchUpInside)
         
         view.addSubview(deleteButton)
     }
@@ -226,7 +226,7 @@ final class TaskDetailViewController: BaseViewController {
         }
     }
     
-    private func loadProjectsAndEmployees() async {
+    private func reloadTaskDetails() async {
         do {
             async let projects = server.fetchProjects()
             async let employees = server.fetchEmployees()
@@ -248,12 +248,12 @@ final class TaskDetailViewController: BaseViewController {
         }
     }
     
-    @objc private func deleteTask() {
+    @objc private func didTapDeleteButton() {
         deleteDelegate?.didDeleteTask(task, at: indexPath)
         navigationController?.popViewController(animated: true)
     }
     
-    @objc private func changeTask() {
+    @objc private func didTapChangeButton() {
         if let project {
             let editViewController = isOpenedFromProject ? EditTaskViewController(task: task, project: project, server: server, settings: settings, updateDelegate: self) : EditTaskViewController(task: task, server: server, settings: settings, updateDelegate: self)
             navigationController?.pushViewController(editViewController, animated: true)
@@ -271,7 +271,7 @@ extension TaskDetailViewController: TaskUpdateDelegate {
         
         startLoading()
         Task {
-            await loadProjectsAndEmployees()
+            await reloadTaskDetails()
         }
     }
 }

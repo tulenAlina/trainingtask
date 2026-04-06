@@ -32,40 +32,37 @@ final class SettingsViewController: BaseFormViewController {
     
     private func setupUI() {
         setupNavigationTitle(Localized.settings)
-        setupTextFields()
-        setupLabels()
+        setupInputFields()
         setupConstraints()
         addSaveButton(action: #selector(saveSettings))
     }
     
-    private func setupTextFields() {
+    private func setupInputFields() {
         serverUrlTextField.keyboardType = .URL
         serverUrlTextField.delegate = self
         serverUrlTextField.translatesAutoresizingMaskIntoConstraints = false
         serverUrlTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        view.addSubview(serverUrlTextField)
         
         maxRecordsTextField.keyboardType = .numberPad
         maxRecordsTextField.delegate = self
         maxRecordsTextField.translatesAutoresizingMaskIntoConstraints = false
         maxRecordsTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        view.addSubview(maxRecordsTextField)
         
         defaultDaysBetweenTextField.keyboardType = .numberPad
         defaultDaysBetweenTextField.delegate = self
         defaultDaysBetweenTextField.translatesAutoresizingMaskIntoConstraints = false
         defaultDaysBetweenTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        
+        view.addSubview(serverUrlLabel)
+        view.addSubview(serverUrlTextField)
+        view.addSubview(maxRecordsLabel)
+        view.addSubview(maxRecordsTextField)
+        view.addSubview(defaultDaysBetweenLabel)
         view.addSubview(defaultDaysBetweenTextField)
         
         loadCurrentSettings()
     }
-    
-    private func setupLabels() {
-        view.addSubview(serverUrlLabel)
-        view.addSubview(maxRecordsLabel)
-        view.addSubview(defaultDaysBetweenLabel)
-    }
-    
+
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             serverUrlLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),

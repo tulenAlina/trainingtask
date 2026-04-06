@@ -38,7 +38,7 @@ final class ProjectDetailViewController: BaseViewController {
         setupLabels()
         setupButtons()
         setupConstraints()
-        addRightBarButton(title: Localized.edit, action: #selector(changeProject))
+        setupRightBarButton(title: Localized.edit, action: #selector(didTapChangeButton))
     }
     
     private func setupLabels() {
@@ -63,7 +63,7 @@ final class ProjectDetailViewController: BaseViewController {
         openTasksButton.layer.borderColor = UIColor.darkGray.cgColor
         openTasksButton.layer.cornerRadius = 12
         openTasksButton.translatesAutoresizingMaskIntoConstraints = false
-        openTasksButton.addTarget(self, action: #selector(openTasks), for: .touchUpInside)
+        openTasksButton.addTarget(self, action: #selector(didTapOpenTasksButton), for: .touchUpInside)
         
         deleteButton.setTitle(Localized.delete, for: .normal)
         deleteButton.setTitleColor(.red, for: .normal)
@@ -72,7 +72,7 @@ final class ProjectDetailViewController: BaseViewController {
         deleteButton.layer.borderColor = UIColor.red.cgColor
         deleteButton.layer.cornerRadius = 12
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
-        deleteButton.addTarget(self, action: #selector(deleteProject), for: .touchUpInside)
+        deleteButton.addTarget(self, action: #selector(didTapDeleteButton), for: .touchUpInside)
         
         view.addSubview(openTasksButton)
         view.addSubview(deleteButton)
@@ -105,17 +105,17 @@ final class ProjectDetailViewController: BaseViewController {
         descriptionLabel.text = project.description
     }
         
-    @objc private func changeProject() {
+    @objc private func didTapChangeButton() {
         let editViewController = EditProjectViewController(project: project, server: server, updateDelegate: self)
         navigationController?.pushViewController(editViewController, animated: true)
     }
     
-    @objc private func deleteProject() {
+    @objc private func didTapDeleteButton() {
         deleteDelegate?.didDeleteProject(project, at: indexPath)
         navigationController?.popViewController(animated: true)
     }
     
-    @objc private func openTasks() {
+    @objc private func didTapOpenTasksButton() {
         let tasksViewConttroller = TasksViewController(project: project, server: server, settings: settings)
         navigationController?.pushViewController(tasksViewConttroller, animated: true)
     }

@@ -59,7 +59,7 @@ final class ProjectsViewController: BaseListViewController<Project> {
     private func setupNavigationBar() {
         switch mode {
         case .list:
-            addRightBarButton(systemItem: .add, action: #selector(addProject))
+            setupRightBarButton(systemItem: .add, action: #selector(addProject))
         case .selection:
             break
         }

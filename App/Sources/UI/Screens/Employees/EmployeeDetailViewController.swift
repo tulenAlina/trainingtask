@@ -36,7 +36,7 @@ final class EmployeeDetailViewController: BaseViewController {
         setupLabels()
         setupButtons()
         setupConstraints()
-        addRightBarButton(title: Localized.edit, action: #selector(changeEmployee))
+        setupRightBarButton(title: Localized.edit, action: #selector(didTapChangeButton))
     }
     
     private func setupLabels() {
@@ -68,7 +68,7 @@ final class EmployeeDetailViewController: BaseViewController {
         deleteButton.layer.borderColor = UIColor.red.cgColor
         deleteButton.layer.cornerRadius = 12
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
-        deleteButton.addTarget(self, action: #selector(deleteEmployee), for: .touchUpInside)
+        deleteButton.addTarget(self, action: #selector(didTapDeleteButton), for: .touchUpInside)
         
         view.addSubview(deleteButton)
     }
@@ -98,12 +98,12 @@ final class EmployeeDetailViewController: BaseViewController {
         positionLabel.text = employee.position
     }
     
-    @objc private func changeEmployee() {
+    @objc private func didTapChangeButton() {
         let editViewController = EditEmployeeViewController(employee: employee, server: server, updateDelegate: self)
         navigationController?.pushViewController(editViewController, animated: true)
     }
     
-    @objc private func deleteEmployee() {
+    @objc private func didTapDeleteButton() {
         deleteDelegate?.didDeleteEmployee(employee, at: indexPath)
         navigationController?.popViewController(animated: true)
     }

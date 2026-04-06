@@ -3,7 +3,7 @@ import UIKit
 class BaseFormViewController: BaseViewController {
     var requiredFields: [UITextField] = []
     
-    private func highlightField(_ textField: UITextField, isValid: Bool) {
+    private func applyValidationStyle(_ textField: UITextField, isValid: Bool) {
         if isValid {
             textField.layer.borderColor = UIColor(white: 0.8, alpha: 1).cgColor
             textField.layer.borderWidth = 0.5
@@ -13,9 +13,9 @@ class BaseFormViewController: BaseViewController {
         }
     }
     
-    private func resetFieldHighlights() {
+    private func clearValidationStyles() {
         for textField in requiredFields {
-            highlightField(textField, isValid: true)
+            applyValidationStyle(textField, isValid: true)
         }
     }
     
@@ -24,16 +24,16 @@ class BaseFormViewController: BaseViewController {
     }
     
     func validateFields() -> Bool {
-        resetFieldHighlights()
+        clearValidationStyles()
         var isValid = true
         
         for textField in requiredFields
         {
             if textField.text?.trimmed.isBlank == true {
-                highlightField(textField, isValid: false)
+                applyValidationStyle(textField, isValid: false)
                 isValid = false
             } else {
-                highlightField(textField, isValid: true)
+                applyValidationStyle(textField, isValid: true)
             }
         }
         
@@ -46,9 +46,9 @@ class BaseFormViewController: BaseViewController {
     
     @objc func textFieldDidChange(sender: UITextField) {
         if sender.text?.trimmed.isBlank == false {
-            highlightField(sender, isValid: true)
+            applyValidationStyle(sender, isValid: true)
         } else {
-            highlightField(sender, isValid: false)
+            applyValidationStyle(sender, isValid: false)
         }
     }
 }

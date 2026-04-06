@@ -101,15 +101,15 @@ final class EditTaskViewController: BaseFormViewController {
     }
     
     private func setupUI() {
-        setupTextFieldsAndLabels()
+        setupInputFields()
         setupClearEmployeeButton()
         setupSegmentedControl()
         setupConstraints()
         setupToolbar()
-        addSaveButton(action: #selector(saveTask))
+        addSaveButton(action: #selector(didTapSaveButton))
     }
         
-    private func setupTextFieldsAndLabels() {
+    private func setupInputFields() {
         if let contextProject {
             projectTextField.text = "\(contextProject.projectName)"
             projectTextField.isEnabled = false
@@ -270,7 +270,7 @@ final class EditTaskViewController: BaseFormViewController {
         return updatedTask
     }
     
-    private func newTaskFromForm(_ inputProject: Project, _ inputEmployee: Employee?) -> ProjectTask {
+    private func buildTask(_ inputProject: Project, _ inputEmployee: Employee?) -> ProjectTask {
         return ProjectTask(
             taskName: taskNameTextField.text?.trimmed ?? "",
             projectID: inputProject.id,
@@ -309,12 +309,12 @@ final class EditTaskViewController: BaseFormViewController {
         }
     }
     
-    private func fetchSavedTask(_ inputProject: Project, _ inputEmployee: Employee?) async throws -> ProjectTask {
+    private func saveTask(_ inputProject: Project, _ inputEmployee: Employee?) async throws -> ProjectTask {
         if let task {
             let updatedTask = updatedTask(task, inputProject, inputEmployee)
             return try await server.updateTask(updatedTask)
         } else {
-            let createdTask = newTaskFromForm(inputProject, inputEmployee)
+            let createdTask = buildTask(inputProject, inputEmployee)
             return try await server.createTask(createdTask)
             
         }
@@ -381,7 +381,7 @@ final class EditTaskViewController: BaseFormViewController {
         return taskNameChanged || projectChanged || workTimeChanged || startDateChanged || endDateChanged || employeeChanged || statusChanged
     }
     
-    @objc private func saveTask() {
+    @objc private func didTapSaveButton() {
         guard validateFields() else { return }
         guard isFieldsChanged() else {
             navigationController?.popViewController(animated: true)
@@ -393,7 +393,7 @@ final class EditTaskViewController: BaseFormViewController {
         
         Task {
             do {
-                let savedTask = try await fetchSavedTask(selectedProject, selectedEmployee)
+                let savedTask = try await saveTask(selectedProject, selectedEmployee)
                 await MainActor.run {
                     handleSuccess(savedTask: savedTask)
                 }

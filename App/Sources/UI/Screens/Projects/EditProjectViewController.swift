@@ -45,12 +45,12 @@ final class EditProjectViewController: BaseFormViewController {
     
     private func setupUI() {
         setupNavigationTitle((project != nil) ? Localized.editProject : Localized.addProject)
-        setupTextFieldsAndLabels()
+        setupInputFields()
         setupConstraints()
-        addSaveButton(action: #selector(saveProject))
+        addSaveButton(action: #selector(didTapSaveButton))
     }
     
-    private func setupTextFieldsAndLabels() {
+    private func setupInputFields() {
         if let project {
             nameTextField.text = "\(project.projectName)"
             descriptionTextField.text = "\(project.description)"
@@ -94,19 +94,19 @@ final class EditProjectViewController: BaseFormViewController {
         return updatedProject
     }
     
-    private func newProjectFromForm() -> Project {
+    private func buildProject() -> Project {
         return Project(
             projectName: nameTextField.text?.trimmed ?? "",
             description: descriptionTextField.text?.trimmed ?? ""
         )
     }
 
-    private func fetchSavedProject() async throws -> Project {
+    private func saveProject() async throws -> Project {
         if let project {
             let updatedProject = updatedProject(project)
             return try await server.updateProject(updatedProject)
         } else {
-            let createdProject = newProjectFromForm()
+            let createdProject = buildProject()
             return try await server.createProject(createdProject)
             
         }
@@ -129,7 +129,7 @@ final class EditProjectViewController: BaseFormViewController {
         return nameChanged || descriptionChanged
     }
     
-    @objc private func saveProject() {
+    @objc private func didTapSaveButton() {
         guard validateFields() else { return }
         guard isFieldsChanged() else {
             navigationController?.popViewController(animated: true)
@@ -139,7 +139,7 @@ final class EditProjectViewController: BaseFormViewController {
         startLoading()
         Task {
             do {
-                let savedProject = try await fetchSavedProject()
+                let savedProject = try await saveProject()
                 await MainActor.run {
                     handleSuccess(savedProject: savedProject)
                 }

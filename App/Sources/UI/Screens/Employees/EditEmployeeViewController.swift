@@ -49,12 +49,12 @@ final class EditEmployeeViewController: BaseFormViewController {
     
     private func setupUI() {
         setupNavigationTitle((employee != nil) ? Localized.editEmployee : Localized.addEmployee)
-        setupTextFieldsAndLabels()
+        setupInputFields()
         setupConstraints()
-        addSaveButton(action: #selector(saveEmployee))
+        addSaveButton(action: #selector(didTapSaveButton))
     }
     
-    private func setupTextFieldsAndLabels() {
+    private func setupInputFields() {
         
         if let employee {
             firstNameTextField.text = "\(employee.firstName)"
@@ -127,7 +127,7 @@ final class EditEmployeeViewController: BaseFormViewController {
         return updatedEmployee
     }
     
-    private func newEmployeeFromForm() -> Employee {
+    private func buildEmployee() -> Employee {
         return Employee(
             firstName: firstNameTextField.text?.trimmed ?? "",
             lastName: lastNameTextField.text?.trimmed ?? "",
@@ -136,12 +136,12 @@ final class EditEmployeeViewController: BaseFormViewController {
         )
     }
     
-    private func fetchSavedEmployee() async throws -> Employee {
+    private func saveEmployee() async throws -> Employee {
         if let employee {
             let updatedEmployee = updatedEmployee(from: employee)
             return try await server.updateEmployee(updatedEmployee)
         } else {
-            let createdEmployee = newEmployeeFromForm()
+            let createdEmployee = buildEmployee()
             return try await server.createEmployee(createdEmployee)
             
         }
@@ -168,7 +168,7 @@ final class EditEmployeeViewController: BaseFormViewController {
         return firstNameChanged || lastNameChanged || surNameChanged || positionChanged
     }
     
-    @objc private func saveEmployee() {
+    @objc private func didTapSaveButton() {
         guard validateFields() else { return }
         guard isFieldsChanged() else {
             navigationController?.popViewController(animated: true)
@@ -178,7 +178,7 @@ final class EditEmployeeViewController: BaseFormViewController {
         startLoading()
         Task {
             do {
-                let savedEmployee = try await fetchSavedEmployee()
+                let savedEmployee = try await saveEmployee()
                 await MainActor.run {
                     handleSuccess(savedEmployee: savedEmployee)
                 }

@@ -55,12 +55,12 @@ class BaseViewController: UIViewController {
         self.title = title
     }
     
-    func addRightBarButton(title: String, action: Selector) {
+    func setupRightBarButton(title: String, action: Selector) {
         let button = UIBarButtonItem(title: title, style: .done, target: self, action: action)
         navigationItem.rightBarButtonItem = button
     }
         
-    func addRightBarButton(systemItem: UIBarButtonItem.SystemItem, action: Selector) {
+    func setupRightBarButton(systemItem: UIBarButtonItem.SystemItem, action: Selector) {
         let button = UIBarButtonItem(barButtonSystemItem: systemItem, target: self, action: action)
         navigationItem.rightBarButtonItem = button
     }
