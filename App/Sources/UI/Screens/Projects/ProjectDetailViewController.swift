@@ -12,7 +12,7 @@ final class ProjectDetailViewController: BaseViewController {
     private var nameLabel = UILabel()
     private var descriptionLabel = UILabel()
     private var openTasksButton = UIButton()
-    private var deleteButton = UIButton()
+    private var deleteButton = UIFactory.createDeleteButton()
     
     init(indexPath: IndexPath, project: Project, server: Server, settings: SettingsManager, updateDelegate: ProjectUpdateDelegate, deleteDelegate: ProjectDeleteDelegate) {
         self.indexPath = indexPath
@@ -65,13 +65,6 @@ final class ProjectDetailViewController: BaseViewController {
         openTasksButton.translatesAutoresizingMaskIntoConstraints = false
         openTasksButton.addTarget(self, action: #selector(didTapOpenTasksButton), for: .touchUpInside)
         
-        deleteButton.setTitle(Localized.delete, for: .normal)
-        deleteButton.setTitleColor(.red, for: .normal)
-        deleteButton.backgroundColor = UIColor.systemRed.withAlphaComponent(0.1)
-        deleteButton.layer.borderWidth = 0.5
-        deleteButton.layer.borderColor = UIColor.red.cgColor
-        deleteButton.layer.cornerRadius = 12
-        deleteButton.translatesAutoresizingMaskIntoConstraints = false
         deleteButton.addTarget(self, action: #selector(didTapDeleteButton), for: .touchUpInside)
         
         view.addSubview(openTasksButton)

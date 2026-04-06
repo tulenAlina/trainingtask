@@ -11,7 +11,7 @@ final class EmployeeDetailViewController: BaseViewController {
     private var nameLabel = UILabel()
     private var positionLabel = UILabel()
     private var positionTitleLabel = UILabel()
-    private var deleteButton = UIButton()
+    private var deleteButton = UIFactory.createDeleteButton()
     
     init(indexPath: IndexPath, employee: Employee, server: Server, updateDelegate: EmployeeUpdateDelegate, deleteDelegate: EmployeeDeleteDelegate) {
         self.indexPath = indexPath
@@ -61,15 +61,7 @@ final class EmployeeDetailViewController: BaseViewController {
     }
     
     private func setupButtons() {
-        deleteButton.setTitle(Localized.delete, for: .normal)
-        deleteButton.setTitleColor(.red, for: .normal)
-        deleteButton.backgroundColor = UIColor.systemRed.withAlphaComponent(0.1)
-        deleteButton.layer.borderWidth = 0.5
-        deleteButton.layer.borderColor = UIColor.red.cgColor
-        deleteButton.layer.cornerRadius = 12
-        deleteButton.translatesAutoresizingMaskIntoConstraints = false
         deleteButton.addTarget(self, action: #selector(didTapDeleteButton), for: .touchUpInside)
-        
         view.addSubview(deleteButton)
     }
     

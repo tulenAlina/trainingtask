@@ -25,7 +25,7 @@ final class TaskDetailViewController: BaseViewController {
     private var endDateLabel = UILabel()
     private var employeeLabel = UILabel()
     private var statusLabel = UILabel()
-    private var deleteButton = UIButton()
+    private var deleteButton = UIFactory.createDeleteButton()
     
     
     private let timeCard: UIView = {
@@ -125,15 +125,7 @@ final class TaskDetailViewController: BaseViewController {
     }
     
     private func setupButtons() {
-        deleteButton.setTitle(Localized.delete, for: .normal)
-        deleteButton.setTitleColor(.red, for: .normal)
-        deleteButton.backgroundColor = UIColor.systemRed.withAlphaComponent(0.1)
-        deleteButton.layer.borderWidth = 0.5
-        deleteButton.layer.borderColor = UIColor.red.cgColor
-        deleteButton.layer.cornerRadius = 12
-        deleteButton.translatesAutoresizingMaskIntoConstraints = false
         deleteButton.addTarget(self, action: #selector(didTapDeleteButton), for: .touchUpInside)
-        
         view.addSubview(deleteButton)
     }
     

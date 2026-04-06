@@ -101,15 +101,16 @@ final class EditTaskViewController: BaseFormViewController {
     }
     
     private func setupUI() {
-        setupInputFields()
+        configureTextFields()
+        configureFormRows()
         setupClearEmployeeButton()
         setupSegmentedControl()
-        setupConstraints()
         setupToolbar()
+        setupForm()
         addSaveButton(action: #selector(didTapSaveButton))
     }
-        
-    private func setupInputFields() {
+    
+    private func configureTextFields() {
         if let contextProject {
             projectTextField.text = "\(contextProject.projectName)"
             projectTextField.isEnabled = false
@@ -152,25 +153,31 @@ final class EditTaskViewController: BaseFormViewController {
         taskNameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         projectTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         workTimeTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+    }
+    
+    private func configureFormRows() {
+        let taskNameRow = UIFactory.createFormRow(labelText: Localized.nameLabel, inputView: taskNameTextField)
+        let projectRow = UIFactory.createFormRow(labelText: Localized.projectLabel, inputView: projectTextField)
+        let workTimeRow = UIFactory.createFormRow(labelText: Localized.hoursLabel, inputView: workTimeTextField)
+        let startDateRow = UIFactory.createFormRow(labelText: Localized.startDateLabel, inputView: startDateTextField)
+        let endDateRow = UIFactory.createFormRow(labelText: Localized.endDateLabel, inputView: endDateTextField)
+        let statusDateRow = UIFactory.createFormRow(labelText: Localized.statusLabel, inputView: statusSegmentedControl)
         
-        view.addSubview(taskNameTextField)
-        view.addSubview(taskNameLabel)
-        view.addSubview(projectTextField)
-        view.addSubview(projectLabel)
-        view.addSubview(workTimeTextField)
-        view.addSubview(workTimeLabel)
-        view.addSubview(startDateTextField)
-        view.addSubview(startDateLabel)
-        view.addSubview(endDateTextField)
-        view.addSubview(endDateLabel)
-        view.addSubview(employeeTextField)
-        view.addSubview(employeeLabel)
-        view.addSubview(statusLabel)
+        let employeeHorizontalStack = UIStackView(arrangedSubviews: [employeeTextField, clearEmployeeButton])
+        employeeHorizontalStack.axis = .horizontal
+        employeeHorizontalStack.spacing = 5
+        employeeHorizontalStack.translatesAutoresizingMaskIntoConstraints = false
+        
+        let employeeRow = UIFactory.createFormRow(labelText: Localized.employeeLabel, inputView: employeeHorizontalStack)
+        
+        [taskNameRow, projectRow, workTimeRow, startDateRow, endDateRow, employeeRow, statusDateRow].forEach { row in
+            stackView.addArrangedSubview(row)
+        }
     }
     
     private func setupClearEmployeeButton() {
         clearEmployeeButton.addTarget(self, action: #selector(clearEmployeeTapped), for: .touchUpInside)
-        view.addSubview(clearEmployeeButton)
+        clearEmployeeButton.widthAnchor.constraint(equalToConstant: 70).isActive = true
     }
     
     private func setupSegmentedControl() {
@@ -180,74 +187,8 @@ final class EditTaskViewController: BaseFormViewController {
         } else {
             statusSegmentedControl.selectedSegmentIndex = 0
         }
-        
-        view.addSubview(statusSegmentedControl)
     }
-    
-    private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            taskNameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            taskNameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            taskNameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            taskNameTextField.topAnchor.constraint(equalTo: taskNameLabel.bottomAnchor, constant: 5),
-            taskNameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            taskNameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            projectLabel.topAnchor.constraint(equalTo: taskNameTextField.bottomAnchor, constant: 10),
-            projectLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            projectLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            projectTextField.topAnchor.constraint(equalTo: projectLabel.bottomAnchor, constant: 5),
-            projectTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            projectTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            workTimeLabel.topAnchor.constraint(equalTo: projectTextField.bottomAnchor, constant: 10),
-            workTimeLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            workTimeLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            workTimeTextField.topAnchor.constraint(equalTo: workTimeLabel.bottomAnchor, constant: 5),
-            workTimeTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            workTimeTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            startDateLabel.topAnchor.constraint(equalTo: workTimeTextField.bottomAnchor, constant: 10),
-            startDateLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            startDateLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            startDateTextField.topAnchor.constraint(equalTo: startDateLabel.bottomAnchor, constant: 5),
-            startDateTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            startDateTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            endDateLabel.topAnchor.constraint(equalTo: startDateTextField.bottomAnchor, constant: 10),
-            endDateLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            endDateLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            endDateTextField.topAnchor.constraint(equalTo: endDateLabel.bottomAnchor, constant: 5),
-            endDateTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            endDateTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            employeeLabel.topAnchor.constraint(equalTo: endDateTextField.bottomAnchor, constant: 10),
-            employeeLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            employeeLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            employeeTextField.topAnchor.constraint(equalTo: employeeLabel.bottomAnchor, constant: 5),
-            employeeTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            employeeTextField.trailingAnchor.constraint(equalTo: clearEmployeeButton.leadingAnchor, constant: -20),
-            
-            clearEmployeeButton.topAnchor.constraint(equalTo: employeeLabel.bottomAnchor, constant: 5),
-            clearEmployeeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            clearEmployeeButton.widthAnchor.constraint(equalToConstant: 70),
-            
-            statusLabel.topAnchor.constraint(equalTo: employeeTextField.bottomAnchor, constant: 10),
-            statusLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            statusLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            statusSegmentedControl.topAnchor.constraint(equalTo: statusLabel.bottomAnchor, constant: 5),
-            statusSegmentedControl.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            statusSegmentedControl.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
-        ])
-    }
-    
+ 
     private func setupToolbar() {
         toolbar.sizeToFit()
         

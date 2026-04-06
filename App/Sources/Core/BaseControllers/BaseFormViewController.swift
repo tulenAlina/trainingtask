@@ -3,6 +3,14 @@ import UIKit
 class BaseFormViewController: BaseViewController {
     var requiredFields: [UITextField] = []
     
+    lazy var stackView: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 10
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+    
     private func applyValidationStyle(_ textField: UITextField, isValid: Bool) {
         if isValid {
             textField.layer.borderColor = UIColor(white: 0.8, alpha: 1).cgColor
@@ -17,6 +25,16 @@ class BaseFormViewController: BaseViewController {
         for textField in requiredFields {
             applyValidationStyle(textField, isValid: true)
         }
+    }
+
+    func setupForm() {
+        view.addSubview(stackView)
+                
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+        ])
     }
     
     func isFieldsChanged() -> Bool {

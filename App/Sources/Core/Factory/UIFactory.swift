@@ -22,4 +22,27 @@ enum UIFactory {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }
+    
+    static func createFormRow(labelText: String, inputView: UIView) -> UIStackView {
+        let label = createLabel(text: labelText)
+        
+        let stack = UIStackView(arrangedSubviews: [label, inputView])
+        stack.axis = .vertical
+        stack.spacing = 5
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        
+        return stack
+    }
+    
+    static func createDeleteButton() -> UIButton {
+        let button = UIButton(type: .system)
+        button.setTitle(Localized.delete, for: .normal)
+        button.setTitleColor(.red, for: .normal)
+        button.backgroundColor = UIColor.systemRed.withAlphaComponent(0.1)
+        button.layer.borderWidth = 0.5
+        button.layer.borderColor = UIColor.red.cgColor
+        button.layer.cornerRadius = 12
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }
 }

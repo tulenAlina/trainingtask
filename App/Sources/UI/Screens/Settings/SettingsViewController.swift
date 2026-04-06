@@ -32,12 +32,13 @@ final class SettingsViewController: BaseFormViewController {
     
     private func setupUI() {
         setupNavigationTitle(Localized.settings)
-        setupInputFields()
-        setupConstraints()
+        configureTextFields()
+        configureFormRows()
+        setupForm()
         addSaveButton(action: #selector(saveSettings))
     }
     
-    private func setupInputFields() {
+    private func configureTextFields() {
         serverUrlTextField.keyboardType = .URL
         serverUrlTextField.delegate = self
         serverUrlTextField.translatesAutoresizingMaskIntoConstraints = false
@@ -53,44 +54,19 @@ final class SettingsViewController: BaseFormViewController {
         defaultDaysBetweenTextField.translatesAutoresizingMaskIntoConstraints = false
         defaultDaysBetweenTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         
-        view.addSubview(serverUrlLabel)
-        view.addSubview(serverUrlTextField)
-        view.addSubview(maxRecordsLabel)
-        view.addSubview(maxRecordsTextField)
-        view.addSubview(defaultDaysBetweenLabel)
-        view.addSubview(defaultDaysBetweenTextField)
-        
         loadCurrentSettings()
     }
-
-    private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            serverUrlLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            serverUrlLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            serverUrlLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            serverUrlTextField.topAnchor.constraint(equalTo: serverUrlLabel.bottomAnchor, constant: 5),
-            serverUrlTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            serverUrlTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            maxRecordsLabel.topAnchor.constraint(equalTo: serverUrlTextField.bottomAnchor, constant: 30),
-            maxRecordsLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            maxRecordsLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            maxRecordsTextField.topAnchor.constraint(equalTo: maxRecordsLabel.bottomAnchor, constant: 5),
-            maxRecordsTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            maxRecordsTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            defaultDaysBetweenLabel.topAnchor.constraint(equalTo: maxRecordsTextField.bottomAnchor, constant: 30),
-            defaultDaysBetweenLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            defaultDaysBetweenLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            defaultDaysBetweenTextField.topAnchor.constraint(equalTo: defaultDaysBetweenLabel.bottomAnchor, constant: 5),
-            defaultDaysBetweenTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            defaultDaysBetweenTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
-        ])
-    }
     
+    private func configureFormRows() {
+        let serverUrlRow = UIFactory.createFormRow(labelText: Localized.serverUrlLabel, inputView: serverUrlTextField)
+        let maxRecordsRow = UIFactory.createFormRow(labelText: Localized.maxRecordsLabel, inputView: maxRecordsTextField)
+        let defaultDaysBetweenRow = UIFactory.createFormRow(labelText: Localized.defaultDaysBetweenLabel, inputView: defaultDaysBetweenTextField)
+        
+        [serverUrlRow, maxRecordsRow, defaultDaysBetweenRow].forEach { row in
+            stackView.addArrangedSubview(row)
+        }
+    }
+
     private func loadCurrentSettings() {
         serverUrlTextField.text = settings.serverURL
         maxRecordsTextField.text = String(settings.maxRecords)

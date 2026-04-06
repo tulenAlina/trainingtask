@@ -7,9 +7,6 @@ final class EditProjectViewController: BaseFormViewController {
     private let server: Server
     private var project: Project?
     
-    private let nameLabel = UIFactory.createLabel(text: Localized.nameLabel)
-    private let descriptionLabel = UIFactory.createLabel(text: Localized.descriptionLabel)
-    
     private var nameTextField = UIFactory.createTextField(placeholder: Localized.projectNamePlaceholder)
     private var descriptionTextField = UIFactory.createTextField(placeholder: Localized.projectDescriptionPlaceholder)
     
@@ -45,12 +42,13 @@ final class EditProjectViewController: BaseFormViewController {
     
     private func setupUI() {
         setupNavigationTitle((project != nil) ? Localized.editProject : Localized.addProject)
-        setupInputFields()
-        setupConstraints()
+        configureTextFields()
+        configureFormRows()
+        setupForm()
         addSaveButton(action: #selector(didTapSaveButton))
     }
     
-    private func setupInputFields() {
+    private func configureTextFields() {
         if let project {
             nameTextField.text = "\(project.projectName)"
             descriptionTextField.text = "\(project.description)"
@@ -60,33 +58,17 @@ final class EditProjectViewController: BaseFormViewController {
         
         nameTextField.delegate = self
         descriptionTextField.delegate = self
-        
-        view.addSubview(nameTextField)
-        view.addSubview(nameLabel)
-        view.addSubview(descriptionTextField)
-        view.addSubview(descriptionLabel)
     }
     
-    private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            nameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            nameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            nameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            nameTextField.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 5),
-            nameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            nameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            descriptionLabel.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 10),
-            descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            descriptionTextField.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 5),
-            descriptionTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            descriptionTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
-        ])
+    private func configureFormRows() {
+        let nameRow = UIFactory.createFormRow(labelText: Localized.nameLabel, inputView: nameTextField)
+        let descriptionRow = UIFactory.createFormRow(labelText: Localized.descriptionLabel, inputView: descriptionTextField)
+        
+        [nameRow, descriptionRow].forEach { row in
+            stackView.addArrangedSubview(row)
+        }
     }
-
+    
     private func updatedProject(_ project: Project) -> Project {
         var updatedProject = project
         updatedProject.projectName = nameTextField.text?.trimmed ?? ""
