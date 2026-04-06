@@ -42,13 +42,13 @@ final class EditProjectViewController: BaseFormViewController {
     
     private func setupUI() {
         setupNavigationTitle((project != nil) ? Localized.editProject : Localized.addProject)
-        configureTextFields()
-        configureFormRows()
+        setupTextFields()
+        setupFormRows()
         setupForm()
         addSaveButton(action: #selector(didTapSaveButton))
     }
     
-    private func configureTextFields() {
+    private func setupTextFields() {
         if let project {
             nameTextField.text = "\(project.projectName)"
             descriptionTextField.text = "\(project.description)"
@@ -60,7 +60,7 @@ final class EditProjectViewController: BaseFormViewController {
         descriptionTextField.delegate = self
     }
     
-    private func configureFormRows() {
+    private func setupFormRows() {
         let nameRow = UIFactory.createFormRow(labelText: Localized.nameLabel, inputView: nameTextField)
         let descriptionRow = UIFactory.createFormRow(labelText: Localized.descriptionLabel, inputView: descriptionTextField)
         

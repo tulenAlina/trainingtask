@@ -101,8 +101,8 @@ final class EditTaskViewController: BaseFormViewController {
     }
     
     private func setupUI() {
-        configureTextFields()
-        configureFormRows()
+        setupTextFields()
+        setupFormRows()
         setupClearEmployeeButton()
         setupSegmentedControl()
         setupToolbar()
@@ -110,7 +110,7 @@ final class EditTaskViewController: BaseFormViewController {
         addSaveButton(action: #selector(didTapSaveButton))
     }
     
-    private func configureTextFields() {
+    private func setupTextFields() {
         if let contextProject {
             projectTextField.text = "\(contextProject.projectName)"
             projectTextField.isEnabled = false
@@ -155,7 +155,7 @@ final class EditTaskViewController: BaseFormViewController {
         workTimeTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
     }
     
-    private func configureFormRows() {
+    private func setupFormRows() {
         let taskNameRow = UIFactory.createFormRow(labelText: Localized.nameLabel, inputView: taskNameTextField)
         let projectRow = UIFactory.createFormRow(labelText: Localized.projectLabel, inputView: projectTextField)
         let workTimeRow = UIFactory.createFormRow(labelText: Localized.hoursLabel, inputView: workTimeTextField)

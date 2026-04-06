@@ -44,13 +44,13 @@ final class EditEmployeeViewController: BaseFormViewController {
     
     private func setupUI() {
         setupNavigationTitle((employee != nil) ? Localized.editEmployee : Localized.addEmployee)
-        configureTextFields()
-        configureFormRows()
+        setupTextFields()
+        setupFormRows()
         setupForm()
         addSaveButton(action: #selector(didTapSaveButton))
     }
     
-    private func configureTextFields() {
+    private func setupTextFields() {
         if let employee {
             firstNameTextField.text = "\(employee.firstName)"
             lastNameTextField.text = "\(employee.lastName)"
@@ -68,7 +68,7 @@ final class EditEmployeeViewController: BaseFormViewController {
         positionTextField.delegate = self
     }
     
-    private func configureFormRows() {
+    private func setupFormRows() {
         let firstNameRow = UIFactory.createFormRow(labelText: Localized.firstNameLabel, inputView: firstNameTextField)
         let lastNameRow = UIFactory.createFormRow(labelText: Localized.lastNameLabel, inputView: lastNameTextField)
         let surNameRow = UIFactory.createFormRow(labelText: Localized.surnameLabel, inputView: surNameTextField)

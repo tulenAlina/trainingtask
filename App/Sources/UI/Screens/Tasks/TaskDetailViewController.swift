@@ -25,19 +25,32 @@ final class TaskDetailViewController: BaseViewController {
     private var endDateLabel = UILabel()
     private var employeeLabel = UILabel()
     private var statusLabel = UILabel()
+    
     private var deleteButton = UIFactory.createDeleteButton()
     
     
-    private let timeCard: UIView = {
-        let view = UIView()
-        view.backgroundColor = .secondarySystemBackground
-        view.layer.cornerRadius = 16
-        view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOpacity = 0.05
-        view.layer.shadowOffset = CGSize(width: 0, height: 2)
-        view.layer.shadowRadius = 4
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
+    private let timeCard: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 15
+        stack.isLayoutMarginsRelativeArrangement = true
+        stack.layoutMargins = UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
+        stack.backgroundColor = .secondarySystemBackground
+        stack.layer.cornerRadius = 16
+        stack.layer.shadowColor = UIColor.black.cgColor
+        stack.layer.shadowOpacity = 0.05
+        stack.layer.shadowOffset = CGSize(width: 0, height: 2)
+        stack.layer.shadowRadius = 4
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+    
+    private let stackView: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 30
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
     }()
     
     init(indexPath: IndexPath, task: ProjectTask, project: Project?, employee: Employee?, isOpenedFromProject: Bool, server: Server, settings: SettingsManager, updateDelegate: TaskUpdateDelegate, deleteDelegate: TaskDeleteDelegate) {
@@ -65,9 +78,9 @@ final class TaskDetailViewController: BaseViewController {
     private func setupUI() {
         setupNavigationTitle(Localized.taskDetails)
         setupLabels()
-        setupButtons()
         setupTimeCard()
-        setupConstraints()
+        setupStackView()
+        setupButtons()
         setupRightBarButton(title: Localized.edit, action: #selector(didTapChangeButton))
     }
     
@@ -102,85 +115,68 @@ final class TaskDetailViewController: BaseViewController {
         statusLabel.layer.cornerRadius = 10
         statusLabel.clipsToBounds = true
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
+        statusLabel.heightAnchor.constraint(equalToConstant: 25).isActive = true
+        statusLabel.widthAnchor.constraint(equalToConstant: 80).isActive = true
         
         taskNameLabel.font = .systemFont(ofSize: 18, weight: .semibold)
-        
-        view.addSubview(taskNameLabel)
-        view.addSubview(projectTitleLabel)
-        view.addSubview(projectLabel)
-        view.addSubview(employeeTitleLabel)
-        view.addSubview(employeeLabel)
-        view.addSubview(statusLabel)
     }
     
     private func setupTimeCard() {
-        view.addSubview(timeCard)
+        let workTimeRow = UIStackView(arrangedSubviews: [workTimeTitleLabel, workTimeLabel])
+        let startDateRow = UIStackView(arrangedSubviews: [startDateTitleLabel, startDateLabel])
+        let endDateRow = UIStackView(arrangedSubviews: [endDateTitleLabel, endDateLabel])
         
-        timeCard.addSubview(workTimeTitleLabel)
-        timeCard.addSubview(workTimeLabel)
-        timeCard.addSubview(startDateTitleLabel)
-        timeCard.addSubview(startDateLabel)
-        timeCard.addSubview(endDateTitleLabel)
-        timeCard.addSubview(endDateLabel)
+        [workTimeRow, startDateRow, endDateRow].forEach { row in
+            row.axis = .horizontal
+            row.spacing = 5
+            row.translatesAutoresizingMaskIntoConstraints = false
+            timeCard.addArrangedSubview(row)
+        }
+        
+        view.addSubview(timeCard)
+    }
+    
+    private func setupStackView() {
+        let projectRow = UIStackView(arrangedSubviews: [projectTitleLabel, projectLabel])
+        let employeeRow = UIStackView(arrangedSubviews: [employeeTitleLabel, employeeLabel])
+        
+        [projectRow, employeeRow].forEach { row in
+            row.axis = .horizontal
+            row.spacing = 5
+            row.translatesAutoresizingMaskIntoConstraints = false
+        }
+        
+        let taskAndStatusRow = UIStackView(arrangedSubviews: [taskNameLabel, statusLabel])
+        taskAndStatusRow.axis = .vertical
+        taskAndStatusRow.spacing = 5
+        taskAndStatusRow.alignment = .leading
+        taskAndStatusRow.translatesAutoresizingMaskIntoConstraints = false
+        
+        let projectAndEmployeeRow = UIStackView(arrangedSubviews: [projectRow, employeeRow])
+        projectAndEmployeeRow.axis = .vertical
+        projectAndEmployeeRow.spacing = 15
+        projectAndEmployeeRow.translatesAutoresizingMaskIntoConstraints = false
+        
+        [taskAndStatusRow, projectAndEmployeeRow, timeCard].forEach { row in
+            stackView.addArrangedSubview(row)
+        }
+        
+        view.addSubview(stackView)
+                
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+        ])
     }
     
     private func setupButtons() {
         deleteButton.addTarget(self, action: #selector(didTapDeleteButton), for: .touchUpInside)
+        
         view.addSubview(deleteButton)
-    }
-    
-    private func setupConstraints() {
+        
         NSLayoutConstraint.activate([
-            taskNameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            taskNameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            taskNameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            statusLabel.topAnchor.constraint(equalTo: taskNameLabel.bottomAnchor, constant: 5),
-            statusLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            statusLabel.heightAnchor.constraint(equalToConstant: 25),
-            statusLabel.widthAnchor.constraint(equalToConstant: 80),
-            
-            projectTitleLabel.topAnchor.constraint(equalTo: statusLabel.bottomAnchor, constant: 40),
-            projectTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            
-            projectLabel.topAnchor.constraint(equalTo: statusLabel.bottomAnchor, constant: 40),
-            projectLabel.leadingAnchor.constraint(equalTo: projectTitleLabel.trailingAnchor, constant: 5),
-            projectLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            employeeTitleLabel.topAnchor.constraint(equalTo: projectLabel.bottomAnchor, constant: 15),
-            employeeTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            
-            employeeLabel.topAnchor.constraint(equalTo: projectLabel.bottomAnchor, constant: 15),
-            employeeLabel.leadingAnchor.constraint(equalTo: employeeTitleLabel.trailingAnchor, constant: 5),
-            employeeLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            timeCard.topAnchor.constraint(equalTo: employeeLabel.bottomAnchor, constant: 30),
-            timeCard.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            timeCard.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            workTimeTitleLabel.topAnchor.constraint(equalTo: timeCard.topAnchor, constant: 20),
-            workTimeTitleLabel.leadingAnchor.constraint(equalTo: timeCard.leadingAnchor, constant: 20),
-            
-            workTimeLabel.topAnchor.constraint(equalTo: timeCard.topAnchor, constant: 20),
-            workTimeLabel.leadingAnchor.constraint(equalTo: workTimeTitleLabel.trailingAnchor, constant: 5),
-            workTimeLabel.trailingAnchor.constraint(equalTo: timeCard.trailingAnchor, constant: -20),
-            
-            startDateTitleLabel.topAnchor.constraint(equalTo: workTimeLabel.bottomAnchor, constant: 15),
-            startDateTitleLabel.leadingAnchor.constraint(equalTo: timeCard.leadingAnchor, constant: 20),
-            
-            startDateLabel.topAnchor.constraint(equalTo: workTimeLabel.bottomAnchor, constant: 15),
-            startDateLabel.leadingAnchor.constraint(equalTo: startDateTitleLabel.trailingAnchor, constant: 5),
-            startDateLabel.trailingAnchor.constraint(equalTo: timeCard.trailingAnchor, constant: -20),
-            
-            endDateTitleLabel.topAnchor.constraint(equalTo: startDateLabel.bottomAnchor, constant: 15),
-            endDateTitleLabel.leadingAnchor.constraint(equalTo: timeCard.leadingAnchor, constant: 20),
-            
-            endDateLabel.topAnchor.constraint(equalTo: startDateLabel.bottomAnchor, constant: 15),
-            endDateLabel.leadingAnchor.constraint(equalTo: endDateTitleLabel.trailingAnchor, constant: 5),
-            endDateLabel.trailingAnchor.constraint(equalTo: timeCard.trailingAnchor, constant: -20),
-            endDateLabel.bottomAnchor.constraint(equalTo: timeCard.bottomAnchor, constant: -20),
-            
-            deleteButton.topAnchor.constraint(equalTo: timeCard.bottomAnchor, constant: 30),
+            deleteButton.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 30),
             deleteButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             deleteButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05),
             deleteButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5)
