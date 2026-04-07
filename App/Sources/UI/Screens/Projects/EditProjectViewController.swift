@@ -67,15 +67,15 @@ final class EditProjectViewController: BaseFormViewController {
     
     private func updatedProject(_ project: Project) -> Project {
         var updatedProject = project
-        updatedProject.projectName = nameTextField.text?.trimmed ?? ""
-        updatedProject.description = descriptionTextField.text?.trimmed ?? ""
+        updatedProject.projectName = nameTextField.text.orEmpty.trimmed
+        updatedProject.description = descriptionTextField.text.orEmpty.trimmed
         return updatedProject
     }
     
     private func buildProject() -> Project {
         return Project(
-            projectName: nameTextField.text?.trimmed ?? "",
-            description: descriptionTextField.text?.trimmed ?? ""
+            projectName: nameTextField.text.orEmpty.trimmed,
+            description: descriptionTextField.text.orEmpty.trimmed
         )
     }
 
@@ -90,21 +90,11 @@ final class EditProjectViewController: BaseFormViewController {
         }
     }
     
-    private func handleSuccess(savedProject: Project) {
-        if project != nil {
-            updateDelegate?.didUpdateProject(savedProject)
-        } else {
-            createDelegate?.didCreateProject(savedProject)
-        }
-        stopLoading()
-        self.navigationController?.popViewController(animated: true)
-    }
-    
     override func isFieldsChanged() -> Bool {
         guard let project = project else { return true }
-        let nameChanged = (nameTextField.text?.trimmed ?? "") != project.projectName.trimmed
-        let descriptionChanged = (descriptionTextField.text?.trimmed ?? "") != project.description.trimmed
-        return nameChanged || descriptionChanged
+        let isNameChanged = (nameTextField.text.orEmpty.trimmed) != project.projectName.trimmed
+        let isDescriptionChanged = (descriptionTextField.text.orEmpty.trimmed) != project.description.trimmed
+        return isNameChanged || isDescriptionChanged
     }
     
     @objc private func actionSaveProject() {
@@ -119,7 +109,13 @@ final class EditProjectViewController: BaseFormViewController {
             do {
                 let savedProject = try await saveProject()
                 await MainActor.run {
-                    handleSuccess(savedProject: savedProject)
+                    if project != nil {
+                        updateDelegate?.didUpdateProject(savedProject)
+                    } else {
+                        createDelegate?.didCreateProject(savedProject)
+                    }
+                    stopLoading()
+                    self.navigationController?.popViewController(animated: true)
                 }
             } catch {
                 await MainActor.run {

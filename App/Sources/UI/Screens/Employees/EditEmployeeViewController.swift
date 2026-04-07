@@ -48,10 +48,10 @@ final class EditEmployeeViewController: BaseFormViewController {
     
     private func setupTextFields() {
         if let employee {
-            firstNameTextField.text = "\(employee.firstName)"
-            lastNameTextField.text = "\(employee.lastName)"
-            surNameTextField.text = "\(employee.surName ?? "")"
-            positionTextField.text = "\(employee.position)"
+            firstNameTextField.text = (employee.firstName)
+            lastNameTextField.text = (employee.lastName)
+            surNameTextField.text = (employee.surName.orEmpty)
+            positionTextField.text = (employee.position)
         }
         
         firstNameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
@@ -77,19 +77,19 @@ final class EditEmployeeViewController: BaseFormViewController {
     
     private func updatedEmployee(from existing: Employee) -> Employee {
         var updatedEmployee = existing
-        updatedEmployee.firstName = firstNameTextField.text?.trimmed ?? ""
-        updatedEmployee.lastName = lastNameTextField.text?.trimmed ?? ""
+        updatedEmployee.firstName = firstNameTextField.text.orEmpty.trimmed
+        updatedEmployee.lastName = lastNameTextField.text.orEmpty.trimmed
         updatedEmployee.surName = surNameTextField.text?.trimmed ?? nil
-        updatedEmployee.position = positionTextField.text?.trimmed ?? ""
+        updatedEmployee.position = positionTextField.text.orEmpty.trimmed
         return updatedEmployee
     }
     
     private func buildEmployee() -> Employee {
         return Employee(
-            firstName: firstNameTextField.text?.trimmed ?? "",
-            lastName: lastNameTextField.text?.trimmed ?? "",
+            firstName: firstNameTextField.text.orEmpty.trimmed,
+            lastName: lastNameTextField.text.orEmpty.trimmed,
             surName: surNameTextField.text?.trimmed ?? nil,
-            position: positionTextField.text?.trimmed ?? ""
+            position: positionTextField.text.orEmpty.trimmed
         )
     }
     
@@ -104,25 +104,15 @@ final class EditEmployeeViewController: BaseFormViewController {
         }
     }
     
-    private func handleSuccess(savedEmployee: Employee) {
-        if employee != nil {
-            updateDelegate?.didUpdateEmployee(savedEmployee)
-        } else {
-            createDelegate?.didCreateEmployee(savedEmployee)
-        }
-        stopLoading()
-        self.navigationController?.popViewController(animated: true)
-    }
-    
     override func isFieldsChanged() -> Bool {
         guard let employee = employee else { return true }
         
-        let firstNameChanged = firstNameTextField.text?.trimmed ?? "" != employee.firstName.trimmed
-        let lastNameChanged = lastNameTextField.text?.trimmed ?? "" != employee.lastName.trimmed
-        let surNameChanged = surNameTextField.text?.trimmed ?? "" != employee.surName?.trimmed ?? ""
-        let positionChanged = positionTextField.text?.trimmed ?? "" != employee.position.trimmed
+        let isFirstNameChanged = firstNameTextField.text.orEmpty.trimmed != employee.firstName.trimmed
+        let isLastNameChanged = lastNameTextField.text.orEmpty.trimmed != employee.lastName.trimmed
+        let isSurNameChanged = surNameTextField.text.orEmpty.trimmed != employee.surName.orEmpty.trimmed
+        let isPositionChanged = positionTextField.text.orEmpty.trimmed != employee.position.trimmed
         
-        return firstNameChanged || lastNameChanged || surNameChanged || positionChanged
+        return isFirstNameChanged || isLastNameChanged || isSurNameChanged || isPositionChanged
     }
     
     @objc private func actionSaveEmployee() {
@@ -137,7 +127,13 @@ final class EditEmployeeViewController: BaseFormViewController {
             do {
                 let savedEmployee = try await saveEmployee()
                 await MainActor.run {
-                    handleSuccess(savedEmployee: savedEmployee)
+                    if employee != nil {
+                        updateDelegate?.didUpdateEmployee(savedEmployee)
+                    } else {
+                        createDelegate?.didCreateEmployee(savedEmployee)
+                    }
+                    stopLoading()
+                    self.navigationController?.popViewController(animated: true)
                 }
             } catch {
                 await MainActor.run {

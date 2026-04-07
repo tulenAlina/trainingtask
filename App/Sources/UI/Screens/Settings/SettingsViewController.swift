@@ -70,9 +70,9 @@ final class SettingsViewController: BaseFormViewController {
     }
     
     override func isFieldsChanged() -> Bool {
-        let urlChanged = serverUrlTextField.text?.trimmed ?? "" != settings.serverURL
-        let maxRecordsChanged = maxRecordsTextField.text?.trimmed.replacingOccurrences(of: " ", with: "") ?? "" != String(settings.maxRecords)
-        let defaultDaysBetweenChanged = defaultDaysBetweenTextField.text?.trimmed.replacingOccurrences(of: " ", with: "") ?? "" != String(settings.defaultDaysBetween)
+        let urlChanged = serverUrlTextField.text.orEmpty.trimmed != settings.serverURL
+        let maxRecordsChanged = maxRecordsTextField.text.orEmpty.trimmed.replacingOccurrences(of: " ", with: "") != String(settings.maxRecords)
+        let defaultDaysBetweenChanged = defaultDaysBetweenTextField.text.orEmpty.trimmed.replacingOccurrences(of: " ", with: "") != String(settings.defaultDaysBetween)
         
         return urlChanged || maxRecordsChanged || defaultDaysBetweenChanged
     }
@@ -84,9 +84,9 @@ final class SettingsViewController: BaseFormViewController {
             return
         }
         
-        settings.serverURL = serverUrlTextField.text?.trimmed ?? ""
-        settings.maxRecords = Int(maxRecordsTextField.text?.replacingOccurrences(of: " ", with: "") ?? "") ?? 0
-        settings.defaultDaysBetween = Int(defaultDaysBetweenTextField.text?.replacingOccurrences(of: " ", with: "") ?? "") ?? 0
+        settings.serverURL = serverUrlTextField.text.orEmpty.trimmed
+        settings.maxRecords = Int(maxRecordsTextField.text.orEmpty.replacingOccurrences(of: " ", with: "")) ?? 0
+        settings.defaultDaysBetween = Int(defaultDaysBetweenTextField.text.orEmpty.replacingOccurrences(of: " ", with: "")) ?? 0
         self.navigationController?.popViewController(animated: true)
     }
 }

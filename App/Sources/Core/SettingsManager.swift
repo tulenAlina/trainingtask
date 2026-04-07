@@ -4,7 +4,7 @@ final class SettingsManager {
 
     var serverURL: String {
         get {
-            UserDefaults.standard.string(forKey: UserDefaultsKeys.serverURL) ?? ""
+            UserDefaults.standard.string(forKey: UserDefaultsKeys.serverURL).orEmpty
         }
         set {
             UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.serverURL)
@@ -48,7 +48,7 @@ final class SettingsManager {
     
     private func registerDefaults() {
         let defaultValues: [String: Any] = [
-            UserDefaultsKeys.serverURL : config?["serverURL"] as? String ?? "",
+            UserDefaultsKeys.serverURL : (config?["serverURL"] as? String).orEmpty,
             UserDefaultsKeys.maxRecords : config?["maxRecords"] as? Int ?? 0,
             UserDefaultsKeys.defaultDaysBetween : config?["defaultDaysBetween"] as? Int ?? 0
         ]

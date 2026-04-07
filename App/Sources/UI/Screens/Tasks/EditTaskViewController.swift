@@ -128,9 +128,9 @@ final class EditTaskViewController: BaseFormViewController {
         if let task {
             if contextProject == nil {
                 selectedProject = projects.first(where: { $0.id == task.projectID })
-                projectTextField.text = "\(selectedProject?.projectName ?? "")"
+                projectTextField.text = selectedProject?.projectName ?? ""
             }
-            taskNameTextField.text = "\(task.taskName)"
+            taskNameTextField.text = task.taskName
             workTimeTextField.text = "\(task.workTime)"
             startDateTextField.text = DateHelper.string(from: task.startDate)
             endDateTextField.text = DateHelper.string(from: task.endDate)
@@ -197,11 +197,11 @@ final class EditTaskViewController: BaseFormViewController {
     
     private func updatedTask(_ task: ProjectTask, _ inputProject: Project, _ inputEmployee: Employee?) -> ProjectTask {
         var updatedTask = task
-        updatedTask.taskName = taskNameTextField.text?.trimmed ?? ""
+        updatedTask.taskName = taskNameTextField.text.orEmpty.trimmed
         updatedTask.projectID = inputProject.id
-        updatedTask.workTime = Int(workTimeTextField.text?.replacingOccurrences(of: " ", with: "") ?? "") ?? 0
-        updatedTask.startDate = DateHelper.date(from: startDateTextField.text ?? "") ?? Date()
-        updatedTask.endDate = DateHelper.date(from: endDateTextField.text ?? "") ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()
+        updatedTask.workTime = Int(workTimeTextField.text.orEmpty.replacingOccurrences(of: " ", with: "")) ?? 0
+        updatedTask.startDate = DateHelper.date(from: startDateTextField.text.orEmpty) ?? Date()
+        updatedTask.endDate = DateHelper.date(from: endDateTextField.text.orEmpty) ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()
         updatedTask.status = TaskStatus.allCases[statusSegmentedControl.selectedSegmentIndex]
         updatedTask.employeeID = inputEmployee?.id
         return updatedTask
@@ -209,11 +209,11 @@ final class EditTaskViewController: BaseFormViewController {
     
     private func buildTask(_ inputProject: Project, _ inputEmployee: Employee?) -> ProjectTask {
         return ProjectTask(
-            taskName: taskNameTextField.text?.trimmed ?? "",
+            taskName: taskNameTextField.text.orEmpty.trimmed,
             projectID: inputProject.id,
-            workTime: Int(workTimeTextField.text?.replacingOccurrences(of: " ", with: "") ?? "") ?? 0,
-            startDate: DateHelper.date(from: startDateTextField.text ?? "") ?? Date(),
-            endDate: DateHelper.date(from: endDateTextField.text ?? "") ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date(),
+            workTime: Int(workTimeTextField.text.orEmpty.replacingOccurrences(of: " ", with: "")) ?? 0,
+            startDate: DateHelper.date(from: startDateTextField.text.orEmpty) ?? Date(),
+            endDate: DateHelper.date(from: endDateTextField.text.orEmpty) ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date(),
             status: TaskStatus.allCases[statusSegmentedControl.selectedSegmentIndex],
             employeeID: inputEmployee?.id
         )
@@ -257,19 +257,9 @@ final class EditTaskViewController: BaseFormViewController {
         }
     }
     
-    private func handleSuccess(savedTask: ProjectTask) {
-        if task != nil {
-            updateDelegate?.didUpdateTask(savedTask)
-        } else {
-            createDelegate?.didCreateTask(savedTask)
-        }
-        stopLoading()
-        self.navigationController?.popViewController(animated: true)
-    }
-    
     private func validateDates() -> Bool{
-        guard let startDate = DateHelper.date(from: startDateTextField.text ?? ""),
-              let endDate = DateHelper.date(from: endDateTextField.text ?? "")
+        guard let startDate = DateHelper.date(from: startDateTextField.text.orEmpty),
+              let endDate = DateHelper.date(from: endDateTextField.text.orEmpty)
         else {
             showAlert(Localized.invalidDate)
             return false
@@ -285,7 +275,7 @@ final class EditTaskViewController: BaseFormViewController {
         let daysBetween = components.day ?? 0
         let maxHours = (daysBetween + 1) * 24
         
-        let workTime = Int(workTimeTextField.text?.trimmed ?? "") ?? 0
+        let workTime = Int(workTimeTextField.text.orEmpty.trimmed) ?? 0
         
         guard workTime <= maxHours else {
             showAlert(Localized.hoursExceedPeriod)
@@ -308,14 +298,14 @@ final class EditTaskViewController: BaseFormViewController {
             empFio = emp.fullName
         }
         
-        let taskNameChanged = taskNameTextField.text?.trimmed ?? "" != task.taskName.trimmed
-        let projectChanged = projectTextField.text?.trimmed ?? "" != projectName
-        let workTimeChanged = Int(workTimeTextField.text?.trimmed.replacingOccurrences(of: " ", with: "") ?? "") ?? 0 != task.workTime
-        let startDateChanged = startDateTextField.text?.trimmed ?? "" != DateHelper.string(from: task.startDate)
-        let endDateChanged = endDateTextField.text?.trimmed ?? "" != DateHelper.string(from: task.endDate)
-        let employeeChanged = employeeTextField.text?.trimmed ?? "" != empFio
-        let statusChanged = statusSegmentedControl.selectedSegmentIndex != TaskStatus.allCases.firstIndex { $0 == task.status } ?? 0
-        return taskNameChanged || projectChanged || workTimeChanged || startDateChanged || endDateChanged || employeeChanged || statusChanged
+        let isTaskNameChanged = taskNameTextField.text.orEmpty.trimmed != task.taskName.trimmed
+        let isProjectChanged = projectTextField.text.orEmpty.trimmed != projectName
+        let isWorkTimeChanged = Int(workTimeTextField.text.orEmpty.trimmed.replacingOccurrences(of: " ", with: "")) ?? 0 != task.workTime
+        let isStartDateChanged = startDateTextField.text.orEmpty.trimmed != DateHelper.string(from: task.startDate)
+        let isEndDateChanged = endDateTextField.text.orEmpty.trimmed != DateHelper.string(from: task.endDate)
+        let isEmployeeChanged = employeeTextField.text.orEmpty.trimmed != empFio
+        let isStatusChanged = statusSegmentedControl.selectedSegmentIndex != TaskStatus.allCases.firstIndex { $0 == task.status } ?? 0
+        return isTaskNameChanged || isProjectChanged || isWorkTimeChanged || isStartDateChanged || isEndDateChanged || isEmployeeChanged || isStatusChanged
     }
     
     @objc private func actionSaveTask() {
@@ -332,7 +322,13 @@ final class EditTaskViewController: BaseFormViewController {
             do {
                 let savedTask = try await saveTask(selectedProject, selectedEmployee)
                 await MainActor.run {
-                    handleSuccess(savedTask: savedTask)
+                    if task != nil {
+                        updateDelegate?.didUpdateTask(savedTask)
+                    } else {
+                        createDelegate?.didCreateTask(savedTask)
+                    }
+                    stopLoading()
+                    self.navigationController?.popViewController(animated: true)
                 }
             } catch {
                 await MainActor.run {
