@@ -3,19 +3,28 @@ import UIKit
 final class ProjectsViewController: BaseListViewController<Project> {
     enum ProjectsDisplayMode {
         case list
-        case selection(completion: (Project) -> Void)
+        case selection
     }
     
     private let server: Server
     private let mode: ProjectsDisplayMode
+    private let onSelectProject: ((Project) -> Void)?
     
     override var emptyStateText: String {
         return Localized.noProjects
     }
     
-    init(mode: ProjectsDisplayMode = .list, server: Server, settings: SettingsManager) {
-        self.mode = mode
+    init(server: Server, settings: SettingsManager) {
+        self.mode = .list
         self.server = server
+        self.onSelectProject = nil
+        super.init(settings: settings)
+    }
+    
+    init(server: Server, settings: SettingsManager, onSelectProject:  @escaping (Project) -> Void) {
+        self.mode = .selection
+        self.server = server
+        self.onSelectProject = onSelectProject
         super.init(settings: settings)
     }
     
@@ -134,8 +143,8 @@ extension ProjectsViewController: UITableViewDelegate {
         case .list:
             let detailViewController = ProjectDetailViewController(indexPath: indexPath, project: project, server: server, settings: settings, updateDelegate: self, deleteDelegate: self)
             navigationController?.pushViewController(detailViewController, animated: true)
-        case .selection(let completion):
-            completion(project)
+        case .selection:
+            onSelectProject?(project)
             navigationController?.popViewController(animated: true)
         }
     }

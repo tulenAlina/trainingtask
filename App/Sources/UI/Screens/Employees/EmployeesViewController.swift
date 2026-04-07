@@ -3,19 +3,28 @@ import UIKit
 final class EmployeesViewController: BaseListViewController<Employee> {
     enum EmployeesDisplayMode {
         case list
-        case selection(completion: (Employee) -> Void)
+        case selection
     }
     
     private let server: Server
     private let mode: EmployeesDisplayMode
+    private let onSelectEmployee: ((Employee) -> Void)?
     
     override var emptyStateText: String {
         return Localized.noEmployees
     }
     
-    init(mode: EmployeesDisplayMode = .list, server: Server, settings: SettingsManager) {
-        self.mode = mode
+    init(server: Server, settings: SettingsManager) {
+        self.mode = .list
         self.server = server
+        self.onSelectEmployee = nil
+        super.init(settings: settings)
+    }
+    
+    init(server: Server, settings: SettingsManager, onSelectEmployee: @escaping (Employee) -> Void) {
+        self.mode = .selection
+        self.server = server
+        self.onSelectEmployee = onSelectEmployee
         super.init(settings: settings)
     }
     
@@ -133,8 +142,8 @@ extension EmployeesViewController: UITableViewDelegate {
         case .list:
             let detailViewController = EmployeeDetailViewController(indexPath: indexPath, employee: employee, server: server, updateDelegate: self, deleteDelegate: self)
             navigationController?.pushViewController(detailViewController, animated: true)
-        case .selection(let completion):
-            completion(employee)
+        case .selection:
+            onSelectEmployee?(employee)
             navigationController?.popViewController(animated: true)
         }
     }

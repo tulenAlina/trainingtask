@@ -356,21 +356,19 @@ final class EditTaskViewController: BaseFormViewController {
     }
     
     @objc private func actionSelectProject() {
-        let projectsViewController = ProjectsViewController(mode: .selection {[weak self] selectedProject in
-            if let self {
-                self.selectedProject = selectedProject
-                self.projectTextField.text = selectedProject.projectName
-                self.textFieldDidChange(sender: self.projectTextField)
-            }
-        }, server: server, settings: settings)
+        let projectsViewController = ProjectsViewController(server: server, settings: settings) { selectedProject in
+            self.selectedProject = selectedProject
+            self.projectTextField.text = selectedProject.projectName
+            self.textFieldDidChange(sender: self.projectTextField)
+        }
         navigationController?.pushViewController(projectsViewController, animated: true)
     }
     
     @objc private func actionSelectEmployee() {
-        let employeesViewController = EmployeesViewController(mode: .selection {[weak self] selectedEmployee in
-            self?.selectedEmployee = selectedEmployee
-            self?.employeeTextField.text = selectedEmployee.fullName
-        }, server: server, settings: settings)
+        let employeesViewController = EmployeesViewController(server: server, settings: settings) {selectedEmployee in
+            self.selectedEmployee = selectedEmployee
+            self.employeeTextField.text = selectedEmployee.fullName
+        }
         navigationController?.pushViewController(employeesViewController, animated: true)
     }
     
