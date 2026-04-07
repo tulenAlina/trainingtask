@@ -14,13 +14,13 @@ enum TaskStatus: String, CaseIterable {
 struct ProjectTask {
     let id: UUID
     let createdAt: Date
-    var taskName: String
-    var projectID: UUID
-    var workTime: Int
-    var startDate: Date
-    var endDate: Date
-    var status: TaskStatus
-    var employeeID: UUID?
+    let taskName: String
+    let projectID: UUID
+    let workTime: Int
+    let startDate: Date
+    let endDate: Date
+    let status: TaskStatus
+    let employeeID: UUID?
     
     init(id: UUID = UUID(), taskName: String, projectID: UUID, workTime: Int, startDate: Date, endDate: Date, status: TaskStatus, employeeID: UUID? = nil, createdAt: Date = Date()) {
         self.id = id

@@ -196,14 +196,26 @@ final class EditTaskViewController: BaseFormViewController {
     }
     
     private func updatedTask(_ task: ProjectTask, _ inputProject: Project, _ inputEmployee: Employee?) -> ProjectTask {
-        var updatedTask = task
-        updatedTask.taskName = taskNameTextField.text.orEmpty.trimmed
-        updatedTask.projectID = inputProject.id
-        updatedTask.workTime = Int(workTimeTextField.text.orEmpty.replacingOccurrences(of: " ", with: "")) ?? 0
-        updatedTask.startDate = DateHelper.date(from: startDateTextField.text.orEmpty) ?? Date()
-        updatedTask.endDate = DateHelper.date(from: endDateTextField.text.orEmpty) ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()
-        updatedTask.status = TaskStatus.allCases[statusSegmentedControl.selectedSegmentIndex]
-        updatedTask.employeeID = inputEmployee?.id
+        let newTaskName = taskNameTextField.text.orEmpty.trimmed
+        let newProjectID = inputProject.id
+        let newWorkTime = Int(workTimeTextField.text.orEmpty.replacingOccurrences(of: " ", with: "")) ?? 0
+        let newStartDate = DateHelper.date(from: startDateTextField.text.orEmpty) ?? Date()
+        let newEndDate = DateHelper.date(from: endDateTextField.text.orEmpty) ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()
+        let newStatus = TaskStatus.allCases[statusSegmentedControl.selectedSegmentIndex]
+        let newEmployeeID = inputEmployee?.id
+        
+        let updatedTask = ProjectTask(
+            id: task.id,
+            taskName: newTaskName,
+            projectID: newProjectID,
+            workTime: newWorkTime,
+            startDate: newStartDate,
+            endDate: newEndDate,
+            status: newStatus,
+            employeeID: newEmployeeID,
+            createdAt: task.createdAt
+        )
+        
         return updatedTask
     }
     

@@ -75,12 +75,22 @@ final class EditEmployeeViewController: BaseFormViewController {
         }
     }
     
-    private func updatedEmployee(from existing: Employee) -> Employee {
-        var updatedEmployee = existing
-        updatedEmployee.firstName = firstNameTextField.text.orEmpty.trimmed
-        updatedEmployee.lastName = lastNameTextField.text.orEmpty.trimmed
-        updatedEmployee.surName = surNameTextField.text?.trimmed ?? nil
-        updatedEmployee.position = positionTextField.text.orEmpty.trimmed
+    private func updatedEmployee(_ employee: Employee) -> Employee {
+        let newFirstName = firstNameTextField.text.orEmpty.trimmed
+        let newLastName = lastNameTextField.text.orEmpty.trimmed
+        let newSurName = surNameTextField.text?.trimmed ?? nil
+        let newPosition = positionTextField.text.orEmpty.trimmed
+        
+        let updatedEmployee = Employee(
+            id: employee.id,
+            firstName: newFirstName,
+            lastName: newLastName,
+            surName: newSurName,
+            position: newPosition,
+            tasks: employee.tasks,
+            createdAt: employee.createdAt
+        )
+
         return updatedEmployee
     }
     
@@ -95,7 +105,7 @@ final class EditEmployeeViewController: BaseFormViewController {
     
     private func saveEmployee() async throws -> Employee {
         if let employee {
-            let updatedEmployee = updatedEmployee(from: employee)
+            let updatedEmployee = updatedEmployee(employee)
             return try await server.updateEmployee(updatedEmployee)
         } else {
             let createdEmployee = buildEmployee()

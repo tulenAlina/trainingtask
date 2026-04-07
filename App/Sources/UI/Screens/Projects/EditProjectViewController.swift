@@ -66,9 +66,17 @@ final class EditProjectViewController: BaseFormViewController {
     }
     
     private func updatedProject(_ project: Project) -> Project {
-        var updatedProject = project
-        updatedProject.projectName = nameTextField.text.orEmpty.trimmed
-        updatedProject.description = descriptionTextField.text.orEmpty.trimmed
+        let newProjectName = nameTextField.text.orEmpty.trimmed
+        let newDescription = descriptionTextField.text.orEmpty.trimmed
+        
+        let updatedProject = Project(
+            id: project.id,
+            projectName: newProjectName,
+            description: newDescription,
+            tasks: project.tasks,
+            createdAt: project.createdAt
+        )
+        
         return updatedProject
     }
     

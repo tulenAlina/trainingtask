@@ -3,11 +3,11 @@ import Foundation
 struct Employee {
     let id: UUID
     let createdAt: Date
-    var firstName: String
-    var lastName: String
-    var surName: String?
-    var position: String
-    var tasks: [UUID] = []
+    let firstName: String
+    let lastName: String
+    let surName: String?
+    let position: String
+    let tasks: [UUID]
     
     var fullName: String {
         [lastName, firstName, surName]

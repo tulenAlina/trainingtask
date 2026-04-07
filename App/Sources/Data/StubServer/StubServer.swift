@@ -46,10 +46,18 @@ class StubServer: Server {
         }
         
         for taskID in project.tasks {
-            if let task = tasks[taskID], let employeeID = task.employeeID, var employee = employees[employeeID] {
-                employee.tasks.removeAll {$0 == task.id}
-                employees[employee.id] = employee
-            }
+            guard let task = tasks[taskID], let employeeID = task.employeeID, let employee = employees[employeeID] else { continue }
+            let newEmployee = Employee(
+                id: employee.id,
+                firstName: employee.firstName,
+                lastName: employee.lastName,
+                surName: employee.surName,
+                position: employee.position,
+                tasks: employee.tasks.filter {$0 != task.id},
+                createdAt: employee.createdAt
+            )
+            employees[employee.id] = newEmployee
+        
             tasks[taskID] = nil
         }
         projects[id] = nil
@@ -62,11 +70,13 @@ class StubServer: Server {
         result = result.sorted { $0.createdAt > $1.createdAt }
         return result
     }
+    
     func createEmployee(_ employee: Employee) async throws -> Employee {
         try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
         employees[employee.id] = employee
         return employee
     }
+    
     func updateEmployee(_ employee: Employee) async throws -> Employee {
         try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
         if employees[employee.id] == nil {
@@ -76,6 +86,7 @@ class StubServer: Server {
         employees[employee.id] = employee
         return employee
     }
+    
     func deleteEmployee(_ id: UUID) async throws {
         try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
         guard let employee = employees[id] else {
@@ -83,7 +94,19 @@ class StubServer: Server {
         }
         
         for taskID in employee.tasks {
-            tasks[taskID]?.employeeID = nil
+            guard let task = tasks[taskID] else { continue }
+            let newTask = ProjectTask(
+                id: task.id,
+                taskName: task.taskName,
+                projectID: task.projectID,
+                workTime: task.workTime,
+                startDate: task.startDate,
+                endDate: task.endDate,
+                status: task.status,
+                employeeID: nil,
+                createdAt: task.createdAt
+            )
+            tasks[taskID] = newTask
         }
         employees[id] = nil
     }
@@ -98,22 +121,44 @@ class StubServer: Server {
         result = result.sorted { $0.createdAt > $1.createdAt }
         return result
     }
+    
     func createTask(_ task: ProjectTask) async throws -> ProjectTask {
         try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
         tasks[task.id] = task
         
-        if var project = projects[task.projectID] {
-            project.tasks.append(task.id)
+        if let project = projects[task.projectID] {
+            var newTasks = project.tasks
+            newTasks.append(task.id)
+            let newProject = Project(
+                id: project.id,
+                projectName: project.projectName,
+                description: project.description,
+                tasks: newTasks,
+                createdAt: project.createdAt
+            )
+            
             projects[task.projectID] = project
         }
         
         guard let employeeID = task.employeeID else {return task}
-        if var employee = employees[employeeID] {
-            employee.tasks.append(task.id)
+        if let employee = employees[employeeID] {
+            var newTasks = employee.tasks
+            newTasks.append(task.id)
+            let newEmployee = Employee(
+                id: employee.id,
+                firstName: employee.firstName,
+                lastName: employee.lastName,
+                surName: employee.surName,
+                position: employee.position,
+                tasks: newTasks,
+                createdAt: employee.createdAt
+            )
+
             employees[employeeID] = employee
         }
         return task
     }
+    
     func updateTask(_ task: ProjectTask) async throws -> ProjectTask {
         try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
         guard let oldTask = tasks[task.id] else {
@@ -121,28 +166,64 @@ class StubServer: Server {
         }
         
         if oldTask.projectID != task.projectID {
-            if var oldProject = projects[oldTask.projectID] {
-                oldProject.tasks.removeAll {$0 == task.id}
-                projects[oldTask.projectID] = oldProject
+            if let project = projects[oldTask.projectID] {
+                let newProject = Project(
+                    id: project.id,
+                    projectName: project.projectName,
+                    description: project.description,
+                    tasks: project.tasks.filter {$0 != task.id},
+                    createdAt: project.createdAt
+                )
+                
+                projects[oldTask.projectID] = newProject
             }
             
-            if var newProject = projects[task.projectID]
+            if let project = projects[task.projectID]
             {
-                newProject.tasks.append(task.id)
+                var newTasks = project.tasks
+                newTasks.append(task.id)
+                let newProject = Project(
+                    id: project.id,
+                    projectName: project.projectName,
+                    description: project.description,
+                    tasks: newTasks,
+                    createdAt: project.createdAt
+                )
+                
                 projects[task.projectID] = newProject
             }
         }
         
         if oldTask.employeeID != task.employeeID {
-            if let oldEmployeeID = oldTask.employeeID, var oldEmployee = employees[oldEmployeeID] {
-                oldEmployee.tasks.removeAll {$0 == task.id}
-                employees[oldEmployeeID] = oldEmployee
+            if let employeeID = oldTask.employeeID, var employee = employees[employeeID] {
+                let newEmployee = Employee(
+                    id: employee.id,
+                    firstName: employee.firstName,
+                    lastName: employee.lastName,
+                    surName: employee.surName,
+                    position: employee.position,
+                    tasks: employee.tasks.filter {$0 != task.id},
+                    createdAt: employee.createdAt
+                )
+                
+                employees[employeeID] = newEmployee
             }
             
-            if let newEmployeeID = task.employeeID, var newEmployee = employees[newEmployeeID]
+            if let employeeID = task.employeeID, var employee = employees[employeeID]
             {
-                newEmployee.tasks.append(task.id)
-                employees[newEmployeeID] = newEmployee
+                var newTasks = employee.tasks
+                newTasks.append(task.id)
+                let newEmployee = Employee(
+                    id: employee.id,
+                    firstName: employee.firstName,
+                    lastName: employee.lastName,
+                    surName: employee.surName,
+                    position: employee.position,
+                    tasks: newTasks,
+                    createdAt: employee.createdAt
+                )
+                
+                employees[employeeID] = newEmployee
             }
         }
         
@@ -157,13 +238,28 @@ class StubServer: Server {
         }
         
         if var project = projects[task.projectID] {
-            project.tasks.removeAll {$0 == task.id}
-            projects[task.projectID] = project
+            let newProject = Project(
+                id: project.id,
+                projectName: project.projectName,
+                description: project.description,
+                tasks: project.tasks.filter {$0 != task.id},
+                createdAt: project.createdAt
+            )
+            
+            projects[task.projectID] = newProject
         }
         
         if let employeeID = task.employeeID, var employee = employees[employeeID] {
-            employee.tasks.removeAll {$0 == task.id}
-            employees[employeeID] = employee
+            let newEmployee = Employee(
+                id: employee.id,
+                firstName: employee.firstName,
+                lastName: employee.lastName,
+                surName: employee.surName,
+                position: employee.position,
+                tasks: employee.tasks.filter {$0 != task.id},
+                createdAt: employee.createdAt
+            )
+            employees[employeeID] = newEmployee
         }
         
         tasks[id] = nil
@@ -172,15 +268,34 @@ class StubServer: Server {
     // MARK: - Data
     private func setupMockData() {
         for i in 0..<10 {
-            var proj = Project(projectName: "Project\(i)", description: "Description\(i)")
-            var emp = Employee(firstName: "Name\(i)", lastName: "LastName\(i)", surName: "Surname\(i)", position: "Position\(i)")
-            let task = ProjectTask(taskName: "Task\(i)", projectID: proj.id, workTime: 5, startDate: Date(), endDate: Date(), status: .notStarted, employeeID: emp.id)
+            var project = Project(projectName: "Project\(i)", description: "Description\(i)")
+            var employee = Employee(firstName: "Name\(i)", lastName: "LastName\(i)", surName: "Surname\(i)", position: "Position\(i)")
+            let task = ProjectTask(taskName: "Task\(i)", projectID: project.id, workTime: 5, startDate: Date(), endDate: Date(), status: .notStarted, employeeID: employee.id)
             
-            proj.tasks.append(task.id)
-            emp.tasks.append(task.id)
+            var newProjectTasks = project.tasks
+            newProjectTasks.append(task.id)
+            let newProject = Project(
+                id: project.id,
+                projectName: project.projectName,
+                description: project.description,
+                tasks: newProjectTasks,
+                createdAt: project.createdAt
+            )
             
-            projects[proj.id] = proj
-            employees[emp.id] = emp
+            var newEmployeeTasks = employee.tasks
+            newEmployeeTasks.append(task.id)
+            let newEmployee = Employee(
+                id: employee.id,
+                firstName: employee.firstName,
+                lastName: employee.lastName,
+                surName: employee.surName,
+                position: employee.position,
+                tasks: newEmployeeTasks,
+                createdAt: employee.createdAt
+            )
+            
+            projects[project.id] = newProject
+            employees[employee.id] = newEmployee
             tasks[task.id] = task
         }
     }
