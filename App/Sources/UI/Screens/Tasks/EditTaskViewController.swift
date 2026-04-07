@@ -68,6 +68,7 @@ final class EditTaskViewController: BaseFormViewController {
         self.settings = settings
         selectedProject = contextProject
         super.init(nibName: nil, bundle: nil)
+        requiredFields = [taskNameTextField, projectTextField, workTimeTextField]
     }
     
     convenience init(task: ProjectTask? = nil, project: Project? = nil, server: Server, settings: SettingsManager, updateDelegate: TaskUpdateDelegate) {
@@ -87,17 +88,12 @@ final class EditTaskViewController: BaseFormViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationTitle((task != nil) ? Localized.editTask : Localized.addTask)
-        setupRequiredFields()
         loadInitialData()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         view.endEditing(true)
-    }
-    
-    private func setupRequiredFields() {
-        requiredFields = [taskNameTextField, projectTextField, workTimeTextField]
     }
     
     private func setupUI() {

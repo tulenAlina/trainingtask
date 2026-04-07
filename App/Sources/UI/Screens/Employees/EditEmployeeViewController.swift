@@ -16,6 +16,7 @@ final class EditEmployeeViewController: BaseFormViewController {
         self.employee = employee
         self.server = server
         super.init(nibName: nil, bundle: nil)
+        requiredFields = [firstNameTextField, lastNameTextField, positionTextField]
     }
     
     convenience init(employee: Employee? = nil, server: Server, updateDelegate: EmployeeUpdateDelegate) {
@@ -34,12 +35,7 @@ final class EditEmployeeViewController: BaseFormViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupRequiredFields()
         setupUI()
-    }
-    
-    private func setupRequiredFields() {
-        requiredFields = [firstNameTextField, lastNameTextField, positionTextField]
     }
     
     private func setupUI() {

@@ -14,6 +14,7 @@ final class EditProjectViewController: BaseFormViewController {
         self.project = project
         self.server = server
         super.init(nibName: nil, bundle: nil)
+        requiredFields = [nameTextField, descriptionTextField]
     }
     
     convenience init(project: Project? = nil, server: Server, updateDelegate: ProjectUpdateDelegate) {
@@ -32,12 +33,7 @@ final class EditProjectViewController: BaseFormViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupRequiredFields()
         setupUI()
-    }
-    
-    private func setupRequiredFields() {
-        requiredFields = [nameTextField, descriptionTextField]
     }
     
     private func setupUI() {

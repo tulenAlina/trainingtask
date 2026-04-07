@@ -14,6 +14,7 @@ final class SettingsViewController: BaseFormViewController {
     init(settings: SettingsManager) {
         self.settings = settings
         super.init(nibName: nil, bundle: nil)
+        requiredFields = [serverUrlTextField, maxRecordsTextField, defaultDaysBetweenTextField]
     }
     
     required init?(coder: NSCoder) {
@@ -22,12 +23,7 @@ final class SettingsViewController: BaseFormViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupRequiredFields()
         setupUI()
-    }
-    
-    private func setupRequiredFields() {
-        requiredFields = [serverUrlTextField, maxRecordsTextField, defaultDaysBetweenTextField]
     }
     
     private func setupUI() {
