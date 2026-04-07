@@ -63,7 +63,7 @@ enum Localized {
     static let firstNameLabel = "first_name_label".localized
     static let lastNameLabel = "last_name_label".localized
     static let surnameLabel = "surname_label".localized
-    static let patronymicLabel = "patronymic_label".localized
+    static let fullNameLabel = "full_name_label".localized
     static let positionLabel = "position_label".localized
     static let taskLabel = "task_label".localized
     static let projectLabel = "project_label".localized

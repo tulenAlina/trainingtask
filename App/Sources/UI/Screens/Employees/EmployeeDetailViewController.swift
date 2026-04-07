@@ -8,6 +8,7 @@ final class EmployeeDetailViewController: BaseViewController {
     private let indexPath: IndexPath
     private var employee: Employee
     
+    private var nameTitleLabel = UILabel()
     private var nameLabel = UILabel()
     private var positionLabel = UILabel()
     private var positionTitleLabel = UILabel()
@@ -42,19 +43,23 @@ final class EmployeeDetailViewController: BaseViewController {
     private func setupLabels() {
         updateLabels()
         
-        nameLabel.font = .systemFont(ofSize: 18, weight: .semibold)
-        nameLabel.numberOfLines = 5
-        
+        nameTitleLabel.text = Localized.fullNameLabel
         positionTitleLabel.text = Localized.positionLabel
-        positionTitleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
-        positionTitleLabel.setContentHuggingPriority(.required, for: .horizontal)
-        positionTitleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         
+        [nameTitleLabel, positionTitleLabel].forEach { label in
+            label.font = .systemFont(ofSize: 16, weight: .semibold)
+            label.setContentHuggingPriority(.required, for: .horizontal)
+            label.setContentCompressionResistancePriority(.required, for: .horizontal)
+            label.translatesAutoresizingMaskIntoConstraints = false
+        }
+        
+        nameLabel.numberOfLines = 5
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
-        positionTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        positionLabel.translatesAutoresizingMaskIntoConstraints = false
-        positionLabel.numberOfLines = 3
         
+        positionLabel.numberOfLines = 3
+        positionLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(nameTitleLabel)
         view.addSubview(nameLabel)
         view.addSubview(positionTitleLabel)
         view.addSubview(positionLabel)
@@ -67,14 +72,17 @@ final class EmployeeDetailViewController: BaseViewController {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
+            nameTitleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            nameTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            
             nameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            nameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            nameLabel.leadingAnchor.constraint(equalTo: nameTitleLabel.trailingAnchor, constant: 5),
             nameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            positionTitleLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 10),
+            positionTitleLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 15),
             positionTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             
-            positionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 10),
+            positionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 15),
             positionLabel.leadingAnchor.constraint(equalTo: positionTitleLabel.trailingAnchor, constant: 5),
             positionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             

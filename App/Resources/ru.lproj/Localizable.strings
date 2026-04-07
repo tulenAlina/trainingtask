@@ -59,7 +59,7 @@
 "first_name_label" = "Имя:";
 "last_name_label" = "Фамилия:";
 "surname_label" = "Отчество:";
-"patronymic_label" = "Отчество:";
+"full_name_label" = "ФИО:";
 "position_label" = "Должность:";
 "task_label" = "Задача:";
 "project_label" = "Проект:";

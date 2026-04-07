@@ -59,6 +59,7 @@
 "first_name_label" = "First name:";
 "last_name_label" = "Last name:";
 "surname_label" = "Patronymic:";
+"full_name_label" = "FIO:";
 "position_label" = "Position:";
 "task_label" = "Task:";
 "project_label" = "Project:";
