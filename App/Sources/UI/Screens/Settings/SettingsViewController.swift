@@ -31,7 +31,7 @@ final class SettingsViewController: BaseFormViewController {
         configureTextFields()
         configureFormRows()
         setupForm()
-        addSaveButton(action: #selector(saveSettings))
+        addSaveButton(action: #selector(actionSaveSettings))
     }
     
     private func configureTextFields() {
@@ -77,7 +77,7 @@ final class SettingsViewController: BaseFormViewController {
         return urlChanged || maxRecordsChanged || defaultDaysBetweenChanged
     }
     
-    @objc private func saveSettings() {
+    @objc private func actionSaveSettings() {
         guard validateFields() else { return }
         guard isFieldsChanged() else {
             navigationController?.popViewController(animated: true)

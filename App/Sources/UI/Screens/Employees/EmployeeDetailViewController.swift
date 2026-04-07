@@ -36,7 +36,7 @@ final class EmployeeDetailViewController: BaseViewController {
         setupLabels()
         setupButtons()
         setupConstraints()
-        setupRightBarButton(title: Localized.edit, action: #selector(didTapChangeButton))
+        setupRightBarButton(title: Localized.edit, action: #selector(actionChangeEmployee))
     }
     
     private func setupLabels() {
@@ -61,7 +61,7 @@ final class EmployeeDetailViewController: BaseViewController {
     }
     
     private func setupButtons() {
-        deleteButton.addTarget(self, action: #selector(didTapDeleteButton), for: .touchUpInside)
+        deleteButton.addTarget(self, action: #selector(actionDeleteEmployee), for: .touchUpInside)
         view.addSubview(deleteButton)
     }
     
@@ -90,12 +90,12 @@ final class EmployeeDetailViewController: BaseViewController {
         positionLabel.text = employee.position
     }
     
-    @objc private func didTapChangeButton() {
+    @objc private func actionChangeEmployee() {
         let editViewController = EditEmployeeViewController(employee: employee, server: server, updateDelegate: self)
         navigationController?.pushViewController(editViewController, animated: true)
     }
     
-    @objc private func didTapDeleteButton() {
+    @objc private func actionDeleteEmployee() {
         deleteDelegate?.didDeleteEmployee(employee, at: indexPath)
         navigationController?.popViewController(animated: true)
     }

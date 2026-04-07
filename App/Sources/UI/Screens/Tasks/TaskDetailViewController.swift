@@ -81,7 +81,7 @@ final class TaskDetailViewController: BaseViewController {
         setupTimeCard()
         setupStackView()
         setupButtons()
-        setupRightBarButton(title: Localized.edit, action: #selector(didTapChangeButton))
+        setupRightBarButton(title: Localized.edit, action: #selector(actionChangeTask))
     }
     
     private func setupLabels() {
@@ -171,7 +171,7 @@ final class TaskDetailViewController: BaseViewController {
     }
     
     private func setupButtons() {
-        deleteButton.addTarget(self, action: #selector(didTapDeleteButton), for: .touchUpInside)
+        deleteButton.addTarget(self, action: #selector(actionDeleteTask), for: .touchUpInside)
         
         view.addSubview(deleteButton)
         
@@ -236,12 +236,12 @@ final class TaskDetailViewController: BaseViewController {
         }
     }
     
-    @objc private func didTapDeleteButton() {
+    @objc private func actionDeleteTask() {
         deleteDelegate?.didDeleteTask(task, at: indexPath)
         navigationController?.popViewController(animated: true)
     }
     
-    @objc private func didTapChangeButton() {
+    @objc private func actionChangeTask() {
         if let project {
             let editViewController = isOpenedFromProject ? EditTaskViewController(task: task, project: project, server: server, settings: settings, updateDelegate: self) : EditTaskViewController(task: task, server: server, settings: settings, updateDelegate: self)
             navigationController?.pushViewController(editViewController, animated: true)

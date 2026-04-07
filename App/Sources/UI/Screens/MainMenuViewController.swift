@@ -13,7 +13,7 @@ final class MainMenuViewController: UIViewController {
             button.setTitleColor(.black, for: .normal)
             button.backgroundColor = .lightGray
             button.translatesAutoresizingMaskIntoConstraints = false
-            button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+            button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
             return button
         }
     }()
@@ -58,7 +58,7 @@ final class MainMenuViewController: UIViewController {
         ])
     }
     
-    @objc private func buttonTapped(_ sender: UIButton) {
+    @objc private func actionButtonTapped(_ sender: UIButton) {
         guard let title = sender.titleLabel?.text else { return }
         
         switch title {

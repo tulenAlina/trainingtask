@@ -38,7 +38,7 @@ final class ProjectDetailViewController: BaseViewController {
         setupLabels()
         setupButtons()
         setupConstraints()
-        setupRightBarButton(title: Localized.edit, action: #selector(didTapChangeButton))
+        setupRightBarButton(title: Localized.edit, action: #selector(actionChangeProject))
     }
     
     private func setupLabels() {
@@ -63,9 +63,9 @@ final class ProjectDetailViewController: BaseViewController {
         openTasksButton.layer.borderColor = UIColor.darkGray.cgColor
         openTasksButton.layer.cornerRadius = 12
         openTasksButton.translatesAutoresizingMaskIntoConstraints = false
-        openTasksButton.addTarget(self, action: #selector(didTapOpenTasksButton), for: .touchUpInside)
+        openTasksButton.addTarget(self, action: #selector(actionOpenTasks), for: .touchUpInside)
         
-        deleteButton.addTarget(self, action: #selector(didTapDeleteButton), for: .touchUpInside)
+        deleteButton.addTarget(self, action: #selector(actionDeleteProject), for: .touchUpInside)
         
         view.addSubview(openTasksButton)
         view.addSubview(deleteButton)
@@ -98,17 +98,17 @@ final class ProjectDetailViewController: BaseViewController {
         descriptionLabel.text = project.description
     }
         
-    @objc private func didTapChangeButton() {
+    @objc private func actionChangeProject() {
         let editViewController = EditProjectViewController(project: project, server: server, updateDelegate: self)
         navigationController?.pushViewController(editViewController, animated: true)
     }
     
-    @objc private func didTapDeleteButton() {
+    @objc private func actionDeleteProject() {
         deleteDelegate?.didDeleteProject(project, at: indexPath)
         navigationController?.popViewController(animated: true)
     }
     
-    @objc private func didTapOpenTasksButton() {
+    @objc private func actionOpenTasks() {
         let tasksViewConttroller = TasksViewController(project: project, server: server, settings: settings)
         navigationController?.pushViewController(tasksViewConttroller, animated: true)
     }

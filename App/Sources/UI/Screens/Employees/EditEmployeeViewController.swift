@@ -43,7 +43,7 @@ final class EditEmployeeViewController: BaseFormViewController {
         setupTextFields()
         setupFormRows()
         setupForm()
-        addSaveButton(action: #selector(didTapSaveButton))
+        addSaveButton(action: #selector(actionSaveEmployee))
     }
     
     private func setupTextFields() {
@@ -125,7 +125,7 @@ final class EditEmployeeViewController: BaseFormViewController {
         return firstNameChanged || lastNameChanged || surNameChanged || positionChanged
     }
     
-    @objc private func didTapSaveButton() {
+    @objc private func actionSaveEmployee() {
         guard validateFields() else { return }
         guard isFieldsChanged() else {
             navigationController?.popViewController(animated: true)

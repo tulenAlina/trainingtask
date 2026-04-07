@@ -41,7 +41,7 @@ final class EditProjectViewController: BaseFormViewController {
         setupTextFields()
         setupFormRows()
         setupForm()
-        addSaveButton(action: #selector(didTapSaveButton))
+        addSaveButton(action: #selector(actionSaveProject))
     }
     
     private func setupTextFields() {
@@ -107,7 +107,7 @@ final class EditProjectViewController: BaseFormViewController {
         return nameChanged || descriptionChanged
     }
     
-    @objc private func didTapSaveButton() {
+    @objc private func actionSaveProject() {
         guard validateFields() else { return }
         guard isFieldsChanged() else {
             navigationController?.popViewController(animated: true)

@@ -59,7 +59,7 @@ final class EmployeesViewController: BaseListViewController<Employee> {
     private func setupNavigationBar() {
         switch mode {
         case .list:
-            setupRightBarButton(systemItem: .add, action: #selector(didTapAddButton))
+            setupRightBarButton(systemItem: .add, action: #selector(actionAddEmployee))
         case .selection:
             break
         }
@@ -106,7 +106,7 @@ final class EmployeesViewController: BaseListViewController<Employee> {
         }
     }
     
-    @objc private func didTapAddButton() {
+    @objc private func actionAddEmployee() {
         let editViewController = EditEmployeeViewController(server: server, createDelegate: self)
         navigationController?.pushViewController(editViewController, animated: true)
     }

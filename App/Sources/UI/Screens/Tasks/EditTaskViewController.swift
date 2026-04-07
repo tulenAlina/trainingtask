@@ -103,7 +103,7 @@ final class EditTaskViewController: BaseFormViewController {
         setupSegmentedControl()
         setupToolbar()
         setupForm()
-        addSaveButton(action: #selector(didTapSaveButton))
+        addSaveButton(action: #selector(actionSaveTask))
     }
     
     private func setupTextFields() {
@@ -172,7 +172,7 @@ final class EditTaskViewController: BaseFormViewController {
     }
     
     private func setupClearEmployeeButton() {
-        clearEmployeeButton.addTarget(self, action: #selector(clearEmployeeTapped), for: .touchUpInside)
+        clearEmployeeButton.addTarget(self, action: #selector(actionClearEmployee), for: .touchUpInside)
         clearEmployeeButton.widthAnchor.constraint(equalToConstant: 70).isActive = true
     }
     
@@ -188,7 +188,7 @@ final class EditTaskViewController: BaseFormViewController {
     private func setupToolbar() {
         toolbar.sizeToFit()
         
-        let doneButton = UIBarButtonItem(title: "Выбрать", style: .done, target: self, action: #selector(dateChanged))
+        let doneButton = UIBarButtonItem(title: "Выбрать", style: .done, target: self, action: #selector(actionDateChange))
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let cancelButton = UIBarButtonItem(title: "Отмена", style: .plain, target: self, action: #selector(dismissObjects))
     
@@ -318,7 +318,7 @@ final class EditTaskViewController: BaseFormViewController {
         return taskNameChanged || projectChanged || workTimeChanged || startDateChanged || endDateChanged || employeeChanged || statusChanged
     }
     
-    @objc private func didTapSaveButton() {
+    @objc private func actionSaveTask() {
         guard validateFields() else { return }
         guard isFieldsChanged() else {
             navigationController?.popViewController(animated: true)
@@ -343,7 +343,7 @@ final class EditTaskViewController: BaseFormViewController {
         }
     }
     
-    @objc private func dateChanged(_ sender: UIDatePicker) {
+    @objc private func actionDateChange(_ sender: UIDatePicker) {
         if startDateTextField.isFirstResponder {
             let dateString = DateHelper.string(from: startDatePicker.date)
             startDateTextField.text = dateString
@@ -355,7 +355,7 @@ final class EditTaskViewController: BaseFormViewController {
         dismissObjects()
     }
     
-    @objc private func selectProjectTapped() {
+    @objc private func actionSelectProject() {
         let projectsViewController = ProjectsViewController(mode: .selection {[weak self] selectedProject in
             if let self {
                 self.selectedProject = selectedProject
@@ -366,7 +366,7 @@ final class EditTaskViewController: BaseFormViewController {
         navigationController?.pushViewController(projectsViewController, animated: true)
     }
     
-    @objc private func selectEmployeeTapped() {
+    @objc private func actionSelectEmployee() {
         let employeesViewController = EmployeesViewController(mode: .selection {[weak self] selectedEmployee in
             self?.selectedEmployee = selectedEmployee
             self?.employeeTextField.text = selectedEmployee.fullName
@@ -374,7 +374,7 @@ final class EditTaskViewController: BaseFormViewController {
         navigationController?.pushViewController(employeesViewController, animated: true)
     }
     
-    @objc private func clearEmployeeTapped() {
+    @objc private func actionClearEmployee() {
         selectedEmployee = nil
         employeeTextField.text = nil
     }
@@ -416,9 +416,9 @@ extension EditTaskViewController: UITextFieldDelegate {
                 endDatePicker.date = date
             }
         case projectTextField:
-            selectProjectTapped()
+            actionSelectProject()
         case employeeTextField:
-            selectEmployeeTapped()
+            actionSelectEmployee()
         default:
             break
         }

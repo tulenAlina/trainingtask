@@ -30,7 +30,7 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
         setupNavigationTitle(Localized.tasks)
         setupTableView()
         setupConstraints()
-        setupRightBarButton(systemItem: .add, action: #selector(didTapAddButton))
+        setupRightBarButton(systemItem: .add, action: #selector(actionAddTask))
         startLoading()
     }
     
@@ -106,7 +106,7 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
         }
     }
     
-    @objc private func didTapAddButton() {
+    @objc private func actionAddTask() {
         let editViewController: EditTaskViewController
         if let project {
             editViewController = EditTaskViewController(project: project, server: server, settings: settings, createDelegate: self)
