@@ -74,25 +74,30 @@ final class ProjectsViewController: BaseListViewController<Project> {
         }
     }
     
+    private func updateUI(){
+        tableView.reloadData()
+        updateEmptyState()
+        stopLoading()
+        refreshControl.endRefreshing()
+    }
+    
     private func loadProjects() async throws {
-        let allProjects = try await server.fetchProjects()
-        items = Array(allProjects.prefix(settings.maxRecords))
-        await MainActor.run {
-            tableView.reloadData()
-            updateEmptyState()
-            stopLoading()
-            refreshControl.endRefreshing()
-        }
+        allItems = try await server.fetchProjects()
+        displayedItems = Array(allItems.prefix(settings.maxRecords))
     }
     
     private func performDelete(at indexPath: IndexPath) {
         startLoading()
-        let project = items[indexPath.row]
+        let project = displayedItems[indexPath.row]
         
         Task {
             do {
                 try await server.deleteProject(project.id)
-                refreshData()
+                await MainActor.run {
+                    allItems.remove(at: indexPath.row)
+                    displayedItems = Array(allItems.prefix(settings.maxRecords))
+                    updateUI()
+                }
             } catch {
                 await MainActor.run {
                     stopLoading()
@@ -106,6 +111,9 @@ final class ProjectsViewController: BaseListViewController<Project> {
         Task {
             do {
                 try await loadProjects()
+                await MainActor.run {
+                    updateUI()
+                }
             } catch {
                 await MainActor.run {
                     refreshControl.endRefreshing()
@@ -123,13 +131,13 @@ final class ProjectsViewController: BaseListViewController<Project> {
 
 extension ProjectsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return items.count
+        return displayedItems.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ProjectCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "ProjectCell")
-        cell.textLabel?.text = items[indexPath.row].projectName
-        cell.detailTextLabel?.text = items[indexPath.row].description
+        cell.textLabel?.text = displayedItems[indexPath.row].projectName
+        cell.detailTextLabel?.text = displayedItems[indexPath.row].description
         return cell
     }
 }
@@ -137,7 +145,7 @@ extension ProjectsViewController: UITableViewDataSource {
 extension ProjectsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let project = items[indexPath.row]
+        let project = displayedItems[indexPath.row]
         
         switch mode {
         case .list:

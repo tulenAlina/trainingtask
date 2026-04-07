@@ -2,7 +2,8 @@ import UIKit
 
 class BaseListViewController<Item>: BaseViewController {
     var settings: SettingsManager
-    var items: [Item] = []
+    var allItems: [Item] = []
+    var displayedItems: [Item] = []
     var tableView = UITableView()
     var refreshControl = UIRefreshControl()
     var emptyStateText: String { return "" }
@@ -17,7 +18,7 @@ class BaseListViewController<Item>: BaseViewController {
     }
     
     func updateEmptyState() {
-        if items.isEmpty {
+        if displayedItems.isEmpty {
             let label = UILabel()
             label.text = emptyStateText
             label.textAlignment = .center
@@ -36,18 +37,20 @@ class BaseListViewController<Item>: BaseViewController {
         
         guard settings.maxRecords > 0 else { return }
         
-        if items.count >= maxRecords {
-            items.removeLast()
+        if displayedItems.count >= maxRecords {
+            displayedItems.removeLast()
             tableView.deleteRows(at: [lastIndexPathWithinLimit], with: .automatic)
         }
-        items.insert(item, at: 0)
+        allItems.insert(item, at: 0)
+        displayedItems.insert(item, at: 0)
         tableView.insertRows(at: [firstIndexPath], with: .automatic)
         updateEmptyState()
     }
     
     func updateItem(_ item: Item, where condition: (Item) -> Bool) {
-        if let index = items.firstIndex(where: condition) {
-            items[index] = item
+        if let index = displayedItems.firstIndex(where: condition) {
+            allItems[index] = item
+            displayedItems[index] = item
             let indexPath = IndexPath(row: index, section: 0)
             tableView.reloadRows(at: [indexPath], with: .automatic)
         }

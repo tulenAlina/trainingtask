@@ -74,25 +74,30 @@ final class EmployeesViewController: BaseListViewController<Employee> {
         }
     }
     
+    private func updateUI(){
+        tableView.reloadData()
+        updateEmptyState()
+        stopLoading()
+        refreshControl.endRefreshing()
+    }
+    
     private func loadEmployees() async throws{
-        let allEmployees = try await server.fetchEmployees()
-        items = Array(allEmployees.prefix(settings.maxRecords))
-        await MainActor.run {
-            tableView.reloadData()
-            updateEmptyState()
-            stopLoading()
-            refreshControl.endRefreshing()
-        }
+        allItems = try await server.fetchEmployees()
+        displayedItems = Array(allItems.prefix(settings.maxRecords))
     }
     
     private func performDelete(at indexPath: IndexPath) {
         startLoading()
-        let employee = items[indexPath.row]
+        let employee = displayedItems[indexPath.row]
 
         Task {
             do {
                 try await server.deleteEmployee(employee.id)
-                refreshData()
+                await MainActor.run {
+                    allItems.remove(at: indexPath.row)
+                    displayedItems = Array(allItems.prefix(settings.maxRecords))
+                    updateUI()
+                }
             } catch {
                 await MainActor.run {
                     stopLoading()
@@ -106,6 +111,9 @@ final class EmployeesViewController: BaseListViewController<Employee> {
         Task {
             do {
                 try await loadEmployees()
+                await MainActor.run {
+                    updateUI()
+                }
             } catch {
                 await MainActor.run {
                     refreshControl.endRefreshing()
@@ -123,13 +131,13 @@ final class EmployeesViewController: BaseListViewController<Employee> {
 
 extension EmployeesViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return items.count
+        return displayedItems.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "EmployeeCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "EmployeeCell")
-        cell.textLabel?.text = items[indexPath.row].fullName
-        cell.detailTextLabel?.text = items[indexPath.row].position
+        cell.textLabel?.text = displayedItems[indexPath.row].fullName
+        cell.detailTextLabel?.text = displayedItems[indexPath.row].position
         return cell
     }
 }
@@ -137,7 +145,7 @@ extension EmployeesViewController: UITableViewDataSource {
 extension EmployeesViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let employee = items[indexPath.row]
+        let employee = displayedItems[indexPath.row]
         switch mode {
         case .list:
             let detailViewController = EmployeeDetailViewController(indexPath: indexPath, employee: employee, server: server, updateDelegate: self, deleteDelegate: self)

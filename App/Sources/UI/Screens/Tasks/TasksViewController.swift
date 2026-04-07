@@ -53,37 +53,43 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
         ])
     }
     
+    private func updateUI(){
+        tableView.reloadData()
+        updateEmptyState()
+        stopLoading()
+        refreshControl.endRefreshing()
+    }
+    
     private func loadTasks() async throws {
         async let allTasks = try await server.fetchTasks(projectID: project?.id)
         async let allEmployees = server.fetchEmployees()
         if project == nil {
             async let allProjects = server.fetchProjects()
             let (tasks, projects, employees) = try await (allTasks, allProjects, allEmployees)
+            self.allItems = tasks
             self.projects = projects
             self.employees = employees
-            self.items = Array(tasks.prefix(settings.maxRecords))
+            self.displayedItems = Array(tasks.prefix(settings.maxRecords))
         } else {
             let (tasks, employees) = try await (allTasks, allEmployees)
+            self.allItems = tasks
             self.employees = employees
-            self.items = Array(tasks.prefix(settings.maxRecords))
-        }
-        
-        await MainActor.run {
-            tableView.reloadData()
-            updateEmptyState()
-            stopLoading()
-            refreshControl.endRefreshing()
+            self.displayedItems = Array(tasks.prefix(settings.maxRecords))
         }
     }
     
     private func performDelete(at indexPath: IndexPath) {
         startLoading()
-        let task = items[indexPath.row]
+        let task = displayedItems[indexPath.row]
 
         Task {
             do {
                 try await server.deleteTask(task.id)
-                refreshData()
+                await MainActor.run {
+                    allItems.remove(at: indexPath.row)
+                    displayedItems = Array(allItems.prefix(settings.maxRecords))
+                    updateUI()
+                }
             } catch {
                 await MainActor.run {
                     stopLoading()
@@ -97,6 +103,9 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
         Task {
             do {
                 try await loadTasks()
+                await MainActor.run {
+                    updateUI()
+                }
             } catch {
                 await MainActor.run {
                     refreshControl.endRefreshing()
@@ -120,12 +129,12 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
 
 extension TasksViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return items.count
+        return displayedItems.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TaskCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "TaskCell")
-        let task = items[indexPath.row]
+        let task = displayedItems[indexPath.row]
         cell.textLabel?.text = task.taskName
         
         if project == nil {
@@ -150,7 +159,7 @@ extension TasksViewController: UITableViewDataSource {
 extension TasksViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let detailViewController = createTaskDetailViewController(for: items[indexPath.row], indexPath: indexPath)
+        let detailViewController = createTaskDetailViewController(for: displayedItems[indexPath.row], indexPath: indexPath)
         navigationController?.pushViewController(detailViewController, animated: true)
     }
     
