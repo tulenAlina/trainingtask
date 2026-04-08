@@ -95,12 +95,12 @@ class StubServer: Server {
     
     func createTask(_ task: ProjectTask) async throws -> ProjectTask {
         try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
-        tasks[task.id] = task
         updateProjectTasks(projectID: task.projectID, taskID: task.id)
+        tasks[task.id] = task
         
         guard let employeeID = task.employeeID else { return task }
         updateEmployeeTasks(employeeID: employeeID, taskID: task.id)
-
+        
         return task
     }
     
@@ -123,7 +123,6 @@ class StubServer: Server {
         guard let task = tasks[id] else {
             throw Errors.itemNotFound
         }
-        
         removeTaskFromProject(projectID: task.projectID, taskID: id)
         
         if let employeeID = task.employeeID {
@@ -198,10 +197,11 @@ class StubServer: Server {
     
     private func removeAllTasks(of project: Project) {
         for taskID in project.tasks {
-            guard let task = tasks[taskID], let employeeID = task.employeeID else { continue }
-            removeTaskFromEmployee(employeeID: employeeID, taskID: taskID)
-            
+            guard let task = tasks[taskID] else { continue }
             tasks[taskID] = nil
+        
+            guard let employeeID = task.employeeID else { continue }
+            removeTaskFromEmployee(employeeID: employeeID, taskID: taskID)
         }
     }
     

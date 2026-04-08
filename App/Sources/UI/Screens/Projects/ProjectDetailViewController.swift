@@ -1,8 +1,8 @@
 import UIKit
 
 final class ProjectDetailViewController: BaseViewController {
-    weak var updateDelegate: ProjectUpdateDelegate?
-    weak var deleteDelegate: ProjectDeleteDelegate?
+    var onUpdate: ((Project) -> Void)
+    var onDelete: ((IndexPath) -> Void)
     
     private let server: Server
     private let settings: SettingsManager
@@ -14,13 +14,13 @@ final class ProjectDetailViewController: BaseViewController {
     private var openTasksButton = UIButton()
     private var deleteButton = UIFactory.createDeleteButton()
     
-    init(indexPath: IndexPath, project: Project, server: Server, settings: SettingsManager, updateDelegate: ProjectUpdateDelegate, deleteDelegate: ProjectDeleteDelegate) {
+    init(indexPath: IndexPath, project: Project, server: Server, settings: SettingsManager, onUpdate: @escaping ((Project) -> Void), onDelete: @escaping ((IndexPath) -> Void)) {
         self.indexPath = indexPath
         self.project = project
         self.server = server
         self.settings = settings
-        self.updateDelegate = updateDelegate
-        self.deleteDelegate = deleteDelegate
+        self.onUpdate = onUpdate
+        self.onDelete = onDelete
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -98,25 +98,21 @@ final class ProjectDetailViewController: BaseViewController {
     }
         
     @objc private func actionChangeProject() {
-        let editViewController = EditProjectViewController(project: project, server: server, updateDelegate: self)
+        let editViewController = EditProjectViewController(project: project, server: server, onUpdate: {[weak self] project in
+            self?.project = project
+            self?.onUpdate(project)
+            self?.updateLabels()
+        })
         navigationController?.pushViewController(editViewController, animated: true)
     }
     
     @objc private func actionDeleteProject() {
-        deleteDelegate?.didDeleteProject(project, at: indexPath)
+        onDelete(indexPath)
         navigationController?.popViewController(animated: true)
     }
     
     @objc private func actionOpenTasks() {
         let tasksViewConttroller = TasksViewController(project: project, server: server, settings: settings)
         navigationController?.pushViewController(tasksViewConttroller, animated: true)
-    }
-}
-
-extension ProjectDetailViewController: ProjectUpdateDelegate {
-    func didUpdateProject(_ project: Project) {
-        self.project = project
-        self.updateDelegate?.didUpdateProject(project)
-        updateLabels()
     }
 }

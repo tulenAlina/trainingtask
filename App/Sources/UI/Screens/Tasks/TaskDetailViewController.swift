@@ -1,8 +1,8 @@
 import UIKit
 
 final class TaskDetailViewController: BaseViewController {
-    weak var updateDelegate: TaskUpdateDelegate?
-    weak var deleteDelegate: TaskDeleteDelegate?
+    var onUpdate: ((ProjectTask) -> Void)
+    var onDelete: ((IndexPath) -> Void)
     
     private let server: Server
     private let settings: SettingsManager
@@ -80,7 +80,7 @@ final class TaskDetailViewController: BaseViewController {
         return stack
     }()
     
-    init(indexPath: IndexPath, task: ProjectTask, project: Project?, employee: Employee?, isOpenedFromProject: Bool, server: Server, settings: SettingsManager, updateDelegate: TaskUpdateDelegate, deleteDelegate: TaskDeleteDelegate) {
+    init(indexPath: IndexPath, task: ProjectTask, project: Project?, employee: Employee?, isOpenedFromProject: Bool, server: Server, settings: SettingsManager, onUpdate: @escaping ((ProjectTask) -> Void), onDelete: @escaping ((IndexPath) -> Void)) {
         self.indexPath = indexPath
         self.task = task
         self.project = project
@@ -88,8 +88,8 @@ final class TaskDetailViewController: BaseViewController {
         self.isOpenedFromProject = isOpenedFromProject
         self.server = server
         self.settings = settings
-        self.updateDelegate = updateDelegate
-        self.deleteDelegate = deleteDelegate
+        self.onUpdate = onUpdate
+        self.onDelete = onDelete
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -228,29 +228,26 @@ final class TaskDetailViewController: BaseViewController {
     }
     
     @objc private func actionDeleteTask() {
-        deleteDelegate?.didDeleteTask(task, at: indexPath)
+        onDelete(indexPath)
         navigationController?.popViewController(animated: true)
     }
     
     @objc private func actionChangeTask() {
+        let onUpdate = {[weak self] task in
+            self?.task = task
+            self?.onUpdate(task)
+            self?.startLoading()
+            Task {
+                await self?.reloadTaskDetails()
+            }
+        }
+        
         if let project {
-            let editViewController = isOpenedFromProject ? EditTaskViewController(task: task, project: project, server: server, settings: settings, updateDelegate: self) : EditTaskViewController(task: task, server: server, settings: settings, updateDelegate: self)
+            let editViewController = isOpenedFromProject ? EditTaskViewController(task: task, project: project, server: server, settings: settings, onUpdate: onUpdate) : EditTaskViewController(task: task, server: server, settings: settings, onUpdate: onUpdate)
             navigationController?.pushViewController(editViewController, animated: true)
         } else {
-            let editViewController = EditTaskViewController(task: task, server: server, settings: settings, updateDelegate: self)
+            let editViewController = EditTaskViewController(task: task, server: server, settings: settings, onUpdate: onUpdate)
             navigationController?.pushViewController(editViewController, animated: true)
-        }
-    }
-}
-
-extension TaskDetailViewController: TaskUpdateDelegate {
-    func didUpdateTask(_ task: ProjectTask) {
-        self.task = task
-        self.updateDelegate?.didUpdateTask(task)
-        
-        startLoading()
-        Task {
-            await reloadTaskDetails()
         }
     }
 }

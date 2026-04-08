@@ -1,8 +1,8 @@
 import UIKit
 
 final class EmployeeDetailViewController: BaseViewController {
-    weak var updateDelegate: EmployeeUpdateDelegate?
-    weak var deleteDelegate: EmployeeDeleteDelegate?
+    var onUpdate: ((Employee) -> Void)
+    var onDelete: ((IndexPath) -> Void)
     
     private let server: Server
     private let indexPath: IndexPath
@@ -16,12 +16,12 @@ final class EmployeeDetailViewController: BaseViewController {
     
     private var deleteButton = UIFactory.createDeleteButton()
     
-    init(indexPath: IndexPath, employee: Employee, server: Server, updateDelegate: EmployeeUpdateDelegate, deleteDelegate: EmployeeDeleteDelegate) {
+    init(indexPath: IndexPath, employee: Employee, server: Server, onUpdate: @escaping ((Employee) -> Void), onDelete: @escaping ((IndexPath) -> Void)) {
         self.indexPath = indexPath
         self.employee = employee
         self.server = server
-        self.updateDelegate = updateDelegate
-        self.deleteDelegate = deleteDelegate
+        self.onUpdate = onUpdate
+        self.onDelete = onDelete
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -89,20 +89,16 @@ final class EmployeeDetailViewController: BaseViewController {
     }
     
     @objc private func actionChangeEmployee() {
-        let editViewController = EditEmployeeViewController(employee: employee, server: server, updateDelegate: self)
+        let editViewController = EditEmployeeViewController(employee: employee, server: server, onUpdate: {[weak self] employee in
+            self?.employee = employee
+            self?.onUpdate(employee)
+            self?.updateLabels()
+        })
         navigationController?.pushViewController(editViewController, animated: true)
     }
     
     @objc private func actionDeleteEmployee() {
-        deleteDelegate?.didDeleteEmployee(employee, at: indexPath)
+        onDelete(indexPath)
         navigationController?.popViewController(animated: true)
-    }
-}
-
-extension EmployeeDetailViewController: EmployeeUpdateDelegate {
-    func didUpdateEmployee(_ employee: Employee) {
-        self.employee = employee
-        self.updateDelegate?.didUpdateEmployee(employee)
-        updateLabels()
     }
 }

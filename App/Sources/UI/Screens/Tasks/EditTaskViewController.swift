@@ -1,8 +1,8 @@
 import UIKit
 
 final class EditTaskViewController: BaseFormViewController {
-    weak var updateDelegate: TaskUpdateDelegate?
-    weak var createDelegate: TaskCreateDelegate?
+    var onUpdate: ((ProjectTask) -> Void)?
+    var onCreate: ((ProjectTask) -> Void)?
     
     private let server: Server
     private let settings: SettingsManager
@@ -71,14 +71,14 @@ final class EditTaskViewController: BaseFormViewController {
         requiredFields = [taskNameTextField, projectTextField, workTimeTextField]
     }
     
-    convenience init(task: ProjectTask? = nil, project: Project? = nil, server: Server, settings: SettingsManager, updateDelegate: TaskUpdateDelegate) {
+    convenience init(task: ProjectTask? = nil, project: Project? = nil, server: Server, settings: SettingsManager, onUpdate: @escaping ((ProjectTask) -> Void)) {
         self.init(task: task, project: project, server: server, settings: settings)
-        self.updateDelegate = updateDelegate
+        self.onUpdate = onUpdate
     }
     
-    convenience init(task: ProjectTask? = nil, project: Project? = nil, server: Server, settings: SettingsManager, createDelegate: TaskCreateDelegate) {
+    convenience init(task: ProjectTask? = nil, project: Project? = nil, server: Server, settings: SettingsManager, onCreate: @escaping ((ProjectTask) -> Void)) {
         self.init(task: task, project: project, server: server, settings: settings)
-        self.createDelegate = createDelegate
+        self.onCreate = onCreate
     }
         
     required init?(coder: NSCoder) {
@@ -220,7 +220,7 @@ final class EditTaskViewController: BaseFormViewController {
         toolbar.setItems([cancelButton, flexibleSpace, doneButton], animated: false)
     }
     
-    private func updateTextFields() {
+    private func updateUI() {
         guard let task else { return }
         
         selectedProject = contextProject ?? projects.first(where: { $0.id == task.projectID })
@@ -228,6 +228,9 @@ final class EditTaskViewController: BaseFormViewController {
         
         selectedEmployee = employees.first(where: { $0.id == task.employeeID })
         employeeTextField.text = selectedEmployee?.fullName
+        
+        stackView.isHidden = false
+        stopLoading()
     }
     
     private func updatedTask(_ task: ProjectTask, _ inputProject: Project, _ inputEmployee: Employee?) -> ProjectTask {
@@ -279,9 +282,7 @@ final class EditTaskViewController: BaseFormViewController {
                 self.employees = employees
                 
                 await MainActor.run {
-                    updateTextFields()
-                    stackView.isHidden = false
-                    stopLoading()
+                    updateUI()
                 }
             } catch {
                 await MainActor.run {
@@ -346,9 +347,9 @@ final class EditTaskViewController: BaseFormViewController {
                 let savedTask = try await saveTask(selectedProject, selectedEmployee)
                 await MainActor.run {
                     if task != nil {
-                        updateDelegate?.didUpdateTask(savedTask)
+                        onUpdate?(savedTask)
                     } else {
-                        createDelegate?.didCreateTask(savedTask)
+                        onCreate?(savedTask)
                     }
                     stopLoading()
                     self.navigationController?.popViewController(animated: true)

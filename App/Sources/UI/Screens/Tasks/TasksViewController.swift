@@ -113,12 +113,16 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
     
     @objc private func actionAddTask() {
         let editViewController: EditTaskViewController
-        if let project {
-            editViewController = EditTaskViewController(project: project, server: server, settings: settings, createDelegate: self)
-        } else {
-            editViewController = EditTaskViewController(server: server, settings: settings, createDelegate: self)
+        let onCreate = { [weak self] task in
+            guard let self else { return }
+            self.addItem(task)
         }
-        editViewController.createDelegate = self
+        
+        if let project {
+            editViewController = EditTaskViewController(project: project, server: server, settings: settings, onCreate: onCreate)
+        } else {
+            editViewController = EditTaskViewController(server: server, settings: settings, onCreate: onCreate)
+        }
         navigationController?.pushViewController(editViewController, animated: true)
     }
 }
@@ -180,27 +184,12 @@ extension TasksViewController: UITableViewDelegate {
             isOpenedFromProject: isOpenedFromProject,
             server: server,
             settings: settings,
-            updateDelegate: self,
-            deleteDelegate: self
+            onUpdate: { [weak self] task in
+                self?.updateItem(task) { $0.id == task.id }
+            }, onDelete: { [weak self] indexPath in
+                self?.performDelete(at: indexPath)
+            }
         )
         return detailViewController
-    }
-}
-
-extension TasksViewController: TaskUpdateDelegate {
-    func didUpdateTask(_ task: ProjectTask) {
-        updateItem(task) { $0.id == task.id }
-    }
-}
-
-extension TasksViewController: TaskCreateDelegate {
-    func didCreateTask(_ task: ProjectTask) {
-        addItem(task)
-    }
-}
-
-extension TasksViewController: TaskDeleteDelegate {
-    func didDeleteTask(_ task: ProjectTask, at indexPath: IndexPath) {
-        performDelete(at: indexPath)
     }
 }

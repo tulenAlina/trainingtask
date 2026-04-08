@@ -117,7 +117,9 @@ final class EmployeesViewController: BaseListViewController<Employee> {
     }
     
     @objc private func actionAddEmployee() {
-        let editViewController = EditEmployeeViewController(server: server, createDelegate: self)
+        let editViewController = EditEmployeeViewController(server: server, onCreate: { [weak self] employee in
+            self?.addItem(employee)
+        })
         navigationController?.pushViewController(editViewController, animated: true)
     }
 }
@@ -141,29 +143,15 @@ extension EmployeesViewController: UITableViewDelegate {
         let employee = displayedItems[indexPath.row]
         switch mode {
         case .list:
-            let detailViewController = EmployeeDetailViewController(indexPath: indexPath, employee: employee, server: server, updateDelegate: self, deleteDelegate: self)
+            let detailViewController = EmployeeDetailViewController(indexPath: indexPath, employee: employee, server: server, onUpdate: { [weak self] employee in
+                self?.updateItem(employee) { $0.id == employee.id }
+            }, onDelete: { [weak self] indexPath in
+                self?.performDelete(at: indexPath)
+            })
             navigationController?.pushViewController(detailViewController, animated: true)
         case .selection:
             onSelectEmployee?(employee)
             navigationController?.popViewController(animated: true)
         }
-    }
-}
-
-extension EmployeesViewController: EmployeeUpdateDelegate {
-    func didUpdateEmployee(_ employee: Employee) {
-        updateItem(employee) { $0.id == employee.id }
-    }
-}
-
-extension EmployeesViewController: EmployeeCreateDelegate {
-    func didCreateEmployee(_ employee: Employee) {
-        addItem(employee)
-    }
-}
-
-extension EmployeesViewController: EmployeeDeleteDelegate {
-    func didDeleteEmployee(_ employee: Employee, at indexPath: IndexPath) {
-        performDelete(at: indexPath)
     }
 }

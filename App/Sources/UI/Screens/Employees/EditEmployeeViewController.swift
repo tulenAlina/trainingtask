@@ -1,8 +1,8 @@
 import UIKit
 
 final class EditEmployeeViewController: BaseFormViewController {
-    weak var updateDelegate: EmployeeUpdateDelegate?
-    weak var createDelegate: EmployeeCreateDelegate?
+    var onUpdate: ((Employee) -> Void)?
+    var onCreate: ((Employee) -> Void)?
     
     private let server: Server
     private var employee: Employee?
@@ -19,14 +19,14 @@ final class EditEmployeeViewController: BaseFormViewController {
         requiredFields = [firstNameTextField, lastNameTextField, positionTextField]
     }
     
-    convenience init(employee: Employee? = nil, server: Server, updateDelegate: EmployeeUpdateDelegate) {
+    convenience init(employee: Employee? = nil, server: Server, onUpdate: @escaping ((Employee) -> Void)) {
         self.init(employee: employee, server: server)
-        self.updateDelegate = updateDelegate
+        self.onUpdate = onUpdate
     }
     
-    convenience init(employee: Employee? = nil, server: Server, createDelegate: EmployeeCreateDelegate) {
+    convenience init(employee: Employee? = nil, server: Server, onCreate: @escaping ((Employee) -> Void)) {
         self.init(employee: employee, server: server)
-        self.createDelegate = createDelegate
+        self.onCreate = onCreate
     }
     
     required init?(coder: NSCoder) {
@@ -138,9 +138,9 @@ final class EditEmployeeViewController: BaseFormViewController {
                 let savedEmployee = try await saveEmployee()
                 await MainActor.run {
                     if employee != nil {
-                        updateDelegate?.didUpdateEmployee(savedEmployee)
+                        onUpdate?(savedEmployee)
                     } else {
-                        createDelegate?.didCreateEmployee(savedEmployee)
+                        onCreate?(savedEmployee)
                     }
                     stopLoading()
                     self.navigationController?.popViewController(animated: true)

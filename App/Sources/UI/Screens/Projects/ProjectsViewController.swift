@@ -117,7 +117,9 @@ final class ProjectsViewController: BaseListViewController<Project> {
     }
     
     @objc private func actionAddProject() {
-        let editViewController = EditProjectViewController(server: server, createDelegate: self)
+        let editViewController = EditProjectViewController(server: server, onCreate: { [weak self] project in
+            self?.addItem(project)
+        })
         navigationController?.pushViewController(editViewController, animated: true)
     }
 }
@@ -142,29 +144,15 @@ extension ProjectsViewController: UITableViewDelegate {
         
         switch mode {
         case .list:
-            let detailViewController = ProjectDetailViewController(indexPath: indexPath, project: project, server: server, settings: settings, updateDelegate: self, deleteDelegate: self)
+            let detailViewController = ProjectDetailViewController(indexPath: indexPath, project: project, server: server, settings: settings, onUpdate: { [weak self] project in
+                self?.updateItem(project) { $0.id == project.id }
+            }, onDelete: { [weak self] indexPath in
+                self?.performDelete(at: indexPath)
+            })
             navigationController?.pushViewController(detailViewController, animated: true)
         case .selection:
             onSelectProject?(project)
             navigationController?.popViewController(animated: true)
         }
-    }
-}
-
-extension ProjectsViewController: ProjectUpdateDelegate {
-    func didUpdateProject(_ project: Project) {
-        updateItem(project) { $0.id == project.id }
-    }
-}
-
-extension ProjectsViewController: ProjectCreateDelegate {
-    func didCreateProject(_ project: Project) {
-        addItem(project)
-    }
-}
-
-extension ProjectsViewController: ProjectDeleteDelegate {
-    func didDeleteProject(_ project: Project, at indexPath: IndexPath) {
-        performDelete(at: indexPath)
     }
 }

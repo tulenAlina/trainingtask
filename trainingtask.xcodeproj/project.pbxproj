@@ -56,11 +56,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		6F404D452F7404B100B40BA4 /* Protocols */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Protocols;
-			sourceTree = "<group>";
-		};
 		6F404DFC2F7AB3CA00B40BA4 /* Factory */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Factory;
@@ -167,7 +162,6 @@
 			children = (
 				6F404E022F7D496200B40BA4 /* BaseControllers */,
 				6F404DFC2F7AB3CA00B40BA4 /* Factory */,
-				6F404D452F7404B100B40BA4 /* Protocols */,
 				6FBE2CA52F69438800B02B5A /* SettingsManager.swift */,
 				6FFDD0CE2F618685008CED45 /* Constants */,
 				6FFDD0CF2F618685008CED45 /* Extensions */,
@@ -269,7 +263,6 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				6F404D452F7404B100B40BA4 /* Protocols */,
 				6F404DFC2F7AB3CA00B40BA4 /* Factory */,
 				6F404E022F7D496200B40BA4 /* BaseControllers */,
 				6FBE2C8A2F62D71400B02B5A /* Projects */,

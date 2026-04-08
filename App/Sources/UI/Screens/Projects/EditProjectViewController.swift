@@ -1,8 +1,8 @@
 import UIKit
 
 final class EditProjectViewController: BaseFormViewController {
-    weak var updateDelegate: ProjectUpdateDelegate?
-    weak var createDelegate: ProjectCreateDelegate?
+    var onUpdate: ((Project) -> Void)?
+    var onCreate: ((Project) -> Void)?
     
     private let server: Server
     private var project: Project?
@@ -17,14 +17,14 @@ final class EditProjectViewController: BaseFormViewController {
         requiredFields = [nameTextField, descriptionTextField]
     }
     
-    convenience init(project: Project? = nil, server: Server, updateDelegate: ProjectUpdateDelegate) {
+    convenience init(project: Project? = nil, server: Server, onUpdate: @escaping ((Project) -> Void)) {
         self.init(project: project, server: server)
-        self.updateDelegate = updateDelegate
+        self.onUpdate = onUpdate
     }
     
-    convenience init(project: Project? = nil, server: Server, createDelegate: ProjectCreateDelegate) {
+    convenience init(project: Project? = nil, server: Server, onCreate: @escaping ((Project) -> Void)) {
         self.init(project: project, server: server)
-        self.createDelegate = createDelegate
+        self.onCreate = onCreate
     }
     
     required init?(coder: NSCoder) {
@@ -119,9 +119,9 @@ final class EditProjectViewController: BaseFormViewController {
                 let savedProject = try await saveProject()
                 await MainActor.run {
                     if project != nil {
-                        updateDelegate?.didUpdateProject(savedProject)
+                        onUpdate?(savedProject)
                     } else {
-                        createDelegate?.didCreateProject(savedProject)
+                        onCreate?(savedProject)
                     }
                     stopLoading()
                     self.navigationController?.popViewController(animated: true)
