@@ -27,11 +27,10 @@ final class SettingsViewController: BaseFormViewController {
     }
     
     private func setupUI() {
-        setupNavigationTitle(Localized.settings)
+        setupNavigationBar(navigationTitle: Localized.settings, rightButtonTitle: Localized.save, rightButtonAction: #selector(actionSaveSettings))
         configureTextFields()
         configureFormRows()
         setupForm()
-        addSaveButton(action: #selector(actionSaveSettings))
     }
     
     private func configureTextFields() {

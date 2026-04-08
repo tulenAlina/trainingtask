@@ -12,22 +12,49 @@ final class TaskDetailViewController: BaseViewController {
     private var employee: Employee?
     private let isOpenedFromProject: Bool
     
-    private var projectTitleLabel = UILabel()
-    private var workTimeTitleLabel = UILabel()
-    private var startDateTitleLabel = UILabel()
-    private var endDateTitleLabel = UILabel()
-    private var employeeTitleLabel = UILabel()
-    
-    private var taskNameLabel = UILabel()
-    private var projectLabel = UILabel()
     private var workTimeLabel = UILabel()
     private var startDateLabel = UILabel()
     private var endDateLabel = UILabel()
-    private var employeeLabel = UILabel()
-    private var statusLabel = UILabel()
+    
+    private var projectTitleLabel = UIFactory.createTitleLabel(text: Localized.projectLabel)
+    private var workTimeTitleLabel = UIFactory.createTitleLabel(text: Localized.hoursLabel)
+    private var startDateTitleLabel = UIFactory.createTitleLabel(text: Localized.startDateLabel)
+    private var endDateTitleLabel = UIFactory.createTitleLabel(text: Localized.endDateLabel)
+    private var employeeTitleLabel = UIFactory.createTitleLabel(text: Localized.employeeLabel)
     
     private var deleteButton = UIFactory.createDeleteButton()
     
+    private var taskNameLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 18, weight: .semibold)
+        label.numberOfLines = 10
+        return label
+    }()
+    
+    private var projectLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 2
+        return label
+    }()
+    
+    private var employeeLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 2
+        return label
+    }()
+    
+    private var statusLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 12)
+        label.textAlignment = .center
+        label.layer.borderWidth = 0.5
+        label.layer.cornerRadius = 10
+        label.clipsToBounds = true
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.heightAnchor.constraint(equalToConstant: 25).isActive = true
+        label.widthAnchor.constraint(equalToConstant: 80).isActive = true
+        return label
+    }()
     
     private let timeCard: UIStackView = {
         let stack = UIStackView()
@@ -76,49 +103,42 @@ final class TaskDetailViewController: BaseViewController {
     }
     
     private func setupUI() {
-        setupNavigationTitle(Localized.taskDetails)
+        setupNavigationBar(navigationTitle: Localized.taskDetails, rightButtonTitle: Localized.edit, rightButtonAction: #selector(actionChangeTask))
         setupLabels()
         setupTimeCard()
         setupStackView()
         setupButtons()
-        setupRightBarButton(title: Localized.edit, action: #selector(actionChangeTask))
     }
     
     private func setupLabels() {
-        updateLabels()
+        taskNameLabel.text = task.taskName
+        projectLabel.text = project?.projectName ?? Localized.unknownProjectLabel
+        workTimeLabel.text = "\(task.workTime)"
+        startDateLabel.text =  DateHelper.string(from: task.startDate)
+        endDateLabel.text = DateHelper.string(from: task.endDate)
+        employeeLabel.text = employee?.fullName ?? Localized.notAssignedLabel
+        statusLabel.text = task.status.rawValue.localized
         
-        projectTitleLabel.text = Localized.projectLabel
-        workTimeTitleLabel.text = Localized.hoursLabel
-        startDateTitleLabel.text = Localized.startDateLabel
-        endDateTitleLabel.text = Localized.endDateLabel
-        employeeTitleLabel.text = Localized.employeeLabel
-        
-        for titleLabel in [projectTitleLabel, workTimeTitleLabel, startDateTitleLabel, endDateTitleLabel, employeeTitleLabel] {
-            titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
-            titleLabel.numberOfLines = 0
-            titleLabel.setContentHuggingPriority(.required, for: .horizontal)
-            titleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
-            titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        switch statusLabel.text {
+        case TaskStatus.notStarted.rawValue.localized:
+            statusLabel.textColor = .red
+            statusLabel.layer.borderColor = UIColor.red.cgColor
+            statusLabel.backgroundColor = UIColor.systemRed.withAlphaComponent(0.1)
+        case TaskStatus.inProgress.rawValue.localized:
+            statusLabel.textColor = .blue
+            statusLabel.layer.borderColor = UIColor.blue.cgColor
+            statusLabel.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.1)
+        case TaskStatus.completed.rawValue.localized:
+            statusLabel.textColor = .green
+            statusLabel.layer.borderColor = UIColor.green.cgColor
+            statusLabel.backgroundColor = UIColor.systemGreen.withAlphaComponent(0.1)
+        case TaskStatus.postponed.rawValue.localized:
+            statusLabel.textColor = .orange
+            statusLabel.layer.borderColor = UIColor.orange.cgColor
+            statusLabel.backgroundColor = UIColor.systemOrange.withAlphaComponent(0.1)
+        default:
+            break
         }
-        
-        for label in [taskNameLabel, projectLabel, workTimeLabel, startDateLabel, endDateLabel, employeeLabel] {
-            label.translatesAutoresizingMaskIntoConstraints = false
-        }
-        
-        taskNameLabel.numberOfLines = 10
-        projectLabel.numberOfLines = 2
-        employeeLabel.numberOfLines = 2
-        
-        statusLabel.font = .systemFont(ofSize: 12)
-        statusLabel.textAlignment = .center
-        statusLabel.layer.borderWidth = 0.5
-        statusLabel.layer.cornerRadius = 10
-        statusLabel.clipsToBounds = true
-        statusLabel.translatesAutoresizingMaskIntoConstraints = false
-        statusLabel.heightAnchor.constraint(equalToConstant: 25).isActive = true
-        statusLabel.widthAnchor.constraint(equalToConstant: 80).isActive = true
-        
-        taskNameLabel.font = .systemFont(ofSize: 18, weight: .semibold)
     }
     
     private func setupTimeCard() {
@@ -183,37 +203,6 @@ final class TaskDetailViewController: BaseViewController {
         ])
     }
     
-    private func updateLabels() {
-        taskNameLabel.text = task.taskName
-        projectLabel.text = project?.projectName ?? Localized.unknownProjectLabel
-        workTimeLabel.text = "\(task.workTime)"
-        startDateLabel.text =  DateHelper.string(from: task.startDate)
-        endDateLabel.text = DateHelper.string(from: task.endDate)
-        employeeLabel.text = employee?.fullName ?? Localized.notAssignedLabel
-        statusLabel.text = task.status.rawValue.localized
-        
-        switch statusLabel.text {
-        case TaskStatus.notStarted.rawValue.localized:
-            statusLabel.textColor = .red
-            statusLabel.layer.borderColor = UIColor.red.cgColor
-            statusLabel.backgroundColor = UIColor.systemRed.withAlphaComponent(0.1)
-        case TaskStatus.inProgress.rawValue.localized:
-            statusLabel.textColor = .blue
-            statusLabel.layer.borderColor = UIColor.blue.cgColor
-            statusLabel.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.1)
-        case TaskStatus.completed.rawValue.localized:
-            statusLabel.textColor = .green
-            statusLabel.layer.borderColor = UIColor.green.cgColor
-            statusLabel.backgroundColor = UIColor.systemGreen.withAlphaComponent(0.1)
-        case TaskStatus.postponed.rawValue.localized:
-            statusLabel.textColor = .orange
-            statusLabel.layer.borderColor = UIColor.orange.cgColor
-            statusLabel.backgroundColor = UIColor.systemOrange.withAlphaComponent(0.1)
-        default:
-            break
-        }
-    }
-    
     private func reloadTaskDetails() async {
         do {
             async let projects = server.fetchProjects()
@@ -225,7 +214,7 @@ final class TaskDetailViewController: BaseViewController {
             await MainActor.run {
                 project = allProjects.first { $0.id == task.projectID }
                 employee = allEmployees.first { $0.id == task.employeeID }
-                updateLabels()
+                setupLabels()
                 stopLoading()
             }
         } catch {

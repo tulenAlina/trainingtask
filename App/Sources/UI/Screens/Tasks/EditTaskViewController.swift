@@ -87,7 +87,6 @@ final class EditTaskViewController: BaseFormViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupNavigationTitle((task != nil) ? Localized.editTask : Localized.addTask)
         loadInitialData()
     }
     
@@ -97,13 +96,15 @@ final class EditTaskViewController: BaseFormViewController {
     }
     
     private func setupUI() {
+        let title = (task != nil) ? Localized.editTask : Localized.addTask
+        setupNavigationBar(navigationTitle: title, rightButtonTitle: Localized.save, rightButtonAction: #selector(actionSaveTask))
+        
         setupTextFields()
         setupFormRows()
         setupClearEmployeeButton()
         setupSegmentedControl()
         setupToolbar()
         setupForm()
-        addSaveButton(action: #selector(actionSaveTask))
     }
     
     private func setupTextFields() {

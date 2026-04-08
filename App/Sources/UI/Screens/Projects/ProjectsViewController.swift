@@ -39,10 +39,14 @@ final class ProjectsViewController: BaseListViewController<Project> {
     }
     
     private func setupUI() {
-        setupNavigationTitle(Localized.projects)
+        switch mode {
+        case .list:
+            setupNavigationBar(navigationTitle: Localized.projects, rightButtonItem: .add, rightButtonAction: #selector(actionAddProject))
+        case .selection:
+            setupNavigationBar(navigationTitle: Localized.projects)
+        }
+        
         setupTableView()
-        setupConstraints()
-        setupNavigationBar()
         startLoading()
     }
     
@@ -54,24 +58,13 @@ final class ProjectsViewController: BaseListViewController<Project> {
         tableView.refreshControl = refreshControl
         
         view.addSubview(tableView)
-    }
-    
-    private func setupConstraints() {
+        
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
-    }
-    
-    private func setupNavigationBar() {
-        switch mode {
-        case .list:
-            setupRightBarButton(systemItem: .add, action: #selector(actionAddProject))
-        case .selection:
-            break
-        }
     }
     
     private func updateUI(){

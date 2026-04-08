@@ -27,10 +27,8 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
     }
     
     private func setupUI() {
-        setupNavigationTitle(Localized.tasks)
+        setupNavigationBar(navigationTitle: Localized.tasks, rightButtonItem: .add, rightButtonAction: #selector(actionAddTask))
         setupTableView()
-        setupConstraints()
-        setupRightBarButton(systemItem: .add, action: #selector(actionAddTask))
         startLoading()
     }
     
@@ -42,9 +40,7 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
         tableView.refreshControl = refreshControl
         
         view.addSubview(tableView)
-    }
-    
-    private func setupConstraints() {
+        
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),

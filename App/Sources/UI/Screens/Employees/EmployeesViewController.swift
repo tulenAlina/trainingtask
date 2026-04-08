@@ -39,10 +39,14 @@ final class EmployeesViewController: BaseListViewController<Employee> {
     }
     
     private func setupUI() {
-        setupNavigationTitle(Localized.employees)
+        switch mode {
+        case .list:
+            setupNavigationBar(navigationTitle: Localized.employees, rightButtonItem: .add, rightButtonAction: #selector(actionAddEmployee))
+        case .selection:
+            setupNavigationBar(navigationTitle: Localized.employees)
+        }
+        
         setupTableView()
-        setupConstraints()
-        setupNavigationBar()
         startLoading()
     }
     
@@ -54,24 +58,13 @@ final class EmployeesViewController: BaseListViewController<Employee> {
         refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
         
         view.addSubview(tableView)
-    }
-    
-    private func setupConstraints() {
+        
         NSLayoutConstraint.activate([
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
-    }
-    
-    private func setupNavigationBar() {
-        switch mode {
-        case .list:
-            setupRightBarButton(systemItem: .add, action: #selector(actionAddEmployee))
-        case .selection:
-            break
-        }
     }
     
     private func updateUI(){

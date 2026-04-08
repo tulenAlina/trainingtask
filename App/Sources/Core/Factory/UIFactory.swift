@@ -23,6 +23,17 @@ enum UIFactory {
         return label
     }
     
+    static func createTitleLabel(text: String) -> UILabel {
+        let label = UILabel()
+        label.text = text
+        label.font = .systemFont(ofSize: 16, weight: .semibold)
+        label.numberOfLines = 0
+        label.setContentHuggingPriority(.required, for: .horizontal)
+        label.setContentCompressionResistancePriority(.required, for: .horizontal)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }
+    
     static func createFormRow(labelText: String, inputView: UIView) -> UIStackView {
         let label = createLabel(text: labelText)
         

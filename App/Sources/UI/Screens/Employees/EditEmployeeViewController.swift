@@ -39,11 +39,11 @@ final class EditEmployeeViewController: BaseFormViewController {
     }
     
     private func setupUI() {
-        setupNavigationTitle((employee != nil) ? Localized.editEmployee : Localized.addEmployee)
+        let title = (employee != nil) ? Localized.editEmployee : Localized.addEmployee
+        setupNavigationBar(navigationTitle: title, rightButtonTitle: Localized.save, rightButtonAction: #selector(actionSaveEmployee))
         setupTextFields()
         setupFormRows()
         setupForm()
-        addSaveButton(action: #selector(actionSaveEmployee))
     }
     
     private func setupTextFields() {

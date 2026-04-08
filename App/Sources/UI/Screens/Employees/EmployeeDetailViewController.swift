@@ -8,10 +8,12 @@ final class EmployeeDetailViewController: BaseViewController {
     private let indexPath: IndexPath
     private var employee: Employee
     
-    private var nameTitleLabel = UILabel()
     private var nameLabel = UILabel()
     private var positionLabel = UILabel()
-    private var positionTitleLabel = UILabel()
+    
+    private var nameTitleLabel = UIFactory.createTitleLabel(text: Localized.fullNameLabel)
+    private var positionTitleLabel = UIFactory.createTitleLabel(text: Localized.positionLabel)
+    
     private var deleteButton = UIFactory.createDeleteButton()
     
     init(indexPath: IndexPath, employee: Employee, server: Server, updateDelegate: EmployeeUpdateDelegate, deleteDelegate: EmployeeDeleteDelegate) {
@@ -33,26 +35,15 @@ final class EmployeeDetailViewController: BaseViewController {
     }
     
     private func setupUI() {
-        setupNavigationTitle(Localized.employeeDetails)
+        setupNavigationBar(navigationTitle: Localized.employeeDetails, rightButtonTitle: Localized.edit, rightButtonAction: #selector(actionChangeEmployee))
         setupLabels()
         setupButtons()
         setupConstraints()
-        setupRightBarButton(title: Localized.edit, action: #selector(actionChangeEmployee))
     }
     
     private func setupLabels() {
         updateLabels()
-        
-        nameTitleLabel.text = Localized.fullNameLabel
-        positionTitleLabel.text = Localized.positionLabel
-        
-        [nameTitleLabel, positionTitleLabel].forEach { label in
-            label.font = .systemFont(ofSize: 16, weight: .semibold)
-            label.setContentHuggingPriority(.required, for: .horizontal)
-            label.setContentCompressionResistancePriority(.required, for: .horizontal)
-            label.translatesAutoresizingMaskIntoConstraints = false
-        }
-        
+
         nameLabel.numberOfLines = 5
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         

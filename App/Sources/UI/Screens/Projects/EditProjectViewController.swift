@@ -37,11 +37,12 @@ final class EditProjectViewController: BaseFormViewController {
     }
     
     private func setupUI() {
-        setupNavigationTitle((project != nil) ? Localized.editProject : Localized.addProject)
+        let title = (project != nil) ? Localized.editProject : Localized.addProject
+        setupNavigationBar(navigationTitle: title, rightButtonTitle: Localized.save, rightButtonAction: #selector(actionSaveProject))
+        
         setupTextFields()
         setupFormRows()
         setupForm()
-        addSaveButton(action: #selector(actionSaveProject))
     }
     
     private func setupTextFields() {

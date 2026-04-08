@@ -51,23 +51,17 @@ class BaseViewController: UIViewController {
         saveButton?.isEnabled = true
     }
     
-    func setupNavigationTitle(_ title: String) {
-        self.title = title
-    }
-    
-    func setupRightBarButton(title: String, action: Selector) {
-        let button = UIBarButtonItem(title: title, style: .done, target: self, action: action)
-        navigationItem.rightBarButtonItem = button
-    }
+    func setupNavigationBar(navigationTitle title: String, rightButtonTitle btnTitle: String? = nil, rightButtonItem btnItem: UIBarButtonItem.SystemItem? = nil, rightButtonAction action: Selector? = nil) {
         
-    func setupRightBarButton(systemItem: UIBarButtonItem.SystemItem, action: Selector) {
-        let button = UIBarButtonItem(barButtonSystemItem: systemItem, target: self, action: action)
-        navigationItem.rightBarButtonItem = button
-    }
-    
-    func addSaveButton(action: Selector) {
-        saveButton = UIBarButtonItem(title: Localized.save, style: .done, target: self, action: action)
-        navigationItem.rightBarButtonItem = saveButton
+        self.title = title
+        
+        if let btnTitle {
+            let button = UIBarButtonItem(title: btnTitle, style: .done, target: self, action: action)
+            navigationItem.rightBarButtonItem = button
+        } else if let btnItem {
+            let button = UIBarButtonItem(barButtonSystemItem: btnItem, target: self, action: action)
+            navigationItem.rightBarButtonItem = button
+        }
     }
     
     @objc func dismissObjects() {

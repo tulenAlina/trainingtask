@@ -34,11 +34,11 @@ final class ProjectDetailViewController: BaseViewController {
     }
     
     private func setupUI() {
-        setupNavigationTitle(Localized.projectDetails)
+        setupNavigationBar(navigationTitle: Localized.projectDetails, rightButtonTitle: Localized.edit, rightButtonAction: #selector(actionChangeProject))
+        
         setupLabels()
         setupButtons()
         setupConstraints()
-        setupRightBarButton(title: Localized.edit, action: #selector(actionChangeProject))
     }
     
     private func setupLabels() {
