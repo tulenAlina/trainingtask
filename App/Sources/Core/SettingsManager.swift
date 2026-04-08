@@ -39,7 +39,6 @@ final class SettingsManager {
     private func loadConfig() {
         guard let path = Bundle.main.path(forResource: "config", ofType: "plist"),
               let dict = NSDictionary(contentsOfFile: path) as? [String: Any] else {
-            print("config.plist not found")
             config = [:]
             return
         }

@@ -1,5 +1,3 @@
-import Foundation
-
 enum Localized {
     static let alertTitle = "alert_title".localized
     static let ok = "ok".localized

@@ -1,10 +1,3 @@
-//
-//  AppDelegate.swift
-//  trainingtask
-//
-//  Created by Яшенок Алина Игоревна on 11.03.26.
-//
-
 import UIKit
 
 @main
