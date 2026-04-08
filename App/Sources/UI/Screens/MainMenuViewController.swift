@@ -24,6 +24,7 @@ final class MainMenuViewController: UIViewController {
         stack.spacing = 16
         stack.distribution = .fillEqually
         stack.translatesAutoresizingMaskIntoConstraints = false
+        
         return stack
     }()
     

@@ -12,7 +12,6 @@ final class SplashViewController: UIViewController {
     private func setupUI() {
         view.backgroundColor = .white
         setupLabels()
-        setupConstraints()
     }
     
     private func setupLabels() {
@@ -22,11 +21,10 @@ final class SplashViewController: UIViewController {
         }
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         versionLabel.translatesAutoresizingMaskIntoConstraints = false
+        
         view.addSubview(nameLabel)
         view.addSubview(versionLabel)
-    }
-    
-    private func setupConstraints() {
+        
         NSLayoutConstraint.activate([
             nameLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
             nameLabel.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor, constant: -5),

@@ -38,7 +38,6 @@ final class ProjectDetailViewController: BaseViewController {
         
         setupLabels()
         setupButtons()
-        setupConstraints()
     }
     
     private func setupLabels() {
@@ -53,6 +52,16 @@ final class ProjectDetailViewController: BaseViewController {
         
         view.addSubview(nameLabel)
         view.addSubview(descriptionLabel)
+        
+        NSLayoutConstraint.activate([
+            nameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            nameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            nameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            descriptionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 40),
+            descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+        ])
     }
     
     private func setupButtons() {
@@ -69,18 +78,8 @@ final class ProjectDetailViewController: BaseViewController {
         
         view.addSubview(openTasksButton)
         view.addSubview(deleteButton)
-    }
-    
-    private func setupConstraints() {
+        
         NSLayoutConstraint.activate([
-            nameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            nameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            nameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            descriptionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 40),
-            descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
             openTasksButton.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 30),
             openTasksButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             openTasksButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05),

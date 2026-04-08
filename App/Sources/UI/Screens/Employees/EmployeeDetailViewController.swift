@@ -38,7 +38,6 @@ final class EmployeeDetailViewController: BaseViewController {
         setupNavigationBar(navigationTitle: Localized.employeeDetails, rightButtonTitle: Localized.edit, rightButtonAction: #selector(actionChangeEmployee))
         setupLabels()
         setupButtons()
-        setupConstraints()
     }
     
     private func setupLabels() {
@@ -54,14 +53,7 @@ final class EmployeeDetailViewController: BaseViewController {
         view.addSubview(nameLabel)
         view.addSubview(positionTitleLabel)
         view.addSubview(positionLabel)
-    }
-    
-    private func setupButtons() {
-        deleteButton.addTarget(self, action: #selector(actionDeleteEmployee), for: .touchUpInside)
-        view.addSubview(deleteButton)
-    }
-    
-    private func setupConstraints() {
+        
         NSLayoutConstraint.activate([
             nameTitleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
             nameTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -75,8 +67,15 @@ final class EmployeeDetailViewController: BaseViewController {
             
             positionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 15),
             positionLabel.leadingAnchor.constraint(equalTo: positionTitleLabel.trailingAnchor, constant: 5),
-            positionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
+            positionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+        ])
+    }
+    
+    private func setupButtons() {
+        deleteButton.addTarget(self, action: #selector(actionDeleteEmployee), for: .touchUpInside)
+        view.addSubview(deleteButton)
+        
+        NSLayoutConstraint.activate([
             deleteButton.topAnchor.constraint(equalTo: positionLabel.bottomAnchor, constant: 30),
             deleteButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             deleteButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05),
