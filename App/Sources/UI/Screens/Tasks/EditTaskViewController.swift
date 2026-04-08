@@ -126,19 +126,17 @@ final class EditTaskViewController: BaseFormViewController {
         endDateTextField.delegate = self
         
         if let task {
-            if contextProject == nil {
-                selectedProject = projects.first(where: { $0.id == task.projectID })
-                projectTextField.text = selectedProject?.projectName ?? ""
-            }
+            selectedProject = contextProject ?? projects.first(where: { $0.id == task.projectID })
+            projectTextField.text = selectedProject?.projectName ?? ""
+            
             taskNameTextField.text = task.taskName
             workTimeTextField.text = "\(task.workTime)"
             startDateTextField.text = DateHelper.string(from: task.startDate)
             endDateTextField.text = DateHelper.string(from: task.endDate)
             
             selectedEmployee = employees.first(where: { $0.id == task.employeeID })
-            if selectedEmployee != nil {
-                employeeTextField.text = selectedEmployee?.fullName
-            }
+            employeeTextField.text = selectedEmployee?.fullName
+            
         }
 
         taskNameTextField.delegate = self
