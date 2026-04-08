@@ -44,22 +44,7 @@ class StubServer: Server {
         guard let project = projects[id] else {
             throw Errors.itemNotFound
         }
-        
-        for taskID in project.tasks {
-            guard let task = tasks[taskID], let employeeID = task.employeeID, let employee = employees[employeeID] else { continue }
-            let newEmployee = Employee(
-                id: employee.id,
-                firstName: employee.firstName,
-                lastName: employee.lastName,
-                surName: employee.surName,
-                position: employee.position,
-                tasks: employee.tasks.filter {$0 != task.id},
-                createdAt: employee.createdAt
-            )
-            employees[employee.id] = newEmployee
-        
-            tasks[taskID] = nil
-        }
+        removeAllTasks(of: project)
         projects[id] = nil
     }
     
@@ -93,21 +78,7 @@ class StubServer: Server {
             throw Errors.itemNotFound
         }
         
-        for taskID in employee.tasks {
-            guard let task = tasks[taskID] else { continue }
-            let newTask = ProjectTask(
-                id: task.id,
-                taskName: task.taskName,
-                projectID: task.projectID,
-                workTime: task.workTime,
-                startDate: task.startDate,
-                endDate: task.endDate,
-                status: task.status,
-                employeeID: nil,
-                createdAt: task.createdAt
-            )
-            tasks[taskID] = newTask
-        }
+        removeEmployeeFromTasks(employee: employee)
         employees[id] = nil
     }
     
@@ -125,37 +96,11 @@ class StubServer: Server {
     func createTask(_ task: ProjectTask) async throws -> ProjectTask {
         try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
         tasks[task.id] = task
+        updateProjectTasks(projectID: task.projectID, taskID: task.id)
         
-        if let project = projects[task.projectID] {
-            var newTasks = project.tasks
-            newTasks.append(task.id)
-            let newProject = Project(
-                id: project.id,
-                projectName: project.projectName,
-                description: project.description,
-                tasks: newTasks,
-                createdAt: project.createdAt
-            )
-            
-            projects[task.projectID] = project
-        }
-        
-        guard let employeeID = task.employeeID else {return task}
-        if let employee = employees[employeeID] {
-            var newTasks = employee.tasks
-            newTasks.append(task.id)
-            let newEmployee = Employee(
-                id: employee.id,
-                firstName: employee.firstName,
-                lastName: employee.lastName,
-                surName: employee.surName,
-                position: employee.position,
-                tasks: newTasks,
-                createdAt: employee.createdAt
-            )
+        guard let employeeID = task.employeeID else { return task }
+        updateEmployeeTasks(employeeID: employeeID, taskID: task.id)
 
-            employees[employeeID] = employee
-        }
         return task
     }
     
@@ -165,69 +110,11 @@ class StubServer: Server {
             throw Errors.itemNotFound
         }
         
-        if oldTask.projectID != task.projectID {
-            if let project = projects[oldTask.projectID] {
-                let newProject = Project(
-                    id: project.id,
-                    projectName: project.projectName,
-                    description: project.description,
-                    tasks: project.tasks.filter {$0 != task.id},
-                    createdAt: project.createdAt
-                )
-                
-                projects[oldTask.projectID] = newProject
-            }
-            
-            if let project = projects[task.projectID]
-            {
-                var newTasks = project.tasks
-                newTasks.append(task.id)
-                let newProject = Project(
-                    id: project.id,
-                    projectName: project.projectName,
-                    description: project.description,
-                    tasks: newTasks,
-                    createdAt: project.createdAt
-                )
-                
-                projects[task.projectID] = newProject
-            }
-        }
-        
-        if oldTask.employeeID != task.employeeID {
-            if let employeeID = oldTask.employeeID, var employee = employees[employeeID] {
-                let newEmployee = Employee(
-                    id: employee.id,
-                    firstName: employee.firstName,
-                    lastName: employee.lastName,
-                    surName: employee.surName,
-                    position: employee.position,
-                    tasks: employee.tasks.filter {$0 != task.id},
-                    createdAt: employee.createdAt
-                )
-                
-                employees[employeeID] = newEmployee
-            }
-            
-            if let employeeID = task.employeeID, var employee = employees[employeeID]
-            {
-                var newTasks = employee.tasks
-                newTasks.append(task.id)
-                let newEmployee = Employee(
-                    id: employee.id,
-                    firstName: employee.firstName,
-                    lastName: employee.lastName,
-                    surName: employee.surName,
-                    position: employee.position,
-                    tasks: newTasks,
-                    createdAt: employee.createdAt
-                )
-                
-                employees[employeeID] = newEmployee
-            }
-        }
+        updateTaskProjectAssignment(oldTask: oldTask, newTask: task)
+        updateTaskEmployeeAssignment(oldTask: oldTask, newTask: task)
         
         tasks[task.id] = task
+        
         return task
     }
     
@@ -237,63 +124,138 @@ class StubServer: Server {
             throw Errors.itemNotFound
         }
         
-        if var project = projects[task.projectID] {
-            let newProject = Project(
-                id: project.id,
-                projectName: project.projectName,
-                description: project.description,
-                tasks: project.tasks.filter {$0 != task.id},
-                createdAt: project.createdAt
-            )
-            
-            projects[task.projectID] = newProject
-        }
+        removeTaskFromProject(projectID: task.projectID, taskID: id)
         
-        if let employeeID = task.employeeID, var employee = employees[employeeID] {
-            let newEmployee = Employee(
-                id: employee.id,
-                firstName: employee.firstName,
-                lastName: employee.lastName,
-                surName: employee.surName,
-                position: employee.position,
-                tasks: employee.tasks.filter {$0 != task.id},
-                createdAt: employee.createdAt
-            )
-            employees[employeeID] = newEmployee
+        if let employeeID = task.employeeID {
+            removeTaskFromEmployee(employeeID: employeeID, taskID: id)
         }
         
         tasks[id] = nil
     }
     
+    // MARK: - Helpers
+    private func updateProjectTasks(projectID: UUID, taskID: UUID) {
+        if let project = projects[projectID] {
+            var newTasks = project.tasks
+            newTasks.append(taskID)
+            let newProject = makeProject(from: project, newTasks: newTasks)
+            
+            projects[projectID] = newProject
+        }
+    }
+    
+    private func updateEmployeeTasks(employeeID: UUID, taskID: UUID) {
+        if let employee = employees[employeeID] {
+            var newTasks = employee.tasks
+            newTasks.append(taskID)
+            let newEmployee = makeEmployee(from: employee, newTasks: newTasks)
+            
+            employees[employeeID] = newEmployee
+        }
+    }
+    
+    private func updateTaskProjectAssignment(oldTask: ProjectTask, newTask: ProjectTask) {
+        guard oldTask.projectID != newTask.projectID else { return }
+        removeTaskFromProject(projectID: oldTask.projectID, taskID: oldTask.id)
+        updateProjectTasks(projectID: newTask.projectID, taskID: newTask.id)
+    }
+    
+    private func updateTaskEmployeeAssignment(oldTask: ProjectTask, newTask: ProjectTask) {
+        guard oldTask.employeeID != newTask.employeeID else { return }
+        if let employeeID = oldTask.employeeID {
+            removeTaskFromEmployee(employeeID: employeeID, taskID: oldTask.id)
+        }
+        
+        if let employeeID = newTask.employeeID
+        {
+            updateEmployeeTasks(employeeID: employeeID, taskID: newTask.id)
+        }
+    }
+    
+    private func removeTaskFromProject(projectID: UUID, taskID: UUID) {
+        if let project = projects[projectID] {
+            let newTasks = project.tasks.filter {$0 != taskID}
+            let newProject = makeProject(from: project, newTasks: newTasks)
+            projects[projectID] = newProject
+        }
+    }
+    
+    private func removeTaskFromEmployee(employeeID: UUID, taskID: UUID) {
+        if let employee = employees[employeeID] {
+            let newTasks = employee.tasks.filter {$0 != taskID}
+            let newEmployee = makeEmployee(from: employee, newTasks: newTasks)
+            employees[employeeID] = newEmployee
+        }
+    }
+    
+    private func removeEmployeeFromTasks(employee: Employee) {
+        for taskID in employee.tasks {
+            guard let task = tasks[taskID] else { continue }
+            let newTask = makeTask(from: task, newEmployeeID: nil)
+            tasks[taskID] = newTask
+        }
+    }
+    
+    private func removeAllTasks(of project: Project) {
+        for taskID in project.tasks {
+            guard let task = tasks[taskID], let employeeID = task.employeeID else { continue }
+            removeTaskFromEmployee(employeeID: employeeID, taskID: taskID)
+            
+            tasks[taskID] = nil
+        }
+    }
+    
+    private func makeProject(from existing: Project, newTasks: [UUID]) -> Project {
+        return Project(
+            id: existing.id,
+            projectName: existing.projectName,
+            description: existing.description,
+            tasks: newTasks,
+            createdAt: existing.createdAt
+        )
+    }
+    
+    private func makeEmployee(from existing: Employee, newTasks: [UUID]) -> Employee {
+        return Employee(
+            id: existing.id,
+            firstName: existing.firstName,
+            lastName: existing.lastName,
+            surName: existing.surName,
+            position: existing.position,
+            tasks: newTasks,
+            createdAt: existing.createdAt
+        )
+    }
+    
+    private func makeTask(from existing: ProjectTask, newEmployeeID: UUID?) -> ProjectTask {
+        return ProjectTask(
+            id: existing.id,
+            taskName: existing.taskName,
+            projectID: existing.projectID,
+            workTime: existing.workTime,
+            startDate: existing.startDate,
+            endDate: existing.endDate,
+            status: existing.status,
+            employeeID: newEmployeeID,
+            createdAt: existing.createdAt
+        )
+    }
+    
     // MARK: - Data
     private func setupMockData() {
         for i in 0..<10 {
-            var project = Project(projectName: "Project\(i)", description: "Description\(i)")
-            var employee = Employee(firstName: "Name\(i)", lastName: "LastName\(i)", surName: "Surname\(i)", position: "Position\(i)")
+            let project = Project(projectName: "Project\(i)", description: "Description\(i)")
+            let employee = Employee(firstName: "Name\(i)", lastName: "LastName\(i)", surName: "Surname\(i)", position: "Position\(i)")
             let task = ProjectTask(taskName: "Task\(i)", projectID: project.id, workTime: 5, startDate: Date(), endDate: Date(), status: .notStarted, employeeID: employee.id)
             
             var newProjectTasks = project.tasks
             newProjectTasks.append(task.id)
-            let newProject = Project(
-                id: project.id,
-                projectName: project.projectName,
-                description: project.description,
-                tasks: newProjectTasks,
-                createdAt: project.createdAt
-            )
+            let newProject = makeProject(from: project, newTasks: newProjectTasks)
             
             var newEmployeeTasks = employee.tasks
             newEmployeeTasks.append(task.id)
-            let newEmployee = Employee(
-                id: employee.id,
-                firstName: employee.firstName,
-                lastName: employee.lastName,
-                surName: employee.surName,
-                position: employee.position,
-                tasks: newEmployeeTasks,
-                createdAt: employee.createdAt
-            )
-            
+            let newEmployee = makeEmployee(from: employee, newTasks: newEmployeeTasks)
+
             projects[project.id] = newProject
             employees[employee.id] = newEmployee
             tasks[task.id] = task
