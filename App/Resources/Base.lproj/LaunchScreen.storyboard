@@ -2,6 +2,7 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
+        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -17,28 +18,36 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="TrainingApp" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zm6-Kx-JcG">
-                                <rect key="frame" x="136.66666666666666" y="412" width="119.99999999999997" height="28"/>
+                                <rect key="frame" x="137" y="412.33333333333331" width="119.33333333333331" height="27.666666666666686"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="23"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Version: 20260403-1" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eRS-BW-9rN">
+                                <rect key="frame" x="115.33333333333333" y="450" width="162.33333333333337" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
-                        <color key="backgroundColor" systemColor="systemGray5Color"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="zm6-Kx-JcG" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="ipF-EF-YqZ"/>
-                            <constraint firstItem="zm6-Kx-JcG" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="ltR-9Y-xQM"/>
+                            <constraint firstItem="zm6-Kx-JcG" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="IZ0-SQ-q83"/>
+                            <constraint firstItem="zm6-Kx-JcG" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="MyY-UZ-Jvj"/>
+                            <constraint firstItem="eRS-BW-9rN" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="eHI-K9-Hat"/>
+                            <constraint firstItem="eRS-BW-9rN" firstAttribute="top" secondItem="zm6-Kx-JcG" secondAttribute="bottom" constant="10" id="mIN-E9-XyV"/>
                         </constraints>
                     </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="53" y="375"/>
+            <point key="canvasLocation" x="52.671755725190835" y="374.64788732394368"/>
         </scene>
     </scenes>
     <resources>
-        <systemColor name="systemGray5Color">
-            <color red="0.8980392157" green="0.8980392157" blue="0.91764705879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
     </resources>
 </document>
