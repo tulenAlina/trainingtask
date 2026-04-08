@@ -215,7 +215,7 @@ final class EditTaskViewController: BaseFormViewController {
         
         let doneButton = UIBarButtonItem(title: "Выбрать", style: .done, target: self, action: #selector(actionDateChange))
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let cancelButton = UIBarButtonItem(title: "Отмена", style: .plain, target: self, action: #selector(dismissObjects))
+        let cancelButton = UIBarButtonItem(title: "Отмена", style: .plain, target: self, action: #selector(actionEndEditing))
     
         toolbar.setItems([cancelButton, flexibleSpace, doneButton], animated: false)
     }
@@ -371,7 +371,7 @@ final class EditTaskViewController: BaseFormViewController {
             endDateTextField.text = dateString
         }
         
-        dismissObjects()
+        actionEndEditing()
     }
     
     @objc private func actionSelectProject() {

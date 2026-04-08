@@ -1,9 +1,9 @@
 import UIKit
 
 class BaseViewController: UIViewController {
-    var saveButton: UIBarButtonItem?
+    private var navigationSaveButton: UIBarButtonItem?
     
-    var loadingIndicator: UIActivityIndicatorView = {
+    private let loadingIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .large)
         indicator.hidesWhenStopped = true
         indicator.translatesAutoresizingMaskIntoConstraints = false
@@ -12,7 +12,7 @@ class BaseViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupBaseUI()
+        setupUI()
     }
     
     override func viewDidLayoutSubviews() {
@@ -22,13 +22,13 @@ class BaseViewController: UIViewController {
     func startLoading() {
         loadingIndicator.startAnimating()
         view.isUserInteractionEnabled = false
-        saveButton?.isEnabled = false
+        navigationSaveButton?.isEnabled = false
     }
         
     func stopLoading() {
         loadingIndicator.stopAnimating()
         view.isUserInteractionEnabled = true
-        saveButton?.isEnabled = true
+        navigationSaveButton?.isEnabled = true
     }
     
     func setupNavigationBar(navigationTitle title: String, rightButtonTitle btnTitle: String? = nil, rightButtonItem btnItem: UIBarButtonItem.SystemItem? = nil, rightButtonAction action: Selector? = nil) {
@@ -44,7 +44,7 @@ class BaseViewController: UIViewController {
         }
     }
     
-    private func setupBaseUI() {
+    private func setupUI() {
         view.backgroundColor = .systemBackground
         setupLoadingIndicator()
         setupTapGesture()
@@ -59,12 +59,12 @@ class BaseViewController: UIViewController {
     }
     
     private func setupTapGesture() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissObjects))
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(actionEndEditing))
         tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
     }
     
-    @objc func dismissObjects() {
+    @objc func actionEndEditing() {
         view.endEditing(true)
     }
 }

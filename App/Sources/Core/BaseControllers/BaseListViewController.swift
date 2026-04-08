@@ -5,7 +5,7 @@ class BaseListViewController<Item>: BaseViewController {
     var allItems: [Item] = []
     var displayedItems: [Item] = []
     var tableView = UITableView()
-    var refreshControl = UIRefreshControl()
+    let refreshControl = UIRefreshControl()
     var emptyStateText: String { return "" }
 
     init(settings: SettingsManager) {
