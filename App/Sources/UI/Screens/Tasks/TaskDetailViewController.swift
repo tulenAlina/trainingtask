@@ -104,41 +104,10 @@ final class TaskDetailViewController: BaseViewController {
     
     private func setupUI() {
         setupNavigationBar(navigationTitle: Localized.taskDetails, rightButtonTitle: Localized.edit, rightButtonAction: #selector(actionChangeTask))
-        setupLabels()
         setupTimeCard()
         setupStackView()
         setupButtons()
-    }
-    
-    private func setupLabels() {
-        taskNameLabel.text = task.taskName
-        projectLabel.text = project?.projectName ?? Localized.unknownProjectLabel
-        workTimeLabel.text = "\(task.workTime)"
-        startDateLabel.text =  DateHelper.string(from: task.startDate)
-        endDateLabel.text = DateHelper.string(from: task.endDate)
-        employeeLabel.text = employee?.fullName ?? Localized.notAssignedLabel
-        statusLabel.text = task.status.rawValue.localized
-        
-        switch statusLabel.text {
-        case TaskStatus.notStarted.rawValue.localized:
-            statusLabel.textColor = .red
-            statusLabel.layer.borderColor = UIColor.red.cgColor
-            statusLabel.backgroundColor = UIColor.systemRed.withAlphaComponent(0.1)
-        case TaskStatus.inProgress.rawValue.localized:
-            statusLabel.textColor = .blue
-            statusLabel.layer.borderColor = UIColor.blue.cgColor
-            statusLabel.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.1)
-        case TaskStatus.completed.rawValue.localized:
-            statusLabel.textColor = .green
-            statusLabel.layer.borderColor = UIColor.green.cgColor
-            statusLabel.backgroundColor = UIColor.systemGreen.withAlphaComponent(0.1)
-        case TaskStatus.postponed.rawValue.localized:
-            statusLabel.textColor = .orange
-            statusLabel.layer.borderColor = UIColor.orange.cgColor
-            statusLabel.backgroundColor = UIColor.systemOrange.withAlphaComponent(0.1)
-        default:
-            break
-        }
+        updateLabels()
     }
     
     private func setupTimeCard() {
@@ -189,7 +158,7 @@ final class TaskDetailViewController: BaseViewController {
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
         ])
     }
-    
+
     private func setupButtons() {
         deleteButton.addTarget(self, action: #selector(actionDeleteTask), for: .touchUpInside)
         
@@ -203,6 +172,39 @@ final class TaskDetailViewController: BaseViewController {
         ])
     }
     
+    private func updateLabels() {
+        taskNameLabel.text = task.taskName
+        projectLabel.text = project?.projectName ?? Localized.unknownProjectLabel
+        workTimeLabel.text = "\(task.workTime)"
+        startDateLabel.text =  DateHelper.string(from: task.startDate)
+        endDateLabel.text = DateHelper.string(from: task.endDate)
+        employeeLabel.text = employee?.fullName ?? Localized.notAssignedLabel
+        statusLabel.text = task.status.rawValue.localized
+        
+        updateStatusAppearance()
+    }
+    
+    private func updateStatusAppearance() {
+        switch task.status {
+        case .notStarted:
+            statusLabel.textColor = .red
+            statusLabel.layer.borderColor = UIColor.red.cgColor
+            statusLabel.backgroundColor = UIColor.systemRed.withAlphaComponent(0.1)
+        case .inProgress:
+            statusLabel.textColor = .blue
+            statusLabel.layer.borderColor = UIColor.blue.cgColor
+            statusLabel.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.1)
+        case .completed:
+            statusLabel.textColor = .green
+            statusLabel.layer.borderColor = UIColor.green.cgColor
+            statusLabel.backgroundColor = UIColor.systemGreen.withAlphaComponent(0.1)
+        case .postponed:
+            statusLabel.textColor = .orange
+            statusLabel.layer.borderColor = UIColor.orange.cgColor
+            statusLabel.backgroundColor = UIColor.systemOrange.withAlphaComponent(0.1)
+        }
+    }
+    
     private func reloadTaskDetails() async {
         do {
             async let projects = server.fetchProjects()
@@ -214,7 +216,7 @@ final class TaskDetailViewController: BaseViewController {
             await MainActor.run {
                 project = allProjects.first { $0.id == task.projectID }
                 employee = allEmployees.first { $0.id == task.employeeID }
-                setupLabels()
+                updateLabels()
                 stopLoading()
             }
         } catch {
