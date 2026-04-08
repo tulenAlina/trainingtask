@@ -36,6 +36,13 @@ final class EditProjectViewController: BaseFormViewController {
         setupUI()
     }
     
+    override func isFieldsChanged() -> Bool {
+        guard let project = project else { return true }
+        let isNameChanged = (nameTextField.text.orEmpty.trimmed) != project.projectName.trimmed
+        let isDescriptionChanged = (descriptionTextField.text.orEmpty.trimmed) != project.description.trimmed
+        return isNameChanged || isDescriptionChanged
+    }
+    
     private func setupUI() {
         let title = (project != nil) ? Localized.editProject : Localized.addProject
         setupNavigationBar(navigationTitle: title, rightButtonTitle: Localized.save, rightButtonAction: #selector(actionSaveProject))
@@ -97,13 +104,6 @@ final class EditProjectViewController: BaseFormViewController {
             return try await server.createProject(createdProject)
             
         }
-    }
-    
-    override func isFieldsChanged() -> Bool {
-        guard let project = project else { return true }
-        let isNameChanged = (nameTextField.text.orEmpty.trimmed) != project.projectName.trimmed
-        let isDescriptionChanged = (descriptionTextField.text.orEmpty.trimmed) != project.description.trimmed
-        return isNameChanged || isDescriptionChanged
     }
     
     @objc private func actionSaveProject() {

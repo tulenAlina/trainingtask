@@ -26,6 +26,14 @@ final class SettingsViewController: BaseFormViewController {
         setupUI()
     }
     
+    override func isFieldsChanged() -> Bool {
+        let urlChanged = serverUrlTextField.text.orEmpty.trimmed != settings.serverURL
+        let maxRecordsChanged = maxRecordsTextField.text.orEmpty.trimmed.withoutSpaces != String(settings.maxRecords)
+        let defaultDaysBetweenChanged = defaultDaysBetweenTextField.text.orEmpty.trimmed.withoutSpaces != String(settings.defaultDaysBetween)
+        
+        return urlChanged || maxRecordsChanged || defaultDaysBetweenChanged
+    }
+    
     private func setupUI() {
         setupNavigationBar(navigationTitle: Localized.settings, rightButtonTitle: Localized.save, rightButtonAction: #selector(actionSaveSettings))
         configureTextFields()
@@ -68,14 +76,6 @@ final class SettingsViewController: BaseFormViewController {
         defaultDaysBetweenTextField.text = String(settings.defaultDaysBetween)
     }
     
-    override func isFieldsChanged() -> Bool {
-        let urlChanged = serverUrlTextField.text.orEmpty.trimmed != settings.serverURL
-        let maxRecordsChanged = maxRecordsTextField.text.orEmpty.trimmed.replacingOccurrences(of: " ", with: "") != String(settings.maxRecords)
-        let defaultDaysBetweenChanged = defaultDaysBetweenTextField.text.orEmpty.trimmed.replacingOccurrences(of: " ", with: "") != String(settings.defaultDaysBetween)
-        
-        return urlChanged || maxRecordsChanged || defaultDaysBetweenChanged
-    }
-    
     @objc private func actionSaveSettings() {
         guard validateFields() else { return }
         guard isFieldsChanged() else {
@@ -84,8 +84,8 @@ final class SettingsViewController: BaseFormViewController {
         }
         
         settings.serverURL = serverUrlTextField.text.orEmpty.trimmed
-        settings.maxRecords = Int(maxRecordsTextField.text.orEmpty.replacingOccurrences(of: " ", with: "")) ?? 0
-        settings.defaultDaysBetween = Int(defaultDaysBetweenTextField.text.orEmpty.replacingOccurrences(of: " ", with: "")) ?? 0
+        settings.maxRecords = maxRecordsTextField.text.orEmpty.withoutSpaces.cleanedInt
+        settings.defaultDaysBetween = defaultDaysBetweenTextField.text.orEmpty.withoutSpaces.cleanedInt
         self.navigationController?.popViewController(animated: true)
     }
 }

@@ -38,6 +38,17 @@ final class EditEmployeeViewController: BaseFormViewController {
         setupUI()
     }
     
+    override func isFieldsChanged() -> Bool {
+        guard let employee = employee else { return true }
+        
+        let isFirstNameChanged = firstNameTextField.text.orEmpty.trimmed != employee.firstName.trimmed
+        let isLastNameChanged = lastNameTextField.text.orEmpty.trimmed != employee.lastName.trimmed
+        let isSurNameChanged = surNameTextField.text.orEmpty.trimmed != employee.surName.orEmpty.trimmed
+        let isPositionChanged = positionTextField.text.orEmpty.trimmed != employee.position.trimmed
+        
+        return isFirstNameChanged || isLastNameChanged || isSurNameChanged || isPositionChanged
+    }
+    
     private func setupUI() {
         let title = (employee != nil) ? Localized.editEmployee : Localized.addEmployee
         setupNavigationBar(navigationTitle: title, rightButtonTitle: Localized.save, rightButtonAction: #selector(actionSaveEmployee))
@@ -112,17 +123,6 @@ final class EditEmployeeViewController: BaseFormViewController {
             return try await server.createEmployee(createdEmployee)
             
         }
-    }
-    
-    override func isFieldsChanged() -> Bool {
-        guard let employee = employee else { return true }
-        
-        let isFirstNameChanged = firstNameTextField.text.orEmpty.trimmed != employee.firstName.trimmed
-        let isLastNameChanged = lastNameTextField.text.orEmpty.trimmed != employee.lastName.trimmed
-        let isSurNameChanged = surNameTextField.text.orEmpty.trimmed != employee.surName.orEmpty.trimmed
-        let isPositionChanged = positionTextField.text.orEmpty.trimmed != employee.position.trimmed
-        
-        return isFirstNameChanged || isLastNameChanged || isSurNameChanged || isPositionChanged
     }
     
     @objc private func actionSaveEmployee() {

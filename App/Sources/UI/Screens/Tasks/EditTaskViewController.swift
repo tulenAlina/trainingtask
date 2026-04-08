@@ -87,12 +87,36 @@ final class EditTaskViewController: BaseFormViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadInitialData()
+        setupUI()
+        loadData()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         view.endEditing(true)
+    }
+    
+    override func isFieldsChanged() -> Bool {
+        guard let task = task else { return true }
+        
+        var projectName: String = ""
+        if let prj = projects.first(where: {$0.id == task.projectID}) {
+            projectName = prj.projectName
+        }
+        
+        var empFio: String = ""
+        if let emp = employees.first(where: {$0.id == task.employeeID}) {
+            empFio = emp.fullName
+        }
+        
+        let isTaskNameChanged = taskNameTextField.text.orEmpty.trimmed != task.taskName.trimmed
+        let isProjectChanged = projectTextField.text.orEmpty.trimmed != projectName
+        let isWorkTimeChanged = workTimeTextField.text.orEmpty.trimmed.withoutSpaces.cleanedInt != task.workTime
+        let isStartDateChanged = startDateTextField.text.orEmpty.trimmed != DateHelper.string(from: task.startDate)
+        let isEndDateChanged = endDateTextField.text.orEmpty.trimmed != DateHelper.string(from: task.endDate)
+        let isEmployeeChanged = employeeTextField.text.orEmpty.trimmed != empFio
+        let isStatusChanged = statusSegmentedControl.selectedSegmentIndex != TaskStatus.allCases.firstIndex { $0 == task.status } ?? 0
+        return isTaskNameChanged || isProjectChanged || isWorkTimeChanged || isStartDateChanged || isEndDateChanged || isEmployeeChanged || isStatusChanged
     }
     
     private func setupUI() {
@@ -105,6 +129,8 @@ final class EditTaskViewController: BaseFormViewController {
         setupSegmentedControl()
         setupToolbar()
         setupForm()
+        
+        stackView.isHidden = true
     }
     
     private func setupTextFields() {
@@ -194,10 +220,20 @@ final class EditTaskViewController: BaseFormViewController {
         toolbar.setItems([cancelButton, flexibleSpace, doneButton], animated: false)
     }
     
+    private func updateTextFields() {
+        guard let task else { return }
+        
+        selectedProject = contextProject ?? projects.first(where: { $0.id == task.projectID })
+        projectTextField.text = selectedProject?.projectName ?? ""
+        
+        selectedEmployee = employees.first(where: { $0.id == task.employeeID })
+        employeeTextField.text = selectedEmployee?.fullName
+    }
+    
     private func updatedTask(_ task: ProjectTask, _ inputProject: Project, _ inputEmployee: Employee?) -> ProjectTask {
         let newTaskName = taskNameTextField.text.orEmpty.trimmed
         let newProjectID = inputProject.id
-        let newWorkTime = Int(workTimeTextField.text.orEmpty.replacingOccurrences(of: " ", with: "")) ?? 0
+        let newWorkTime = workTimeTextField.text.orEmpty.withoutSpaces.cleanedInt
         let newStartDate = DateHelper.date(from: startDateTextField.text.orEmpty) ?? Date()
         let newEndDate = DateHelper.date(from: endDateTextField.text.orEmpty) ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()
         let newStatus = TaskStatus.allCases[statusSegmentedControl.selectedSegmentIndex]
@@ -222,7 +258,7 @@ final class EditTaskViewController: BaseFormViewController {
         return ProjectTask(
             taskName: taskNameTextField.text.orEmpty.trimmed,
             projectID: inputProject.id,
-            workTime: Int(workTimeTextField.text.orEmpty.replacingOccurrences(of: " ", with: "")) ?? 0,
+            workTime: workTimeTextField.text.orEmpty.withoutSpaces.cleanedInt,
             startDate: DateHelper.date(from: startDateTextField.text.orEmpty) ?? Date(),
             endDate: DateHelper.date(from: endDateTextField.text.orEmpty) ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date(),
             status: TaskStatus.allCases[statusSegmentedControl.selectedSegmentIndex],
@@ -230,29 +266,28 @@ final class EditTaskViewController: BaseFormViewController {
         )
     }
     
-    private func loadInitialData() {
+    private func loadData() {
         startLoading()
         Task {
-            await loadData()
-            await MainActor.run {
-                setupUI()
-                stopLoading()
-            }
-        }
-    }
-    
-    private func loadData() async {
-        do {
-            async let allProjects = try await server.fetchProjects()
-            async let allEmployees = try await server.fetchEmployees()
-            
-            let (projects, employees) = try await (allProjects, allEmployees)
-            
-            self.projects = projects
-            self.employees = employees
-        } catch {
-            await MainActor.run {
-                showAlert(Localized.loadFailed)
+            do {
+                async let allProjects = try await server.fetchProjects()
+                async let allEmployees = try await server.fetchEmployees()
+                
+                let (projects, employees) = try await (allProjects, allEmployees)
+                
+                self.projects = projects
+                self.employees = employees
+                
+                await MainActor.run {
+                    updateTextFields()
+                    stackView.isHidden = false
+                    stopLoading()
+                }
+            } catch {
+                await MainActor.run {
+                    stopLoading()
+                    showAlert(Localized.loadFailed)
+                }
             }
         }
     }
@@ -286,7 +321,7 @@ final class EditTaskViewController: BaseFormViewController {
         let daysBetween = components.day ?? 0
         let maxHours = (daysBetween + 1) * 24
         
-        let workTime = Int(workTimeTextField.text.orEmpty.trimmed) ?? 0
+        let workTime = workTimeTextField.text.orEmpty.trimmed.cleanedInt
         
         guard workTime <= maxHours else {
             showAlert(Localized.hoursExceedPeriod)
@@ -294,29 +329,6 @@ final class EditTaskViewController: BaseFormViewController {
         }
         
         return true
-    }
-    
-    override func isFieldsChanged() -> Bool {
-        guard let task = task else { return true }
-        
-        var projectName: String = ""
-        if let prj = projects.first(where: {$0.id == task.projectID}) {
-            projectName = prj.projectName
-        }
-        
-        var empFio: String = ""
-        if let emp = employees.first(where: {$0.id == task.employeeID}) {
-            empFio = emp.fullName
-        }
-        
-        let isTaskNameChanged = taskNameTextField.text.orEmpty.trimmed != task.taskName.trimmed
-        let isProjectChanged = projectTextField.text.orEmpty.trimmed != projectName
-        let isWorkTimeChanged = Int(workTimeTextField.text.orEmpty.trimmed.replacingOccurrences(of: " ", with: "")) ?? 0 != task.workTime
-        let isStartDateChanged = startDateTextField.text.orEmpty.trimmed != DateHelper.string(from: task.startDate)
-        let isEndDateChanged = endDateTextField.text.orEmpty.trimmed != DateHelper.string(from: task.endDate)
-        let isEmployeeChanged = employeeTextField.text.orEmpty.trimmed != empFio
-        let isStatusChanged = statusSegmentedControl.selectedSegmentIndex != TaskStatus.allCases.firstIndex { $0 == task.status } ?? 0
-        return isTaskNameChanged || isProjectChanged || isWorkTimeChanged || isStartDateChanged || isEndDateChanged || isEmployeeChanged || isStatusChanged
     }
     
     @objc private func actionSaveTask() {

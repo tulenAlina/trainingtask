@@ -19,26 +19,6 @@ class BaseViewController: UIViewController {
         view.bringSubviewToFront(loadingIndicator)
     }
     
-    private func setupBaseUI() {
-        view.backgroundColor = .systemBackground
-        setupLoadingIndicator()
-        setupTapGesture()
-    }
-    
-    private func setupLoadingIndicator() {
-        view.addSubview(loadingIndicator)
-        NSLayoutConstraint.activate([
-            loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-        ])
-    }
-    
-    private func setupTapGesture() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissObjects))
-        tapGesture.cancelsTouchesInView = false
-        view.addGestureRecognizer(tapGesture)
-    }
-    
     func startLoading() {
         loadingIndicator.startAnimating()
         view.isUserInteractionEnabled = false
@@ -62,6 +42,26 @@ class BaseViewController: UIViewController {
             let button = UIBarButtonItem(barButtonSystemItem: btnItem, target: self, action: action)
             navigationItem.rightBarButtonItem = button
         }
+    }
+    
+    private func setupBaseUI() {
+        view.backgroundColor = .systemBackground
+        setupLoadingIndicator()
+        setupTapGesture()
+    }
+    
+    private func setupLoadingIndicator() {
+        view.addSubview(loadingIndicator)
+        NSLayoutConstraint.activate([
+            loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+    }
+    
+    private func setupTapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissObjects))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
     }
     
     @objc func dismissObjects() {

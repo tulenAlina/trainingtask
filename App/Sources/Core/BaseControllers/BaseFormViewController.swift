@@ -11,22 +11,6 @@ class BaseFormViewController: BaseViewController {
         return stack
     }()
     
-    private func applyValidationStyle(_ textField: UITextField, isValid: Bool) {
-        if isValid {
-            textField.layer.borderColor = UIColor(white: 0.8, alpha: 1).cgColor
-            textField.layer.borderWidth = 0.5
-        } else {
-            textField.layer.borderColor = UIColor.red.cgColor
-            textField.layer.borderWidth = 1
-        }
-    }
-    
-    private func clearValidationStyles() {
-        for textField in requiredFields {
-            applyValidationStyle(textField, isValid: true)
-        }
-    }
-
     func setupForm() {
         view.addSubview(stackView)
                 
@@ -60,6 +44,22 @@ class BaseFormViewController: BaseViewController {
         }
         
         return isValid
+    }
+    
+    private func applyValidationStyle(_ textField: UITextField, isValid: Bool) {
+        if isValid {
+            textField.layer.borderColor = UIColor(white: 0.8, alpha: 1).cgColor
+            textField.layer.borderWidth = 0.5
+        } else {
+            textField.layer.borderColor = UIColor.red.cgColor
+            textField.layer.borderWidth = 1
+        }
+    }
+    
+    private func clearValidationStyles() {
+        for textField in requiredFields {
+            applyValidationStyle(textField, isValid: true)
+        }
     }
     
     @objc func textFieldDidChange(sender: UITextField) {
