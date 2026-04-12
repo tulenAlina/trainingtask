@@ -23,10 +23,23 @@ final class EditTaskPresenter: EditTaskPresenterProtocol {
     private var selectedProject: Project?
     private var selectedEmployee: Employee?
     
-    init(view: EditTaskViewProtocol, interactor: EditTaskInteractorProtocol, router: EditTaskRouterProtocol) {
+    private init(view: EditTaskViewProtocol, interactor: EditTaskInteractorProtocol, router: EditTaskRouterProtocol, task: ProjectTask? = nil, project: Project? = nil) {
         self.view = view
         self.interactor = interactor
         self.router = router
+        self.task = task
+        self.contextProject = project
+        selectedProject = contextProject
+    }
+    
+    convenience init(view: EditTaskViewProtocol, interactor: EditTaskInteractorProtocol, router: EditTaskRouterProtocol, task: ProjectTask? = nil, project: Project? = nil, onUpdate: @escaping ((ProjectTask) -> Void)) {
+        self.init(view: view, interactor: interactor, router: router, task: task, project: project)
+        self.onUpdate = onUpdate
+    }
+    
+    convenience init(view: EditTaskViewProtocol, interactor: EditTaskInteractorProtocol, router: EditTaskRouterProtocol, task: ProjectTask? = nil, project: Project? = nil, onCreate: @escaping ((ProjectTask) -> Void)) {
+        self.init(view: view, interactor: interactor, router: router, task: task, project: project)
+        self.onCreate = onCreate
     }
     
     func viewDidLoad() {

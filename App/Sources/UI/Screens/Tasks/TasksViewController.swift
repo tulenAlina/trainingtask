@@ -112,18 +112,29 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
     }
     
     @objc private func actionAddTask() {
-        let editViewController: EditTaskViewController
+        let editModuleViewController: UIViewController
         let onCreate = { [weak self] task in
             guard let self else { return }
             self.addItem(task)
         }
         
         if let project {
-            editViewController = EditTaskViewController(project: project, server: server, settings: settings, onCreate: onCreate)
+            editModuleViewController = EditTaskBuilder.build(
+                project: project,
+                server: server,
+                settings: settings,
+                onCreate: onCreate,
+                onUpdate: nil
+            )
         } else {
-            editViewController = EditTaskViewController(server: server, settings: settings, onCreate: onCreate)
+            editModuleViewController = EditTaskBuilder.build(
+                project: project,
+                server: server,
+                settings: settings,
+                onCreate: onCreate,
+                onUpdate: nil)
         }
-        navigationController?.pushViewController(editViewController, animated: true)
+        navigationController?.pushViewController(editModuleViewController, animated: true)
     }
 }
 
