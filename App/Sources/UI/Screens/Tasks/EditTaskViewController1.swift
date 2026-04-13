@@ -1,6 +1,6 @@
 import UIKit
 
-final class EditTaskViewController: BaseFormViewController {
+final class EditTaskViewController1: BaseFormViewController {
     var onUpdate: ((ProjectTask) -> Void)?
     var onCreate: ((ProjectTask) -> Void)?
     
@@ -398,7 +398,7 @@ final class EditTaskViewController: BaseFormViewController {
     }
 }
 
-extension EditTaskViewController: UITextFieldDelegate {
+extension EditTaskViewController1: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true

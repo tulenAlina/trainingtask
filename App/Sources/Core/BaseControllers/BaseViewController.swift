@@ -1,7 +1,7 @@
 import UIKit
 
 class BaseViewController: UIViewController {
-    private var navigationSaveButton: UIBarButtonItem?
+    private var navigationRightButton: UIBarButtonItem?
     
     private let loadingIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .large)
@@ -22,13 +22,13 @@ class BaseViewController: UIViewController {
     func startLoading() {
         loadingIndicator.startAnimating()
         view.isUserInteractionEnabled = false
-        navigationSaveButton?.isEnabled = false
+        navigationRightButton?.isEnabled = false
     }
         
     func stopLoading() {
         loadingIndicator.stopAnimating()
         view.isUserInteractionEnabled = true
-        navigationSaveButton?.isEnabled = true
+        navigationRightButton?.isEnabled = true
     }
     
     func setupNavigationBar(navigationTitle title: String, rightButtonTitle btnTitle: String? = nil, rightButtonItem btnItem: UIBarButtonItem.SystemItem? = nil, rightButtonAction action: Selector? = nil) {
@@ -38,9 +38,11 @@ class BaseViewController: UIViewController {
         if let btnTitle {
             let button = UIBarButtonItem(title: btnTitle, style: .done, target: self, action: action)
             navigationItem.rightBarButtonItem = button
+            navigationRightButton = button
         } else if let btnItem {
             let button = UIBarButtonItem(barButtonSystemItem: btnItem, target: self, action: action)
             navigationItem.rightBarButtonItem = button
+            navigationRightButton = button
         }
     }
     
