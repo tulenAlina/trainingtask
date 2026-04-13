@@ -2,19 +2,18 @@ import Foundation
 
 protocol EditTaskPresenterProtocol: AnyObject {
     func viewDidLoad()
-    func didTapSaveButton(taskNameString: String, workTime: Int, startDateString: String, endDateString: String, statusIndex: Int)
+    func didTapSaveButton(taskNameString: String, workTime: String, startDateString: String, endDateString: String, statusIndex: Int)
     func didTapClearEmployee()
     func didTapSelectProject()
     func didTapSelectEmployee()
 }
 
-final class EditTaskPresenter: EditTaskPresenterProtocol {
-    var onUpdate: ((ProjectTask) -> Void)?
-    var onCreate: ((ProjectTask) -> Void)?
+final class EditTaskPresenter {
+    weak var view: EditTaskViewProtocol?
     
-    var view: EditTaskViewProtocol
-    let interactor: EditTaskInteractorProtocol
-    let router: EditTaskRouterProtocol
+    private let interactor: EditTaskInteractorProtocol
+    private let router: EditTaskRouterProtocol
+    private let action: EditTaskAction
     
     private var task: ProjectTask?
     private var contextProject: Project?
@@ -23,39 +22,45 @@ final class EditTaskPresenter: EditTaskPresenterProtocol {
     private var selectedProject: Project?
     private var selectedEmployee: Employee?
     
-    private init(view: EditTaskViewProtocol, interactor: EditTaskInteractorProtocol, router: EditTaskRouterProtocol, task: ProjectTask? = nil, project: Project? = nil) {
-        self.view = view
+    init(interactor: EditTaskInteractorProtocol, router: EditTaskRouterProtocol, task: ProjectTask? = nil, project: Project? = nil, action: EditTaskAction)
+    {
         self.interactor = interactor
         self.router = router
         self.task = task
         self.contextProject = project
+        self.action = action
         selectedProject = contextProject
     }
     
-    convenience init(view: EditTaskViewProtocol, interactor: EditTaskInteractorProtocol, router: EditTaskRouterProtocol, task: ProjectTask? = nil, project: Project? = nil, onUpdate: @escaping ((ProjectTask) -> Void)) {
-        self.init(view: view, interactor: interactor, router: router, task: task, project: project)
-        self.onUpdate = onUpdate
+    private func isFieldsChanged(taskNameString: String, projectID: UUID, workTime: Int, startDateString: String, endDateString: String, statusIndex: Int, employeeID: UUID?) -> Bool {
+        guard let task = task else { return true }
+        
+        let isTaskNameChanged = taskNameString != task.taskName.trimmed
+        let isProjectChanged = projectID != task.projectID
+        let isWorkTimeChanged = workTime != task.workTime
+        let isStartDateChanged = startDateString != DateHelper.string(from: task.startDate)
+        let isEndDateChanged = endDateString != DateHelper.string(from: task.endDate)
+        let isEmployeeChanged = employeeID != task.employeeID
+        let isStatusChanged = statusIndex != TaskStatus.allCases.firstIndex { $0 == task.status } ?? 0
+        return isTaskNameChanged || isProjectChanged || isWorkTimeChanged || isStartDateChanged || isEndDateChanged || isEmployeeChanged || isStatusChanged
     }
-    
-    convenience init(view: EditTaskViewProtocol, interactor: EditTaskInteractorProtocol, router: EditTaskRouterProtocol, task: ProjectTask? = nil, project: Project? = nil, onCreate: @escaping ((ProjectTask) -> Void)) {
-        self.init(view: view, interactor: interactor, router: router, task: task, project: project)
-        self.onCreate = onCreate
+
+    private func didSelectProject(_ project: Project) {
+        selectedProject = project
+        view?.updateProjectName(project.projectName)
     }
-    
-    func viewDidLoad() {
-        let title = (task != nil) ? Localized.editTask : Localized.addTask
-        configureFields()
-        configureStatus()
-        view.setupNavigationBar(title: title)
-        loadData()
+
+    private func didSelectEmployee(_ employee: Employee) {
+        selectedEmployee = employee
+        view?.updateEmployeeName(employee.fullName)
     }
     
     private func configureFields() {
         if let contextProject {
-            view.setProjectField(text: "\(contextProject.projectName)")
+            view?.setProjectField(text: "\(contextProject.projectName)")
         }
         
-        view.setEndDateField(defaultDaysBetween: interactor.defaultDaysBetween())
+        view?.setEndDateField(defaultDaysBetween: interactor.defaultDaysBetween())
         
         if let task {
             selectedProject = contextProject ?? projects.first(where: { $0.id == task.projectID })
@@ -68,7 +73,7 @@ final class EditTaskPresenter: EditTaskPresenterProtocol {
             let endDate = DateHelper.string(from: task.endDate)
             let employee = selectedEmployee?.fullName
         
-            view.setTaskFields(
+            view?.setTaskFields(
                 taskName: taskName,
                 projectName: projectName,
                 workTime: workTime,
@@ -86,120 +91,26 @@ final class EditTaskPresenter: EditTaskPresenterProtocol {
         } else {
             index = 0
         }
-        view.setupSegmentedControl(index: index)
+        view?.setupSegmentedControl(index: index)
     }
     
-    func didTapSaveButton(taskNameString: String, workTime: Int, startDateString: String, endDateString: String, statusIndex: Int) {
-        guard view.validateFields() else { return }
-        guard let selectedProject else { return }
-        guard isFieldsChanged(
-            taskNameString: taskNameString,
-            projectID: selectedProject.id,
-            workTime: workTime,
-            startDateString: startDateString,
-            endDateString: endDateString,
-            statusIndex: statusIndex,
-            employeeID: selectedEmployee?.id
-        ) else {
-            router.close()
-            return
-        }
-        guard validateDates(startDateString: startDateString, endDateString: endDateString, workTime: workTime) else {return}
-        view.startLoading()
-        
-        Task {
-            do {
-                let savedTask: ProjectTask
-                if let task {
-                    let updatedTask = updatedTask(
-                        from: task,
-                        newTaskName: taskNameString,
-                        newProjectID: selectedProject.id,
-                        newWorkTime: workTime,
-                        newStartDateString: startDateString,
-                        newEndDateString: endDateString,
-                        newStatusIndex: statusIndex,
-                        newEmployeeID: selectedEmployee?.id
-                    )
-                    savedTask = try await interactor.updateTask(updatedTask)
-                } else {
-                    let createdTask = buildTask(
-                        newTaskName: taskNameString,
-                        newProjectID: selectedProject.id,
-                        newWorkTime: workTime,
-                        newStartDateString: startDateString,
-                        newEndDateString: endDateString,
-                        newStatusIndex: statusIndex,
-                        newEmployeeID: selectedEmployee?.id
-                    )
-                    savedTask = try await interactor.createTask(createdTask)
-                }
-
-                await MainActor.run {
-                    if task != nil {
-                        onUpdate?(savedTask)
-                    } else {
-                        onCreate?(savedTask)
-                    }
-                    view.stopLoading()
-                    router.close()
-                }
-            } catch {
-                await MainActor.run {
-                    view.stopLoading()
-                    view.showAlert(Localized.saveFailed)
-                }
-            }
-        }
-    }
-    
-    func isFieldsChanged(taskNameString: String, projectID: UUID, workTime: Int, startDateString: String, endDateString: String, statusIndex: Int, employeeID: UUID?) -> Bool {
-        guard let task = task else { return true }
-        
-        var projectName: String = ""
-        if let prj = projects.first(where: {$0.id == projectID}) {
-            projectName = prj.projectName
-        }
-        
-        var oldProjectName: String = ""
-        if let prj = projects.first(where: {$0.id == task.projectID}) {
-            oldProjectName = prj.projectName
-        }
-        
-        var employeeFio: String = ""
-        if let emp = employees.first(where: {$0.id == employeeID}) {
-            employeeFio = emp.fullName
-        }
-        
-        var oldEmployeeFio: String = ""
-        if let emp = employees.first(where: {$0.id == task.employeeID}) {
-            oldEmployeeFio = emp.fullName
-        }
-        
-        let isTaskNameChanged = taskNameString != task.taskName.trimmed
-        let isProjectChanged = projectName != oldProjectName
-        let isWorkTimeChanged = workTime != task.workTime
-        let isStartDateChanged = startDateString != DateHelper.string(from: task.startDate)
-        let isEndDateChanged = endDateString != DateHelper.string(from: task.endDate)
-        let isEmployeeChanged = employeeFio != oldEmployeeFio
-        let isStatusChanged = statusIndex != TaskStatus.allCases.firstIndex { $0 == task.status } ?? 0
-        return isTaskNameChanged || isProjectChanged || isWorkTimeChanged || isStartDateChanged || isEndDateChanged || isEmployeeChanged || isStatusChanged
-    }
-    
-    private func prepareDisplayData() {
+    private func updateData() {
         guard let task else { return }
         
         selectedProject = contextProject ?? projects.first(where: { $0.id == task.projectID })
-        let projectName = selectedProject?.projectName ?? ""
-        
         selectedEmployee = employees.first(where: { $0.id == task.employeeID })
+        
+    }
+    
+    private func getDisplayNames() -> (String?, String?) {
+        let projectName = selectedProject?.projectName ?? ""
         let employeeName = selectedEmployee?.fullName
         
-        view.updateUI(projectName: projectName, employeeName: employeeName)
+        return (projectName, employeeName)
     }
     
-    private func updatedTask(
-        from existingTask: ProjectTask,
+    private func createTask(
+        from existingTask: ProjectTask? = nil,
         newTaskName: String,
         newProjectID: UUID,
         newWorkTime: Int,
@@ -212,47 +123,33 @@ final class EditTaskPresenter: EditTaskPresenterProtocol {
         let newStartDate = DateHelper.date(from: newStartDateString) ?? Date()
         let newEndDate = DateHelper.date(from: newEndDateString) ?? Calendar.current.date(byAdding: .day, value: interactor.defaultDaysBetween(), to: Date()) ?? Date()
         
-        let updatedTask = ProjectTask(
-            id: existingTask.id,
-            taskName: newTaskName,
-            projectID: newProjectID,
-            workTime: newWorkTime,
-            startDate: newStartDate,
-            endDate: newEndDate,
-            status: newStatus,
-            employeeID: newEmployeeID,
-            createdAt: existingTask.createdAt
-        )
-        
-        return updatedTask
-    }
-    
-    private func buildTask(
-        newTaskName: String,
-        newProjectID: UUID,
-        newWorkTime: Int,
-        newStartDateString: String,
-        newEndDateString: String,
-        newStatusIndex: Int,
-        newEmployeeID: UUID?
-    ) -> ProjectTask {
-        let newStatus = TaskStatus.allCases[newStatusIndex]
-        let newStartDate = DateHelper.date(from: newStartDateString) ?? Date()
-        let newEndDate = DateHelper.date(from: newEndDateString) ?? Calendar.current.date(byAdding: .day, value: interactor.defaultDaysBetween(), to: Date()) ?? Date()
-        
-        return ProjectTask(
-            taskName: newTaskName,
-            projectID: newProjectID,
-            workTime: newWorkTime,
-            startDate: newStartDate,
-            endDate: newEndDate,
-            status: newStatus,
-            employeeID: newEmployeeID
-        )
+        if let existingTask {
+            return ProjectTask(
+                id: existingTask.id,
+                taskName: newTaskName,
+                projectID: newProjectID,
+                workTime: newWorkTime,
+                startDate: newStartDate,
+                endDate: newEndDate,
+                status: newStatus,
+                employeeID: newEmployeeID,
+                createdAt: existingTask.createdAt
+            )
+        } else {
+            return ProjectTask(
+                taskName: newTaskName,
+                projectID: newProjectID,
+                workTime: newWorkTime,
+                startDate: newStartDate,
+                endDate: newEndDate,
+                status: newStatus,
+                employeeID: newEmployeeID
+            )
+        }
     }
     
     private func loadData() {
-        view.startLoading()
+        view?.startLoading()
         Task {
             do {
                 let (projects, employees) = try await interactor.fetchData()
@@ -261,27 +158,48 @@ final class EditTaskPresenter: EditTaskPresenterProtocol {
                 self.employees = employees
                 
                 await MainActor.run {
-                    prepareDisplayData()
+                    updateData()
+                    let (projectName, employeeName) = getDisplayNames()
+                    view?.updateUI(projectName: projectName, employeeName: employeeName)
+                    view?.stopLoading()
                 }
             } catch {
                 await MainActor.run {
-                    view.stopLoading()
-                    view.showAlert(Localized.loadFailed)
+                    view?.stopLoading()
+                    view?.showAlert(Localized.loadFailed)
                 }
             }
         }
+    }
+    
+    private func validateFields(taskNameString: String, projectName: String?, workTime: String) -> Bool {
+        guard let view else { return false }
+        var fieldsValidity: [Bool] = []
+        var isValid = true
+        
+        for text in [taskNameString, projectName, workTime]
+        {
+            if text == nil || text?.isBlank == true {
+                fieldsValidity.append(false)
+                isValid = false
+            } else {
+                fieldsValidity.append(true)
+            }
+        }
+        view.applyValidationResults(fieldsValidity)
+        return isValid
     }
     
     private func validateDates(startDateString: String, endDateString: String, workTime: Int) -> Bool{
         guard let startDate = DateHelper.date(from: startDateString),
               let endDate = DateHelper.date(from: endDateString)
         else {
-            view.showAlert(Localized.invalidDate)
+            view?.showAlert(Localized.invalidDate)
             return false
         }
         
         guard endDate >= startDate else {
-            view.showAlert(Localized.dateEndBeforeStart)
+            view?.showAlert(Localized.dateEndBeforeStart)
             return false
         }
         
@@ -293,11 +211,65 @@ final class EditTaskPresenter: EditTaskPresenterProtocol {
         let workTime = workTime
         
         guard workTime <= maxHours else {
-            view.showAlert(Localized.hoursExceedPeriod)
+            view?.showAlert(Localized.hoursExceedPeriod)
             return false
         }
-        
         return true
+    }
+}
+
+extension EditTaskPresenter: EditTaskPresenterProtocol {
+    func viewDidLoad() {
+        let title = (task != nil) ? Localized.editTask : Localized.addTask
+        configureFields()
+        configureStatus()
+        view?.setupNavigationBar(title: title)
+        loadData()
+    }
+    
+    private func performValidation(taskNameString: String, workTime: String, startDateString: String, endDateString: String, statusIndex: Int) -> Bool {
+        guard validateFields(taskNameString: taskNameString, projectName: selectedProject?.projectName, workTime: workTime) else {
+            view?.showAlert(Localized.emptyFields)
+            return false
+        }
+        guard validateDates(startDateString: startDateString, endDateString: endDateString, workTime: workTime.cleanedInt) else { return false }
+        return true
+    }
+    
+    func didTapSaveButton(taskNameString: String, workTime: String, startDateString: String, endDateString: String, statusIndex: Int) {
+        guard let view, performValidation(taskNameString: taskNameString, workTime: workTime, startDateString: startDateString, endDateString: endDateString, statusIndex: statusIndex), let selectedProject else { return }
+        
+        guard isFieldsChanged(taskNameString: taskNameString, projectID: selectedProject.id, workTime: workTime.cleanedInt, startDateString: startDateString, endDateString: endDateString, statusIndex: statusIndex, employeeID: selectedEmployee?.id
+        ) else {
+            router.close()
+            return
+        }
+        
+        view.startLoading()
+        let isUpdate = task != nil
+        
+        Task {
+            do {
+                let newTask = createTask(from: task, newTaskName: taskNameString, newProjectID: selectedProject.id, newWorkTime: workTime.cleanedInt, newStartDateString: startDateString, newEndDateString: endDateString, newStatusIndex: statusIndex, newEmployeeID: selectedEmployee?.id)
+                let savedTask = isUpdate ? try await interactor.updateTask(newTask) : try await interactor.createTask(newTask)
+
+                await MainActor.run {
+                    switch self.action {
+                    case .create(let onCreate):
+                        onCreate(savedTask)
+                    case .update(let onUpdate):
+                        onUpdate(savedTask)
+                                        }
+                    view.stopLoading()
+                    router.close()
+                }
+            } catch {
+                await MainActor.run {
+                    view.stopLoading()
+                    view.showAlert(Localized.saveFailed)
+                }
+            }
+        }
     }
     
     func didTapSelectProject() {
@@ -314,15 +286,5 @@ final class EditTaskPresenter: EditTaskPresenterProtocol {
     
     func didTapClearEmployee() {
         selectedEmployee = nil
-    }
-
-    func didSelectProject(_ project: Project) {
-        selectedProject = project
-        view.updateProjectName(project.projectName)
-    }
-
-    func didSelectEmployee(_ employee: Employee) {
-        selectedEmployee = employee
-        view.updateEmployeeName(employee.fullName)
     }
 }

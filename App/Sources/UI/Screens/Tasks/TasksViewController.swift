@@ -117,23 +117,14 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
             guard let self else { return }
             self.addItem(task)
         }
-        
-        if let project {
-            editModuleViewController = EditTaskBuilder.build(
-                project: project,
-                server: server,
-                settings: settings,
-                onCreate: onCreate,
-                onUpdate: nil
-            )
-        } else {
-            editModuleViewController = EditTaskBuilder.build(
-                project: project,
-                server: server,
-                settings: settings,
-                onCreate: onCreate,
-                onUpdate: nil)
-        }
+
+        editModuleViewController = EditTaskBuilder.build(
+            project: project,
+            server: server,
+            settings: settings,
+            action: .create(onCreate)
+        )
+    
         navigationController?.pushViewController(editModuleViewController, animated: true)
     }
 }

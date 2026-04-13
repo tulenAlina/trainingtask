@@ -1,23 +1,27 @@
 import UIKit
 
-protocol EditTaskViewProtocol: BaseFormViewController {
-    var presenter: EditTaskPresenterProtocol? { get set }
+protocol EditTaskViewProtocol: AnyObject {
+    var presenter: EditTaskPresenterProtocol { get set }
+    var requiredFields: [UITextField] { get }
     func setupNavigationBar(title: String)
-    func updateUI(projectName: String, employeeName: String?)
-    func startLoading()
-    func stopLoading()
+    func setupSegmentedControl(index: Int)
+    func updateUI(projectName: String?, employeeName: String?)
     func updateProjectName(_ name: String)
     func updateEmployeeName(_ name: String)
     func setProjectField(text: String)
     func setEndDateField(defaultDaysBetween: Int)
     func setTaskFields(taskName: String, projectName: String, workTime: String, startDate: String, endDate: String, employee: String?)
-    func setupSegmentedControl(index: Int)
+    func applyValidationResults(_ fieldsValidity: [Bool])
+    func startLoading()
+    func stopLoading()
+    func showAlert (_ message: String)
 }
 
-final class EditTaskViewController2: BaseFormViewController, EditTaskViewProtocol {
-    weak var presenter: EditTaskPresenterProtocol?
+final class EditTaskViewController: BaseViewController {
+    var presenter: EditTaskPresenterProtocol
     
     private let toolbar = UIToolbar()
+    private let taskEditView = EditView()
     
     private let taskNameLabel = UIFactory.createLabel(text: Localized.nameLabel)
     private let projectLabel = UIFactory.createLabel(text: Localized.projectLabel)
@@ -64,7 +68,8 @@ final class EditTaskViewController2: BaseFormViewController, EditTaskViewProtoco
         return sc
     }()
     
-    init() {
+    init(presenter: EditTaskPresenterProtocol) {
+        self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -75,7 +80,7 @@ final class EditTaskViewController2: BaseFormViewController, EditTaskViewProtoco
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        presenter?.viewDidLoad()
+        presenter.viewDidLoad()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -83,37 +88,27 @@ final class EditTaskViewController2: BaseFormViewController, EditTaskViewProtoco
         view.endEditing(true)
     }
     
-    func setupNavigationBar(title: String) {
-        super.setupNavigationBar(navigationTitle: title, rightButtonTitle: Localized.save, rightButtonAction: #selector(actionSaveTask))
-    }
-    
     private func setupUI() {
+        setupEditView()
         setupTextFields()
         setupFormRows()
         setupClearEmployeeButton()
         setupToolbar()
-        setupForm()
+    }
+    
+    private func setupEditView() {
+        view.addSubview(taskEditView)
+        taskEditView.translatesAutoresizingMaskIntoConstraints = false
         
-        stackView.isHidden = true
-    }
-    
-    func setProjectField(text: String) {
-        projectTextField.text = text
-        projectTextField.isEnabled = false
-        projectTextField.textColor = .lightGray
-    }
-    
-    func setEndDateField(defaultDaysBetween: Int) {
-        endDateTextField.text = DateHelper.string(from: Calendar.current.date(byAdding: .day, value: defaultDaysBetween, to: Date()) ?? Date())
-    }
-    
-    func setTaskFields(taskName: String, projectName: String, workTime: String, startDate: String, endDate: String, employee: String?) {
-        taskNameTextField.text = taskName
-        projectTextField.text = projectName
-        workTimeTextField.text = workTime
-        startDateTextField.text = startDate
-        endDateTextField.text = endDate
-        employeeTextField.text = employee
+        NSLayoutConstraint.activate([
+            taskEditView.topAnchor.constraint(equalTo: view.topAnchor),
+            taskEditView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            taskEditView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            taskEditView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        
+        taskEditView.setupForm()
+        taskEditView.hideStack()
     }
     
     private func setupTextFields() {        
@@ -134,9 +129,9 @@ final class EditTaskViewController2: BaseFormViewController, EditTaskViewProtoco
         workTimeTextField.delegate = self
         employeeTextField.delegate = self
         
-        taskNameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        projectTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        workTimeTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        taskNameTextField.addTarget(taskEditView, action: #selector(taskEditView.textFieldDidChange), for: .editingChanged)
+        projectTextField.addTarget(taskEditView, action: #selector(taskEditView.textFieldDidChange), for: .editingChanged)
+        workTimeTextField.addTarget(taskEditView, action: #selector(taskEditView.textFieldDidChange), for: .editingChanged)
     }
     
     private func setupFormRows() {
@@ -155,17 +150,13 @@ final class EditTaskViewController2: BaseFormViewController, EditTaskViewProtoco
         let employeeRow = UIFactory.createFormRow(labelText: Localized.employeeLabel, inputView: employeeHorizontalStack)
         
         [taskNameRow, projectRow, workTimeRow, startDateRow, endDateRow, employeeRow, statusDateRow].forEach { row in
-            stackView.addArrangedSubview(row)
+            taskEditView.addArrangedSubview(row)
         }
     }
     
     private func setupClearEmployeeButton() {
         clearEmployeeButton.addTarget(self, action: #selector(actionClearEmployee), for: .touchUpInside)
         clearEmployeeButton.widthAnchor.constraint(equalToConstant: 70).isActive = true
-    }
-    
-    func setupSegmentedControl(index: Int) {
-        statusSegmentedControl.selectedSegmentIndex = index
     }
  
     private func setupToolbar() {
@@ -178,29 +169,13 @@ final class EditTaskViewController2: BaseFormViewController, EditTaskViewProtoco
         toolbar.setItems([cancelButton, flexibleSpace, doneButton], animated: false)
     }
     
-    func updateUI(projectName: String, employeeName: String?) {
-        projectTextField.text = projectName
-        employeeTextField.text = employeeName
-        stackView.isHidden = false
-        stopLoading()
-    }
-    
-    func updateProjectName(_ name: String) {
-        projectTextField.text = name
-        textFieldDidChange(sender: projectTextField)
-    }
-    
-    func updateEmployeeName(_ name: String) {
-        employeeTextField.text = name
-    }
-    
     @objc private func actionSaveTask() {
         
         let startDateString = startDateTextField.text.orEmpty.trimmed
         let endDateString = endDateTextField.text.orEmpty.trimmed
-        let workTime = workTimeTextField.text.orEmpty.withoutSpaces.cleanedInt
+        let workTime = workTimeTextField.text.orEmpty.withoutSpaces
         
-        presenter?.didTapSaveButton (
+        presenter.didTapSaveButton (
             taskNameString: taskNameTextField.text.orEmpty.trimmed,
             workTime: workTime,
             startDateString: startDateString,
@@ -223,11 +198,11 @@ final class EditTaskViewController2: BaseFormViewController, EditTaskViewProtoco
     
     @objc private func actionClearEmployee() {
         employeeTextField.text = nil
-        presenter?.didTapClearEmployee()
+        presenter.didTapClearEmployee()
     }
 }
 
-extension EditTaskViewController2: UITextFieldDelegate {
+extension EditTaskViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
@@ -263,11 +238,67 @@ extension EditTaskViewController2: UITextFieldDelegate {
                 endDatePicker.date = date
             }
         case projectTextField:
-            presenter?.didTapSelectProject()
+            presenter.didTapSelectProject()
         case employeeTextField:
-            presenter?.didTapSelectEmployee()
+            presenter.didTapSelectEmployee()
         default:
             break
         }
+    }
+}
+
+extension EditTaskViewController: EditTaskViewProtocol {
+    var requiredFields: [UITextField] {
+        return [taskNameTextField, projectTextField, workTimeTextField]
+    }
+    
+    func setupNavigationBar(title: String) {
+        super.setupNavigationBar(navigationTitle: title, rightButtonTitle: Localized.save, rightButtonAction: #selector(actionSaveTask))
+    }
+    
+    func setupSegmentedControl(index: Int) {
+        statusSegmentedControl.selectedSegmentIndex = index
+    }
+    
+    func updateUI(projectName: String?, employeeName: String?) {
+        projectTextField.text = projectName
+        employeeTextField.text = employeeName
+        taskEditView.showStack()
+    }
+    
+    func updateProjectName(_ name: String) {
+        projectTextField.text = name
+        taskEditView.textFieldDidChange(sender: projectTextField)
+    }
+    
+    func updateEmployeeName(_ name: String) {
+        employeeTextField.text = name
+    }
+    
+    func setProjectField(text: String) {
+        projectTextField.text = text
+        projectTextField.isEnabled = false
+        projectTextField.textColor = .lightGray
+    }
+    
+    func setEndDateField(defaultDaysBetween: Int) {
+        endDateTextField.text = DateHelper.string(from: Calendar.current.date(byAdding: .day, value: defaultDaysBetween, to: Date()) ?? Date())
+    }
+    
+    func setTaskFields(taskName: String, projectName: String, workTime: String, startDate: String, endDate: String, employee: String?) {
+        taskNameTextField.text = taskName
+        projectTextField.text = projectName
+        workTimeTextField.text = workTime
+        startDateTextField.text = startDate
+        endDateTextField.text = endDate
+        employeeTextField.text = employee
+    }
+    
+    func applyValidationResults(_ fieldsValidity: [Bool]) {
+        var result: [(UITextField, Bool)] = []
+        for i in 0..<requiredFields.count {
+            result.append((requiredFields[i], fieldsValidity[i]))
+        }
+        taskEditView.applyValidationResults(result)
     }
 }

@@ -53,6 +53,11 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		6F2A5BE92F8D38C50024F9A4 /* Views */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Views;
+			sourceTree = "<group>";
+		};
 		6F404DFC2F7AB3CA00B40BA4 /* Factory */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Factory;
@@ -226,6 +231,7 @@
 		6FFDD0DE2F618685008CED45 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				6F2A5BE92F8D38C50024F9A4 /* Views */,
 				6FFDD0DD2F618685008CED45 /* Screens */,
 			);
 			path = UI;
@@ -259,6 +265,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				6F2A5BE92F8D38C50024F9A4 /* Views */,
 				6F404DFC2F7AB3CA00B40BA4 /* Factory */,
 				6F404E022F7D496200B40BA4 /* BaseControllers */,
 				6FBE2C8A2F62D71400B02B5A /* Projects */,

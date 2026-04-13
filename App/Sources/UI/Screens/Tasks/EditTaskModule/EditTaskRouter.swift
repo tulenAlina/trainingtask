@@ -9,8 +9,8 @@ protocol EditTaskRouterProtocol: AnyObject {
 final class EditTaskRouter: EditTaskRouterProtocol {
     weak var viewController: UIViewController?
 
-    let settings: SettingsManager
-    let server: Server
+    private let settings: SettingsManager
+    private let server: Server
     
     init(server: Server, settings: SettingsManager) {
         self.server = server

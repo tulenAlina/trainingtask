@@ -11,6 +11,11 @@ enum TaskStatus: String, CaseIterable {
     }
 }
 
+enum EditTaskAction {
+    case create((ProjectTask) -> Void)
+    case update((ProjectTask) -> Void)
+}
+
 struct ProjectTask {
     let id: UUID
     let createdAt: Date
