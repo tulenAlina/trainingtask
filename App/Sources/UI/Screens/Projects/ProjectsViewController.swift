@@ -41,7 +41,7 @@ final class ProjectsViewController: BaseListViewController<Project> {
     private func setupUI() {
         switch mode {
         case .list:
-            setupNavigationBar(navigationTitle: Localized.projects, rightButtonItem: .add, rightButtonAction: #selector(actionAddProject))
+            setupNavigationBar(navigationTitle: Localized.projects, rightButtonSystemItem: .add, rightButtonAction: #selector(actionAddProject))
         case .selection:
             setupNavigationBar(navigationTitle: Localized.projects)
         }

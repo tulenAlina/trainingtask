@@ -23,20 +23,12 @@ final class EditTaskViewController: BaseViewController {
     private let toolbar = UIToolbar()
     private let taskEditView = EditView()
     
-    private let taskNameLabel = UIFactory.createLabel(text: Localized.nameLabel)
-    private let projectLabel = UIFactory.createLabel(text: Localized.projectLabel)
-    private let workTimeLabel = UIFactory.createLabel(text: Localized.hoursLabel)
-    private let startDateLabel = UIFactory.createLabel(text: Localized.startDateLabel)
-    private let endDateLabel = UIFactory.createLabel(text: Localized.endDateLabel)
-    private let employeeLabel = UIFactory.createLabel(text: Localized.employeeLabel)
-    private let statusLabel = UIFactory.createLabel(text: Localized.statusLabel)
-    
-    private var taskNameTextField = UIFactory.createTextField(placeholder: Localized.taskNamePlaceholder)
-    private var projectTextField = UIFactory.createTextField(placeholder: Localized.selectedProjectNamePlaceholder)
-    private var workTimeTextField = UIFactory.createTextField(placeholder: Localized.workTimePlaceholder)
-    private var startDateTextField = UIFactory.createTextField(placeholder: Localized.startDatePlaceholder)
-    private var endDateTextField = UIFactory.createTextField(placeholder: Localized.endDatePlaceholder)
-    private var employeeTextField = UIFactory.createTextField(placeholder: Localized.employeeNamePlaceholder)
+    private var taskNameTextField = UIFactory.createDefaultTextField(placeholder: Localized.taskNamePlaceholder)
+    private var projectTextField = UIFactory.createDefaultTextField(placeholder: Localized.selectedProjectNamePlaceholder)
+    private var workTimeTextField = UIFactory.createDefaultTextField(placeholder: Localized.workTimePlaceholder)
+    private var startDateTextField = UIFactory.createDefaultTextField(placeholder: Localized.startDatePlaceholder)
+    private var endDateTextField = UIFactory.createDefaultTextField(placeholder: Localized.endDatePlaceholder)
+    private var employeeTextField = UIFactory.createDefaultTextField(placeholder: Localized.employeeNamePlaceholder)
     
     private let clearEmployeeButton: UIButton = {
         let button = UIButton(type: .system)
@@ -135,19 +127,19 @@ final class EditTaskViewController: BaseViewController {
     }
     
     private func setupFormRows() {
-        let taskNameRow = UIFactory.createFormRow(labelText: Localized.nameLabel, inputView: taskNameTextField)
-        let projectRow = UIFactory.createFormRow(labelText: Localized.projectLabel, inputView: projectTextField)
-        let workTimeRow = UIFactory.createFormRow(labelText: Localized.hoursLabel, inputView: workTimeTextField)
-        let startDateRow = UIFactory.createFormRow(labelText: Localized.startDateLabel, inputView: startDateTextField)
-        let endDateRow = UIFactory.createFormRow(labelText: Localized.endDateLabel, inputView: endDateTextField)
-        let statusDateRow = UIFactory.createFormRow(labelText: Localized.statusLabel, inputView: statusSegmentedControl)
+        let taskNameRow = UIFactory.createVerticalFieldGroup(labelText: Localized.nameLabel, inputView: taskNameTextField)
+        let projectRow = UIFactory.createVerticalFieldGroup(labelText: Localized.projectLabel, inputView: projectTextField)
+        let workTimeRow = UIFactory.createVerticalFieldGroup(labelText: Localized.hoursLabel, inputView: workTimeTextField)
+        let startDateRow = UIFactory.createVerticalFieldGroup(labelText: Localized.startDateLabel, inputView: startDateTextField)
+        let endDateRow = UIFactory.createVerticalFieldGroup(labelText: Localized.endDateLabel, inputView: endDateTextField)
+        let statusDateRow = UIFactory.createVerticalFieldGroup(labelText: Localized.statusLabel, inputView: statusSegmentedControl)
         
         let employeeHorizontalStack = UIStackView(arrangedSubviews: [employeeTextField, clearEmployeeButton])
         employeeHorizontalStack.axis = .horizontal
         employeeHorizontalStack.spacing = 5
         employeeHorizontalStack.translatesAutoresizingMaskIntoConstraints = false
         
-        let employeeRow = UIFactory.createFormRow(labelText: Localized.employeeLabel, inputView: employeeHorizontalStack)
+        let employeeRow = UIFactory.createVerticalFieldGroup(labelText: Localized.employeeLabel, inputView: employeeHorizontalStack)
         
         [taskNameRow, projectRow, workTimeRow, startDateRow, endDateRow, employeeRow, statusDateRow].forEach { row in
             taskEditView.addArrangedSubview(row)
@@ -171,12 +163,12 @@ final class EditTaskViewController: BaseViewController {
     
     @objc private func actionSaveTask() {
         
-        let startDateString = startDateTextField.text.orEmpty.trimmed
-        let endDateString = endDateTextField.text.orEmpty.trimmed
-        let workTime = workTimeTextField.text.orEmpty.withoutSpaces
+        let startDateString = startDateTextField.text.unwrappedOrEmpty.trimmed
+        let endDateString = endDateTextField.text.unwrappedOrEmpty.trimmed
+        let workTime = workTimeTextField.text.unwrappedOrEmpty.withoutSpaces
         
         presenter.didTapSaveButton (
-            taskNameString: taskNameTextField.text.orEmpty.trimmed,
+            taskNameString: taskNameTextField.text.unwrappedOrEmpty.trimmed,
             workTime: workTime,
             startDateString: startDateString,
             endDateString: endDateString,

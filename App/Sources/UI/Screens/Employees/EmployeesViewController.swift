@@ -41,7 +41,7 @@ final class EmployeesViewController: BaseListViewController<Employee> {
     private func setupUI() {
         switch mode {
         case .list:
-            setupNavigationBar(navigationTitle: Localized.employees, rightButtonItem: .add, rightButtonAction: #selector(actionAddEmployee))
+            setupNavigationBar(navigationTitle: Localized.employees, rightButtonSystemItem: .add, rightButtonAction: #selector(actionAddEmployee))
         case .selection:
             setupNavigationBar(navigationTitle: Localized.employees)
         }

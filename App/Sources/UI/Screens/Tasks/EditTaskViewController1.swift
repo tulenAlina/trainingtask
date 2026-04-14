@@ -13,20 +13,20 @@ final class EditTaskViewController1: BaseFormViewController {
     
     private let toolbar = UIToolbar()
     
-    private let taskNameLabel = UIFactory.createLabel(text: Localized.nameLabel)
-    private let projectLabel = UIFactory.createLabel(text: Localized.projectLabel)
-    private let workTimeLabel = UIFactory.createLabel(text: Localized.hoursLabel)
-    private let startDateLabel = UIFactory.createLabel(text: Localized.startDateLabel)
-    private let endDateLabel = UIFactory.createLabel(text: Localized.endDateLabel)
-    private let employeeLabel = UIFactory.createLabel(text: Localized.employeeLabel)
-    private let statusLabel = UIFactory.createLabel(text: Localized.statusLabel)
+    private let taskNameLabel = UIFactory.createDefaultLabel(text: Localized.nameLabel)
+    private let projectLabel = UIFactory.createDefaultLabel(text: Localized.projectLabel)
+    private let workTimeLabel = UIFactory.createDefaultLabel(text: Localized.hoursLabel)
+    private let startDateLabel = UIFactory.createDefaultLabel(text: Localized.startDateLabel)
+    private let endDateLabel = UIFactory.createDefaultLabel(text: Localized.endDateLabel)
+    private let employeeLabel = UIFactory.createDefaultLabel(text: Localized.employeeLabel)
+    private let statusLabel = UIFactory.createDefaultLabel(text: Localized.statusLabel)
     
-    private var taskNameTextField = UIFactory.createTextField(placeholder: Localized.taskNamePlaceholder)
-    private var projectTextField = UIFactory.createTextField(placeholder: Localized.selectedProjectNamePlaceholder)
-    private var workTimeTextField = UIFactory.createTextField(placeholder: Localized.workTimePlaceholder)
-    private var startDateTextField = UIFactory.createTextField(placeholder: Localized.startDatePlaceholder)
-    private var endDateTextField = UIFactory.createTextField(placeholder: Localized.endDatePlaceholder)
-    private var employeeTextField = UIFactory.createTextField(placeholder: Localized.employeeNamePlaceholder)
+    private var taskNameTextField = UIFactory.createDefaultTextField(placeholder: Localized.taskNamePlaceholder)
+    private var projectTextField = UIFactory.createDefaultTextField(placeholder: Localized.selectedProjectNamePlaceholder)
+    private var workTimeTextField = UIFactory.createDefaultTextField(placeholder: Localized.workTimePlaceholder)
+    private var startDateTextField = UIFactory.createDefaultTextField(placeholder: Localized.startDatePlaceholder)
+    private var endDateTextField = UIFactory.createDefaultTextField(placeholder: Localized.endDatePlaceholder)
+    private var employeeTextField = UIFactory.createDefaultTextField(placeholder: Localized.employeeNamePlaceholder)
    
     private var selectedProject: Project?
     private var selectedEmployee: Employee?
@@ -109,12 +109,12 @@ final class EditTaskViewController1: BaseFormViewController {
             empFio = emp.fullName
         }
         
-        let isTaskNameChanged = taskNameTextField.text.orEmpty.trimmed != task.taskName.trimmed
-        let isProjectChanged = projectTextField.text.orEmpty.trimmed != projectName
-        let isWorkTimeChanged = workTimeTextField.text.orEmpty.trimmed.withoutSpaces.cleanedInt != task.workTime
-        let isStartDateChanged = startDateTextField.text.orEmpty.trimmed != DateHelper.string(from: task.startDate)
-        let isEndDateChanged = endDateTextField.text.orEmpty.trimmed != DateHelper.string(from: task.endDate)
-        let isEmployeeChanged = employeeTextField.text.orEmpty.trimmed != empFio
+        let isTaskNameChanged = taskNameTextField.text.unwrappedOrEmpty.trimmed != task.taskName.trimmed
+        let isProjectChanged = projectTextField.text.unwrappedOrEmpty.trimmed != projectName
+        let isWorkTimeChanged = workTimeTextField.text.unwrappedOrEmpty.trimmed.withoutSpaces.cleanedInt != task.workTime
+        let isStartDateChanged = startDateTextField.text.unwrappedOrEmpty.trimmed != DateHelper.string(from: task.startDate)
+        let isEndDateChanged = endDateTextField.text.unwrappedOrEmpty.trimmed != DateHelper.string(from: task.endDate)
+        let isEmployeeChanged = employeeTextField.text.unwrappedOrEmpty.trimmed != empFio
         let isStatusChanged = statusSegmentedControl.selectedSegmentIndex != TaskStatus.allCases.firstIndex { $0 == task.status } ?? 0
         return isTaskNameChanged || isProjectChanged || isWorkTimeChanged || isStartDateChanged || isEndDateChanged || isEmployeeChanged || isStatusChanged
     }
@@ -177,19 +177,19 @@ final class EditTaskViewController1: BaseFormViewController {
     }
     
     private func setupFormRows() {
-        let taskNameRow = UIFactory.createFormRow(labelText: Localized.nameLabel, inputView: taskNameTextField)
-        let projectRow = UIFactory.createFormRow(labelText: Localized.projectLabel, inputView: projectTextField)
-        let workTimeRow = UIFactory.createFormRow(labelText: Localized.hoursLabel, inputView: workTimeTextField)
-        let startDateRow = UIFactory.createFormRow(labelText: Localized.startDateLabel, inputView: startDateTextField)
-        let endDateRow = UIFactory.createFormRow(labelText: Localized.endDateLabel, inputView: endDateTextField)
-        let statusDateRow = UIFactory.createFormRow(labelText: Localized.statusLabel, inputView: statusSegmentedControl)
+        let taskNameRow = UIFactory.createVerticalFieldGroup(labelText: Localized.nameLabel, inputView: taskNameTextField)
+        let projectRow = UIFactory.createVerticalFieldGroup(labelText: Localized.projectLabel, inputView: projectTextField)
+        let workTimeRow = UIFactory.createVerticalFieldGroup(labelText: Localized.hoursLabel, inputView: workTimeTextField)
+        let startDateRow = UIFactory.createVerticalFieldGroup(labelText: Localized.startDateLabel, inputView: startDateTextField)
+        let endDateRow = UIFactory.createVerticalFieldGroup(labelText: Localized.endDateLabel, inputView: endDateTextField)
+        let statusDateRow = UIFactory.createVerticalFieldGroup(labelText: Localized.statusLabel, inputView: statusSegmentedControl)
         
         let employeeHorizontalStack = UIStackView(arrangedSubviews: [employeeTextField, clearEmployeeButton])
         employeeHorizontalStack.axis = .horizontal
         employeeHorizontalStack.spacing = 5
         employeeHorizontalStack.translatesAutoresizingMaskIntoConstraints = false
         
-        let employeeRow = UIFactory.createFormRow(labelText: Localized.employeeLabel, inputView: employeeHorizontalStack)
+        let employeeRow = UIFactory.createVerticalFieldGroup(labelText: Localized.employeeLabel, inputView: employeeHorizontalStack)
         
         [taskNameRow, projectRow, workTimeRow, startDateRow, endDateRow, employeeRow, statusDateRow].forEach { row in
             stackView.addArrangedSubview(row)
@@ -234,11 +234,11 @@ final class EditTaskViewController1: BaseFormViewController {
     }
     
     private func updatedTask(_ task: ProjectTask, _ inputProject: Project, _ inputEmployee: Employee?) -> ProjectTask {
-        let newTaskName = taskNameTextField.text.orEmpty.trimmed
+        let newTaskName = taskNameTextField.text.unwrappedOrEmpty.trimmed
         let newProjectID = inputProject.id
-        let newWorkTime = workTimeTextField.text.orEmpty.withoutSpaces.cleanedInt
-        let newStartDate = DateHelper.date(from: startDateTextField.text.orEmpty) ?? Date()
-        let newEndDate = DateHelper.date(from: endDateTextField.text.orEmpty) ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()
+        let newWorkTime = workTimeTextField.text.unwrappedOrEmpty.withoutSpaces.cleanedInt
+        let newStartDate = DateHelper.date(from: startDateTextField.text.unwrappedOrEmpty) ?? Date()
+        let newEndDate = DateHelper.date(from: endDateTextField.text.unwrappedOrEmpty) ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date()
         let newStatus = TaskStatus.allCases[statusSegmentedControl.selectedSegmentIndex]
         let newEmployeeID = inputEmployee?.id
         
@@ -259,11 +259,11 @@ final class EditTaskViewController1: BaseFormViewController {
     
     private func buildTask(_ inputProject: Project, _ inputEmployee: Employee?) -> ProjectTask {
         return ProjectTask(
-            taskName: taskNameTextField.text.orEmpty.trimmed,
+            taskName: taskNameTextField.text.unwrappedOrEmpty.trimmed,
             projectID: inputProject.id,
-            workTime: workTimeTextField.text.orEmpty.withoutSpaces.cleanedInt,
-            startDate: DateHelper.date(from: startDateTextField.text.orEmpty) ?? Date(),
-            endDate: DateHelper.date(from: endDateTextField.text.orEmpty) ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date(),
+            workTime: workTimeTextField.text.unwrappedOrEmpty.withoutSpaces.cleanedInt,
+            startDate: DateHelper.date(from: startDateTextField.text.unwrappedOrEmpty) ?? Date(),
+            endDate: DateHelper.date(from: endDateTextField.text.unwrappedOrEmpty) ?? Calendar.current.date(byAdding: .day, value: settings.defaultDaysBetween, to: Date()) ?? Date(),
             status: TaskStatus.allCases[statusSegmentedControl.selectedSegmentIndex],
             employeeID: inputEmployee?.id
         )
@@ -305,8 +305,8 @@ final class EditTaskViewController1: BaseFormViewController {
     }
     
     private func validateDates() -> Bool{
-        guard let startDate = DateHelper.date(from: startDateTextField.text.orEmpty),
-              let endDate = DateHelper.date(from: endDateTextField.text.orEmpty)
+        guard let startDate = DateHelper.date(from: startDateTextField.text.unwrappedOrEmpty),
+              let endDate = DateHelper.date(from: endDateTextField.text.unwrappedOrEmpty)
         else {
             showAlert(Localized.invalidDate)
             return false
@@ -322,7 +322,7 @@ final class EditTaskViewController1: BaseFormViewController {
         let daysBetween = components.day ?? 0
         let maxHours = (daysBetween + 1) * 24
         
-        let workTime = workTimeTextField.text.orEmpty.trimmed.cleanedInt
+        let workTime = workTimeTextField.text.unwrappedOrEmpty.trimmed.cleanedInt
         
         guard workTime <= maxHours else {
             showAlert(Localized.hoursExceedPeriod)

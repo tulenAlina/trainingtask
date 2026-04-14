@@ -31,16 +31,16 @@ class BaseViewController: UIViewController {
         navigationRightButton?.isEnabled = true
     }
     
-    func setupNavigationBar(navigationTitle title: String, rightButtonTitle btnTitle: String? = nil, rightButtonItem btnItem: UIBarButtonItem.SystemItem? = nil, rightButtonAction action: Selector? = nil) {
+    func setupNavigationBar(navigationTitle title: String, rightButtonTitle: String? = nil, rightButtonSystemItem: UIBarButtonItem.SystemItem? = nil, rightButtonAction action: Selector? = nil) {
         
         self.title = title
         
-        if let btnTitle {
-            let button = UIBarButtonItem(title: btnTitle, style: .done, target: self, action: action)
+        if let rightButtonTitle {
+            let button = UIBarButtonItem(title: rightButtonTitle, style: .done, target: self, action: action)
             navigationItem.rightBarButtonItem = button
             navigationRightButton = button
-        } else if let btnItem {
-            let button = UIBarButtonItem(barButtonSystemItem: btnItem, target: self, action: action)
+        } else if let rightButtonSystemItem {
+            let button = UIBarButtonItem(barButtonSystemItem: rightButtonSystemItem, target: self, action: action)
             navigationItem.rightBarButtonItem = button
             navigationRightButton = button
         }

@@ -3,13 +3,13 @@ import UIKit
 final class SettingsViewController: BaseFormViewController {
     private let settings: SettingsManager
     
-    private let serverUrlLabel = UIFactory.createLabel(text: Localized.serverUrlLabel)
-    private let maxRecordsLabel = UIFactory.createLabel(text: Localized.maxRecordsLabel)
-    private let defaultDaysBetweenLabel = UIFactory.createLabel(text: Localized.defaultDaysBetweenLabel)
+    private let serverUrlLabel = UIFactory.createDefaultLabel(text: Localized.serverUrlLabel)
+    private let maxRecordsLabel = UIFactory.createDefaultLabel(text: Localized.maxRecordsLabel)
+    private let defaultDaysBetweenLabel = UIFactory.createDefaultLabel(text: Localized.defaultDaysBetweenLabel)
     
-    private var serverUrlTextField = UIFactory.createTextField(placeholder: Localized.serverUrlPlaceholder)
-    private var maxRecordsTextField = UIFactory.createTextField(placeholder: Localized.maxRecordsPlaceholder)
-    private var defaultDaysBetweenTextField = UIFactory.createTextField(placeholder: Localized.defaultDaysBetweenPlaceholder)
+    private var serverUrlTextField = UIFactory.createDefaultTextField(placeholder: Localized.serverUrlPlaceholder)
+    private var maxRecordsTextField = UIFactory.createDefaultTextField(placeholder: Localized.maxRecordsPlaceholder)
+    private var defaultDaysBetweenTextField = UIFactory.createDefaultTextField(placeholder: Localized.defaultDaysBetweenPlaceholder)
     
     init(settings: SettingsManager) {
         self.settings = settings
@@ -27,9 +27,9 @@ final class SettingsViewController: BaseFormViewController {
     }
     
     override func isFieldsChanged() -> Bool {
-        let urlChanged = serverUrlTextField.text.orEmpty.trimmed != settings.serverURL
-        let maxRecordsChanged = maxRecordsTextField.text.orEmpty.trimmed.withoutSpaces != String(settings.maxRecords)
-        let defaultDaysBetweenChanged = defaultDaysBetweenTextField.text.orEmpty.trimmed.withoutSpaces != String(settings.defaultDaysBetween)
+        let urlChanged = serverUrlTextField.text.unwrappedOrEmpty.trimmed != settings.serverURL
+        let maxRecordsChanged = maxRecordsTextField.text.unwrappedOrEmpty.trimmed.withoutSpaces != String(settings.maxRecords)
+        let defaultDaysBetweenChanged = defaultDaysBetweenTextField.text.unwrappedOrEmpty.trimmed.withoutSpaces != String(settings.defaultDaysBetween)
         
         return urlChanged || maxRecordsChanged || defaultDaysBetweenChanged
     }
@@ -61,9 +61,9 @@ final class SettingsViewController: BaseFormViewController {
     }
     
     private func configureFormRows() {
-        let serverUrlRow = UIFactory.createFormRow(labelText: Localized.serverUrlLabel, inputView: serverUrlTextField)
-        let maxRecordsRow = UIFactory.createFormRow(labelText: Localized.maxRecordsLabel, inputView: maxRecordsTextField)
-        let defaultDaysBetweenRow = UIFactory.createFormRow(labelText: Localized.defaultDaysBetweenLabel, inputView: defaultDaysBetweenTextField)
+        let serverUrlRow = UIFactory.createVerticalFieldGroup(labelText: Localized.serverUrlLabel, inputView: serverUrlTextField)
+        let maxRecordsRow = UIFactory.createVerticalFieldGroup(labelText: Localized.maxRecordsLabel, inputView: maxRecordsTextField)
+        let defaultDaysBetweenRow = UIFactory.createVerticalFieldGroup(labelText: Localized.defaultDaysBetweenLabel, inputView: defaultDaysBetweenTextField)
         
         [serverUrlRow, maxRecordsRow, defaultDaysBetweenRow].forEach { row in
             stackView.addArrangedSubview(row)
@@ -83,9 +83,9 @@ final class SettingsViewController: BaseFormViewController {
             return
         }
         
-        settings.serverURL = serverUrlTextField.text.orEmpty.trimmed
-        settings.maxRecords = maxRecordsTextField.text.orEmpty.withoutSpaces.cleanedInt
-        settings.defaultDaysBetween = defaultDaysBetweenTextField.text.orEmpty.withoutSpaces.cleanedInt
+        settings.serverURL = serverUrlTextField.text.unwrappedOrEmpty.trimmed
+        settings.maxRecords = maxRecordsTextField.text.unwrappedOrEmpty.withoutSpaces.cleanedInt
+        settings.defaultDaysBetween = defaultDaysBetweenTextField.text.unwrappedOrEmpty.withoutSpaces.cleanedInt
         self.navigationController?.popViewController(animated: true)
     }
 }

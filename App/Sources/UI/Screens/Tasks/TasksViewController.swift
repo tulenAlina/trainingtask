@@ -27,7 +27,7 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
     }
     
     private func setupUI() {
-        setupNavigationBar(navigationTitle: Localized.tasks, rightButtonItem: .add, rightButtonAction: #selector(actionAddTask))
+        setupNavigationBar(navigationTitle: Localized.tasks, rightButtonSystemItem: .add, rightButtonAction: #selector(actionAddTask))
         setupTableView()
         startLoading()
     }

@@ -1,7 +1,7 @@
 import UIKit
 
 enum UIFactory {
-    static func createTextField(text: String = "", placeholder: String) -> UITextField {
+    static func createDefaultTextField(text: String = "", placeholder: String) -> UITextField {
         let textField = UITextField()
         textField.text = text
         textField.placeholder = placeholder
@@ -13,7 +13,7 @@ enum UIFactory {
         return textField
     }
     
-    static func createLabel(text: String) -> UILabel {
+    static func createDefaultLabel(text: String) -> UILabel {
         let label = UILabel()
         label.text = text
         label.textColor = .secondaryLabel
@@ -34,8 +34,8 @@ enum UIFactory {
         return label
     }
     
-    static func createFormRow(labelText: String, inputView: UIView) -> UIStackView {
-        let label = createLabel(text: labelText)
+    static func createVerticalFieldGroup(labelText: String, inputView: UIView) -> UIStackView {
+        let label = createDefaultLabel(text: labelText)
         
         let stack = UIStackView(arrangedSubviews: [label, inputView])
         stack.axis = .vertical

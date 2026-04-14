@@ -7,10 +7,10 @@ final class EditEmployeeViewController: BaseFormViewController {
     private let server: Server
     private var employee: Employee?
     
-    private var firstNameTextField = UIFactory.createTextField(placeholder: Localized.firstNamePlaceholder)
-    private var lastNameTextField = UIFactory.createTextField(placeholder: Localized.lastNamePlaceholder)
-    private var surNameTextField = UIFactory.createTextField(placeholder: Localized.surnamePlaceholder)
-    private var positionTextField = UIFactory.createTextField(placeholder: Localized.positionPlaceholder)
+    private var firstNameTextField = UIFactory.createDefaultTextField(placeholder: Localized.firstNamePlaceholder)
+    private var lastNameTextField = UIFactory.createDefaultTextField(placeholder: Localized.lastNamePlaceholder)
+    private var surNameTextField = UIFactory.createDefaultTextField(placeholder: Localized.surnamePlaceholder)
+    private var positionTextField = UIFactory.createDefaultTextField(placeholder: Localized.positionPlaceholder)
     
     private init(employee: Employee? = nil, server: Server) {
         self.employee = employee
@@ -41,10 +41,10 @@ final class EditEmployeeViewController: BaseFormViewController {
     override func isFieldsChanged() -> Bool {
         guard let employee = employee else { return true }
         
-        let isFirstNameChanged = firstNameTextField.text.orEmpty.trimmed != employee.firstName.trimmed
-        let isLastNameChanged = lastNameTextField.text.orEmpty.trimmed != employee.lastName.trimmed
-        let isSurNameChanged = surNameTextField.text.orEmpty.trimmed != employee.surName.orEmpty.trimmed
-        let isPositionChanged = positionTextField.text.orEmpty.trimmed != employee.position.trimmed
+        let isFirstNameChanged = firstNameTextField.text.unwrappedOrEmpty.trimmed != employee.firstName.trimmed
+        let isLastNameChanged = lastNameTextField.text.unwrappedOrEmpty.trimmed != employee.lastName.trimmed
+        let isSurNameChanged = surNameTextField.text.unwrappedOrEmpty.trimmed != employee.surName.unwrappedOrEmpty.trimmed
+        let isPositionChanged = positionTextField.text.unwrappedOrEmpty.trimmed != employee.position.trimmed
         
         return isFirstNameChanged || isLastNameChanged || isSurNameChanged || isPositionChanged
     }
@@ -61,7 +61,7 @@ final class EditEmployeeViewController: BaseFormViewController {
         if let employee {
             firstNameTextField.text = (employee.firstName)
             lastNameTextField.text = (employee.lastName)
-            surNameTextField.text = (employee.surName.orEmpty)
+            surNameTextField.text = (employee.surName.unwrappedOrEmpty)
             positionTextField.text = (employee.position)
         }
         
@@ -76,10 +76,10 @@ final class EditEmployeeViewController: BaseFormViewController {
     }
     
     private func setupFormRows() {
-        let firstNameRow = UIFactory.createFormRow(labelText: Localized.firstNameLabel, inputView: firstNameTextField)
-        let lastNameRow = UIFactory.createFormRow(labelText: Localized.lastNameLabel, inputView: lastNameTextField)
-        let surNameRow = UIFactory.createFormRow(labelText: Localized.surnameLabel, inputView: surNameTextField)
-        let positionRow = UIFactory.createFormRow(labelText: Localized.positionLabel, inputView: positionTextField)
+        let firstNameRow = UIFactory.createVerticalFieldGroup(labelText: Localized.firstNameLabel, inputView: firstNameTextField)
+        let lastNameRow = UIFactory.createVerticalFieldGroup(labelText: Localized.lastNameLabel, inputView: lastNameTextField)
+        let surNameRow = UIFactory.createVerticalFieldGroup(labelText: Localized.surnameLabel, inputView: surNameTextField)
+        let positionRow = UIFactory.createVerticalFieldGroup(labelText: Localized.positionLabel, inputView: positionTextField)
         
         [firstNameRow, lastNameRow, surNameRow, positionRow].forEach { row in
             stackView.addArrangedSubview(row)
@@ -87,10 +87,10 @@ final class EditEmployeeViewController: BaseFormViewController {
     }
     
     private func updatedEmployee(_ employee: Employee) -> Employee {
-        let newFirstName = firstNameTextField.text.orEmpty.trimmed
-        let newLastName = lastNameTextField.text.orEmpty.trimmed
+        let newFirstName = firstNameTextField.text.unwrappedOrEmpty.trimmed
+        let newLastName = lastNameTextField.text.unwrappedOrEmpty.trimmed
         let newSurName = surNameTextField.text?.trimmed ?? nil
-        let newPosition = positionTextField.text.orEmpty.trimmed
+        let newPosition = positionTextField.text.unwrappedOrEmpty.trimmed
         
         let updatedEmployee = Employee(
             id: employee.id,
@@ -107,10 +107,10 @@ final class EditEmployeeViewController: BaseFormViewController {
     
     private func buildEmployee() -> Employee {
         return Employee(
-            firstName: firstNameTextField.text.orEmpty.trimmed,
-            lastName: lastNameTextField.text.orEmpty.trimmed,
+            firstName: firstNameTextField.text.unwrappedOrEmpty.trimmed,
+            lastName: lastNameTextField.text.unwrappedOrEmpty.trimmed,
             surName: surNameTextField.text?.trimmed ?? nil,
-            position: positionTextField.text.orEmpty.trimmed
+            position: positionTextField.text.unwrappedOrEmpty.trimmed
         )
     }
     

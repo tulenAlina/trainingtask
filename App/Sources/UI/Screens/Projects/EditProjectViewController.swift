@@ -7,8 +7,8 @@ final class EditProjectViewController: BaseFormViewController {
     private let server: Server
     private var project: Project?
     
-    private var nameTextField = UIFactory.createTextField(placeholder: Localized.projectNamePlaceholder)
-    private var descriptionTextField = UIFactory.createTextField(placeholder: Localized.projectDescriptionPlaceholder)
+    private var nameTextField = UIFactory.createDefaultTextField(placeholder: Localized.projectNamePlaceholder)
+    private var descriptionTextField = UIFactory.createDefaultTextField(placeholder: Localized.projectDescriptionPlaceholder)
     
     private init(project: Project? = nil, server: Server) {
         self.project = project
@@ -38,8 +38,8 @@ final class EditProjectViewController: BaseFormViewController {
     
     override func isFieldsChanged() -> Bool {
         guard let project = project else { return true }
-        let isNameChanged = (nameTextField.text.orEmpty.trimmed) != project.projectName.trimmed
-        let isDescriptionChanged = (descriptionTextField.text.orEmpty.trimmed) != project.description.trimmed
+        let isNameChanged = (nameTextField.text.unwrappedOrEmpty.trimmed) != project.projectName.trimmed
+        let isDescriptionChanged = (descriptionTextField.text.unwrappedOrEmpty.trimmed) != project.description.trimmed
         return isNameChanged || isDescriptionChanged
     }
     
@@ -65,8 +65,8 @@ final class EditProjectViewController: BaseFormViewController {
     }
     
     private func setupFormRows() {
-        let nameRow = UIFactory.createFormRow(labelText: Localized.nameLabel, inputView: nameTextField)
-        let descriptionRow = UIFactory.createFormRow(labelText: Localized.descriptionLabel, inputView: descriptionTextField)
+        let nameRow = UIFactory.createVerticalFieldGroup(labelText: Localized.nameLabel, inputView: nameTextField)
+        let descriptionRow = UIFactory.createVerticalFieldGroup(labelText: Localized.descriptionLabel, inputView: descriptionTextField)
         
         [nameRow, descriptionRow].forEach { row in
             stackView.addArrangedSubview(row)
@@ -74,8 +74,8 @@ final class EditProjectViewController: BaseFormViewController {
     }
     
     private func updatedProject(_ project: Project) -> Project {
-        let newProjectName = nameTextField.text.orEmpty.trimmed
-        let newDescription = descriptionTextField.text.orEmpty.trimmed
+        let newProjectName = nameTextField.text.unwrappedOrEmpty.trimmed
+        let newDescription = descriptionTextField.text.unwrappedOrEmpty.trimmed
         
         let updatedProject = Project(
             id: project.id,
@@ -90,8 +90,8 @@ final class EditProjectViewController: BaseFormViewController {
     
     private func buildProject() -> Project {
         return Project(
-            projectName: nameTextField.text.orEmpty.trimmed,
-            description: descriptionTextField.text.orEmpty.trimmed
+            projectName: nameTextField.text.unwrappedOrEmpty.trimmed,
+            description: descriptionTextField.text.unwrappedOrEmpty.trimmed
         )
     }
 

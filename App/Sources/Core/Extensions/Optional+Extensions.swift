@@ -1,5 +1,5 @@
 extension Optional where Wrapped == String {
-    var orEmpty: String {
+    var unwrappedOrEmpty: String {
         return self ?? ""
     }
 }
