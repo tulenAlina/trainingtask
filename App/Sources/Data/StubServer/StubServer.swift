@@ -6,123 +6,132 @@ class StubServer: Server {
         case itemNotFound
     }
     
-    private let sleeepTimeInNanoseconds: UInt64 = 1_000_000_000
-    private var projects: [UUID:Project] = [:]
-    private var employees: [UUID:Employee] = [:]
-    private var tasks: [UUID:ProjectTask] = [:]
+    private let sleepTimeInNanoseconds: UInt64 = 1_000_000_000
+    private var projects: [UUID: Project] = [:]
+    private var employees: [UUID: Employee] = [:]
+    private var tasks: [UUID: ProjectTask] = [:]
     
     init() {
         setupMockData()
     }
     
     // MARK: - Projects
+    
     func fetchProjects() async throws -> [Project] {
-        try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
+        try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
         var result = Array(projects.values)
         result = result.sorted { $0.createdAt > $1.createdAt }
+        
         return result
     }
     
     func createProject(_ project: Project) async throws -> Project {
-        try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
+        try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
         projects[project.id] = project
+        
         return project
     }
     
     func updateProject(_ project: Project) async throws -> Project {
-        try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
+        try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
         if projects[project.id] == nil {
             throw Errors.itemNotFound
         }
-        
         projects[project.id] = project
+        
         return project
     }
     
     func deleteProject(_ id: UUID) async throws {
-        try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
+        try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
         guard let project = projects[id] else {
             throw Errors.itemNotFound
         }
         removeAllTasks(of: project)
+        
         projects[id] = nil
     }
     
     // MARK: - Employees
+    
     func fetchEmployees() async throws -> [Employee] {
-        try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
+        try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
         var result = Array(employees.values)
         result = result.sorted { $0.createdAt > $1.createdAt }
+        
         return result
     }
     
     func createEmployee(_ employee: Employee) async throws -> Employee {
-        try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
+        try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
         employees[employee.id] = employee
+        
         return employee
     }
     
     func updateEmployee(_ employee: Employee) async throws -> Employee {
-        try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
+        try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
         if employees[employee.id] == nil {
             throw Errors.itemNotFound
         }
-        
         employees[employee.id] = employee
+        
         return employee
     }
     
     func deleteEmployee(_ id: UUID) async throws {
-        try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
+        try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
         guard let employee = employees[id] else {
             throw Errors.itemNotFound
         }
-        
         removeEmployeeFromTasks(employee: employee)
+        
         employees[id] = nil
     }
     
     // MARK: - Tasks
+    
     func fetchTasks(projectID: UUID?) async throws -> [ProjectTask] {
-        try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
+        try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
         var result = Array(tasks.values)
         if let projectID {
-            result = result.filter {$0.projectID == projectID}
+            result = result.filter { $0.projectID == projectID }
         }
         result = result.sorted { $0.createdAt > $1.createdAt }
+        
         return result
     }
     
     func createTask(_ task: ProjectTask) async throws -> ProjectTask {
-        try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
-        updateProjectTasks(projectID: task.projectID, taskID: task.id)
+        try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
+        addTaskToProject(projectID: task.projectID, taskID: task.id)
         tasks[task.id] = task
         
         guard let employeeID = task.employeeID else { return task }
-        updateEmployeeTasks(employeeID: employeeID, taskID: task.id)
+        addTaskToEmployee(employeeID: employeeID, taskID: task.id)
         
         return task
     }
     
     func updateTask(_ task: ProjectTask) async throws -> ProjectTask {
-        try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
+        try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
         guard let oldTask = tasks[task.id] else {
             throw Errors.itemNotFound
         }
         
-        updateTaskProjectAssignment(oldTask: oldTask, newTask: task)
-        updateTaskEmployeeAssignment(oldTask: oldTask, newTask: task)
-        
+        updateTaskProject(oldTask: oldTask, newTask: task)
+        updateTaskEmployee(oldTask: oldTask, newTask: task)
         tasks[task.id] = task
         
         return task
     }
     
     func deleteTask(_ id: UUID) async throws {
-        try await Task.sleep(nanoseconds: sleeepTimeInNanoseconds)
+        try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
         guard let task = tasks[id] else {
             throw Errors.itemNotFound
         }
+        
         removeTaskFromProject(projectID: task.projectID, taskID: id)
         
         if let employeeID = task.employeeID {
@@ -133,41 +142,41 @@ class StubServer: Server {
     }
     
     // MARK: - Helpers
-    private func updateProjectTasks(projectID: UUID, taskID: UUID) {
+    
+    private func addTaskToProject(projectID: UUID, taskID: UUID) {
         if let project = projects[projectID] {
             var newTasks = project.tasks
             newTasks.append(taskID)
             let newProject = makeProject(from: project, newTasks: newTasks)
-            
             projects[projectID] = newProject
         }
     }
     
-    private func updateEmployeeTasks(employeeID: UUID, taskID: UUID) {
+    private func addTaskToEmployee(employeeID: UUID, taskID: UUID) {
         if let employee = employees[employeeID] {
             var newTasks = employee.tasks
             newTasks.append(taskID)
             let newEmployee = makeEmployee(from: employee, newTasks: newTasks)
-            
             employees[employeeID] = newEmployee
         }
     }
     
-    private func updateTaskProjectAssignment(oldTask: ProjectTask, newTask: ProjectTask) {
+    private func updateTaskProject(oldTask: ProjectTask, newTask: ProjectTask) {
         guard oldTask.projectID != newTask.projectID else { return }
+        
         removeTaskFromProject(projectID: oldTask.projectID, taskID: oldTask.id)
-        updateProjectTasks(projectID: newTask.projectID, taskID: newTask.id)
+        addTaskToProject(projectID: newTask.projectID, taskID: newTask.id)
     }
     
-    private func updateTaskEmployeeAssignment(oldTask: ProjectTask, newTask: ProjectTask) {
+    private func updateTaskEmployee(oldTask: ProjectTask, newTask: ProjectTask) {
         guard oldTask.employeeID != newTask.employeeID else { return }
+        
         if let employeeID = oldTask.employeeID {
             removeTaskFromEmployee(employeeID: employeeID, taskID: oldTask.id)
         }
         
-        if let employeeID = newTask.employeeID
-        {
-            updateEmployeeTasks(employeeID: employeeID, taskID: newTask.id)
+        if let employeeID = newTask.employeeID {
+            addTaskToEmployee(employeeID: employeeID, taskID: newTask.id)
         }
     }
     
@@ -199,7 +208,7 @@ class StubServer: Server {
         for taskID in project.tasks {
             guard let task = tasks[taskID] else { continue }
             tasks[taskID] = nil
-        
+            
             guard let employeeID = task.employeeID else { continue }
             removeTaskFromEmployee(employeeID: employeeID, taskID: taskID)
         }
@@ -242,11 +251,20 @@ class StubServer: Server {
     }
     
     // MARK: - Data
+    
     private func setupMockData() {
         for i in 0..<10 {
             let project = Project(projectName: "Project\(i)", description: "Description\(i)")
             let employee = Employee(firstName: "Name\(i)", lastName: "LastName\(i)", surName: "Surname\(i)", position: "Position\(i)")
-            let task = ProjectTask(taskName: "Task\(i)", projectID: project.id, workTime: 5, startDate: Date(), endDate: Date(), status: .notStarted, employeeID: employee.id)
+            let task = ProjectTask(
+                taskName: "Task\(i)",
+                projectID: project.id,
+                workTime: 5,
+                startDate: Date(),
+                endDate: Date(),
+                status: .notStarted,
+                employeeID: employee.id
+            )
             
             var newProjectTasks = project.tasks
             newProjectTasks.append(task.id)
