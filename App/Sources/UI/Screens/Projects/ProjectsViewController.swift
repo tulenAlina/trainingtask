@@ -3,31 +3,29 @@ import UIKit
 final class ProjectsViewController: BaseListViewController<Project> {
     enum ProjectsDisplayMode {
         case list
-        case selection
+        case selection(onSelect: (Project) -> Void)
     }
     
     private let server: Server
     private let mode: ProjectsDisplayMode
-    private let onSelectProject: ((Project) -> Void)?
+    
+    private var onSelectProject: ((Project) -> Void)? {
+        if case .selection(let onSelect) = mode {
+            return onSelect
+        }
+        return nil
+    }
     
     override var emptyStateText: String {
         return Localized.noProjects
     }
     
-    init(server: Server, settings: SettingsManager) {
-        self.mode = .list
+    init(server: Server, settings: SettingsManager, mode: ProjectsDisplayMode = .list) {
         self.server = server
-        self.onSelectProject = nil
+        self.mode = mode
         super.init(settings: settings)
     }
-    
-    init(server: Server, settings: SettingsManager, onSelectProject:  @escaping (Project) -> Void) {
-        self.mode = .selection
-        self.server = server
-        self.onSelectProject = onSelectProject
-        super.init(settings: settings)
-    }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -38,14 +36,17 @@ final class ProjectsViewController: BaseListViewController<Project> {
         refreshData()
     }
     
-    private func setupUI() {
+    private func setupNavigationBar() {
         switch mode {
         case .list:
-            setupNavigationBar(navigationTitle: Localized.projects, rightButtonSystemItem: .add, rightButtonAction: #selector(actionAddProject))
+            super.setupNavigationBar(navigationTitle: Localized.projects, rightButtonSystemItem: .add, rightButtonAction: #selector(actionAddProject))
         case .selection:
-            setupNavigationBar(navigationTitle: Localized.projects)
+            super.setupNavigationBar(navigationTitle: Localized.projects)
         }
-        
+    }
+    
+    private func setupUI() {
+        setupNavigationBar()
         setupTableView()
         startLoading()
     }
@@ -79,7 +80,7 @@ final class ProjectsViewController: BaseListViewController<Project> {
         displayedItems = Array(allItems.prefix(settings.maxRecords))
     }
     
-    private func performDelete(at indexPath: IndexPath) {
+    private func deleteProject(at indexPath: IndexPath) {
         startLoading()
         let project = displayedItems[indexPath.row]
         
@@ -147,7 +148,7 @@ extension ProjectsViewController: UITableViewDelegate {
             let detailViewController = ProjectDetailViewController(indexPath: indexPath, project: project, server: server, settings: settings, onUpdate: { [weak self] project in
                 self?.updateItem(project) { $0.id == project.id }
             }, onDelete: { [weak self] indexPath in
-                self?.performDelete(at: indexPath)
+                self?.deleteProject(at: indexPath)
             })
             navigationController?.pushViewController(detailViewController, animated: true)
         case .selection:

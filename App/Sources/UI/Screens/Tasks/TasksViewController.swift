@@ -74,7 +74,7 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
         }
     }
     
-    private func performDelete(at indexPath: IndexPath) {
+    private func deleteTask(at indexPath: IndexPath) {
         startLoading()
         let task = displayedItems[indexPath.row]
 
@@ -189,7 +189,7 @@ extension TasksViewController: UITableViewDelegate {
             onUpdate: { [weak self] task in
                 self?.updateItem(task) { $0.id == task.id }
             }, onDelete: { [weak self] indexPath in
-                self?.performDelete(at: indexPath)
+                self?.deleteTask(at: indexPath)
             }
         )
         return detailViewController

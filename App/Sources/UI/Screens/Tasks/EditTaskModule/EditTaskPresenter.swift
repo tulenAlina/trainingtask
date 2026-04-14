@@ -227,7 +227,7 @@ extension EditTaskPresenter: EditTaskPresenterProtocol {
         loadData()
     }
     
-    private func performValidation(taskNameString: String, workTime: String, startDateString: String, endDateString: String, statusIndex: Int) -> Bool {
+    private func validateTask(taskNameString: String, workTime: String, startDateString: String, endDateString: String, statusIndex: Int) -> Bool {
         guard validateFields(taskNameString: taskNameString, projectName: selectedProject?.projectName, workTime: workTime) else {
             view?.showAlert(Localized.emptyFields)
             return false
@@ -237,7 +237,7 @@ extension EditTaskPresenter: EditTaskPresenterProtocol {
     }
     
     func didTapSaveButton(taskNameString: String, workTime: String, startDateString: String, endDateString: String, statusIndex: Int) {
-        guard let view, performValidation(taskNameString: taskNameString, workTime: workTime, startDateString: startDateString, endDateString: endDateString, statusIndex: statusIndex), let selectedProject else { return }
+        guard let view, validateTask(taskNameString: taskNameString, workTime: workTime, startDateString: startDateString, endDateString: endDateString, statusIndex: statusIndex), let selectedProject else { return }
         
         guard isFieldsChanged(taskNameString: taskNameString, projectID: selectedProject.id, workTime: workTime.cleanedInt, startDateString: startDateString, endDateString: endDateString, statusIndex: statusIndex, employeeID: selectedEmployee?.id
         ) else {

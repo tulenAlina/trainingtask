@@ -3,28 +3,26 @@ import UIKit
 final class EmployeesViewController: BaseListViewController<Employee> {
     enum EmployeesDisplayMode {
         case list
-        case selection
+        case selection(onSelect: (Employee) -> Void)
     }
     
     private let server: Server
     private let mode: EmployeesDisplayMode
-    private let onSelectEmployee: ((Employee) -> Void)?
+    
+    private var onSelectEmployee: ((Employee) -> Void)? {
+        if case .selection(let onSelect) = mode {
+            return onSelect
+        }
+        return nil
+    }
     
     override var emptyStateText: String {
         return Localized.noEmployees
     }
     
-    init(server: Server, settings: SettingsManager) {
-        self.mode = .list
+    init(server: Server, settings: SettingsManager, mode: EmployeesDisplayMode = .list) {
         self.server = server
-        self.onSelectEmployee = nil
-        super.init(settings: settings)
-    }
-    
-    init(server: Server, settings: SettingsManager, onSelectEmployee: @escaping (Employee) -> Void) {
-        self.mode = .selection
-        self.server = server
-        self.onSelectEmployee = onSelectEmployee
+        self.mode = mode
         super.init(settings: settings)
     }
     
@@ -38,14 +36,17 @@ final class EmployeesViewController: BaseListViewController<Employee> {
         refreshData()
     }
     
-    private func setupUI() {
+    private func setupNavigationBar() {
         switch mode {
         case .list:
-            setupNavigationBar(navigationTitle: Localized.employees, rightButtonSystemItem: .add, rightButtonAction: #selector(actionAddEmployee))
+            super.setupNavigationBar(navigationTitle: Localized.employees, rightButtonSystemItem: .add, rightButtonAction: #selector(actionAddEmployee))
         case .selection:
-            setupNavigationBar(navigationTitle: Localized.employees)
+            super.setupNavigationBar(navigationTitle: Localized.employees)
         }
-        
+    }
+    
+    private func setupUI() {
+        setupNavigationBar()
         setupTableView()
         startLoading()
     }
@@ -79,7 +80,7 @@ final class EmployeesViewController: BaseListViewController<Employee> {
         displayedItems = Array(allItems.prefix(settings.maxRecords))
     }
     
-    private func performDelete(at indexPath: IndexPath) {
+    private func deleteEmployee(at indexPath: IndexPath) {
         startLoading()
         let employee = displayedItems[indexPath.row]
 
@@ -146,7 +147,7 @@ extension EmployeesViewController: UITableViewDelegate {
             let detailViewController = EmployeeDetailViewController(indexPath: indexPath, employee: employee, server: server, onUpdate: { [weak self] employee in
                 self?.updateItem(employee) { $0.id == employee.id }
             }, onDelete: { [weak self] indexPath in
-                self?.performDelete(at: indexPath)
+                self?.deleteEmployee(at: indexPath)
             })
             navigationController?.pushViewController(detailViewController, animated: true)
         case .selection:

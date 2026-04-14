@@ -18,12 +18,12 @@ final class EditTaskRouter: EditTaskRouterProtocol {
     }
     
     func navigateToProjectSelection(completion: @escaping (Project) -> Void) {
-        let projectsViewController = ProjectsViewController(server: server, settings: settings, onSelectProject: completion) 
+        let projectsViewController = ProjectsViewController(server: server, settings: settings, mode: .selection(onSelect: completion)) 
         viewController?.navigationController?.pushViewController(projectsViewController, animated: true)
     }
     
     func navigateToEmployeeSelection(completion: @escaping (Employee) -> Void) {
-        let employeesViewController = EmployeesViewController(server: server, settings: settings, onSelectEmployee: completion) 
+        let employeesViewController = EmployeesViewController(server: server, settings: settings, mode: .selection(onSelect: completion))
         viewController?.navigationController?.pushViewController(employeesViewController, animated: true)
     }
     
