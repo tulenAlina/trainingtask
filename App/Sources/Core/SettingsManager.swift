@@ -1,7 +1,10 @@
 import Foundation
 
 final class SettingsManager {
-
+    enum Errors: Error {
+        case configFileUploadError
+    }
+    
     var serverURL: String {
         get {
             UserDefaults.standard.string(forKey: UserDefaultsKeys.serverURL).unwrappedOrEmpty
@@ -31,16 +34,15 @@ final class SettingsManager {
     
     private var config: [String: Any]?
     
-    init() {
-        loadConfig()
+    init() throws {
+        try loadConfig()
         registerDefaults()
     }
     
-    private func loadConfig() {
+    private func loadConfig() throws {
         guard let path = Bundle.main.path(forResource: "config", ofType: "plist"),
               let dict = NSDictionary(contentsOfFile: path) as? [String: Any] else {
-            config = [:]
-            return
+            throw Errors.configFileUploadError
         }
         config = dict
     }

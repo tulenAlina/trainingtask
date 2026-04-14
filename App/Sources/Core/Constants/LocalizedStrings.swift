@@ -92,6 +92,7 @@ enum Localized {
     static let hoursExceedPeriod = "hours_exceed_period".localized
     static let maxRecordsReached = "max_records_reached".localized
     static let emptyFields = "empty_fields".localized
+    static let configFileUploadError = "config_file_upload_error".localized
 
     static let deleteProject = "delete_project_confirmation".localized
     static let deleteTask = "delete_task_confirmation".localized

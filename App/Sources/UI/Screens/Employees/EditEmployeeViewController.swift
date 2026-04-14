@@ -28,7 +28,7 @@ final class EditEmployeeViewController: BaseFormViewController {
     }
     
     override func isFieldsChanged() -> Bool {
-        guard let employee = employee else { return true }
+        guard let employee else { return true }
         
         let isFirstNameChanged = firstNameTextField.text.unwrappedOrEmpty.trimmed != employee.firstName.trimmed
         let isLastNameChanged = lastNameTextField.text.unwrappedOrEmpty.trimmed != employee.lastName.trimmed

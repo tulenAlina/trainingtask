@@ -92,6 +92,7 @@
 "date_end_before_start" = "End date must be after start date";
 "hours_exceed_period" = "Work hours cannot exceed the number of hours in the selected period";
 "empty_fields" = "Please, fill in all required fields";
+"config_file_upload_error" = "Failed to load application settings. The app will now close";
 
 // Splash
 "version_prefix" = "Version";
