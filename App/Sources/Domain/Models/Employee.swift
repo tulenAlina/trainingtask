@@ -1,5 +1,10 @@
 import Foundation
 
+enum EditEmployeeAction {
+    case create((Employee) -> Void)
+    case update((Employee) -> Void)
+}
+
 struct Employee {
     let id: UUID
     let createdAt: Date

@@ -1,32 +1,21 @@
 import UIKit
 
 final class EditEmployeeViewController: BaseFormViewController {
-    var onUpdate: ((Employee) -> Void)?
-    var onCreate: ((Employee) -> Void)?
-    
     private let server: Server
     private var employee: Employee?
+    private let action: EditEmployeeAction
     
     private var firstNameTextField = UIFactory.createDefaultTextField(placeholder: Localized.firstNamePlaceholder)
     private var lastNameTextField = UIFactory.createDefaultTextField(placeholder: Localized.lastNamePlaceholder)
     private var surNameTextField = UIFactory.createDefaultTextField(placeholder: Localized.surnamePlaceholder)
     private var positionTextField = UIFactory.createDefaultTextField(placeholder: Localized.positionPlaceholder)
     
-    private init(employee: Employee? = nil, server: Server) {
+    init(employee: Employee? = nil, server: Server, action: EditEmployeeAction) {
         self.employee = employee
         self.server = server
+        self.action = action
         super.init(nibName: nil, bundle: nil)
         requiredFields = [firstNameTextField, lastNameTextField, positionTextField]
-    }
-    
-    convenience init(employee: Employee? = nil, server: Server, onUpdate: @escaping ((Employee) -> Void)) {
-        self.init(employee: employee, server: server)
-        self.onUpdate = onUpdate
-    }
-    
-    convenience init(employee: Employee? = nil, server: Server, onCreate: @escaping ((Employee) -> Void)) {
-        self.init(employee: employee, server: server)
-        self.onCreate = onCreate
     }
     
     required init?(coder: NSCoder) {
@@ -105,7 +94,7 @@ final class EditEmployeeViewController: BaseFormViewController {
         return updatedEmployee
     }
     
-    private func buildEmployee() -> Employee {
+    private func createEmployee() -> Employee {
         return Employee(
             firstName: firstNameTextField.text.unwrappedOrEmpty.trimmed,
             lastName: lastNameTextField.text.unwrappedOrEmpty.trimmed,
@@ -119,7 +108,7 @@ final class EditEmployeeViewController: BaseFormViewController {
             let updatedEmployee = updatedEmployee(employee)
             return try await server.updateEmployee(updatedEmployee)
         } else {
-            let createdEmployee = buildEmployee()
+            let createdEmployee = createEmployee()
             return try await server.createEmployee(createdEmployee)
             
         }
@@ -137,10 +126,11 @@ final class EditEmployeeViewController: BaseFormViewController {
             do {
                 let savedEmployee = try await saveEmployee()
                 await MainActor.run {
-                    if employee != nil {
-                        onUpdate?(savedEmployee)
-                    } else {
-                        onCreate?(savedEmployee)
+                    switch self.action {
+                    case .create(let onCreate):
+                        onCreate(savedEmployee)
+                    case .update(let onUpdate):
+                        onUpdate(savedEmployee)
                     }
                     stopLoading()
                     self.navigationController?.popViewController(animated: true)

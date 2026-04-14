@@ -89,11 +89,11 @@ final class EmployeeDetailViewController: BaseViewController {
     }
     
     @objc private func actionChangeEmployee() {
-        let editViewController = EditEmployeeViewController(employee: employee, server: server, onUpdate: {[weak self] employee in
+        let editViewController = EditEmployeeViewController(employee: employee, server: server, action: .update({[weak self] employee in
             self?.employee = employee
             self?.onUpdate(employee)
             self?.updateLabels()
-        })
+        }))
         navigationController?.pushViewController(editViewController, animated: true)
     }
     

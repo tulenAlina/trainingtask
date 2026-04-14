@@ -118,9 +118,9 @@ final class ProjectsViewController: BaseListViewController<Project> {
     }
     
     @objc private func actionAddProject() {
-        let editViewController = EditProjectViewController(server: server, onCreate: { [weak self] project in
+        let editViewController = EditProjectViewController(server: server, action: .create({ [weak self] project in
             self?.addItem(project)
-        })
+        }))
         navigationController?.pushViewController(editViewController, animated: true)
     }
 }

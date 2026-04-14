@@ -98,11 +98,11 @@ final class ProjectDetailViewController: BaseViewController {
     }
         
     @objc private func actionChangeProject() {
-        let editViewController = EditProjectViewController(project: project, server: server, onUpdate: {[weak self] project in
+        let editViewController = EditProjectViewController(project: project, server: server, action: .update({[weak self] project in
             self?.project = project
             self?.onUpdate(project)
             self?.updateLabels()
-        })
+        }))
         navigationController?.pushViewController(editViewController, animated: true)
     }
     

@@ -1,5 +1,10 @@
 import Foundation
 
+enum EditProjectAction {
+    case create((Project) -> Void)
+    case update((Project) -> Void)
+}
+
 struct Project {
     let id: UUID
     let createdAt: Date

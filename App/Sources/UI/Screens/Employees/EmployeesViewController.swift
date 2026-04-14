@@ -118,9 +118,9 @@ final class EmployeesViewController: BaseListViewController<Employee> {
     }
     
     @objc private func actionAddEmployee() {
-        let editViewController = EditEmployeeViewController(server: server, onCreate: { [weak self] employee in
+        let editViewController = EditEmployeeViewController(server: server, action: .create( { [weak self] employee in
             self?.addItem(employee)
-        })
+        }))
         navigationController?.pushViewController(editViewController, animated: true)
     }
 }

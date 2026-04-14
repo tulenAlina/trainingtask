@@ -1,30 +1,19 @@
 import UIKit
 
 final class EditProjectViewController: BaseFormViewController {
-    var onUpdate: ((Project) -> Void)?
-    var onCreate: ((Project) -> Void)?
-    
     private let server: Server
     private var project: Project?
+    private let action: EditProjectAction
     
     private var nameTextField = UIFactory.createDefaultTextField(placeholder: Localized.projectNamePlaceholder)
     private var descriptionTextField = UIFactory.createDefaultTextField(placeholder: Localized.projectDescriptionPlaceholder)
     
-    private init(project: Project? = nil, server: Server) {
+    init(project: Project? = nil, server: Server, action: EditProjectAction) {
         self.project = project
         self.server = server
+        self.action = action
         super.init(nibName: nil, bundle: nil)
         requiredFields = [nameTextField, descriptionTextField]
-    }
-    
-    convenience init(project: Project? = nil, server: Server, onUpdate: @escaping ((Project) -> Void)) {
-        self.init(project: project, server: server)
-        self.onUpdate = onUpdate
-    }
-    
-    convenience init(project: Project? = nil, server: Server, onCreate: @escaping ((Project) -> Void)) {
-        self.init(project: project, server: server)
-        self.onCreate = onCreate
     }
     
     required init?(coder: NSCoder) {
@@ -88,7 +77,7 @@ final class EditProjectViewController: BaseFormViewController {
         return updatedProject
     }
     
-    private func buildProject() -> Project {
+    private func createProject() -> Project {
         return Project(
             projectName: nameTextField.text.unwrappedOrEmpty.trimmed,
             description: descriptionTextField.text.unwrappedOrEmpty.trimmed
@@ -100,7 +89,7 @@ final class EditProjectViewController: BaseFormViewController {
             let updatedProject = updatedProject(project)
             return try await server.updateProject(updatedProject)
         } else {
-            let createdProject = buildProject()
+            let createdProject = createProject()
             return try await server.createProject(createdProject)
             
         }
@@ -118,10 +107,11 @@ final class EditProjectViewController: BaseFormViewController {
             do {
                 let savedProject = try await saveProject()
                 await MainActor.run {
-                    if project != nil {
-                        onUpdate?(savedProject)
-                    } else {
-                        onCreate?(savedProject)
+                    switch self.action {
+                    case .create(let onCreate):
+                        onCreate(savedProject)
+                    case .update(let onUpdate):
+                        onUpdate(savedProject)
                     }
                     stopLoading()
                     self.navigationController?.popViewController(animated: true)
