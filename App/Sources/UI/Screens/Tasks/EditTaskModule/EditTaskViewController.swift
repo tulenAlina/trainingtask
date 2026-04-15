@@ -59,6 +59,14 @@ final class EditTaskViewController: BaseViewController {
         return sc
     }()
     
+    private lazy var employeeHorizontalStack: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [employeeTextField, clearEmployeeButton])
+        stack.axis = .horizontal
+        stack.spacing = 5
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+    
     init(presenter: EditTaskPresenterProtocol) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
@@ -82,7 +90,6 @@ final class EditTaskViewController: BaseViewController {
     private func setupUI() {
         setupEditView()
         setupTextFields()
-        setupFormRows()
         setupClearEmployeeButton()
         setupToolbar()
     }
@@ -98,7 +105,17 @@ final class EditTaskViewController: BaseViewController {
             taskEditView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         
-        taskEditView.setupForm()
+        let formRows: [(String, UIView)] = [
+            (labelText: Localized.nameLabel, inputView: taskNameTextField),
+            (labelText: Localized.projectLabel, inputView: projectTextField),
+            (labelText: Localized.hoursLabel, inputView: workTimeTextField),
+            (labelText: Localized.startDateLabel, inputView: startDateTextField),
+            (labelText: Localized.endDateLabel, inputView: endDateTextField),
+            (labelText: Localized.statusLabel, inputView: statusSegmentedControl),
+            (labelText: Localized.employeeLabel, inputView: employeeHorizontalStack)
+        ]
+        
+        taskEditView.setupForm(rows: formRows)
     }
     
     private func setupTextFields() {        
@@ -123,26 +140,6 @@ final class EditTaskViewController: BaseViewController {
         workTimeTextField.addTarget(taskEditView, action: #selector(taskEditView.textFieldDidChange), for: .editingChanged)
     }
     
-    private func setupFormRows() {
-        let taskNameRow = UIFactory.createVerticalFieldGroup(labelText: Localized.nameLabel, inputView: taskNameTextField)
-        let projectRow = UIFactory.createVerticalFieldGroup(labelText: Localized.projectLabel, inputView: projectTextField)
-        let workTimeRow = UIFactory.createVerticalFieldGroup(labelText: Localized.hoursLabel, inputView: workTimeTextField)
-        let startDateRow = UIFactory.createVerticalFieldGroup(labelText: Localized.startDateLabel, inputView: startDateTextField)
-        let endDateRow = UIFactory.createVerticalFieldGroup(labelText: Localized.endDateLabel, inputView: endDateTextField)
-        let statusDateRow = UIFactory.createVerticalFieldGroup(labelText: Localized.statusLabel, inputView: statusSegmentedControl)
-        
-        let employeeHorizontalStack = UIStackView(arrangedSubviews: [employeeTextField, clearEmployeeButton])
-        employeeHorizontalStack.axis = .horizontal
-        employeeHorizontalStack.spacing = 5
-        employeeHorizontalStack.translatesAutoresizingMaskIntoConstraints = false
-        
-        let employeeRow = UIFactory.createVerticalFieldGroup(labelText: Localized.employeeLabel, inputView: employeeHorizontalStack)
-        
-        [taskNameRow, projectRow, workTimeRow, startDateRow, endDateRow, employeeRow, statusDateRow].forEach { row in
-            taskEditView.addArrangedSubview(row)
-        }
-    }
-    
     private func setupClearEmployeeButton() {
         clearEmployeeButton.addTarget(self, action: #selector(actionClearEmployee), for: .touchUpInside)
         clearEmployeeButton.widthAnchor.constraint(equalToConstant: 70).isActive = true
@@ -160,12 +157,13 @@ final class EditTaskViewController: BaseViewController {
     
     @objc private func actionSaveTask() {
         
+        let taskNameString = taskNameTextField.text.unwrappedOrEmpty.trimmed
         let startDateString = startDateTextField.text.unwrappedOrEmpty.trimmed
         let endDateString = endDateTextField.text.unwrappedOrEmpty.trimmed
         let workTime = workTimeTextField.text.unwrappedOrEmpty.withoutSpaces
         
         presenter.didTapSaveButton (
-            taskNameString: taskNameTextField.text.unwrappedOrEmpty.trimmed,
+            taskNameString: taskNameString,
             workTime: workTime,
             startDateString: startDateString,
             endDateString: endDateString,

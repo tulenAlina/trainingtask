@@ -205,41 +205,18 @@ final class TaskDetailViewController: BaseViewController {
         }
     }
     
-    private func reloadTaskDetails() async {
-        do {
-            async let projects = server.fetchProjects()
-            async let employees = server.fetchEmployees()
-            
-            let allProjects = try await projects
-            let allEmployees = try await employees
-            
-            await MainActor.run {
-                project = allProjects.first { $0.id == task.projectID }
-                employee = allEmployees.first { $0.id == task.employeeID }
-                updateLabels()
-                stopLoading()
-            }
-        } catch {
-            await MainActor.run {
-                stopLoading()
-                showAlert(Localized.loadFailed)
-            }
-        }
-    }
-    
     @objc private func actionDeleteTask() {
         onDelete(indexPath)
         navigationController?.popViewController(animated: true)
     }
     
     @objc private func actionChangeTask() {
-        let onUpdate = {[weak self] task in
+        let onUpdate = {[weak self] task, project, employee in
             self?.task = task
+            self?.project = project
+            self?.employee = employee
             self?.onUpdate(task)
-            self?.startLoading()
-            Task {
-                await self?.reloadTaskDetails()
-            }
+            self?.updateLabels()
         }
         
         let editModuleViewController = EditTaskBuilder.build(

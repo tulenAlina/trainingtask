@@ -214,7 +214,7 @@ extension EditTaskPresenter: EditTaskPresenterProtocol {
                     case .create(let onCreate):
                         onCreate(savedTask)
                     case .update(let onUpdate):
-                        onUpdate(savedTask)
+                        onUpdate(savedTask, project, employee)
                                         }
                     view.stopLoading()
                     router.close()

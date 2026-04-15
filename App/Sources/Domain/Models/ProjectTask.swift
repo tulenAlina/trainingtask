@@ -13,7 +13,7 @@ enum TaskStatus: String, CaseIterable {
 
 enum EditTaskAction {
     case create((ProjectTask) -> Void)
-    case update((ProjectTask) -> Void)
+    case update((ProjectTask, Project?, Employee?) -> Void)
 }
 
 struct ProjectTask {

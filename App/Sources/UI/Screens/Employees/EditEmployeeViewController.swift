@@ -1,6 +1,6 @@
 import UIKit
 
-final class EditEmployeeViewController: BaseFormViewController {
+final class EditEmployeeViewController: BaseViewController {
     private let server: Server
     private var employee: Employee?
     private let action: EditEmployeeAction
@@ -10,12 +10,15 @@ final class EditEmployeeViewController: BaseFormViewController {
     private var surNameTextField = UIFactory.createDefaultTextField(placeholder: Localized.surnamePlaceholder)
     private var positionTextField = UIFactory.createDefaultTextField(placeholder: Localized.positionPlaceholder)
     
+    private let employeeEditView = EditView()
+    private let requiredFields: [UITextField]
+    
     init(employee: Employee? = nil, server: Server, action: EditEmployeeAction) {
         self.employee = employee
         self.server = server
         self.action = action
-        super.init(nibName: nil, bundle: nil)
         requiredFields = [firstNameTextField, lastNameTextField, positionTextField]
+        super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
@@ -27,23 +30,32 @@ final class EditEmployeeViewController: BaseFormViewController {
         setupUI()
     }
     
-    override func isFieldsChanged() -> Bool {
-        guard let employee else { return true }
-        
-        let isFirstNameChanged = firstNameTextField.text.unwrappedOrEmpty.trimmed != employee.firstName.trimmed
-        let isLastNameChanged = lastNameTextField.text.unwrappedOrEmpty.trimmed != employee.lastName.trimmed
-        let isSurNameChanged = surNameTextField.text.unwrappedOrEmpty.trimmed != employee.surName.unwrappedOrEmpty.trimmed
-        let isPositionChanged = positionTextField.text.unwrappedOrEmpty.trimmed != employee.position.trimmed
-        
-        return isFirstNameChanged || isLastNameChanged || isSurNameChanged || isPositionChanged
-    }
-    
     private func setupUI() {
         let title = (employee != nil) ? Localized.editEmployee : Localized.addEmployee
         setupNavigationBar(navigationTitle: title, rightButtonTitle: Localized.save, rightButtonAction: #selector(actionSaveEmployee))
+        setupEditView()
         setupTextFields()
-        setupFormRows()
-        setupForm()
+    }
+    
+    private func setupEditView() {
+        view.addSubview(employeeEditView)
+        employeeEditView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            employeeEditView.topAnchor.constraint(equalTo: view.topAnchor),
+            employeeEditView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            employeeEditView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            employeeEditView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        
+        let formRows: [(String, UIView)] = [
+            (labelText: Localized.firstNameLabel, inputView: firstNameTextField),
+            (labelText: Localized.lastNameLabel, inputView: lastNameTextField),
+            (labelText: Localized.surnameLabel, inputView: surNameTextField),
+            (labelText: Localized.positionLabel, inputView: positionTextField)
+        ]
+        
+        employeeEditView.setupForm(rows: formRows)
     }
     
     private func setupTextFields() {
@@ -54,9 +66,9 @@ final class EditEmployeeViewController: BaseFormViewController {
             positionTextField.text = (employee.position)
         }
         
-        firstNameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        lastNameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        positionTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        firstNameTextField.addTarget(employeeEditView, action: #selector(employeeEditView.textFieldDidChange), for: .editingChanged)
+        lastNameTextField.addTarget(employeeEditView, action: #selector(employeeEditView.textFieldDidChange), for: .editingChanged)
+        positionTextField.addTarget(employeeEditView, action: #selector(employeeEditView.textFieldDidChange), for: .editingChanged)
         
         firstNameTextField.delegate = self
         lastNameTextField.delegate = self
@@ -64,15 +76,40 @@ final class EditEmployeeViewController: BaseFormViewController {
         positionTextField.delegate = self
     }
     
-    private func setupFormRows() {
-        let firstNameRow = UIFactory.createVerticalFieldGroup(labelText: Localized.firstNameLabel, inputView: firstNameTextField)
-        let lastNameRow = UIFactory.createVerticalFieldGroup(labelText: Localized.lastNameLabel, inputView: lastNameTextField)
-        let surNameRow = UIFactory.createVerticalFieldGroup(labelText: Localized.surnameLabel, inputView: surNameTextField)
-        let positionRow = UIFactory.createVerticalFieldGroup(labelText: Localized.positionLabel, inputView: positionTextField)
+    private func isFieldsChanged() -> Bool {
+        guard let employee else { return true }
         
-        [firstNameRow, lastNameRow, surNameRow, positionRow].forEach { row in
-            stackView.addArrangedSubview(row)
+        let isFirstNameChanged = firstNameTextField.text.unwrappedOrEmpty.trimmed != employee.firstName.trimmed
+        let isLastNameChanged = lastNameTextField.text.unwrappedOrEmpty.trimmed != employee.lastName.trimmed
+        let isSurNameChanged = surNameTextField.text.unwrappedOrEmpty.trimmed != employee.surName.unwrappedOrEmpty.trimmed
+        let isPositionChanged = positionTextField.text.unwrappedOrEmpty.trimmed != employee.position.trimmed
+        
+        return isFirstNameChanged || isLastNameChanged || isSurNameChanged || isPositionChanged
+    }
+    
+    private func validateFields(firstNameString: String, lastNameString: String, positionString: String) -> Bool {
+        var fieldsValidity: [Bool] = []
+        var isValid = true
+        
+        for text in [firstNameString, lastNameString, positionString]
+        {
+            if text.isBlank == true {
+                fieldsValidity.append(false)
+                isValid = false
+            } else {
+                fieldsValidity.append(true)
+            }
         }
+        applyValidationResults(fieldsValidity)
+        return isValid
+    }
+    
+    private func applyValidationResults(_ fieldsValidity: [Bool]) {
+        var result: [(UITextField, Bool)] = []
+        for i in 0..<requiredFields.count {
+            result.append((requiredFields[i], fieldsValidity[i]))
+        }
+        employeeEditView.applyValidationResults(result)
     }
     
     private func updatedEmployee(_ employee: Employee) -> Employee {
@@ -115,7 +152,14 @@ final class EditEmployeeViewController: BaseFormViewController {
     }
     
     @objc private func actionSaveEmployee() {
-        guard validateFields() else { return }
+        guard validateFields(
+            firstNameString: firstNameTextField.text.unwrappedOrEmpty.trimmed,
+            lastNameString: lastNameTextField.text.unwrappedOrEmpty.trimmed,
+            positionString: positionTextField.text.unwrappedOrEmpty.trimmed
+        ) else {
+            showAlert(Localized.emptyFields)
+            return
+        }
         guard isFieldsChanged() else {
             navigationController?.popViewController(animated: true)
             return

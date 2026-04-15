@@ -1,6 +1,6 @@
 import UIKit
 
-final class EditProjectViewController: BaseFormViewController {
+final class EditProjectViewController: BaseViewController {
     private let server: Server
     private var project: Project?
     private let action: EditProjectAction
@@ -8,12 +8,15 @@ final class EditProjectViewController: BaseFormViewController {
     private var nameTextField = UIFactory.createDefaultTextField(placeholder: Localized.projectNamePlaceholder)
     private var descriptionTextField = UIFactory.createDefaultTextField(placeholder: Localized.projectDescriptionPlaceholder)
     
+    private let projectEditView = EditView()
+    private let requiredFields: [UITextField]
+    
     init(project: Project? = nil, server: Server, action: EditProjectAction) {
         self.project = project
         self.server = server
         self.action = action
-        super.init(nibName: nil, bundle: nil)
         requiredFields = [nameTextField, descriptionTextField]
+        super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
@@ -25,20 +28,12 @@ final class EditProjectViewController: BaseFormViewController {
         setupUI()
     }
     
-    override func isFieldsChanged() -> Bool {
-        guard let project else { return true }
-        let isNameChanged = (nameTextField.text.unwrappedOrEmpty.trimmed) != project.projectName.trimmed
-        let isDescriptionChanged = (descriptionTextField.text.unwrappedOrEmpty.trimmed) != project.description.trimmed
-        return isNameChanged || isDescriptionChanged
-    }
-    
     private func setupUI() {
         let title = (project != nil) ? Localized.editProject : Localized.addProject
         setupNavigationBar(navigationTitle: title, rightButtonTitle: Localized.save, rightButtonAction: #selector(actionSaveProject))
         
         setupTextFields()
-        setupFormRows()
-        setupForm()
+        setupEditView()
     }
     
     private func setupTextFields() {
@@ -46,20 +41,62 @@ final class EditProjectViewController: BaseFormViewController {
             nameTextField.text = "\(project.projectName)"
             descriptionTextField.text = "\(project.description)"
         }
-        nameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        descriptionTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        nameTextField.addTarget(projectEditView, action: #selector(projectEditView.textFieldDidChange), for: .editingChanged)
+        descriptionTextField.addTarget(projectEditView, action: #selector(projectEditView.textFieldDidChange), for: .editingChanged)
         
         nameTextField.delegate = self
         descriptionTextField.delegate = self
     }
     
-    private func setupFormRows() {
-        let nameRow = UIFactory.createVerticalFieldGroup(labelText: Localized.nameLabel, inputView: nameTextField)
-        let descriptionRow = UIFactory.createVerticalFieldGroup(labelText: Localized.descriptionLabel, inputView: descriptionTextField)
+    private func setupEditView() {
+        view.addSubview(projectEditView)
+        projectEditView.translatesAutoresizingMaskIntoConstraints = false
         
-        [nameRow, descriptionRow].forEach { row in
-            stackView.addArrangedSubview(row)
+        NSLayoutConstraint.activate([
+            projectEditView.topAnchor.constraint(equalTo: view.topAnchor),
+            projectEditView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            projectEditView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            projectEditView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        
+        let formRows: [(String, UIView)] = [
+            (labelText: Localized.nameLabel, inputView: nameTextField),
+            (labelText: Localized.descriptionLabel, inputView: descriptionTextField)
+        ]
+        
+        projectEditView.setupForm(rows: formRows)
+    }
+
+    private func isFieldsChanged() -> Bool {
+        guard let project else { return true }
+        let isNameChanged = (nameTextField.text.unwrappedOrEmpty.trimmed) != project.projectName.trimmed
+        let isDescriptionChanged = (descriptionTextField.text.unwrappedOrEmpty.trimmed) != project.description.trimmed
+        return isNameChanged || isDescriptionChanged
+    }
+    
+    private func validateFields(nameString: String, descriptionString: String) -> Bool {
+        var fieldsValidity: [Bool] = []
+        var isValid = true
+        
+        for text in [nameString, descriptionString]
+        {
+            if text.isBlank == true {
+                fieldsValidity.append(false)
+                isValid = false
+            } else {
+                fieldsValidity.append(true)
+            }
         }
+        applyValidationResults(fieldsValidity)
+        return isValid
+    }
+    
+    private func applyValidationResults(_ fieldsValidity: [Bool]) {
+        var result: [(UITextField, Bool)] = []
+        for i in 0..<requiredFields.count {
+            result.append((requiredFields[i], fieldsValidity[i]))
+        }
+        projectEditView.applyValidationResults(result)
     }
     
     private func updatedProject(_ project: Project) -> Project {
@@ -96,7 +133,13 @@ final class EditProjectViewController: BaseFormViewController {
     }
     
     @objc private func actionSaveProject() {
-        guard validateFields() else { return }
+        guard validateFields(
+            nameString: nameTextField.text.unwrappedOrEmpty.trimmed,
+            descriptionString: descriptionTextField.text.unwrappedOrEmpty.trimmed,
+        ) else {
+            showAlert(Localized.emptyFields)
+            return
+        }
         guard isFieldsChanged() else {
             navigationController?.popViewController(animated: true)
             return

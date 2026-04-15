@@ -1,6 +1,6 @@
 import UIKit
 
-final class SettingsViewController: BaseFormViewController {
+final class SettingsViewController: BaseViewController {
     private let settings: SettingsManager
     
     private let serverUrlLabel = UIFactory.createDefaultLabel(text: Localized.serverUrlLabel)
@@ -11,10 +11,13 @@ final class SettingsViewController: BaseFormViewController {
     private var maxRecordsTextField = UIFactory.createDefaultTextField(placeholder: Localized.maxRecordsPlaceholder)
     private var defaultDaysBetweenTextField = UIFactory.createDefaultTextField(placeholder: Localized.defaultDaysBetweenPlaceholder)
     
+    private let settingsEditView = EditView()
+    private let requiredFields: [UITextField]
+    
     init(settings: SettingsManager) {
         self.settings = settings
-        super.init(nibName: nil, bundle: nil)
         requiredFields = [serverUrlTextField, maxRecordsTextField, defaultDaysBetweenTextField]
+        super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
@@ -26,48 +29,49 @@ final class SettingsViewController: BaseFormViewController {
         setupUI()
     }
     
-    override func isFieldsChanged() -> Bool {
-        let urlChanged = serverUrlTextField.text.unwrappedOrEmpty.trimmed != settings.serverURL
-        let maxRecordsChanged = maxRecordsTextField.text.unwrappedOrEmpty.trimmed.withoutSpaces != String(settings.maxRecords)
-        let defaultDaysBetweenChanged = defaultDaysBetweenTextField.text.unwrappedOrEmpty.trimmed.withoutSpaces != String(settings.defaultDaysBetween)
-        
-        return urlChanged || maxRecordsChanged || defaultDaysBetweenChanged
-    }
-    
     private func setupUI() {
         setupNavigationBar(navigationTitle: Localized.settings, rightButtonTitle: Localized.save, rightButtonAction: #selector(actionSaveSettings))
-        configureTextFields()
-        configureFormRows()
-        setupForm()
+        setupTextFields()
+        setupEditView()
     }
     
-    private func configureTextFields() {
+    private func setupTextFields() {
         serverUrlTextField.keyboardType = .URL
         serverUrlTextField.delegate = self
         serverUrlTextField.translatesAutoresizingMaskIntoConstraints = false
-        serverUrlTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        serverUrlTextField.addTarget(settingsEditView, action: #selector(settingsEditView.textFieldDidChange), for: .editingChanged)
         
         maxRecordsTextField.keyboardType = .numberPad
         maxRecordsTextField.delegate = self
         maxRecordsTextField.translatesAutoresizingMaskIntoConstraints = false
-        maxRecordsTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        maxRecordsTextField.addTarget(settingsEditView, action: #selector(settingsEditView.textFieldDidChange), for: .editingChanged)
         
         defaultDaysBetweenTextField.keyboardType = .numberPad
         defaultDaysBetweenTextField.delegate = self
         defaultDaysBetweenTextField.translatesAutoresizingMaskIntoConstraints = false
-        defaultDaysBetweenTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        defaultDaysBetweenTextField.addTarget(settingsEditView, action: #selector(settingsEditView.textFieldDidChange), for: .editingChanged)
         
         loadCurrentSettings()
     }
     
-    private func configureFormRows() {
-        let serverUrlRow = UIFactory.createVerticalFieldGroup(labelText: Localized.serverUrlLabel, inputView: serverUrlTextField)
-        let maxRecordsRow = UIFactory.createVerticalFieldGroup(labelText: Localized.maxRecordsLabel, inputView: maxRecordsTextField)
-        let defaultDaysBetweenRow = UIFactory.createVerticalFieldGroup(labelText: Localized.defaultDaysBetweenLabel, inputView: defaultDaysBetweenTextField)
+    private func setupEditView() {
+        view.addSubview(settingsEditView)
+        settingsEditView.translatesAutoresizingMaskIntoConstraints = false
         
-        [serverUrlRow, maxRecordsRow, defaultDaysBetweenRow].forEach { row in
-            stackView.addArrangedSubview(row)
-        }
+        NSLayoutConstraint.activate([
+            settingsEditView.topAnchor.constraint(equalTo: view.topAnchor),
+            settingsEditView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            settingsEditView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            settingsEditView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        
+        let formRows: [(String, UIView)] = [
+            (labelText: Localized.serverUrlLabel, inputView: serverUrlTextField),
+            (labelText: Localized.maxRecordsLabel, inputView: maxRecordsTextField),
+            (labelText: Localized.defaultDaysBetweenLabel, inputView: defaultDaysBetweenTextField)
+        ]
+        
+        settingsEditView.setupForm(rows: formRows)
     }
 
     private func loadCurrentSettings() {
@@ -76,8 +80,48 @@ final class SettingsViewController: BaseFormViewController {
         defaultDaysBetweenTextField.text = String(settings.defaultDaysBetween)
     }
     
+    private func isFieldsChanged() -> Bool {
+        let urlChanged = serverUrlTextField.text.unwrappedOrEmpty.trimmed != settings.serverURL
+        let maxRecordsChanged = maxRecordsTextField.text.unwrappedOrEmpty.trimmed.withoutSpaces != String(settings.maxRecords)
+        let defaultDaysBetweenChanged = defaultDaysBetweenTextField.text.unwrappedOrEmpty.trimmed.withoutSpaces != String(settings.defaultDaysBetween)
+        
+        return urlChanged || maxRecordsChanged || defaultDaysBetweenChanged
+    }
+    
+    private func validateFields(serverUrlString: String, maxRecordsString: String, defaultDaysBetweenString: String) -> Bool {
+        var fieldsValidity: [Bool] = []
+        var isValid = true
+        
+        for text in [serverUrlString, maxRecordsString, defaultDaysBetweenString]
+        {
+            if text.isBlank == true {
+                fieldsValidity.append(false)
+                isValid = false
+            } else {
+                fieldsValidity.append(true)
+            }
+        }
+        applyValidationResults(fieldsValidity)
+        return isValid
+    }
+    
+    private func applyValidationResults(_ fieldsValidity: [Bool]) {
+        var result: [(UITextField, Bool)] = []
+        for i in 0..<requiredFields.count {
+            result.append((requiredFields[i], fieldsValidity[i]))
+        }
+        settingsEditView.applyValidationResults(result)
+    }
+    
     @objc private func actionSaveSettings() {
-        guard validateFields() else { return }
+        guard validateFields(
+            serverUrlString: serverUrlTextField.text.unwrappedOrEmpty.trimmed,
+            maxRecordsString: maxRecordsTextField.text.unwrappedOrEmpty.trimmed,
+            defaultDaysBetweenString: defaultDaysBetweenTextField.text.unwrappedOrEmpty.trimmed
+        ) else {
+            showAlert(Localized.emptyFields)
+            return
+        }
         guard isFieldsChanged() else {
             navigationController?.popViewController(animated: true)
             return

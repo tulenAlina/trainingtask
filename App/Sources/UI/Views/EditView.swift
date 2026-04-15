@@ -9,7 +9,7 @@ final class EditView: UIView {
         return stack
     }()
     
-    func setupForm() {
+    func setupForm(rows: [(String, UIView)]) {
         addSubview(stackView)
                 
         NSLayoutConstraint.activate([
@@ -17,14 +17,11 @@ final class EditView: UIView {
             stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20)
         ])
-    }
-    
-    func addArrangedSubview(_ view: UIView) {
-        stackView.addArrangedSubview(view)
-    }
-    
-    func isFieldsChanged() -> Bool {
-        return true
+        
+        for row in rows {
+            let formRow = UIFactory.createVerticalFieldGroup(labelText: row.0, inputView: row.1)
+            stackView.addArrangedSubview(formRow)
+        }
     }
     
     func applyValidationResults(_ results: [(textField: UITextField, isValid: Bool)]) {
