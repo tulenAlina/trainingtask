@@ -92,9 +92,11 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
             guard let self else { return }
             self.addItem(task)
         }
+        let isOpenedFromProject = project == nil ? false : true
 
         editModuleViewController = EditTaskBuilder.build(
             project: project,
+            isOpenedFromProject: isOpenedFromProject,
             server: server,
             settings: settings,
             action: .create(onCreate)

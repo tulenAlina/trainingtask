@@ -19,14 +19,6 @@ final class EditView: UIView {
         ])
     }
     
-    func hideStack() {
-        stackView.isHidden = true
-    }
-    
-    func showStack() {
-        stackView.isHidden = false
-    }
-    
     func addArrangedSubview(_ view: UIView) {
         stackView.addArrangedSubview(view)
     }

@@ -5,10 +5,9 @@ protocol EditTaskViewProtocol: AnyObject {
     var requiredFields: [UITextField] { get }
     func setupNavigationBar(title: String)
     func setupSegmentedControl(index: Int)
-    func updateUI(projectName: String?, employeeName: String?)
     func updateProjectName(_ name: String)
     func updateEmployeeName(_ name: String)
-    func setProjectField(text: String)
+    func setProjectField(projectName: String)
     func setEndDateField(defaultDaysBetween: Int)
     func setTaskFields(taskName: String, projectName: String, workTime: String, startDate: String, endDate: String, employee: String?)
     func applyValidationResults(_ fieldsValidity: [Bool])
@@ -100,7 +99,6 @@ final class EditTaskViewController: BaseViewController {
         ])
         
         taskEditView.setupForm()
-        taskEditView.hideStack()
     }
     
     private func setupTextFields() {        
@@ -110,8 +108,7 @@ final class EditTaskViewController: BaseViewController {
         startDateTextField.inputView = startDatePicker
         startDateTextField.inputAccessoryView = toolbar
         startDateTextField.delegate = self
-        
-        
+    
         endDateTextField.inputView = endDatePicker
         endDateTextField.inputAccessoryView = toolbar
         endDateTextField.delegate = self
@@ -252,12 +249,6 @@ extension EditTaskViewController: EditTaskViewProtocol {
         statusSegmentedControl.selectedSegmentIndex = index
     }
     
-    func updateUI(projectName: String?, employeeName: String?) {
-        projectTextField.text = projectName
-        employeeTextField.text = employeeName
-        taskEditView.showStack()
-    }
-    
     func updateProjectName(_ name: String) {
         projectTextField.text = name
         taskEditView.textFieldDidChange(sender: projectTextField)
@@ -267,8 +258,8 @@ extension EditTaskViewController: EditTaskViewProtocol {
         employeeTextField.text = name
     }
     
-    func setProjectField(text: String) {
-        projectTextField.text = text
+    func setProjectField(projectName: String) {
+        projectTextField.text = projectName
         projectTextField.isEnabled = false
         projectTextField.textColor = .lightGray
     }

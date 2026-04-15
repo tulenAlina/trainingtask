@@ -242,23 +242,16 @@ final class TaskDetailViewController: BaseViewController {
             }
         }
         
-        if let project, isOpenedFromProject == true {
-            let editModuleViewController = EditTaskBuilder.build(
-                task: task,
-                project: project,
-                server: server,
-                settings: settings,
-                action: .update(onUpdate)
-            )
-            navigationController?.pushViewController(editModuleViewController, animated: true)
-        } else {
-            let editModuleViewController = EditTaskBuilder.build(
-                task: task,
-                server: server,
-                settings: settings,
-                action: .update(onUpdate)
-            )
-            navigationController?.pushViewController(editModuleViewController, animated: true)
-        }
+        let editModuleViewController = EditTaskBuilder.build(
+            task: task,
+            project: project,
+            isOpenedFromProject: isOpenedFromProject,
+            employee: employee,
+            server: server,
+            settings: settings,
+            action: .update(onUpdate)
+        )
+        navigationController?.pushViewController(editModuleViewController, animated: true)
+        
     }
 }
