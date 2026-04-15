@@ -7,6 +7,7 @@ final class ProjectsViewController: BaseListViewController<Project> {
     }
     
     private let server: Server
+    private let settings: SettingsManager
     private let mode: ProjectsDisplayMode
     
     private var onSelectProject: ((Project) -> Void)? {
@@ -22,6 +23,7 @@ final class ProjectsViewController: BaseListViewController<Project> {
     
     init(server: Server, settings: SettingsManager, mode: ProjectsDisplayMode = .list) {
         self.server = server
+        self.settings = settings
         self.mode = mode
         super.init(settings: settings)
     }
@@ -68,18 +70,19 @@ final class ProjectsViewController: BaseListViewController<Project> {
     }
     
     private func loadProjects() async throws {
-        items = try await server.fetchProjects()
+        let items = try await server.fetchProjects()
+        setItems(items)
     }
     
     private func deleteProject(at indexPath: IndexPath) {
         startLoading()
-        let project = items[indexPath.row]
+        let project = getItem(at: indexPath.row)
         
         Task {
             do {
                 try await server.deleteProject(project.id)
                 await MainActor.run {
-                    items.remove(at: indexPath.row)
+                    deleteItem(at: indexPath.row)
                     updateUI()
                 }
             } catch {
@@ -101,13 +104,14 @@ final class ProjectsViewController: BaseListViewController<Project> {
 
 extension ProjectsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return Array(items.prefix(settings.maxRecords)).count
+        return displayedItemsCount
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ProjectCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "ProjectCell")
-        cell.textLabel?.text = items[indexPath.row].projectName
-        cell.detailTextLabel?.text = items[indexPath.row].description
+        let project = getItem(at: indexPath.row)
+        cell.textLabel?.text = project.projectName
+        cell.detailTextLabel?.text = project.description
         return cell
     }
 }
@@ -115,7 +119,7 @@ extension ProjectsViewController: UITableViewDataSource {
 extension ProjectsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let project = items[indexPath.row]
+        let project = getItem(at: indexPath.row)
         
         switch mode {
         case .list:

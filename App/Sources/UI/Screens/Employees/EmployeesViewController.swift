@@ -51,6 +51,12 @@ final class EmployeesViewController: BaseListViewController<Employee> {
             }
         }
     }
+
+    private func setupUI() {
+        setupNavigationBar()
+        setupTableView()
+        startLoading()
+    }
     
     private func setupNavigationBar() {
         switch mode {
@@ -61,25 +67,20 @@ final class EmployeesViewController: BaseListViewController<Employee> {
         }
     }
     
-    private func setupUI() {
-        setupNavigationBar()
-        setupTableView()
-        startLoading()
-    }
-    
     private func loadEmployees() async throws{
-        items = try await server.fetchEmployees()
+        let items = try await server.fetchEmployees()
+        setItems(items)
     }
     
     private func deleteEmployee(at indexPath: IndexPath) {
         startLoading()
-        let employee = items[indexPath.row]
+        let employee = getItem(at: indexPath.row)
 
         Task {
             do {
                 try await server.deleteEmployee(employee.id)
                 await MainActor.run {
-                    items.remove(at: indexPath.row)
+                    deleteItem(at: indexPath.row)
                     updateUI()
                 }
             } catch {
@@ -101,13 +102,14 @@ final class EmployeesViewController: BaseListViewController<Employee> {
 
 extension EmployeesViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return Array(items.prefix(settings.maxRecords)).count
+        return displayedItemsCount
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "EmployeeCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "EmployeeCell")
-        cell.textLabel?.text = items[indexPath.row].fullName
-        cell.detailTextLabel?.text = items[indexPath.row].position
+        let employee = getItem(at: indexPath.row)
+        cell.textLabel?.text = employee.fullName
+        cell.detailTextLabel?.text = employee.position
         return cell
     }
 }
@@ -115,7 +117,7 @@ extension EmployeesViewController: UITableViewDataSource {
 extension EmployeesViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let employee = items[indexPath.row]
+        let employee = getItem(at: indexPath.row)
         switch mode {
         case .list:
             let detailViewController = EmployeeDetailViewController(indexPath: indexPath, employee: employee, server: server, onUpdate: { [weak self] employee in

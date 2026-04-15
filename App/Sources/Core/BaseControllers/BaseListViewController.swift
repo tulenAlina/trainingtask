@@ -1,9 +1,14 @@
 import UIKit
 
 class BaseListViewController<Item>: BaseViewController {
-    var settings: SettingsManager
-    var items: [Item] = []
     var emptyStateText: String { return "" }
+    
+    var displayedItemsCount: Int {
+        return min(items.count, settings.maxRecords)
+    }
+    
+    private let settings: SettingsManager
+    private var items: [Item] = []
     
     private let tableView = UITableView()
     private let refreshControl = UIRefreshControl()
@@ -53,6 +58,14 @@ class BaseListViewController<Item>: BaseViewController {
         }
     }
     
+    func setItems(_ newItems: [Item]) {
+        items = newItems
+    }
+    
+    func getItem(at index: Int) -> Item {
+        return items[index]
+    }
+    
     func addItem(_ item: Item) {
         guard settings.maxRecords > 0 else { return }
         items.insert(item, at: 0)
@@ -66,6 +79,10 @@ class BaseListViewController<Item>: BaseViewController {
             let indexPath = IndexPath(row: index, section: 0)
             tableView.reloadRows(at: [indexPath], with: .automatic)
         }
+    }
+    
+    func deleteItem(at index: Int) {
+        items.remove(at: index)
     }
     
     func endRefreshing() {
