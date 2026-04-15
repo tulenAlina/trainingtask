@@ -26,64 +26,53 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
         refreshData()
     }
     
+    @objc override func refreshData() {
+        Task {
+            do {
+                try await loadTasks()
+                await MainActor.run {
+                    updateUI()
+                }
+            } catch {
+                await MainActor.run {
+                    endRefreshing()
+                    showAlert(Localized.loadFailed)
+                }
+            }
+        }
+    }
+    
     private func setupUI() {
         setupNavigationBar(navigationTitle: Localized.tasks, rightButtonSystemItem: .add, rightButtonAction: #selector(actionAddTask))
-        setupTableView()
         startLoading()
+        setupTableView()
     }
-    
-    private func setupTableView() {
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
-        tableView.dataSource = self
-        tableView.delegate = self
-        tableView.refreshControl = refreshControl
-        
-        view.addSubview(tableView)
-        
-        NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
-    }
-    
-    private func updateUI(){
-        tableView.reloadData()
-        updateEmptyState()
-        stopLoading()
-        refreshControl.endRefreshing()
-    }
-    
+   
     private func loadTasks() async throws {
         async let allTasks = try await server.fetchTasks(projectID: project?.id)
         async let allEmployees = server.fetchEmployees()
         if project == nil {
             async let allProjects = server.fetchProjects()
             let (tasks, projects, employees) = try await (allTasks, allProjects, allEmployees)
-            self.allItems = tasks
+            self.items = tasks
             self.projects = projects
             self.employees = employees
-            self.displayedItems = Array(tasks.prefix(settings.maxRecords))
         } else {
             let (tasks, employees) = try await (allTasks, allEmployees)
-            self.allItems = tasks
+            self.items = tasks
             self.employees = employees
-            self.displayedItems = Array(tasks.prefix(settings.maxRecords))
         }
     }
     
     private func deleteTask(at indexPath: IndexPath) {
         startLoading()
-        let task = displayedItems[indexPath.row]
+        let task = items[indexPath.row]
 
         Task {
             do {
                 try await server.deleteTask(task.id)
                 await MainActor.run {
-                    allItems.remove(at: indexPath.row)
-                    displayedItems = Array(allItems.prefix(settings.maxRecords))
+                    items.remove(at: indexPath.row)
                     updateUI()
                 }
             } catch {
@@ -94,23 +83,7 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
             }
         }
     }
-    
-    @objc private func refreshData() {
-        Task {
-            do {
-                try await loadTasks()
-                await MainActor.run {
-                    updateUI()
-                }
-            } catch {
-                await MainActor.run {
-                    refreshControl.endRefreshing()
-                    showAlert(Localized.loadFailed)
-                }
-            }
-        }
-    }
-    
+
     @objc private func actionAddTask() {
         let editModuleViewController: UIViewController
         let onCreate = { [weak self] task in
@@ -131,12 +104,12 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
 
 extension TasksViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return displayedItems.count
+        return Array(items.prefix(settings.maxRecords)).count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TaskCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "TaskCell")
-        let task = displayedItems[indexPath.row]
+        let task = items[indexPath.row]
         cell.textLabel?.text = task.taskName
         
         if project == nil {
@@ -161,7 +134,7 @@ extension TasksViewController: UITableViewDataSource {
 extension TasksViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let detailViewController = createTaskDetailViewController(for: displayedItems[indexPath.row], indexPath: indexPath)
+        let detailViewController = createTaskDetailViewController(for: items[indexPath.row], indexPath: indexPath)
         navigationController?.pushViewController(detailViewController, animated: true)
     }
     

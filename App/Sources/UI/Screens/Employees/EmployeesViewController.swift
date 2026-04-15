@@ -36,6 +36,22 @@ final class EmployeesViewController: BaseListViewController<Employee> {
         refreshData()
     }
     
+    @objc override func refreshData() {
+        Task {
+            do {
+                try await loadEmployees()
+                await MainActor.run {
+                    updateUI()
+                }
+            } catch {
+                await MainActor.run {
+                    endRefreshing()
+                    showAlert(Localized.loadFailed)
+                }
+            }
+        }
+    }
+    
     private func setupNavigationBar() {
         switch mode {
         case .list:
@@ -51,67 +67,25 @@ final class EmployeesViewController: BaseListViewController<Employee> {
         startLoading()
     }
     
-    private func setupTableView() {
-        tableView.dataSource = self
-        tableView.delegate = self
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.refreshControl = refreshControl
-        refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
-        
-        view.addSubview(tableView)
-        
-        NSLayoutConstraint.activate([
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
-        ])
-    }
-    
-    private func updateUI(){
-        tableView.reloadData()
-        updateEmptyState()
-        stopLoading()
-        refreshControl.endRefreshing()
-    }
-    
     private func loadEmployees() async throws{
-        allItems = try await server.fetchEmployees()
-        displayedItems = Array(allItems.prefix(settings.maxRecords))
+        items = try await server.fetchEmployees()
     }
     
     private func deleteEmployee(at indexPath: IndexPath) {
         startLoading()
-        let employee = displayedItems[indexPath.row]
+        let employee = items[indexPath.row]
 
         Task {
             do {
                 try await server.deleteEmployee(employee.id)
                 await MainActor.run {
-                    allItems.remove(at: indexPath.row)
-                    displayedItems = Array(allItems.prefix(settings.maxRecords))
+                    items.remove(at: indexPath.row)
                     updateUI()
                 }
             } catch {
                 await MainActor.run {
                     stopLoading()
                     showAlert(Localized.deleteFailed)
-                }
-            }
-        }
-    }
-    
-    @objc private func refreshData() {
-        Task {
-            do {
-                try await loadEmployees()
-                await MainActor.run {
-                    updateUI()
-                }
-            } catch {
-                await MainActor.run {
-                    refreshControl.endRefreshing()
-                    showAlert(Localized.loadFailed)
                 }
             }
         }
@@ -127,13 +101,13 @@ final class EmployeesViewController: BaseListViewController<Employee> {
 
 extension EmployeesViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return displayedItems.count
+        return Array(items.prefix(settings.maxRecords)).count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "EmployeeCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "EmployeeCell")
-        cell.textLabel?.text = displayedItems[indexPath.row].fullName
-        cell.detailTextLabel?.text = displayedItems[indexPath.row].position
+        cell.textLabel?.text = items[indexPath.row].fullName
+        cell.detailTextLabel?.text = items[indexPath.row].position
         return cell
     }
 }
@@ -141,7 +115,7 @@ extension EmployeesViewController: UITableViewDataSource {
 extension EmployeesViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let employee = displayedItems[indexPath.row]
+        let employee = items[indexPath.row]
         switch mode {
         case .list:
             let detailViewController = EmployeeDetailViewController(indexPath: indexPath, employee: employee, server: server, onUpdate: { [weak self] employee in

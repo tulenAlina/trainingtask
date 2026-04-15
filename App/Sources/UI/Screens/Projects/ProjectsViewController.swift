@@ -36,6 +36,28 @@ final class ProjectsViewController: BaseListViewController<Project> {
         refreshData()
     }
     
+    @objc override func refreshData() {
+        Task {
+            do {
+                try await loadProjects()
+                await MainActor.run {
+                    updateUI()
+                }
+            } catch {
+                await MainActor.run {
+                    endRefreshing()
+                    showAlert(Localized.loadFailed)
+                }
+            }
+        }
+    }
+    
+    private func setupUI() {
+        setupNavigationBar()
+        startLoading()
+        setupTableView()
+    }
+    
     private func setupNavigationBar() {
         switch mode {
         case .list:
@@ -45,73 +67,25 @@ final class ProjectsViewController: BaseListViewController<Project> {
         }
     }
     
-    private func setupUI() {
-        setupNavigationBar()
-        setupTableView()
-        startLoading()
-    }
-    
-    private func setupTableView() {
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
-        tableView.dataSource = self
-        tableView.delegate = self
-        tableView.refreshControl = refreshControl
-        
-        view.addSubview(tableView)
-        
-        NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
-    }
-    
-    private func updateUI(){
-        tableView.reloadData()
-        updateEmptyState()
-        stopLoading()
-        refreshControl.endRefreshing()
-    }
-    
     private func loadProjects() async throws {
-        allItems = try await server.fetchProjects()
-        displayedItems = Array(allItems.prefix(settings.maxRecords))
+        items = try await server.fetchProjects()
     }
     
     private func deleteProject(at indexPath: IndexPath) {
         startLoading()
-        let project = displayedItems[indexPath.row]
+        let project = items[indexPath.row]
         
         Task {
             do {
                 try await server.deleteProject(project.id)
                 await MainActor.run {
-                    allItems.remove(at: indexPath.row)
-                    displayedItems = Array(allItems.prefix(settings.maxRecords))
+                    items.remove(at: indexPath.row)
                     updateUI()
                 }
             } catch {
                 await MainActor.run {
                     stopLoading()
                     showAlert(Localized.deleteFailed)
-                }
-            }
-        }
-    }
-    
-    @objc private func refreshData() {
-        Task {
-            do {
-                try await loadProjects()
-                await MainActor.run {
-                    updateUI()
-                }
-            } catch {
-                await MainActor.run {
-                    refreshControl.endRefreshing()
-                    showAlert(Localized.loadFailed)
                 }
             }
         }
@@ -127,13 +101,13 @@ final class ProjectsViewController: BaseListViewController<Project> {
 
 extension ProjectsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return displayedItems.count
+        return Array(items.prefix(settings.maxRecords)).count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ProjectCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "ProjectCell")
-        cell.textLabel?.text = displayedItems[indexPath.row].projectName
-        cell.detailTextLabel?.text = displayedItems[indexPath.row].description
+        cell.textLabel?.text = items[indexPath.row].projectName
+        cell.detailTextLabel?.text = items[indexPath.row].description
         return cell
     }
 }
@@ -141,7 +115,7 @@ extension ProjectsViewController: UITableViewDataSource {
 extension ProjectsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let project = displayedItems[indexPath.row]
+        let project = items[indexPath.row]
         
         switch mode {
         case .list:
