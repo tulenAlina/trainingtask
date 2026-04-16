@@ -12,7 +12,7 @@ final class EmployeeDetailViewController: BaseViewController {
     private let positionRow = InfoRowView(title: Localized.positionLabel)
     private var deleteButton = UIFactory.createDeleteButton()
     
-    private lazy var contentScrollView = UIFactory.createVerticalScrollView(views: [fullNameRow, positionRow, deleteButton], spacing: 15)
+    private lazy var contentScrollView = ScrollableStackView(views: [fullNameRow, positionRow, deleteButton], spacing: 15)
     
     init(indexPath: IndexPath, employee: Employee, server: Server, onUpdate: @escaping ((Employee) -> Void), onDelete: @escaping ((IndexPath) -> Void)) {
         self.indexPath = indexPath

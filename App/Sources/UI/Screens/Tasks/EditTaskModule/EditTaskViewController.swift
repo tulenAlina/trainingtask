@@ -22,50 +22,20 @@ final class EditTaskViewController: BaseViewController {
     private let toolbar = UIToolbar()
     private let taskEditView = EditView()
     
-    private var taskNameTextField = UIFactory.createDefaultTextField(placeholder: Localized.taskNamePlaceholder)
-    private var projectTextField = UIFactory.createDefaultTextField(placeholder: Localized.selectedProjectNamePlaceholder)
-    private var workTimeTextField = UIFactory.createDefaultTextField(placeholder: Localized.workTimePlaceholder)
-    private var startDateTextField = UIFactory.createDefaultTextField(placeholder: Localized.startDatePlaceholder)
-    private var endDateTextField = UIFactory.createDefaultTextField(placeholder: Localized.endDatePlaceholder)
-    private var employeeTextField = UIFactory.createDefaultTextField(placeholder: Localized.employeeNamePlaceholder)
+    private let taskNameTextField = UIFactory.createDefaultTextField(placeholder: Localized.taskNamePlaceholder)
+    private let projectTextField = UIFactory.createDefaultTextField(placeholder: Localized.selectedProjectNamePlaceholder)
+    private let workTimeTextField = UIFactory.createDefaultTextField(placeholder: Localized.workTimePlaceholder)
+    private let startDateTextField = UIFactory.createDefaultTextField(placeholder: Localized.startDatePlaceholder)
+    private let endDateTextField = UIFactory.createDefaultTextField(placeholder: Localized.endDatePlaceholder)
+    private let employeeTextField = UIFactory.createDefaultTextField(placeholder: Localized.employeeNamePlaceholder)
     
-    private let clearEmployeeButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle(Localized.clear, for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
+    private let statusSegmentedControl = UIFactory.createSegmentedControl(items: TaskStatus.allCases.map {$0.rawValue.localized})
     
-    private let startDatePicker: UIDatePicker = {
-        let picker = UIDatePicker()
-        picker.datePickerMode = .date
-        picker.preferredDatePickerStyle = .inline
-        picker.locale = Locale(identifier: "ru_RU")
-        return picker
-    }()
+    private let startDatePicker = UIFactory.createDatePicker()
+    private let endDatePicker = UIFactory.createDatePicker()
+    private let clearEmployeeButton = UIFactory.createClearButton()
     
-    private let endDatePicker: UIDatePicker = {
-        let picker = UIDatePicker()
-        picker.datePickerMode = .date
-        picker.preferredDatePickerStyle = .inline
-        picker.locale = Locale(identifier: "ru_RU")
-        return picker
-    }()
-    
-    private var statusSegmentedControl: UISegmentedControl = {
-        let items = TaskStatus.allCases.map {$0.rawValue.localized}
-        let sc = UISegmentedControl(items: items)
-        sc.translatesAutoresizingMaskIntoConstraints = false
-        return sc
-    }()
-    
-    private lazy var employeeHorizontalStack: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [employeeTextField, clearEmployeeButton])
-        stack.axis = .horizontal
-        stack.spacing = 5
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        return stack
-    }()
+    private lazy var employeeHorizontalStack = UIFactory.createHorizontalStackView(views: [employeeTextField, clearEmployeeButton], spacing: 5)
     
     init(presenter: EditTaskPresenterProtocol) {
         self.presenter = presenter
@@ -148,9 +118,9 @@ final class EditTaskViewController: BaseViewController {
     private func setupToolbar() {
         toolbar.sizeToFit()
         
-        let doneButton = UIBarButtonItem(title: "Выбрать", style: .done, target: self, action: #selector(actionDateChange))
+        let doneButton = UIBarButtonItem(title: Localized.select, style: .done, target: self, action: #selector(actionDateChange))
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let cancelButton = UIBarButtonItem(title: "Отмена", style: .plain, target: self, action: #selector(actionEndEditing))
+        let cancelButton = UIBarButtonItem(title: Localized.cancel, style: .plain, target: self, action: #selector(actionEndEditing))
     
         toolbar.setItems([cancelButton, flexibleSpace, doneButton], animated: false)
     }

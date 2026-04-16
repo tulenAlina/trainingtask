@@ -173,6 +173,17 @@ final class EditTaskPresenter {
         }
         return true
     }
+    
+    private func validateTask(taskNameString: String, workTime: String, startDateString: String, endDateString: String, statusIndex: Int) -> Bool {
+        guard validateFields(taskNameString: taskNameString, projectName: project?.projectName, workTime: workTime) else {
+            view?.showAlert(Localized.emptyFields)
+            return false
+        }
+        guard validateDates(startDateString: startDateString, endDateString: endDateString, workTime: workTime.cleanedInt) else {
+            return false
+        }
+        return true
+    }
 }
 
 extension EditTaskPresenter: EditTaskPresenterProtocol {
@@ -181,15 +192,6 @@ extension EditTaskPresenter: EditTaskPresenterProtocol {
         configureFields()
         configureStatus()
         view?.setupNavigationBar(title: title)
-    }
-    
-    private func validateTask(taskNameString: String, workTime: String, startDateString: String, endDateString: String, statusIndex: Int) -> Bool {
-        guard validateFields(taskNameString: taskNameString, projectName: project?.projectName, workTime: workTime) else {
-            view?.showAlert(Localized.emptyFields)
-            return false
-        }
-        guard validateDates(startDateString: startDateString, endDateString: endDateString, workTime: workTime.cleanedInt) else { return false }
-        return true
     }
     
     func didTapSaveButton(taskNameString: String, workTime: String, startDateString: String, endDateString: String, statusIndex: Int) {

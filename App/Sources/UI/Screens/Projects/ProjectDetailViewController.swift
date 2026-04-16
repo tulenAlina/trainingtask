@@ -9,13 +9,13 @@ final class ProjectDetailViewController: BaseViewController {
     private let indexPath: IndexPath
     private var project: Project
     
-    private let nameRow = InfoRowView(title: Localized.nameLabel)
+    private let nameLabel = UIFactory.createTitleLargeLabel()
     private let descriptionRow = InfoRowView(title: Localized.descriptionLabel)
     private var openTasksButton = UIFactory.createSecondaryButton(text: Localized.openTasks)
     private var deleteButton = UIFactory.createDeleteButton()
     
     private lazy var buttonsStackView = UIFactory.createVerticalStackView(views: [openTasksButton, deleteButton], spacing: 10)
-    private lazy var contentScrollView = UIFactory.createVerticalScrollView(views: [nameRow, descriptionRow, buttonsStackView], spacing: 30)
+    private lazy var contentScrollView = ScrollableStackView(views: [nameLabel, descriptionRow, buttonsStackView], spacing: 30)
     
     init(indexPath: IndexPath, project: Project, server: Server, settings: SettingsManager, onUpdate: @escaping ((Project) -> Void), onDelete: @escaping ((IndexPath) -> Void)) {
         self.indexPath = indexPath
@@ -70,7 +70,7 @@ final class ProjectDetailViewController: BaseViewController {
     }
     
     private func updateLabels() {
-        nameRow.value = project.projectName
+        nameLabel.text = project.projectName
         descriptionRow.value = project.description
     }
         

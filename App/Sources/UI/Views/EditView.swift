@@ -1,7 +1,7 @@
 import UIKit
 
 final class EditView: UIView {
-    private let contentScrollView = UIFactory.createVerticalScrollView(views: [], spacing: 10)
+    private let contentScrollView = ScrollableStackView(views: [], spacing: 10)
     
     func setupForm(rows: [(String, UIView)]) {
         addSubview(contentScrollView)
@@ -13,10 +13,9 @@ final class EditView: UIView {
             contentScrollView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -10)
         ])
         
-        let stack = contentScrollView.subviews.first as? UIStackView
         for row in rows {
             let formRow = UIFactory.createVerticalFieldGroup(labelText: row.0, inputView: row.1)
-            stack?.addArrangedSubview(formRow)
+            contentScrollView.addArrangedSubview(formRow)
         }
     }
     

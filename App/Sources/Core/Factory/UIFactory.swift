@@ -69,23 +69,6 @@ enum UIFactory {
         return stack
     }
     
-    static func createVerticalScrollView(views: [UIView], spacing: CGFloat) -> UIScrollView {
-        let scrollView = UIScrollView()
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        let stack = createVerticalStackView(views: views, spacing: spacing)
-        scrollView.addSubview(stack)
-        
-        NSLayoutConstraint.activate([
-               stack.topAnchor.constraint(equalTo: scrollView.topAnchor),
-               stack.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-               stack.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-               stack.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-               stack.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
-           ])
-        
-        return scrollView
-    }
-    
     static func createHorizontalStackView(views: [UIView], spacing: CGFloat) -> UIStackView {
         let stack = UIStackView(arrangedSubviews: views)
         stack.axis = .horizontal
@@ -127,5 +110,26 @@ enum UIFactory {
         button.layer.cornerRadius = 12
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
+    }
+    
+    static func createClearButton() -> UIButton {
+        let button = UIButton(type: .system)
+        button.setTitle(Localized.clear, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }
+    
+    static func createSegmentedControl(items: [String]) -> UISegmentedControl {
+        let segmentedControl = UISegmentedControl(items: items)
+        segmentedControl.translatesAutoresizingMaskIntoConstraints = false
+        return segmentedControl
+    }
+    
+    static func createDatePicker() -> UIDatePicker {
+        let picker = UIDatePicker()
+        picker.datePickerMode = .date
+        picker.preferredDatePickerStyle = .inline
+        picker.locale = Locale(identifier: "ru_RU")
+        return picker
     }
 }

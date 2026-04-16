@@ -14,7 +14,7 @@ final class MainMenuViewController: UIViewController {
         }
     }()
             
-    private lazy var сcontentScrollView = UIFactory.createVerticalScrollView(views: buttons, spacing: 15)
+    private lazy var сontentScrollView = ScrollableStackView(views: buttons, spacing: 15)
     
     init(server: Server, settings: SettingsManager) {
         self.settings = settings
@@ -38,17 +38,17 @@ final class MainMenuViewController: UIViewController {
     }
     
     private func setupContentView() {
-        view.addSubview(сcontentScrollView)
+        view.addSubview(сontentScrollView)
         
         for button in buttons {
             button.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05).isActive = true
         }
         
         NSLayoutConstraint.activate([
-            сcontentScrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            сcontentScrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
-            сcontentScrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
-            сcontentScrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
+            сontentScrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            сontentScrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+            сontentScrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
+            сontentScrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
         ])
     }
     

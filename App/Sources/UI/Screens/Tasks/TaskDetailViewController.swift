@@ -22,7 +22,7 @@ final class TaskDetailViewController: BaseViewController {
     private lazy var taskAndStatusRow = UIFactory.createVerticalStackView(views: [taskNameLabel, statusView], spacing: 5)
     private lazy var projectAndEmployeeRow = UIFactory.createVerticalStackView(views: [projectRow, employeeRow], spacing: 15)
     
-    private lazy var contentScrollView = UIFactory.createVerticalScrollView(views: [taskAndStatusRow, projectAndEmployeeRow, timeCardView, deleteButton], spacing: 30)
+    private lazy var contentScrollView = ScrollableStackView(views: [taskAndStatusRow, projectAndEmployeeRow, timeCardView, deleteButton], spacing: 30)
     
     init(indexPath: IndexPath, task: ProjectTask, project: Project?, employee: Employee?, isOpenedFromProject: Bool, server: Server, settings: SettingsManager, onUpdate: @escaping ((ProjectTask) -> Void), onDelete: @escaping ((IndexPath) -> Void)) {
         self.indexPath = indexPath
@@ -91,7 +91,7 @@ final class TaskDetailViewController: BaseViewController {
         navigationController?.popViewController(animated: true)
     }
     
-    @objc private func actionChangeTask() { 
+    @objc private func actionChangeTask() {
         let editModuleViewController = EditTaskBuilder.build(
             task: task,
             project: project,
