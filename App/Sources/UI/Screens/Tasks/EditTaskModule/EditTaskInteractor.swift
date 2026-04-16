@@ -17,6 +17,7 @@ final class EditTaskInteractor: EditTaskInteractorProtocol {
     func fetchData() async throws -> (projects: [Project], employees: [Employee]) {
         async let projects = server.fetchProjects()
         async let employees = server.fetchEmployees()
+        
         return try await (projects, employees)
     }
     

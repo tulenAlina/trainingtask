@@ -9,6 +9,7 @@ final class EditProjectViewController: BaseViewController {
     private var descriptionTextField = UIFactory.createDefaultTextField(placeholder: Localized.projectDescriptionPlaceholder)
     
     private let projectEditView = EditView()
+    
     private let requiredFields: [UITextField]
     
     init(project: Project? = nil, server: Server, action: EditProjectAction) {
@@ -68,9 +69,12 @@ final class EditProjectViewController: BaseViewController {
     }
 
     private func isFieldsChanged() -> Bool {
-        guard let project else { return true }
+        guard let project else {
+            return true
+        }
         let isNameChanged = (nameTextField.text.unwrappedOrEmpty.trimmed) != project.projectName.trimmed
         let isDescriptionChanged = (descriptionTextField.text.unwrappedOrEmpty.trimmed) != project.description.trimmed
+        
         return isNameChanged || isDescriptionChanged
     }
     
@@ -88,6 +92,7 @@ final class EditProjectViewController: BaseViewController {
             }
         }
         applyValidationResults(fieldsValidity)
+        
         return isValid
     }
     
@@ -128,7 +133,6 @@ final class EditProjectViewController: BaseViewController {
         } else {
             let createdProject = createProject()
             return try await server.createProject(createdProject)
-            
         }
     }
     

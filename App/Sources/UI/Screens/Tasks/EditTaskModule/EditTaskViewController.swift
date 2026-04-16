@@ -3,6 +3,7 @@ import UIKit
 protocol EditTaskViewProtocol: AnyObject {
     var presenter: EditTaskPresenterProtocol { get set }
     var requiredFields: [UITextField] { get }
+    
     func setupNavigationBar(title: String)
     func setupSegmentedControl(index: Int)
     func updateProjectName(_ name: String)
@@ -126,7 +127,6 @@ final class EditTaskViewController: BaseViewController {
     }
     
     @objc private func actionSaveTask() {
-        
         let taskNameString = taskNameTextField.text.unwrappedOrEmpty.trimmed
         let startDateString = startDateTextField.text.unwrappedOrEmpty.trimmed
         let endDateString = endDateTextField.text.unwrappedOrEmpty.trimmed

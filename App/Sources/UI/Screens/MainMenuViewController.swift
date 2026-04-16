@@ -1,7 +1,6 @@
 import UIKit
 
 final class MainMenuViewController: UIViewController {
-    
     private let settings: SettingsManager
     private let server: Server
     private let menuItems = [Localized.projects, Localized.tasks, Localized.employees, Localized.settings]
@@ -10,6 +9,7 @@ final class MainMenuViewController: UIViewController {
         menuItems.map { title in
             let button = UIFactory.createDefaultButton(text: title)
             button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
+            
             return button
         }
     }()
@@ -53,7 +53,9 @@ final class MainMenuViewController: UIViewController {
     }
     
     @objc private func actionButtonTapped(_ sender: UIButton) {
-        guard let title = sender.titleLabel?.text else { return }
+        guard let title = sender.titleLabel?.text else {
+            return
+        }
         
         switch title {
         case Localized.projects:

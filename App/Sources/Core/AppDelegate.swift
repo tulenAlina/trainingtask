@@ -2,7 +2,6 @@ import UIKit
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
     var window: UIWindow?
     private let server: Server = StubServer()
     private var settings: SettingsManager?

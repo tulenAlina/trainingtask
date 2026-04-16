@@ -112,6 +112,7 @@ extension ProjectsViewController: UITableViewDataSource {
         let project = getItem(at: indexPath.row)
         cell.textLabel?.text = project.projectName
         cell.detailTextLabel?.text = project.description
+        
         return cell
     }
 }

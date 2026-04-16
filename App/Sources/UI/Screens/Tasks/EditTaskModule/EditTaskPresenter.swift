@@ -32,7 +32,9 @@ final class EditTaskPresenter {
     }
     
     private func isFieldsChanged(taskNameString: String, projectID: UUID, workTime: Int, startDateString: String, endDateString: String, statusIndex: Int, employeeID: UUID?) -> Bool {
-        guard let task = task else { return true }
+        guard let task = task else {
+            return true
+        }
         
         let isTaskNameChanged = taskNameString != task.taskName.trimmed
         let isProjectChanged = projectID != task.projectID
@@ -41,6 +43,7 @@ final class EditTaskPresenter {
         let isEndDateChanged = endDateString != DateHelper.string(from: task.endDate)
         let isEmployeeChanged = employeeID != task.employeeID
         let isStatusChanged = statusIndex != TaskStatus.allCases.firstIndex { $0 == task.status } ?? 0
+        
         return isTaskNameChanged || isProjectChanged || isWorkTimeChanged || isStartDateChanged || isEndDateChanged || isEmployeeChanged || isStatusChanged
     }
 
@@ -130,7 +133,9 @@ final class EditTaskPresenter {
     }
 
     private func validateFields(taskNameString: String, projectName: String?, workTime: String) -> Bool {
-        guard let view else { return false }
+        guard let view else {
+            return false
+        }
         var fieldsValidity: [Bool] = []
         var isValid = true
         
@@ -144,6 +149,7 @@ final class EditTaskPresenter {
             }
         }
         view.applyValidationResults(fieldsValidity)
+        
         return isValid
     }
     
@@ -171,6 +177,7 @@ final class EditTaskPresenter {
             view?.showAlert(Localized.hoursExceedPeriod)
             return false
         }
+        
         return true
     }
     
@@ -195,7 +202,9 @@ extension EditTaskPresenter: EditTaskPresenterProtocol {
     }
     
     func didTapSaveButton(taskNameString: String, workTime: String, startDateString: String, endDateString: String, statusIndex: Int) {
-        guard let view, validateTask(taskNameString: taskNameString, workTime: workTime, startDateString: startDateString, endDateString: endDateString, statusIndex: statusIndex), let project else { return }
+        guard let view, validateTask(taskNameString: taskNameString, workTime: workTime, startDateString: startDateString, endDateString: endDateString, statusIndex: statusIndex), let project else {
+            return
+        }
         
         guard isFieldsChanged(taskNameString: taskNameString, projectID: project.id, workTime: workTime.cleanedInt, startDateString: startDateString, endDateString: endDateString, statusIndex: statusIndex, employeeID: employee?.id
         ) else {

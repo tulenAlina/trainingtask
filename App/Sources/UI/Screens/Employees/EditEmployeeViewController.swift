@@ -11,6 +11,7 @@ final class EditEmployeeViewController: BaseViewController {
     private var positionTextField = UIFactory.createDefaultTextField(placeholder: Localized.positionPlaceholder)
     
     private let employeeEditView = EditView()
+    
     private let requiredFields: [UITextField]
     
     init(employee: Employee? = nil, server: Server, action: EditEmployeeAction) {
@@ -77,7 +78,9 @@ final class EditEmployeeViewController: BaseViewController {
     }
     
     private func isFieldsChanged() -> Bool {
-        guard let employee else { return true }
+        guard let employee else {
+            return true
+        }
         
         let isFirstNameChanged = firstNameTextField.text.unwrappedOrEmpty.trimmed != employee.firstName.trimmed
         let isLastNameChanged = lastNameTextField.text.unwrappedOrEmpty.trimmed != employee.lastName.trimmed
@@ -101,6 +104,7 @@ final class EditEmployeeViewController: BaseViewController {
             }
         }
         applyValidationResults(fieldsValidity)
+        
         return isValid
     }
     

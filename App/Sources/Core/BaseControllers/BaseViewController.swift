@@ -7,6 +7,7 @@ class BaseViewController: UIViewController {
         let indicator = UIActivityIndicatorView(style: .large)
         indicator.hidesWhenStopped = true
         indicator.translatesAutoresizingMaskIntoConstraints = false
+        
         return indicator
     }()
     

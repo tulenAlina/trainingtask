@@ -1,7 +1,6 @@
 import Foundation
 
 class StubServer: Server {
-    
     enum Errors: Error {
         case itemNotFound
     }
@@ -107,7 +106,9 @@ class StubServer: Server {
         addTaskToProject(projectID: task.projectID, taskID: task.id)
         tasks[task.id] = task
         
-        guard let employeeID = task.employeeID else { return task }
+        guard let employeeID = task.employeeID else {
+            return task
+        }
         addTaskToEmployee(employeeID: employeeID, taskID: task.id)
         
         return task
@@ -162,14 +163,18 @@ class StubServer: Server {
     }
     
     private func updateTaskProject(oldTask: ProjectTask, newTask: ProjectTask) {
-        guard oldTask.projectID != newTask.projectID else { return }
+        guard oldTask.projectID != newTask.projectID else {
+            return
+        }
         
         removeTaskFromProject(projectID: oldTask.projectID, taskID: oldTask.id)
         addTaskToProject(projectID: newTask.projectID, taskID: newTask.id)
     }
     
     private func updateTaskEmployee(oldTask: ProjectTask, newTask: ProjectTask) {
-        guard oldTask.employeeID != newTask.employeeID else { return }
+        guard oldTask.employeeID != newTask.employeeID else {
+            return
+        }
         
         if let employeeID = oldTask.employeeID {
             removeTaskFromEmployee(employeeID: employeeID, taskID: oldTask.id)
@@ -182,7 +187,7 @@ class StubServer: Server {
     
     private func removeTaskFromProject(projectID: UUID, taskID: UUID) {
         if let project = projects[projectID] {
-            let newTasks = project.tasks.filter {$0 != taskID}
+            let newTasks = project.tasks.filter { $0 != taskID}
             let newProject = makeProject(from: project, newTasks: newTasks)
             projects[projectID] = newProject
         }
@@ -190,7 +195,7 @@ class StubServer: Server {
     
     private func removeTaskFromEmployee(employeeID: UUID, taskID: UUID) {
         if let employee = employees[employeeID] {
-            let newTasks = employee.tasks.filter {$0 != taskID}
+            let newTasks = employee.tasks.filter { $0 != taskID }
             let newEmployee = makeEmployee(from: employee, newTasks: newTasks)
             employees[employeeID] = newEmployee
         }

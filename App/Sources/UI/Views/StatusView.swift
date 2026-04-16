@@ -28,13 +28,16 @@ final class StatusView: UIView {
         view.layer.cornerRadius = 10
         view.clipsToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
+        
         return view
     }()
+    
     private let statusLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
+        
         return label
     }()
     
@@ -71,6 +74,7 @@ final class StatusView: UIView {
     private func setupUI() {
         addSubview(statusView)
         statusView.addSubview(statusLabel)
+        
         NSLayoutConstraint.activate([
             statusView.topAnchor.constraint(equalTo: topAnchor),
             statusView.bottomAnchor.constraint(equalTo: bottomAnchor),

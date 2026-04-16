@@ -12,6 +12,7 @@ final class SettingsViewController: BaseViewController {
     private var defaultDaysBetweenTextField = UIFactory.createDefaultTextField(placeholder: Localized.defaultDaysBetweenPlaceholder)
     
     private let settingsEditView = EditView()
+    
     private let requiredFields: [UITextField]
     
     init(settings: SettingsManager) {
@@ -102,6 +103,7 @@ final class SettingsViewController: BaseViewController {
             }
         }
         applyValidationResults(fieldsValidity)
+        
         return isValid
     }
     
@@ -146,6 +148,7 @@ extension SettingsViewController: UITextFieldDelegate {
             let characterSet = CharacterSet(charactersIn: string)
             return allowedCharacters.isSuperset(of: characterSet)
         }
+        
         return true
     }
 }

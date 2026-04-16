@@ -89,7 +89,9 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
     @objc private func actionAddTask() {
         let editModuleViewController: UIViewController
         let onCreate = { [weak self] task in
-            guard let self else { return }
+            guard let self else {
+                return
+            }
             self.addItem(task)
         }
         let isOpenedFromProject = project == nil ? false : true
@@ -131,6 +133,7 @@ extension TasksViewController: UITableViewDataSource {
         case .postponed:
             cell.imageView?.image = UIImage(systemName: "pause.circle")
         }
+        
         return cell
     }
 }
@@ -170,6 +173,7 @@ extension TasksViewController: UITableViewDelegate {
                 self?.deleteTask(at: indexPath)
             }
         )
+        
         return detailViewController
     }
 }

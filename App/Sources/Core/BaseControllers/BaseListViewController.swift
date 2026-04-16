@@ -1,7 +1,9 @@
 import UIKit
 
 class BaseListViewController<Item>: BaseViewController {
-    var emptyStateText: String { return "" }
+    var emptyStateText: String {
+        return ""
+    }
     
     var displayedItemsCount: Int {
         return min(items.count, settings.maxRecords)
@@ -39,7 +41,7 @@ class BaseListViewController<Item>: BaseViewController {
         ])
     }
     
-    func updateUI(){
+    func updateUI() {
         tableView.reloadData()
         updateEmptyState()
         stopLoading()
@@ -67,7 +69,9 @@ class BaseListViewController<Item>: BaseViewController {
     }
     
     func addItem(_ item: Item) {
-        guard settings.maxRecords > 0 else { return }
+        guard settings.maxRecords > 0 else {
+            return
+        }
         items.insert(item, at: 0)
         tableView.reloadData()
         updateEmptyState()

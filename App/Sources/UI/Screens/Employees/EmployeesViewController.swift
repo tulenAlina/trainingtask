@@ -110,6 +110,7 @@ extension EmployeesViewController: UITableViewDataSource {
         let employee = getItem(at: indexPath.row)
         cell.textLabel?.text = employee.fullName
         cell.detailTextLabel?.text = employee.position
+        
         return cell
     }
 }

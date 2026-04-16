@@ -9,6 +9,7 @@ final class EditTaskBuilder {
         
         router.viewController = viewController
         presenter.view = viewController
+        
         return viewController
     }
 }
