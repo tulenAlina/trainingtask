@@ -1,26 +1,22 @@
 import UIKit
 
 final class EditView: UIView {
-    private lazy var stackView: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .vertical
-        stack.spacing = 10
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        return stack
-    }()
+    private let contentScrollView = UIFactory.createVerticalScrollView(views: [], spacing: 10)
     
     func setupForm(rows: [(String, UIView)]) {
-        addSubview(stackView)
+        addSubview(contentScrollView)
                 
         NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 10),
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20)
+            contentScrollView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 10),
+            contentScrollView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            contentScrollView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            contentScrollView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -10)
         ])
         
+        let stack = contentScrollView.subviews.first as? UIStackView
         for row in rows {
             let formRow = UIFactory.createVerticalFieldGroup(labelText: row.0, inputView: row.1)
-            stackView.addArrangedSubview(formRow)
+            stack?.addArrangedSubview(formRow)
         }
     }
     
