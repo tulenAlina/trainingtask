@@ -142,7 +142,7 @@ final class EditTaskViewController: BaseViewController {
     
     private func setupClearEmployeeButton() {
         clearEmployeeButton.addTarget(self, action: #selector(actionClearEmployee), for: .touchUpInside)
-        clearEmployeeButton.widthAnchor.constraint(equalToConstant: 70).isActive = true
+        clearEmployeeButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.2).isActive = true
     }
  
     private func setupToolbar() {

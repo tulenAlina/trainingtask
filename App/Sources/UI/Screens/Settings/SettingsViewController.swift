@@ -3,9 +3,9 @@ import UIKit
 final class SettingsViewController: BaseViewController {
     private let settings: SettingsManager
     
-    private let serverUrlLabel = UIFactory.createDefaultLabel(text: Localized.serverUrlLabel)
-    private let maxRecordsLabel = UIFactory.createDefaultLabel(text: Localized.maxRecordsLabel)
-    private let defaultDaysBetweenLabel = UIFactory.createDefaultLabel(text: Localized.defaultDaysBetweenLabel)
+    private let serverUrlLabel = UIFactory.createSecondaryLabel(text: Localized.serverUrlLabel)
+    private let maxRecordsLabel = UIFactory.createSecondaryLabel(text: Localized.maxRecordsLabel)
+    private let defaultDaysBetweenLabel = UIFactory.createSecondaryLabel(text: Localized.defaultDaysBetweenLabel)
     
     private var serverUrlTextField = UIFactory.createDefaultTextField(placeholder: Localized.serverUrlPlaceholder)
     private var maxRecordsTextField = UIFactory.createDefaultTextField(placeholder: Localized.maxRecordsPlaceholder)

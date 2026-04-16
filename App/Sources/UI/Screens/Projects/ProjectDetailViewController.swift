@@ -9,10 +9,13 @@ final class ProjectDetailViewController: BaseViewController {
     private let indexPath: IndexPath
     private var project: Project
     
-    private var nameLabel = UILabel()
-    private var descriptionLabel = UILabel()
-    private var openTasksButton = UIButton()
+    private let nameRow = InfoRowView(title: Localized.nameLabel)
+    private let descriptionRow = InfoRowView(title: Localized.descriptionLabel)
+    private var openTasksButton = UIFactory.createSecondaryButton(text: Localized.openTasks)
     private var deleteButton = UIFactory.createDeleteButton()
+    
+    private lazy var buttonsStackView = UIFactory.createVerticalStackView(views: [openTasksButton, deleteButton], spacing: 10)
+    private lazy var contentScrollView = UIFactory.createVerticalScrollView(views: [nameRow, descriptionRow, buttonsStackView], spacing: 30)
     
     init(indexPath: IndexPath, project: Project, server: Server, settings: SettingsManager, onUpdate: @escaping ((Project) -> Void), onDelete: @escaping ((IndexPath) -> Void)) {
         self.indexPath = indexPath
@@ -35,66 +38,40 @@ final class ProjectDetailViewController: BaseViewController {
     
     private func setupUI() {
         setupNavigationBar(navigationTitle: Localized.projectDetails, rightButtonTitle: Localized.edit, rightButtonAction: #selector(actionChangeProject))
-        
-        setupLabels()
+        setupContentView()
         setupButtons()
-    }
-    
-    private func setupLabels() {
         updateLabels()
-        
-        nameLabel.font = .systemFont(ofSize: 18, weight: .semibold)
-        nameLabel.numberOfLines = 5
-        nameLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        descriptionLabel.numberOfLines = 20
-        descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        view.addSubview(nameLabel)
-        view.addSubview(descriptionLabel)
-        
+    }
+
+    private func setupContentView() {
+        view.addSubview(contentScrollView)
+                
         NSLayoutConstraint.activate([
-            nameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            nameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            nameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            descriptionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 40),
-            descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+            contentScrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            contentScrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            contentScrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            contentScrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
         ])
     }
     
     private func setupButtons() {
-        openTasksButton.setTitle(Localized.openTasks, for: .normal)
-        openTasksButton.setTitleColor(.black, for: .normal)
-        openTasksButton.backgroundColor = UIColor(white: 0.95, alpha: 1)
-        openTasksButton.layer.borderWidth = 0.5
-        openTasksButton.layer.borderColor = UIColor.darkGray.cgColor
-        openTasksButton.layer.cornerRadius = 12
-        openTasksButton.translatesAutoresizingMaskIntoConstraints = false
         openTasksButton.addTarget(self, action: #selector(actionOpenTasks), for: .touchUpInside)
-        
         deleteButton.addTarget(self, action: #selector(actionDeleteProject), for: .touchUpInside)
-        
-        view.addSubview(openTasksButton)
-        view.addSubview(deleteButton)
-        
+
         NSLayoutConstraint.activate([
-            openTasksButton.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 30),
-            openTasksButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            openTasksButton.centerXAnchor.constraint(equalTo: contentScrollView.centerXAnchor),
             openTasksButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05),
             openTasksButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5),
             
-            deleteButton.topAnchor.constraint(equalTo: openTasksButton.bottomAnchor, constant: 10),
-            deleteButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            deleteButton.centerXAnchor.constraint(equalTo: contentScrollView.centerXAnchor),
             deleteButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05),
             deleteButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5)
         ])
     }
     
     private func updateLabels() {
-        nameLabel.text = project.projectName
-        descriptionLabel.text = project.description
+        nameRow.value = project.projectName
+        descriptionRow.value = project.description
     }
         
     @objc private func actionChangeProject() {

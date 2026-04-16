@@ -8,25 +8,13 @@ final class MainMenuViewController: UIViewController {
     
     private lazy var buttons: [UIButton] = {
         menuItems.map { title in
-            let button = UIButton()
-            button.setTitle(title, for: .normal)
-            button.setTitleColor(.black, for: .normal)
-            button.backgroundColor = .lightGray
-            button.translatesAutoresizingMaskIntoConstraints = false
+            let button = UIFactory.createDefaultButton(text: title)
             button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
             return button
         }
     }()
             
-    private lazy var stackView: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: buttons)
-        stack.axis = .vertical
-        stack.spacing = 16
-        stack.distribution = .fillEqually
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        
-        return stack
-    }()
+    private lazy var сcontentScrollView = UIFactory.createVerticalScrollView(views: buttons, spacing: 15)
     
     init(server: Server, settings: SettingsManager) {
         self.settings = settings
@@ -46,16 +34,21 @@ final class MainMenuViewController: UIViewController {
     private func setupUI() {
         view.backgroundColor = .white
         title = Localized.mainMenu
-        view.addSubview(stackView)
-        setupConstraints()
+        setupContentView()
     }
     
-    private func setupConstraints() {
+    private func setupContentView() {
+        view.addSubview(сcontentScrollView)
+        
+        for button in buttons {
+            button.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05).isActive = true
+        }
+        
         NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
-            stackView.heightAnchor.constraint(equalToConstant: CGFloat(buttons.count * 60))
+            сcontentScrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            сcontentScrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+            сcontentScrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
+            сcontentScrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
         ])
     }
     

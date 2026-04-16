@@ -8,13 +8,11 @@ final class EmployeeDetailViewController: BaseViewController {
     private let indexPath: IndexPath
     private var employee: Employee
     
-    private var nameLabel = UILabel()
-    private var positionLabel = UILabel()
-    
-    private var nameTitleLabel = UIFactory.createTitleLabel(text: Localized.fullNameLabel)
-    private var positionTitleLabel = UIFactory.createTitleLabel(text: Localized.positionLabel)
-    
+    private let fullNameRow = InfoRowView(title: Localized.fullNameLabel)
+    private let positionRow = InfoRowView(title: Localized.positionLabel)
     private var deleteButton = UIFactory.createDeleteButton()
+    
+    private lazy var contentScrollView = UIFactory.createVerticalScrollView(views: [fullNameRow, positionRow, deleteButton], spacing: 15)
     
     init(indexPath: IndexPath, employee: Employee, server: Server, onUpdate: @escaping ((Employee) -> Void), onDelete: @escaping ((IndexPath) -> Void)) {
         self.indexPath = indexPath
@@ -36,56 +34,38 @@ final class EmployeeDetailViewController: BaseViewController {
     
     private func setupUI() {
         setupNavigationBar(navigationTitle: Localized.employeeDetails, rightButtonTitle: Localized.edit, rightButtonAction: #selector(actionChangeEmployee))
-        setupLabels()
-        setupButtons()
+        setupContentView()
+        setupDeleteButton()
+        updateLabels()
     }
     
-    private func setupLabels() {
-        updateLabels()
-
-        nameLabel.numberOfLines = 5
-        nameLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        positionLabel.numberOfLines = 3
-        positionLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        view.addSubview(nameTitleLabel)
-        view.addSubview(nameLabel)
-        view.addSubview(positionTitleLabel)
-        view.addSubview(positionLabel)
-        
+    private func setupContentView() {
+        view.addSubview(contentScrollView)
+                
         NSLayoutConstraint.activate([
-            nameTitleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            nameTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            contentScrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            contentScrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            contentScrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            contentScrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 10),
             
-            nameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            nameLabel.leadingAnchor.constraint(equalTo: nameTitleLabel.trailingAnchor, constant: 5),
-            nameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            positionTitleLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 15),
-            positionTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            
-            positionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 15),
-            positionLabel.leadingAnchor.constraint(equalTo: positionTitleLabel.trailingAnchor, constant: 5),
-            positionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+            fullNameRow.leadingAnchor.constraint(equalTo: contentScrollView.leadingAnchor),
+            positionRow.leadingAnchor.constraint(equalTo: contentScrollView.leadingAnchor)
         ])
     }
     
-    private func setupButtons() {
+    private func setupDeleteButton() {
         deleteButton.addTarget(self, action: #selector(actionDeleteEmployee), for: .touchUpInside)
-        view.addSubview(deleteButton)
         
         NSLayoutConstraint.activate([
-            deleteButton.topAnchor.constraint(equalTo: positionLabel.bottomAnchor, constant: 30),
-            deleteButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            deleteButton.centerXAnchor.constraint(equalTo: contentScrollView.centerXAnchor),
             deleteButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05),
             deleteButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5)
         ])
     }
     
     private func updateLabels() {
-        nameLabel.text = employee.fullName
-        positionLabel.text = employee.position
+        fullNameRow.value = employee.fullName
+        positionRow.value = employee.position
     }
     
     @objc private func actionChangeEmployee() {
