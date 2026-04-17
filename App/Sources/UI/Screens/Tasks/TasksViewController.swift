@@ -87,24 +87,9 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
     }
 
     @objc private func actionAddTask() {
-        let editModuleViewController: UIViewController
-        let onCreate = { [weak self] task in
-            guard let self else {
-                return
-            }
-            self.addItem(task)
-        }
-        let isOpenedFromProject = project == nil ? false : true
-
-        editModuleViewController = EditTaskBuilder.build(
-            project: project,
-            isOpenedFromProject: isOpenedFromProject,
-            server: server,
-            settings: settings,
-            action: .create(onCreate)
-        )
-    
-        navigationController?.pushViewController(editModuleViewController, animated: true)
+        let editModuleViewController = EditTaskBuilder.build(moduleOutput: self)
+        editModuleViewController.input.configureForCreate(project: project)
+        navigationController?.pushViewController(editModuleViewController.view, animated: true)
     }
 }
 
@@ -167,13 +152,25 @@ extension TasksViewController: UITableViewDelegate {
             isOpenedFromProject: isOpenedFromProject,
             server: server,
             settings: settings,
-            onUpdate: { [weak self] task in
-                self?.updateItem(task) { $0.id == task.id }
-            }, onDelete: { [weak self] indexPath in
-                self?.deleteTask(at: indexPath)
-            }
+            moduleOutput: self
         )
         
         return detailViewController
+    }
+}
+
+extension TasksViewController: EditTaskModuleOutputProtocol {
+    func didCreateTask(_ task: ProjectTask) {
+        addItem(task)
+    }
+    
+    func didUpdateTask(_ task: ProjectTask, project: Project?, employee: Employee?) {
+        updateItem(task) { $0.id == task.id }
+    }
+}
+
+extension TasksViewController: TaskDetailModuleOutputProtocol {
+    func didDeleteTask(at indexPath: IndexPath) {
+        deleteTask(at: indexPath)
     }
 }

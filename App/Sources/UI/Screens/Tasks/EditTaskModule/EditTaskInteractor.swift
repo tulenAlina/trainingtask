@@ -1,11 +1,15 @@
-protocol EditTaskInteractorProtocol: AnyObject {
+protocol EditTaskInteractorInputProtocol: AnyObject {
     func fetchData() async throws -> (projects: [Project], employees: [Employee])
     func createTask(_ task: ProjectTask) async throws -> ProjectTask
     func updateTask(_ task: ProjectTask) async throws -> ProjectTask
     func defaultDaysBetween() -> Int
 }
 
-final class EditTaskInteractor: EditTaskInteractorProtocol {
+protocol EditTaskInteractorOutputProtocol: AnyObject {}
+
+final class EditTaskInteractor: EditTaskInteractorInputProtocol {
+    weak var output: EditTaskInteractorOutputProtocol?
+    
     private let server: Server
     private let settings: SettingsManager
     

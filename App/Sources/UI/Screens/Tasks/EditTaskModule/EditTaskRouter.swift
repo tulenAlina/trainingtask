@@ -1,12 +1,12 @@
 import UIKit
 
-protocol EditTaskRouterProtocol: AnyObject {
+protocol EditTaskRouterInputProtocol: AnyObject {
     func navigateToProjectSelection(completion: @escaping (Project) -> Void)
     func navigateToEmployeeSelection(completion: @escaping (Employee) -> Void)
     func close()
 }
 
-final class EditTaskRouter: EditTaskRouterProtocol {
+final class EditTaskRouter: EditTaskRouterInputProtocol {
     weak var viewController: UIViewController?
 
     private let settings: SettingsManager

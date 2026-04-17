@@ -1,34 +1,21 @@
 import Foundation
 
-protocol EditTaskPresenterProtocol: AnyObject {
-    func viewDidLoad()
-    func didTapSaveButton(taskNameString: String, workTime: String, startDateString: String, endDateString: String, statusIndex: Int)
-    func didTapClearEmployee()
-    func didTapSelectProject()
-    func didTapSelectEmployee()
-}
-
 final class EditTaskPresenter {
-    weak var view: EditTaskViewProtocol?
+    weak var view: EditTaskViewInputProtocol?
+    weak var moduleOutput: EditTaskModuleOutputProtocol?
+    private let interactor: EditTaskInteractorInputProtocol
+    private let router: EditTaskRouterInputProtocol
     
-    private let interactor: EditTaskInteractorProtocol
-    private let router: EditTaskRouterProtocol
-    private let action: EditTaskAction
-    
+    private var action: EditTaskActionType = .create
     private var task: ProjectTask?
     private var project: Project?
     private var employee: Employee?
-    private let isOpenedFromProject: Bool
+    private var isOpenedFromProject = false
     
-    init(interactor: EditTaskInteractorProtocol, router: EditTaskRouterProtocol, task: ProjectTask? = nil, project: Project?, isOpenedFromProject: Bool, employee: Employee?, action: EditTaskAction)
+    init(interactor: EditTaskInteractorInputProtocol, router: EditTaskRouterInputProtocol)
     {
         self.interactor = interactor
         self.router = router
-        self.task = task
-        self.project = project
-        self.isOpenedFromProject = isOpenedFromProject
-        self.employee = employee
-        self.action = action
     }
     
     private func isFieldsChanged(taskNameString: String, projectID: UUID, workTime: Int, startDateString: String, endDateString: String, statusIndex: Int, employeeID: UUID?) -> Bool {
@@ -193,7 +180,7 @@ final class EditTaskPresenter {
     }
 }
 
-extension EditTaskPresenter: EditTaskPresenterProtocol {
+extension EditTaskPresenter: EditTaskViewOutputProtocol {
     func viewDidLoad() {
         let title = (task != nil) ? Localized.editTask : Localized.addTask
         configureFields()
@@ -222,10 +209,10 @@ extension EditTaskPresenter: EditTaskPresenterProtocol {
 
                 await MainActor.run {
                     switch self.action {
-                    case .create(let onCreate):
-                        onCreate(savedTask)
-                    case .update(let onUpdate):
-                        onUpdate(savedTask, project, employee)
+                    case .create:
+                        moduleOutput?.didCreateTask(savedTask)
+                    case .update:
+                        moduleOutput?.didUpdateTask(savedTask, project: project, employee: employee)
                                         }
                     view.stopLoading()
                     router.close()
@@ -253,5 +240,26 @@ extension EditTaskPresenter: EditTaskPresenterProtocol {
     
     func didTapClearEmployee() {
         employee = nil
+    }
+}
+
+extension EditTaskPresenter: EditTaskInteractorOutputProtocol {
+}
+
+extension EditTaskPresenter: EditTaskModuleInputProtocol {
+    func configureForCreate(project: Project?) {
+        self.task = nil
+        self.project = project
+        self.isOpenedFromProject = project != nil ? true : false
+        self.employee = nil
+        self.action = .create
+    }
+    
+    func configureForUpdate(task: ProjectTask, project: Project?, isOpenedFromProject: Bool, employee: Employee?) {
+        self.task = task
+        self.project = project
+        self.isOpenedFromProject = isOpenedFromProject
+        self.employee = employee
+        self.action = .update
     }
 }

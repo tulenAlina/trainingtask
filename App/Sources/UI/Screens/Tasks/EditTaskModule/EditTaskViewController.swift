@@ -1,7 +1,7 @@
 import UIKit
 
-protocol EditTaskViewProtocol: AnyObject {
-    var presenter: EditTaskPresenterProtocol { get set }
+protocol EditTaskViewInputProtocol: AnyObject {
+    var presenter: EditTaskViewOutputProtocol { get set }
     var requiredFields: [UITextField] { get }
     
     func setupNavigationBar(title: String)
@@ -17,8 +17,17 @@ protocol EditTaskViewProtocol: AnyObject {
     func showAlert (_ message: String)
 }
 
+protocol EditTaskViewOutputProtocol: AnyObject {
+    func viewDidLoad()
+    func didTapSaveButton(taskNameString: String, workTime: String, startDateString: String, endDateString: String, statusIndex: Int)
+    func didTapClearEmployee()
+    func didTapSelectProject()
+    func didTapSelectEmployee()
+}
+
 final class EditTaskViewController: BaseViewController {
-    var presenter: EditTaskPresenterProtocol
+    var presenter: EditTaskViewOutputProtocol
+
     
     private let toolbar = UIToolbar()
     private let taskEditView = EditView()
@@ -38,7 +47,7 @@ final class EditTaskViewController: BaseViewController {
     
     private lazy var employeeHorizontalStack = UIFactory.createHorizontalStackView(views: [employeeTextField, clearEmployeeButton], spacing: 5)
     
-    init(presenter: EditTaskPresenterProtocol) {
+    init(presenter: EditTaskViewOutputProtocol) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
     }
@@ -204,7 +213,7 @@ extension EditTaskViewController: UITextFieldDelegate {
     }
 }
 
-extension EditTaskViewController: EditTaskViewProtocol {
+extension EditTaskViewController: EditTaskViewInputProtocol {
     var requiredFields: [UITextField] {
         return [taskNameTextField, projectTextField, workTimeTextField]
     }

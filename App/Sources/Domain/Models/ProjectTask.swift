@@ -11,9 +11,9 @@ enum TaskStatus: String, CaseIterable {
     }
 }
 
-enum EditTaskAction {
-    case create((ProjectTask) -> Void)
-    case update((ProjectTask, Project?, Employee?) -> Void)
+enum EditTaskActionType {
+    case create
+    case update
 }
 
 struct ProjectTask {

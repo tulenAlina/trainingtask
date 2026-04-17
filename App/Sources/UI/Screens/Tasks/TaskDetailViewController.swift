@@ -1,8 +1,12 @@
 import UIKit
 
+protocol TaskDetailModuleOutputProtocol: AnyObject {
+    func didUpdateTask(_ task: ProjectTask, project: Project?, employee: Employee?)
+    func didDeleteTask(at indexPath: IndexPath)
+}
+
 final class TaskDetailViewController: BaseViewController {
-    var onUpdate: ((ProjectTask) -> Void)
-    var onDelete: ((IndexPath) -> Void)
+    weak var moduleOutput: TaskDetailModuleOutputProtocol?
     
     private let server: Server
     private let settings: SettingsManager
@@ -24,7 +28,7 @@ final class TaskDetailViewController: BaseViewController {
     
     private lazy var contentScrollView = ScrollableStackView(views: [taskAndStatusRow, projectAndEmployeeRow, timeCardView, deleteButton], spacing: 30)
     
-    init(indexPath: IndexPath, task: ProjectTask, project: Project?, employee: Employee?, isOpenedFromProject: Bool, server: Server, settings: SettingsManager, onUpdate: @escaping ((ProjectTask) -> Void), onDelete: @escaping ((IndexPath) -> Void)) {
+    init(indexPath: IndexPath, task: ProjectTask, project: Project?, employee: Employee?, isOpenedFromProject: Bool, server: Server, settings: SettingsManager, moduleOutput: TaskDetailModuleOutputProtocol?) {
         self.indexPath = indexPath
         self.task = task
         self.project = project
@@ -32,8 +36,7 @@ final class TaskDetailViewController: BaseViewController {
         self.isOpenedFromProject = isOpenedFromProject
         self.server = server
         self.settings = settings
-        self.onUpdate = onUpdate
-        self.onDelete = onDelete
+        self.moduleOutput = moduleOutput
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -87,26 +90,26 @@ final class TaskDetailViewController: BaseViewController {
     }
     
     @objc private func actionDeleteTask() {
-        onDelete(indexPath)
+        moduleOutput?.didDeleteTask(at: indexPath)
         navigationController?.popViewController(animated: true)
     }
     
     @objc private func actionChangeTask() {
-        let editModuleViewController = EditTaskBuilder.build(
-            task: task,
-            project: project,
-            isOpenedFromProject: isOpenedFromProject,
-            employee: employee,
-            server: server,
-            settings: settings,
-            action: .update {[weak self] task, project, employee in
-                self?.task = task
-                self?.project = project
-                self?.employee = employee
-                self?.onUpdate(task)
-                self?.updateLabels()
-            }
-        )
-        navigationController?.pushViewController(editModuleViewController, animated: true)
+        let editModuleViewController = EditTaskBuilder.build(moduleOutput: self)
+        editModuleViewController.input.configureForUpdate(task: task, project: project, isOpenedFromProject: isOpenedFromProject, employee: employee)
+        navigationController?.pushViewController(editModuleViewController.view, animated: true)
+    }
+}
+
+extension TaskDetailViewController: EditTaskModuleOutputProtocol {
+    func didCreateTask(_ task: ProjectTask) {}
+    
+    func didUpdateTask(_ task: ProjectTask, project: Project?, employee: Employee?) {
+        self.task = task
+        self.project = project
+        self.employee = employee
+                
+        updateLabels()
+        moduleOutput?.didUpdateTask(task, project: project, employee: employee)
     }
 }

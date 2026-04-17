@@ -3,24 +3,24 @@ import UIKit
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
-    private let server: Server = StubServer()
-    private var settings: SettingsManager?
+    static let server: Server = StubServer()
+    static var settings: SettingsManager?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         Thread.sleep(forTimeInterval: 5.0)
         window = UIWindow(frame: UIScreen.main.bounds)
         
         do {
-            settings = try SettingsManager()
+            AppDelegate.settings = try SettingsManager()
         } catch {
             showFatalErrorAndExit()
             return false
         }
-        guard let settings = settings else {
+        guard let settings = AppDelegate.settings else {
             return false
         }
 
-        let mainMenuViewController = MainMenuViewController(server: server, settings: settings)
+        let mainMenuViewController = MainMenuViewController(server: AppDelegate.server, settings: settings)
         let navigationController = UINavigationController(rootViewController: mainMenuViewController)
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
