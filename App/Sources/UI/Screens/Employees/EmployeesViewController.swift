@@ -6,7 +6,7 @@ final class EmployeesViewController: BaseListViewController<Employee> {
         case selection(onSelect: (Employee) -> Void)
     }
     
-    private let server: Server
+    private let server: Server = AppDelegate.server
     private let mode: EmployeesDisplayMode
     
     private var onSelectEmployee: ((Employee) -> Void)? {
@@ -20,10 +20,9 @@ final class EmployeesViewController: BaseListViewController<Employee> {
         return Localized.noEmployees
     }
     
-    init(server: Server, settings: SettingsManager, mode: EmployeesDisplayMode = .list) {
-        self.server = server
+    init(mode: EmployeesDisplayMode = .list) {
         self.mode = mode
-        super.init(settings: settings)
+        super.init(settings: AppDelegate.settings)
     }
     
     required init?(coder: NSCoder) {

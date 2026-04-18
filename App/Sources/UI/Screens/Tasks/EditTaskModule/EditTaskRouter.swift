@@ -1,32 +1,40 @@
 import UIKit
 
-protocol EditTaskRouterInputProtocol: AnyObject {
-    func navigateToProjectSelection(completion: @escaping (Project) -> Void)
-    func navigateToEmployeeSelection(completion: @escaping (Employee) -> Void)
+protocol EditTaskRouterInputProtocol {
+    var onProjectSelect: ((Project) -> Void)? { get set }
+    var onEmployeeSelect: ((Employee) -> Void)? { get set }
+    func showProjects()
+    func showEmployees()
     func close()
 }
 
 final class EditTaskRouter: EditTaskRouterInputProtocol {
     weak var viewController: UIViewController?
-
-    private let settings: SettingsManager
-    private let server: Server
     
-    init(server: Server, settings: SettingsManager) {
-        self.server = server
-        self.settings = settings
+    var onProjectSelect: ((Project) -> Void)? {
+        didSet {
+            showProjects()
+        }
     }
     
-    func navigateToProjectSelection(completion: @escaping (Project) -> Void) {
-        let projectsViewController = ProjectsViewController(server: server, settings: settings, mode: .selection(onSelect: completion)) 
-        viewController?.navigationController?.pushViewController(projectsViewController, animated: true)
+    var onEmployeeSelect: ((Employee) -> Void)? {
+        didSet {
+            showEmployees()
+        }
     }
     
-    func navigateToEmployeeSelection(completion: @escaping (Employee) -> Void) {
-        let employeesViewController = EmployeesViewController(server: server, settings: settings, mode: .selection(onSelect: completion))
+    func showProjects() {
+        guard let onProjectSelect else { return }
+       let projectsViewController = ProjectsViewController(mode: .selection(onSelect: onProjectSelect))
+       viewController?.navigationController?.pushViewController(projectsViewController, animated: true)
+    }
+    
+    func showEmployees() {
+        guard let onEmployeeSelect else { return }
+        let employeesViewController = EmployeesViewController(mode: .selection(onSelect: onEmployeeSelect))
         viewController?.navigationController?.pushViewController(employeesViewController, animated: true)
     }
-    
+
     func close() {
         viewController?.navigationController?.popViewController(animated: true)
     }

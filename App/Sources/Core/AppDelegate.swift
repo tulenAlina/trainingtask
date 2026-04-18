@@ -4,23 +4,18 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     static let server: Server = StubServer()
-    static var settings: SettingsManager?
+    static let settings: SettingsManager = SettingsManager()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         Thread.sleep(forTimeInterval: 5.0)
         window = UIWindow(frame: UIScreen.main.bounds)
         
-        do {
-            AppDelegate.settings = try SettingsManager()
-        } catch {
+        if AppDelegate.settings.didFailToLoadConfig {
             showFatalErrorAndExit()
             return false
         }
-        guard let settings = AppDelegate.settings else {
-            return false
-        }
-
-        let mainMenuViewController = MainMenuViewController(server: AppDelegate.server, settings: settings)
+        
+        let mainMenuViewController = MainMenuViewController(server: AppDelegate.server, settings: AppDelegate.settings)
         let navigationController = UINavigationController(rootViewController: mainMenuViewController)
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()

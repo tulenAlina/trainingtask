@@ -59,13 +59,13 @@ final class MainMenuViewController: UIViewController {
         
         switch title {
         case Localized.projects:
-            let projectsViewController = ProjectsViewController(server: server, settings: settings)
+            let projectsViewController = ProjectsViewController()
             navigationController?.pushViewController(projectsViewController, animated: true)
         case Localized.tasks:
             let tasksViewController = TasksViewController(server: server, settings: settings)
             navigationController?.pushViewController(tasksViewController, animated: true)
         case Localized.employees:
-            let employeesViewController = EmployeesViewController(server: server, settings: settings)
+            let employeesViewController = EmployeesViewController()
             navigationController?.pushViewController(employeesViewController, animated: true)
         case Localized.settings:
             let settingsViewController = SettingsViewController(settings: settings)

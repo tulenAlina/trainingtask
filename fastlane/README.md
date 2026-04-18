@@ -15,13 +15,21 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## iOS
 
+### ios development
+
+```sh
+[bundle exec] fastlane ios development
+```
+
+Build .ipa for development
+
 ### ios release
 
 ```sh
 [bundle exec] fastlane ios release
 ```
 
-Build .ipa for distribution
+Build .ipa for distribution (App Store)
 
 ### ios export_app
 
@@ -29,7 +37,7 @@ Build .ipa for distribution
 [bundle exec] fastlane ios export_app
 ```
 
-To export app
+To export app (deprecated, use :development)
 
 ----
 

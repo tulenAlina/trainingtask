@@ -1,29 +1,41 @@
 default_platform(:ios)
 
 platform :ios do
-  desc "Build .ipa for distribution"
-  lane :release do
-  clear_derived_data 
-    build_app(
+  desc "Build .ipa for development"
+  lane :development do
+    clear_derived_data
+    
+    gym(
       scheme: "trainingtask",
-      workspace: "trainingtask.xcworkspace",
+      project: "trainingtask.xcodeproj", 
+      configuration: "Debug",           
       output_directory: "./build",
-      output_name: "trainingtask.ipa",
-      export_method: "app-store", 
+      output_name: "trainingtask_dev.ipa",
+      export_method: "development",     
+      clean: true,
+      skip_codesigning: false,
+      xcargs: "-allowProvisioningUpdates"
     )
   end
   
-  desc "To export app"
-  lane :export_app do
+  desc "Build .ipa for distribution (App Store)"
+  lane :release do
+    clear_derived_data
+    
     gym(
-      project: "trainingtask.xcodeproj",
       scheme: "trainingtask",
-      configuration: "Debug",
+      project: "trainingtask.xcodeproj",
+      configuration: "Release",         
       output_directory: "./build",
-      output_name: "trainingtask_dev.ipa",
-      export_method: "app-store",
+      output_name: "trainingtask.ipa",
+      export_method: "app-store",        
       clean: true,
       skip_codesigning: false
     )
+  end
+  
+  desc "To export app (deprecated, use :development)"
+  lane :export_app do
+    development
   end
 end

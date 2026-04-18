@@ -61,8 +61,8 @@ final class StatusView: UIView {
             statusView.layer.borderColor = UIColor.blue.cgColor
             statusView.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.1)
         case .completed:
-            statusLabel.textColor = .green
-            statusView.layer.borderColor = UIColor.green.cgColor
+            statusLabel.textColor = UIColor(red: 0.3, green: 0.65, blue: 0.3, alpha: 1)
+            statusView.layer.borderColor = UIColor(red: 0.3, green: 0.65, blue: 0.3, alpha: 1).cgColor
             statusView.backgroundColor = UIColor.systemGreen.withAlphaComponent(0.1)
         case .postponed:
             statusLabel.textColor = .orange

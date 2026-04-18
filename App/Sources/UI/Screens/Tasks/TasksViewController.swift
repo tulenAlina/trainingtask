@@ -87,7 +87,7 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
     }
 
     @objc private func actionAddTask() {
-        let editModuleViewController = EditTaskBuilder.build(moduleOutput: self)
+        let editModuleViewController = EditTaskModule.build(moduleOutput: self)
         editModuleViewController.input.configureForCreate(project: project)
         navigationController?.pushViewController(editModuleViewController.view, animated: true)
     }

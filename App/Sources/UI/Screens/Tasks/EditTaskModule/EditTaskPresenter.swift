@@ -1,10 +1,10 @@
 import Foundation
 
-final class EditTaskPresenter {
+final class EditTaskPresenter: EditTaskModuleInputProtocol {
     weak var view: EditTaskViewInputProtocol?
-    weak var moduleOutput: EditTaskModuleOutputProtocol?
+    weak var output: EditTaskModuleOutputProtocol?
     private let interactor: EditTaskInteractorInputProtocol
-    private let router: EditTaskRouterInputProtocol
+    private var router: EditTaskRouterInputProtocol
     
     private var action: EditTaskActionType = .create
     private var task: ProjectTask?
@@ -12,13 +12,72 @@ final class EditTaskPresenter {
     private var employee: Employee?
     private var isOpenedFromProject = false
     
-    init(interactor: EditTaskInteractorInputProtocol, router: EditTaskRouterInputProtocol)
-    {
+    init(interactor: EditTaskInteractorInputProtocol, router: EditTaskRouterInputProtocol) {
         self.interactor = interactor
         self.router = router
     }
     
-    private func isFieldsChanged(taskNameString: String, projectID: UUID, workTime: Int, startDateString: String, endDateString: String, statusIndex: Int, employeeID: UUID?) -> Bool {
+    func configureForCreate(project: Project?) {
+        self.task = nil
+        self.project = project
+        self.isOpenedFromProject = project != nil ? true : false
+        self.employee = nil
+        self.action = .create
+    }
+    
+    func configureForUpdate(task: ProjectTask, project: Project?, isOpenedFromProject: Bool, employee: Employee?) {
+        self.task = task
+        self.project = project
+        self.isOpenedFromProject = isOpenedFromProject
+        self.employee = employee
+        self.action = .update
+    }
+}
+
+extension EditTaskPresenter: EditTaskViewOutputProtocol {
+    func viewDidLoad() {
+        let title = (task != nil) ? Localized.editTask : Localized.addTask
+        configureFields()
+        configureStatus()
+        view?.setupNavigationBar(title: title)
+    }
+    
+    func didTapSaveButton(taskNameString: String, workTime: String, startDateString: String, endDateString: String, statusIndex: Int) {
+        guard validateTask(taskNameString: taskNameString, workTime: workTime, startDateString: startDateString, endDateString: endDateString, statusIndex: statusIndex), let project else {
+            return
+        }
+        
+        guard isFieldsChanged(taskNameString: taskNameString, projectID: project.id, workTime: workTime.cleanedInt, startDateString: startDateString, endDateString: endDateString, statusIndex: statusIndex, employeeID: employee?.id
+        ) else {
+            router.close()
+            return
+        }
+        
+        saveTask(taskNameString: taskNameString, workTime: workTime, startDateString: startDateString, endDateString: endDateString, statusIndex: statusIndex)
+    }
+    
+    func didTapSelectProject() {
+        router.onProjectSelect = { [weak self] project in
+            self?.didSelectProject(project)
+        }
+    }
+
+    func didTapSelectEmployee() {
+        router.onEmployeeSelect = { [weak self] employee in
+            self?.didSelectEmployee(employee)
+        }
+    }
+    
+    func didTapClearEmployee() {
+        employee = nil
+    }
+}
+
+extension EditTaskPresenter: EditTaskInteractorOutputProtocol {
+}
+
+private extension EditTaskPresenter {
+    func isFieldsChanged(taskNameString: String, projectID: UUID, workTime: Int, startDateString: String, endDateString: String, statusIndex: Int, employeeID: UUID?) -> Bool {
         guard let task = task else {
             return true
         }
@@ -34,17 +93,17 @@ final class EditTaskPresenter {
         return isTaskNameChanged || isProjectChanged || isWorkTimeChanged || isStartDateChanged || isEndDateChanged || isEmployeeChanged || isStatusChanged
     }
 
-    private func didSelectProject(_ project: Project) {
+    func didSelectProject(_ project: Project) {
         self.project = project
         view?.updateProjectName(project.projectName)
     }
 
-    private func didSelectEmployee(_ employee: Employee) {
+    func didSelectEmployee(_ employee: Employee) {
         self.employee = employee
         view?.updateEmployeeName(employee.fullName)
     }
     
-    private func configureFields() {
+    func configureFields() {
         view?.setEndDateField(defaultDaysBetween: interactor.defaultDaysBetween())
         
         if let task {
@@ -70,7 +129,7 @@ final class EditTaskPresenter {
         }
     }
     
-    private func configureStatus() {
+    func configureStatus() {
         let index: Int
         if let task {
             index = TaskStatus.allCases.firstIndex { $0 == task.status } ?? 0
@@ -80,7 +139,7 @@ final class EditTaskPresenter {
         view?.setupSegmentedControl(index: index)
     }
     
-    private func createTask(
+    func createTask(
         from existingTask: ProjectTask? = nil,
         newTaskName: String,
         newProjectID: UUID,
@@ -118,16 +177,45 @@ final class EditTaskPresenter {
             )
         }
     }
+    
+    func saveTask(taskNameString: String, workTime: String, startDateString: String, endDateString: String, statusIndex: Int) {
+        view?.startLoading()
+        guard let project else {
+            return
+        }
+        
+        Task {
+            do {
+                let newTask = createTask(from: task, newTaskName: taskNameString, newProjectID: project.id, newWorkTime: workTime.cleanedInt, newStartDateString: startDateString, newEndDateString: endDateString, newStatusIndex: statusIndex, newEmployeeID: employee?.id)
+                let savedTask = task != nil ? try await interactor.updateTask(newTask) : try await interactor.createTask(newTask)
 
-    private func validateFields(taskNameString: String, projectName: String?, workTime: String) -> Bool {
+                await MainActor.run {
+                    switch self.action {
+                    case .create:
+                        output?.didCreateTask(savedTask)
+                    case .update:
+                        output?.didUpdateTask(savedTask, project: project, employee: employee)
+                                        }
+                    view?.stopLoading()
+                    router.close()
+                }
+            } catch {
+                await MainActor.run {
+                    view?.stopLoading()
+                    view?.showAlert(Localized.saveFailed)
+                }
+            }
+        }
+    }
+
+    func validateFields(taskNameString: String, projectName: String?, workTime: String) -> Bool {
         guard let view else {
             return false
         }
         var fieldsValidity: [Bool] = []
         var isValid = true
         
-        for text in [taskNameString, projectName, workTime]
-        {
+        for text in [taskNameString, projectName, workTime] {
             if text == nil || text?.isBlank == true {
                 fieldsValidity.append(false)
                 isValid = false
@@ -140,7 +228,7 @@ final class EditTaskPresenter {
         return isValid
     }
     
-    private func validateDates(startDateString: String, endDateString: String, workTime: Int) -> Bool{
+    func validateDates(startDateString: String, endDateString: String, workTime: Int) -> Bool{
         guard let startDate = DateHelper.date(from: startDateString),
               let endDate = DateHelper.date(from: endDateString)
         else {
@@ -168,7 +256,7 @@ final class EditTaskPresenter {
         return true
     }
     
-    private func validateTask(taskNameString: String, workTime: String, startDateString: String, endDateString: String, statusIndex: Int) -> Bool {
+    func validateTask(taskNameString: String, workTime: String, startDateString: String, endDateString: String, statusIndex: Int) -> Bool {
         guard validateFields(taskNameString: taskNameString, projectName: project?.projectName, workTime: workTime) else {
             view?.showAlert(Localized.emptyFields)
             return false
@@ -176,90 +264,7 @@ final class EditTaskPresenter {
         guard validateDates(startDateString: startDateString, endDateString: endDateString, workTime: workTime.cleanedInt) else {
             return false
         }
+        
         return true
-    }
-}
-
-extension EditTaskPresenter: EditTaskViewOutputProtocol {
-    func viewDidLoad() {
-        let title = (task != nil) ? Localized.editTask : Localized.addTask
-        configureFields()
-        configureStatus()
-        view?.setupNavigationBar(title: title)
-    }
-    
-    func didTapSaveButton(taskNameString: String, workTime: String, startDateString: String, endDateString: String, statusIndex: Int) {
-        guard let view, validateTask(taskNameString: taskNameString, workTime: workTime, startDateString: startDateString, endDateString: endDateString, statusIndex: statusIndex), let project else {
-            return
-        }
-        
-        guard isFieldsChanged(taskNameString: taskNameString, projectID: project.id, workTime: workTime.cleanedInt, startDateString: startDateString, endDateString: endDateString, statusIndex: statusIndex, employeeID: employee?.id
-        ) else {
-            router.close()
-            return
-        }
-        
-        view.startLoading()
-        let isUpdate = task != nil
-        
-        Task {
-            do {
-                let newTask = createTask(from: task, newTaskName: taskNameString, newProjectID: project.id, newWorkTime: workTime.cleanedInt, newStartDateString: startDateString, newEndDateString: endDateString, newStatusIndex: statusIndex, newEmployeeID: employee?.id)
-                let savedTask = isUpdate ? try await interactor.updateTask(newTask) : try await interactor.createTask(newTask)
-
-                await MainActor.run {
-                    switch self.action {
-                    case .create:
-                        moduleOutput?.didCreateTask(savedTask)
-                    case .update:
-                        moduleOutput?.didUpdateTask(savedTask, project: project, employee: employee)
-                                        }
-                    view.stopLoading()
-                    router.close()
-                }
-            } catch {
-                await MainActor.run {
-                    view.stopLoading()
-                    view.showAlert(Localized.saveFailed)
-                }
-            }
-        }
-    }
-    
-    func didTapSelectProject() {
-        router.navigateToProjectSelection { [weak self] project in
-            self?.didSelectProject(project)
-        }
-    }
-
-    func didTapSelectEmployee() {
-        router.navigateToEmployeeSelection { [weak self] employee in
-            self?.didSelectEmployee(employee)
-        }
-    }
-    
-    func didTapClearEmployee() {
-        employee = nil
-    }
-}
-
-extension EditTaskPresenter: EditTaskInteractorOutputProtocol {
-}
-
-extension EditTaskPresenter: EditTaskModuleInputProtocol {
-    func configureForCreate(project: Project?) {
-        self.task = nil
-        self.project = project
-        self.isOpenedFromProject = project != nil ? true : false
-        self.employee = nil
-        self.action = .create
-    }
-    
-    func configureForUpdate(task: ProjectTask, project: Project?, isOpenedFromProject: Bool, employee: Employee?) {
-        self.task = task
-        self.project = project
-        self.isOpenedFromProject = isOpenedFromProject
-        self.employee = employee
-        self.action = .update
     }
 }

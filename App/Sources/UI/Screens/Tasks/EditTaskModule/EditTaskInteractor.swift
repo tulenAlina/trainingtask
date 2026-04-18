@@ -1,4 +1,4 @@
-protocol EditTaskInteractorInputProtocol: AnyObject {
+protocol EditTaskInteractorInputProtocol {
     func fetchData() async throws -> (projects: [Project], employees: [Employee])
     func createTask(_ task: ProjectTask) async throws -> ProjectTask
     func updateTask(_ task: ProjectTask) async throws -> ProjectTask

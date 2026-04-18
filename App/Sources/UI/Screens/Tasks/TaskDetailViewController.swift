@@ -95,7 +95,7 @@ final class TaskDetailViewController: BaseViewController {
     }
     
     @objc private func actionChangeTask() {
-        let editModuleViewController = EditTaskBuilder.build(moduleOutput: self)
+        let editModuleViewController = EditTaskModule.build(moduleOutput: self)
         editModuleViewController.input.configureForUpdate(task: task, project: project, isOpenedFromProject: isOpenedFromProject, employee: employee)
         navigationController?.pushViewController(editModuleViewController.view, animated: true)
     }

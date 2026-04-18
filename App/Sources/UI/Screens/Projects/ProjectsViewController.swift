@@ -6,8 +6,8 @@ final class ProjectsViewController: BaseListViewController<Project> {
         case selection(onSelect: (Project) -> Void)
     }
     
-    private let server: Server
-    private let settings: SettingsManager
+    private let server: Server = AppDelegate.server
+    private let settings: SettingsManager = AppDelegate.settings
     private let mode: ProjectsDisplayMode
     
     private var onSelectProject: ((Project) -> Void)? {
@@ -21,9 +21,7 @@ final class ProjectsViewController: BaseListViewController<Project> {
         return Localized.noProjects
     }
     
-    init(server: Server, settings: SettingsManager, mode: ProjectsDisplayMode = .list) {
-        self.server = server
-        self.settings = settings
+    init(mode: ProjectsDisplayMode = .list) {
         self.mode = mode
         super.init(settings: settings)
     }

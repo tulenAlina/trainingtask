@@ -1,9 +1,7 @@
 import Foundation
 
 final class SettingsManager {
-    enum Errors: Error {
-        case configFileUploadError
-    }
+    private(set) var didFailToLoadConfig = false
     
     var serverURL: String {
         get {
@@ -34,15 +32,16 @@ final class SettingsManager {
     
     private var config: [String: Any]?
     
-    init() throws {
-        try loadConfig()
+    init() {
+        loadConfig()
         registerDefaults()
     }
     
-    private func loadConfig() throws {
+    private func loadConfig() {
         guard let path = Bundle.main.path(forResource: "config", ofType: "plist"),
               let dict = NSDictionary(contentsOfFile: path) as? [String: Any] else {
-            throw Errors.configFileUploadError
+            didFailToLoadConfig = true
+            return
         }
         config = dict
     }
