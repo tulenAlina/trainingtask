@@ -25,6 +25,14 @@ final class EditView: UIView {
         }
     }
     
+    @objc func textFieldDidChange(sender: UITextField) {
+        if sender.text?.isBlank == false {
+            applyValidationStyle(sender, isValid: true)
+        } else {
+            applyValidationStyle(sender, isValid: false)
+        }
+    }
+    
     private func applyValidationStyle(_ textField: UITextField, isValid: Bool) {
         if isValid {
             textField.layer.borderColor = UIColor(white: 0.8, alpha: 1).cgColor
@@ -32,14 +40,6 @@ final class EditView: UIView {
         } else {
             textField.layer.borderColor = UIColor.red.cgColor
             textField.layer.borderWidth = 1
-        }
-    }
-    
-    @objc func textFieldDidChange(sender: UITextField) {
-        if sender.text?.isBlank == false {
-            applyValidationStyle(sender, isValid: true)
-        } else {
-            applyValidationStyle(sender, isValid: false)
         }
     }
 }

@@ -164,8 +164,8 @@ private extension EditTaskViewController {
     func setupView() {
         setupEditView()
         setupTextFields()
-        setupClearEmployeeButton()
         setupToolbar()
+        setupActions()
     }
     
     func setupEditView() {
@@ -208,15 +208,6 @@ private extension EditTaskViewController {
         projectTextField.delegate = self
         workTimeTextField.delegate = self
         employeeTextField.delegate = self
-        
-        taskNameTextField.addTarget(taskEditView, action: #selector(taskEditView.textFieldDidChange), for: .editingChanged)
-        projectTextField.addTarget(taskEditView, action: #selector(taskEditView.textFieldDidChange), for: .editingChanged)
-        workTimeTextField.addTarget(taskEditView, action: #selector(taskEditView.textFieldDidChange), for: .editingChanged)
-    }
-    
-    func setupClearEmployeeButton() {
-        clearEmployeeButton.addTarget(self, action: #selector(actionClearEmployee), for: .touchUpInside)
-        clearEmployeeButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.2).isActive = true
     }
  
     func setupToolbar() {
@@ -227,6 +218,13 @@ private extension EditTaskViewController {
         let cancelButton = UIBarButtonItem(title: Localized.cancel, style: .plain, target: self, action: #selector(actionEndEditing))
     
         toolbar.setItems([cancelButton, flexibleSpace, doneButton], animated: false)
+    }
+    
+    func setupActions() {
+        taskNameTextField.addTarget(taskEditView, action: #selector(taskEditView.textFieldDidChange), for: .editingChanged)
+        projectTextField.addTarget(taskEditView, action: #selector(taskEditView.textFieldDidChange), for: .editingChanged)
+        workTimeTextField.addTarget(taskEditView, action: #selector(taskEditView.textFieldDidChange), for: .editingChanged)
+        clearEmployeeButton.addTarget(self, action: #selector(actionClearEmployee), for: .touchUpInside)
     }
     
     @objc func actionSaveTask() {

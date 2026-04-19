@@ -30,15 +30,25 @@ final class EditEmployeeViewController: BaseViewController {
         super.viewDidLoad()
         setupView()
     }
-    
-    private func setupView() {
+}
+
+extension EditEmployeeViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+}
+
+private extension EditEmployeeViewController {
+    func setupView() {
         let title = (employee != nil) ? Localized.editEmployee : Localized.addEmployee
         setupNavigationBar(navigationTitle: title, rightButtonTitle: Localized.save, rightButtonAction: #selector(actionSaveEmployee))
         setupEditView()
         setupTextFields()
+        setupActions()
     }
     
-    private func setupEditView() {
+    func setupEditView() {
         view.addSubview(employeeEditView)
         employeeEditView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -59,7 +69,7 @@ final class EditEmployeeViewController: BaseViewController {
         employeeEditView.setupForm(rows: formRows)
     }
     
-    private func setupTextFields() {
+    func setupTextFields() {
         if let employee {
             firstNameTextField.text = (employee.firstName)
             lastNameTextField.text = (employee.lastName)
@@ -67,17 +77,19 @@ final class EditEmployeeViewController: BaseViewController {
             positionTextField.text = (employee.position)
         }
         
-        firstNameTextField.addTarget(employeeEditView, action: #selector(employeeEditView.textFieldDidChange), for: .editingChanged)
-        lastNameTextField.addTarget(employeeEditView, action: #selector(employeeEditView.textFieldDidChange), for: .editingChanged)
-        positionTextField.addTarget(employeeEditView, action: #selector(employeeEditView.textFieldDidChange), for: .editingChanged)
-        
         firstNameTextField.delegate = self
         lastNameTextField.delegate = self
         surNameTextField.delegate = self
         positionTextField.delegate = self
     }
     
-    private func isFieldsChanged() -> Bool {
+    func setupActions() {
+        firstNameTextField.addTarget(employeeEditView, action: #selector(employeeEditView.textFieldDidChange), for: .editingChanged)
+        lastNameTextField.addTarget(employeeEditView, action: #selector(employeeEditView.textFieldDidChange), for: .editingChanged)
+        positionTextField.addTarget(employeeEditView, action: #selector(employeeEditView.textFieldDidChange), for: .editingChanged)
+    }
+    
+    func isFieldsChanged() -> Bool {
         guard let employee else {
             return true
         }
@@ -90,7 +102,7 @@ final class EditEmployeeViewController: BaseViewController {
         return isFirstNameChanged || isLastNameChanged || isSurNameChanged || isPositionChanged
     }
     
-    private func validateFields(firstNameString: String, lastNameString: String, positionString: String) -> Bool {
+    func validateFields(firstNameString: String, lastNameString: String, positionString: String) -> Bool {
         var fieldsValidity: [Bool] = []
         var isValid = true
         
@@ -108,7 +120,7 @@ final class EditEmployeeViewController: BaseViewController {
         return isValid
     }
     
-    private func applyValidationResults(_ fieldsValidity: [Bool]) {
+    func applyValidationResults(_ fieldsValidity: [Bool]) {
         var result: [(UITextField, Bool)] = []
         for i in 0..<requiredFields.count {
             result.append((requiredFields[i], fieldsValidity[i]))
@@ -116,7 +128,7 @@ final class EditEmployeeViewController: BaseViewController {
         employeeEditView.applyValidationResults(result)
     }
     
-    private func updatedEmployee(_ employee: Employee) -> Employee {
+    func updatedEmployee(_ employee: Employee) -> Employee {
         let newFirstName = firstNameTextField.text.unwrappedOrEmpty.trimmed
         let newLastName = lastNameTextField.text.unwrappedOrEmpty.trimmed
         let newSurName = surNameTextField.text?.trimmed ?? nil
@@ -135,7 +147,7 @@ final class EditEmployeeViewController: BaseViewController {
         return updatedEmployee
     }
     
-    private func createEmployee() -> Employee {
+    func createEmployee() -> Employee {
         return Employee(
             firstName: firstNameTextField.text.unwrappedOrEmpty.trimmed,
             lastName: lastNameTextField.text.unwrappedOrEmpty.trimmed,
@@ -144,7 +156,7 @@ final class EditEmployeeViewController: BaseViewController {
         )
     }
     
-    private func saveEmployee() async throws -> Employee {
+    func saveEmployee() async throws -> Employee {
         if let employee {
             let updatedEmployee = updatedEmployee(employee)
             return try await server.updateEmployee(updatedEmployee)
@@ -155,7 +167,7 @@ final class EditEmployeeViewController: BaseViewController {
         }
     }
     
-    @objc private func actionSaveEmployee() {
+    @objc func actionSaveEmployee() {
         guard validateFields(
             firstNameString: firstNameTextField.text.unwrappedOrEmpty.trimmed,
             lastNameString: lastNameTextField.text.unwrappedOrEmpty.trimmed,
@@ -190,12 +202,5 @@ final class EditEmployeeViewController: BaseViewController {
                 }
             }
         }
-    }
-}
-
-extension EditEmployeeViewController: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
     }
 }

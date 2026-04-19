@@ -40,21 +40,23 @@ final class TaskTimeCardView: UIView {
         startDateLabel.text =  DateHelper.string(from: task.startDate)
         endDateLabel.text = DateHelper.string(from: task.endDate)
     }
-    
-    private func setupView() {
+}
+
+private extension TaskTimeCardView {
+    func setupView() {
         setupLabels()
         setupRows()
         setupContentView()
     }
     
-    private func setupLabels() {
+    func setupLabels() {
         [workTimeLabel, startDateLabel, endDateLabel].forEach { label in
             label.numberOfLines = 0
             label.translatesAutoresizingMaskIntoConstraints = false
         }
     }
     
-    private func setupRows() {
+    func setupRows() {
         let workTimeRow = UIStackView(arrangedSubviews: [workTimeTitleLabel, workTimeLabel])
         let startDateRow = UIStackView(arrangedSubviews: [startDateTitleLabel, startDateLabel])
         let endDateRow = UIStackView(arrangedSubviews: [endDateTitleLabel, endDateLabel])
@@ -67,7 +69,7 @@ final class TaskTimeCardView: UIView {
         }
     }
     
-    private func setupContentView() {
+    func setupContentView() {
         addSubview(stackView)
         
         NSLayoutConstraint.activate([

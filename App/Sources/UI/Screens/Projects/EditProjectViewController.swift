@@ -28,28 +28,35 @@ final class EditProjectViewController: BaseViewController {
         super.viewDidLoad()
         setupView()
     }
-    
-    private func setupView() {
+}
+
+extension EditProjectViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+}
+
+private extension EditProjectViewController {
+    func setupView() {
         let title = (project != nil) ? Localized.editProject : Localized.addProject
         setupNavigationBar(navigationTitle: title, rightButtonTitle: Localized.save, rightButtonAction: #selector(actionSaveProject))
-        
         setupTextFields()
         setupEditView()
+        setupActions()
     }
     
-    private func setupTextFields() {
+    func setupTextFields() {
         if let project {
             nameTextField.text = "\(project.projectName)"
             descriptionTextField.text = "\(project.description)"
         }
-        nameTextField.addTarget(projectEditView, action: #selector(projectEditView.textFieldDidChange), for: .editingChanged)
-        descriptionTextField.addTarget(projectEditView, action: #selector(projectEditView.textFieldDidChange), for: .editingChanged)
         
         nameTextField.delegate = self
         descriptionTextField.delegate = self
     }
     
-    private func setupEditView() {
+    func setupEditView() {
         view.addSubview(projectEditView)
         projectEditView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -67,8 +74,13 @@ final class EditProjectViewController: BaseViewController {
         
         projectEditView.setupForm(rows: formRows)
     }
+    
+    func setupActions() {
+        nameTextField.addTarget(projectEditView, action: #selector(projectEditView.textFieldDidChange), for: .editingChanged)
+        descriptionTextField.addTarget(projectEditView, action: #selector(projectEditView.textFieldDidChange), for: .editingChanged)
+    }
 
-    private func isFieldsChanged() -> Bool {
+    func isFieldsChanged() -> Bool {
         guard let project else {
             return true
         }
@@ -78,7 +90,7 @@ final class EditProjectViewController: BaseViewController {
         return isNameChanged || isDescriptionChanged
     }
     
-    private func validateFields(nameString: String, descriptionString: String) -> Bool {
+    func validateFields(nameString: String, descriptionString: String) -> Bool {
         var fieldsValidity: [Bool] = []
         var isValid = true
         
@@ -96,7 +108,7 @@ final class EditProjectViewController: BaseViewController {
         return isValid
     }
     
-    private func applyValidationResults(_ fieldsValidity: [Bool]) {
+    func applyValidationResults(_ fieldsValidity: [Bool]) {
         var result: [(UITextField, Bool)] = []
         for i in 0..<requiredFields.count {
             result.append((requiredFields[i], fieldsValidity[i]))
@@ -104,7 +116,7 @@ final class EditProjectViewController: BaseViewController {
         projectEditView.applyValidationResults(result)
     }
     
-    private func updatedProject(_ project: Project) -> Project {
+    func updatedProject(_ project: Project) -> Project {
         let newProjectName = nameTextField.text.unwrappedOrEmpty.trimmed
         let newDescription = descriptionTextField.text.unwrappedOrEmpty.trimmed
         
@@ -119,14 +131,14 @@ final class EditProjectViewController: BaseViewController {
         return updatedProject
     }
     
-    private func createProject() -> Project {
+    func createProject() -> Project {
         return Project(
             projectName: nameTextField.text.unwrappedOrEmpty.trimmed,
             description: descriptionTextField.text.unwrappedOrEmpty.trimmed
         )
     }
 
-    private func saveProject() async throws -> Project {
+    func saveProject() async throws -> Project {
         if let project {
             let updatedProject = updatedProject(project)
             return try await server.updateProject(updatedProject)
@@ -136,7 +148,7 @@ final class EditProjectViewController: BaseViewController {
         }
     }
     
-    @objc private func actionSaveProject() {
+    @objc func actionSaveProject() {
         guard validateFields(
             nameString: nameTextField.text.unwrappedOrEmpty.trimmed,
             descriptionString: descriptionTextField.text.unwrappedOrEmpty.trimmed,
@@ -170,12 +182,5 @@ final class EditProjectViewController: BaseViewController {
                 }
             }
         }
-    }
-}
-
-extension EditProjectViewController: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
     }
 }

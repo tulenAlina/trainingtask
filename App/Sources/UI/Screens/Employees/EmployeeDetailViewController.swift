@@ -31,15 +31,18 @@ final class EmployeeDetailViewController: BaseViewController {
         super.viewDidLoad()
         setupView()
     }
-    
-    private func setupView() {
+}
+
+private extension EmployeeDetailViewController {
+    func setupView() {
         setupNavigationBar(navigationTitle: Localized.employeeDetails, rightButtonTitle: Localized.edit, rightButtonAction: #selector(actionChangeEmployee))
         setupContentView()
         setupDeleteButton()
+        setupActions()
         updateLabels()
     }
     
-    private func setupContentView() {
+    func setupContentView() {
         view.addSubview(contentScrollView)
                 
         NSLayoutConstraint.activate([
@@ -53,9 +56,7 @@ final class EmployeeDetailViewController: BaseViewController {
         ])
     }
     
-    private func setupDeleteButton() {
-        deleteButton.addTarget(self, action: #selector(actionDeleteEmployee), for: .touchUpInside)
-        
+    func setupDeleteButton() {
         NSLayoutConstraint.activate([
             deleteButton.centerXAnchor.constraint(equalTo: contentScrollView.centerXAnchor),
             deleteButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05),
@@ -63,12 +64,16 @@ final class EmployeeDetailViewController: BaseViewController {
         ])
     }
     
-    private func updateLabels() {
+    func setupActions() {
+        deleteButton.addTarget(self, action: #selector(actionDeleteEmployee), for: .touchUpInside)
+    }
+    
+    func updateLabels() {
         fullNameRow.value = employee.fullName
         positionRow.value = employee.position
     }
     
-    @objc private func actionChangeEmployee() {
+    @objc func actionChangeEmployee() {
         let editViewController = EditEmployeeViewController(employee: employee, server: server, action: .update({[weak self] employee in
             self?.employee = employee
             self?.onUpdate(employee)
@@ -77,7 +82,7 @@ final class EmployeeDetailViewController: BaseViewController {
         navigationController?.pushViewController(editViewController, animated: true)
     }
     
-    @objc private func actionDeleteEmployee() {
+    @objc func actionDeleteEmployee() {
         onDelete(indexPath)
         navigationController?.popViewController(animated: true)
     }

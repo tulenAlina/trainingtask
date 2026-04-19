@@ -35,15 +35,18 @@ final class ProjectDetailViewController: BaseViewController {
         super.viewDidLoad()
         setupView()
     }
-    
-    private func setupView() {
+}
+
+private extension ProjectDetailViewController {
+    func setupView() {
         setupNavigationBar(navigationTitle: Localized.projectDetails, rightButtonTitle: Localized.edit, rightButtonAction: #selector(actionChangeProject))
         setupContentView()
         setupButtons()
+        setupActions()
         updateLabels()
     }
 
-    private func setupContentView() {
+    func setupContentView() {
         view.addSubview(contentScrollView)
                 
         NSLayoutConstraint.activate([
@@ -54,10 +57,7 @@ final class ProjectDetailViewController: BaseViewController {
         ])
     }
     
-    private func setupButtons() {
-        openTasksButton.addTarget(self, action: #selector(actionOpenTasks), for: .touchUpInside)
-        deleteButton.addTarget(self, action: #selector(actionDeleteProject), for: .touchUpInside)
-
+    func setupButtons() {
         NSLayoutConstraint.activate([
             openTasksButton.centerXAnchor.constraint(equalTo: contentScrollView.centerXAnchor),
             openTasksButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05),
@@ -69,12 +69,17 @@ final class ProjectDetailViewController: BaseViewController {
         ])
     }
     
-    private func updateLabels() {
+    func setupActions() {
+        openTasksButton.addTarget(self, action: #selector(actionOpenTasks), for: .touchUpInside)
+        deleteButton.addTarget(self, action: #selector(actionDeleteProject), for: .touchUpInside)
+    }
+    
+    func updateLabels() {
         nameLabel.text = project.projectName
         descriptionRow.value = project.description
     }
         
-    @objc private func actionChangeProject() {
+    @objc func actionChangeProject() {
         let editViewController = EditProjectViewController(project: project, server: server, action: .update({[weak self] project in
             self?.project = project
             self?.onUpdate(project)
@@ -83,12 +88,12 @@ final class ProjectDetailViewController: BaseViewController {
         navigationController?.pushViewController(editViewController, animated: true)
     }
     
-    @objc private func actionDeleteProject() {
+    @objc func actionDeleteProject() {
         onDelete(indexPath)
         navigationController?.popViewController(animated: true)
     }
     
-    @objc private func actionOpenTasks() {
+    @objc func actionOpenTasks() {
         let tasksViewConttroller = TasksViewController(project: project, server: server, settings: settings)
         navigationController?.pushViewController(tasksViewConttroller, animated: true)
     }

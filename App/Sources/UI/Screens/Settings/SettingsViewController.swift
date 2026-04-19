@@ -29,33 +29,50 @@ final class SettingsViewController: BaseViewController {
         super.viewDidLoad()
         setupView()
     }
+}
+
+extension SettingsViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
     
-    private func setupView() {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if textField == maxRecordsTextField || textField == defaultDaysBetweenTextField {
+            let allowedCharacters = CharacterSet.decimalDigits
+            let characterSet = CharacterSet(charactersIn: string)
+            return allowedCharacters.isSuperset(of: characterSet)
+        }
+        
+        return true
+    }
+}
+
+private extension SettingsViewController {
+    func setupView() {
         setupNavigationBar(navigationTitle: Localized.settings, rightButtonTitle: Localized.save, rightButtonAction: #selector(actionSaveSettings))
         setupTextFields()
         setupEditView()
+        setupActions()
     }
     
-    private func setupTextFields() {
+    func setupTextFields() {
         serverUrlTextField.keyboardType = .URL
         serverUrlTextField.delegate = self
         serverUrlTextField.translatesAutoresizingMaskIntoConstraints = false
-        serverUrlTextField.addTarget(settingsEditView, action: #selector(settingsEditView.textFieldDidChange), for: .editingChanged)
         
         maxRecordsTextField.keyboardType = .numberPad
         maxRecordsTextField.delegate = self
         maxRecordsTextField.translatesAutoresizingMaskIntoConstraints = false
-        maxRecordsTextField.addTarget(settingsEditView, action: #selector(settingsEditView.textFieldDidChange), for: .editingChanged)
         
         defaultDaysBetweenTextField.keyboardType = .numberPad
         defaultDaysBetweenTextField.delegate = self
         defaultDaysBetweenTextField.translatesAutoresizingMaskIntoConstraints = false
-        defaultDaysBetweenTextField.addTarget(settingsEditView, action: #selector(settingsEditView.textFieldDidChange), for: .editingChanged)
         
         loadCurrentSettings()
     }
     
-    private func setupEditView() {
+    func setupEditView() {
         view.addSubview(settingsEditView)
         settingsEditView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -74,14 +91,20 @@ final class SettingsViewController: BaseViewController {
         
         settingsEditView.setupForm(rows: formRows)
     }
+    
+    func setupActions() {
+        serverUrlTextField.addTarget(settingsEditView, action: #selector(settingsEditView.textFieldDidChange), for: .editingChanged)
+        maxRecordsTextField.addTarget(settingsEditView, action: #selector(settingsEditView.textFieldDidChange), for: .editingChanged)
+        defaultDaysBetweenTextField.addTarget(settingsEditView, action: #selector(settingsEditView.textFieldDidChange), for: .editingChanged)
+    }
 
-    private func loadCurrentSettings() {
+    func loadCurrentSettings() {
         serverUrlTextField.text = settings.serverURL
         maxRecordsTextField.text = String(settings.maxRecords)
         defaultDaysBetweenTextField.text = String(settings.defaultDaysBetween)
     }
     
-    private func isFieldsChanged() -> Bool {
+    func isFieldsChanged() -> Bool {
         let urlChanged = serverUrlTextField.text.unwrappedOrEmpty.trimmed != settings.serverURL
         let maxRecordsChanged = maxRecordsTextField.text.unwrappedOrEmpty.trimmed.withoutSpaces != String(settings.maxRecords)
         let defaultDaysBetweenChanged = defaultDaysBetweenTextField.text.unwrappedOrEmpty.trimmed.withoutSpaces != String(settings.defaultDaysBetween)
@@ -89,7 +112,7 @@ final class SettingsViewController: BaseViewController {
         return urlChanged || maxRecordsChanged || defaultDaysBetweenChanged
     }
     
-    private func validateFields(serverUrlString: String, maxRecordsString: String, defaultDaysBetweenString: String) -> Bool {
+    func validateFields(serverUrlString: String, maxRecordsString: String, defaultDaysBetweenString: String) -> Bool {
         var fieldsValidity: [Bool] = []
         var isValid = true
         
@@ -107,7 +130,7 @@ final class SettingsViewController: BaseViewController {
         return isValid
     }
     
-    private func applyValidationResults(_ fieldsValidity: [Bool]) {
+    func applyValidationResults(_ fieldsValidity: [Bool]) {
         var result: [(UITextField, Bool)] = []
         for i in 0..<requiredFields.count {
             result.append((requiredFields[i], fieldsValidity[i]))
@@ -115,7 +138,7 @@ final class SettingsViewController: BaseViewController {
         settingsEditView.applyValidationResults(result)
     }
     
-    @objc private func actionSaveSettings() {
+    @objc func actionSaveSettings() {
         guard validateFields(
             serverUrlString: serverUrlTextField.text.unwrappedOrEmpty.trimmed,
             maxRecordsString: maxRecordsTextField.text.unwrappedOrEmpty.trimmed,
@@ -133,22 +156,5 @@ final class SettingsViewController: BaseViewController {
         settings.maxRecords = maxRecordsTextField.text.unwrappedOrEmpty.withoutSpaces.cleanedInt
         settings.defaultDaysBetween = defaultDaysBetweenTextField.text.unwrappedOrEmpty.withoutSpaces.cleanedInt
         self.navigationController?.popViewController(animated: true)
-    }
-}
-
-extension SettingsViewController: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
-    }
-    
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if textField == maxRecordsTextField || textField == defaultDaysBetweenTextField {
-            let allowedCharacters = CharacterSet.decimalDigits
-            let characterSet = CharacterSet(charactersIn: string)
-            return allowedCharacters.isSuperset(of: characterSet)
-        }
-        
-        return true
     }
 }

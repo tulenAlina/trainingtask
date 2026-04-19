@@ -66,6 +66,7 @@ private extension TaskDetailViewController {
         setupNavigationBar(navigationTitle: Localized.taskDetails, rightButtonTitle: Localized.edit, rightButtonAction: #selector(actionChangeTask))
         setupContentView()
         setupDeleteButton()
+        setupActions()
         updateLabels()
     }
     
@@ -84,13 +85,15 @@ private extension TaskDetailViewController {
     }
 
     func setupDeleteButton() {
-        deleteButton.addTarget(self, action: #selector(actionDeleteTask), for: .touchUpInside)
-        
         NSLayoutConstraint.activate([
             deleteButton.centerXAnchor.constraint(equalTo: contentScrollView.centerXAnchor),
             deleteButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05),
             deleteButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5)
         ])
+    }
+    
+    private func setupActions() {
+        deleteButton.addTarget(self, action: #selector(actionDeleteTask), for: .touchUpInside)
     }
     
     func updateLabels() {
