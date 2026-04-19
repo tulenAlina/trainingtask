@@ -116,35 +116,34 @@ private extension EditProjectViewController {
         projectEditView.applyValidationResults(result)
     }
     
-    func updatedProject(_ project: Project) -> Project {
+    func createProject(_ project: Project? = nil) -> Project {
         let newProjectName = nameTextField.text.unwrappedOrEmpty.trimmed
         let newDescription = descriptionTextField.text.unwrappedOrEmpty.trimmed
-        
-        let updatedProject = Project(
-            id: project.id,
-            projectName: newProjectName,
-            description: newDescription,
-            tasks: project.tasks,
-            createdAt: project.createdAt
-        )
-        
-        return updatedProject
-    }
-    
-    func createProject() -> Project {
-        return Project(
-            projectName: nameTextField.text.unwrappedOrEmpty.trimmed,
-            description: descriptionTextField.text.unwrappedOrEmpty.trimmed
-        )
+        if let project {
+            return Project(
+                id: project.id,
+                projectName: newProjectName,
+                description: newDescription,
+                tasks: project.tasks,
+                createdAt: project.createdAt
+            )
+        } else {
+            return Project(
+                projectName: nameTextField.text.unwrappedOrEmpty.trimmed,
+                description: descriptionTextField.text.unwrappedOrEmpty.trimmed
+            )
+        }
     }
 
     func saveProject() async throws -> Project {
         if let project {
-            let updatedProject = updatedProject(project)
-            return try await server.updateProject(updatedProject)
+            let updatedProject = createProject(project)
+            try await server.updateProject(updatedProject)
+            return updatedProject
         } else {
             let createdProject = createProject()
-            return try await server.createProject(createdProject)
+            try await server.createProject(createdProject)
+            return createdProject
         }
     }
     

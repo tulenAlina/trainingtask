@@ -47,6 +47,10 @@ class BaseViewController: UIViewController {
         }
     }
     
+    @objc func actionEndEditing() {
+        view.endEditing(true)
+    }
+    
     private func setupView() {
         view.backgroundColor = .systemBackground
         setupLoadingIndicator()
@@ -65,9 +69,5 @@ class BaseViewController: UIViewController {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(actionEndEditing))
         tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
-    }
-    
-    @objc func actionEndEditing() {
-        view.endEditing(true)
     }
 }

@@ -187,14 +187,14 @@ private extension EditTaskPresenter {
         Task {
             do {
                 let newTask = createTask(from: task, newTaskName: taskNameString, newProjectID: project.id, newWorkTime: workTime.cleanedInt, newStartDateString: startDateString, newEndDateString: endDateString, newStatusIndex: statusIndex, newEmployeeID: employee?.id)
-                let savedTask = task != nil ? try await interactor.updateTask(newTask) : try await interactor.createTask(newTask)
+                task != nil ? try await interactor.updateTask(newTask) : try await interactor.createTask(newTask)
 
                 await MainActor.run {
                     switch self.action {
                     case .create:
-                        output?.didCreateTask(savedTask)
+                        output?.didCreateTask(newTask)
                     case .update:
-                        output?.didUpdateTask(savedTask, project: project, employee: employee)
+                        output?.didUpdateTask(newTask, project: project, employee: employee)
                                         }
                     view?.stopLoading()
                     router.close()

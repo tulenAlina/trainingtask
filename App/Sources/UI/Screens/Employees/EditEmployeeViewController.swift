@@ -128,42 +128,41 @@ private extension EditEmployeeViewController {
         employeeEditView.applyValidationResults(result)
     }
     
-    func updatedEmployee(_ employee: Employee) -> Employee {
+    func createEmployee(_ employee: Employee? = nil) -> Employee {
         let newFirstName = firstNameTextField.text.unwrappedOrEmpty.trimmed
         let newLastName = lastNameTextField.text.unwrappedOrEmpty.trimmed
         let newSurName = surNameTextField.text?.trimmed ?? nil
         let newPosition = positionTextField.text.unwrappedOrEmpty.trimmed
         
-        let updatedEmployee = Employee(
-            id: employee.id,
-            firstName: newFirstName,
-            lastName: newLastName,
-            surName: newSurName,
-            position: newPosition,
-            tasks: employee.tasks,
-            createdAt: employee.createdAt
-        )
-
-        return updatedEmployee
-    }
-    
-    func createEmployee() -> Employee {
-        return Employee(
-            firstName: firstNameTextField.text.unwrappedOrEmpty.trimmed,
-            lastName: lastNameTextField.text.unwrappedOrEmpty.trimmed,
-            surName: surNameTextField.text?.trimmed ?? nil,
-            position: positionTextField.text.unwrappedOrEmpty.trimmed
-        )
+        if let employee {
+            return Employee(
+                id: employee.id,
+                firstName: newFirstName,
+                lastName: newLastName,
+                surName: newSurName,
+                position: newPosition,
+                tasks: employee.tasks,
+                createdAt: employee.createdAt
+            )
+        } else {
+            return Employee(
+                firstName: firstNameTextField.text.unwrappedOrEmpty.trimmed,
+                lastName: lastNameTextField.text.unwrappedOrEmpty.trimmed,
+                surName: surNameTextField.text?.trimmed ?? nil,
+                position: positionTextField.text.unwrappedOrEmpty.trimmed
+            )
+        }
     }
     
     func saveEmployee() async throws -> Employee {
         if let employee {
-            let updatedEmployee = updatedEmployee(employee)
-            return try await server.updateEmployee(updatedEmployee)
+            let updatedEmployee = createEmployee(employee)
+            try await server.updateEmployee(updatedEmployee)
+            return updatedEmployee
         } else {
             let createdEmployee = createEmployee()
-            return try await server.createEmployee(createdEmployee)
-            
+            try await server.createEmployee(createdEmployee)
+            return createdEmployee
         }
     }
     

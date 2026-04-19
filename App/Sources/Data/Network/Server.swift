@@ -11,13 +11,11 @@ protocol Server {
     
     /// Создаёт новый проект на сервере.
     /// - Parameter project: Проект для создания.
-    /// - Returns: Созданный проект с актуальными данными от сервера.
-    func createProject(_ project: Project) async throws -> Project
+    func createProject(_ project: Project) async throws
     
     /// Обновляет существующий проект на сервере.
     /// - Parameter project: Проект с обновлёнными полями.
-    /// - Returns: Обновлённый проект от сервера.
-    func updateProject(_ project: Project) async throws -> Project
+    func updateProject(_ project: Project) async throws
     
     /// Удаляет проект с сервера.
     /// - Parameter id: UUID удаляемого проекта.
@@ -31,13 +29,11 @@ protocol Server {
     
     /// Создаёт нового сотрудника на сервере.
     /// - Parameter employee: Сотрудник для создания.
-    /// - Returns: Созданный сотрудник с актуальными данными от сервера.
-    func createEmployee(_ employee: Employee) async throws -> Employee
+    func createEmployee(_ employee: Employee) async throws
     
     /// Обновляет существующего сотрудника на сервере.
     /// - Parameter employee: Сотрудник с обновлёнными полями.
-    /// - Returns: Обновлённый сотрудник от сервера.
-    func updateEmployee(_ employee: Employee) async throws -> Employee
+    func updateEmployee(_ employee: Employee) async throws
     
     /// Удаляет сотрудника с сервера.
     /// - Parameter id: UUID удаляемого сотрудника.
@@ -52,13 +48,11 @@ protocol Server {
     
     /// Создаёт новую задачу на сервере.
     /// - Parameter task: Задача для создания.
-    /// - Returns: Созданная задача с актуальными данными от сервера.
-    func createTask(_ task: ProjectTask) async throws -> ProjectTask
+    func createTask(_ task: ProjectTask) async throws
     
     /// Обновляет существующую задачу на сервере.
     /// - Parameter task: Задача с обновлёнными полями.
-    /// - Returns: Обновлённая задача от сервера.
-    func updateTask(_ task: ProjectTask) async throws -> ProjectTask
+    func updateTask(_ task: ProjectTask) async throws
     
     /// Удаляет задачу с сервера.
     /// - Parameter id: UUID удаляемой задачи.
