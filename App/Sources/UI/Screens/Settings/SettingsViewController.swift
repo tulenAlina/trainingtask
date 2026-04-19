@@ -1,7 +1,7 @@
 import UIKit
 
 final class SettingsViewController: BaseViewController {
-    private let settings: SettingsManager
+    private let settings: SettingsManager = AppDelegate.settings
     
     private let serverUrlLabel = UIFactory.createSecondaryLabel(text: Localized.serverUrlLabel)
     private let maxRecordsLabel = UIFactory.createSecondaryLabel(text: Localized.maxRecordsLabel)
@@ -15,8 +15,7 @@ final class SettingsViewController: BaseViewController {
     
     private let requiredFields: [UITextField]
     
-    init(settings: SettingsManager) {
-        self.settings = settings
+    init() {
         requiredFields = [serverUrlTextField, maxRecordsTextField, defaultDaysBetweenTextField]
         super.init(nibName: nil, bundle: nil)
     }

@@ -2,8 +2,8 @@ import UIKit
 
 final class TasksViewController: BaseListViewController<ProjectTask>, EditTaskModuleOutputProtocol, TaskDetailModuleOutputProtocol {
     private let project: Project?
-    private let server: Server
-    private let settings: SettingsManager
+    private let server: Server = AppDelegate.server
+    private let settings: SettingsManager = AppDelegate.settings
     private var projects: [Project] = []
     private var employees: [Employee] = []
         
@@ -11,10 +11,8 @@ final class TasksViewController: BaseListViewController<ProjectTask>, EditTaskMo
         Localized.noTasks
     }
     
-    init(project: Project? = nil, server: Server, settings: SettingsManager) {
+    init(project: Project? = nil) {
         self.project = project
-        self.server = server
-        self.settings = settings
         super.init(settings: settings)
     }
     

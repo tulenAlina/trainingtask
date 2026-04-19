@@ -1,19 +1,41 @@
 import UIKit
 
+enum MenuItem: Int, CaseIterable {
+    case projects
+    case tasks
+    case employees
+    case settings
+    
+    var title: String {
+        switch self {
+        case .projects: return Localized.projects
+        case .tasks: return Localized.tasks
+        case .employees: return Localized.employees
+        case .settings: return Localized.settings
+        }
+    }
+    
+    func makeViewController() -> UIViewController {
+        switch self {
+        case .projects:
+            return ProjectsViewController()
+        case .tasks:
+            return TasksViewController()
+        case .employees:
+            return EmployeesViewController()
+        case .settings:
+            return SettingsViewController()
+        }
+    }
+}
+
 final class MainMenuViewController: UIViewController {
     private let settings: SettingsManager
     private let server: Server
-    private let menuItems = [Localized.projects, Localized.tasks, Localized.employees, Localized.settings]
+    private let menuItems = MenuItem.allCases
     
-    private lazy var buttons: [UIButton] = {
-        menuItems.map { title in
-            let button = UIFactory.createDefaultButton(text: title)
-            button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
-            return button
-        }
-    }()
-            
-    private lazy var сontentScrollView = ScrollableStackView(views: buttons, spacing: 15)
+    private lazy var buttons: [UIButton] = UIFactory.createMenuButtons(from: menuItems, target: self, action: #selector(actionButtonTapped))
+    private lazy var contentScrollView = ScrollableStackView(views: buttons, spacing: 15)
     
     init(server: Server, settings: SettingsManager) {
         self.settings = settings
@@ -34,43 +56,32 @@ final class MainMenuViewController: UIViewController {
         view.backgroundColor = .white
         title = Localized.mainMenu
         setupContentView()
+        setupButtons()
     }
     
     private func setupContentView() {
-        view.addSubview(сontentScrollView)
-        
-        for button in buttons {
-            button.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05).isActive = true
-        }
-        
+        view.addSubview(contentScrollView)
         NSLayoutConstraint.activate([
-            сontentScrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            сontentScrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
-            сontentScrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
-            сontentScrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
+            contentScrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            contentScrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+            contentScrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
+            contentScrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
         ])
     }
     
+    private func setupButtons() {
+        buttons.forEach { button in
+            NSLayoutConstraint.activate([
+                button.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05)
+            ])
+        }
+    }
+    
     @objc private func actionButtonTapped(_ sender: UIButton) {
-        guard let title = sender.titleLabel?.text else {
+        guard let item = MenuItem(rawValue: sender.tag) else {
             return
         }
-        
-        switch title {
-        case Localized.projects:
-            let projectsViewController = ProjectsViewController()
-            navigationController?.pushViewController(projectsViewController, animated: true)
-        case Localized.tasks:
-            let tasksViewController = TasksViewController(server: server, settings: settings)
-            navigationController?.pushViewController(tasksViewController, animated: true)
-        case Localized.employees:
-            let employeesViewController = EmployeesViewController()
-            navigationController?.pushViewController(employeesViewController, animated: true)
-        case Localized.settings:
-            let settingsViewController = SettingsViewController(settings: settings)
-            navigationController?.pushViewController(settingsViewController, animated: true)
-        default:
-            break
-        }
+        let viewController = item.makeViewController()
+        navigationController?.pushViewController(viewController, animated: true)
     }
 }

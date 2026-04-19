@@ -116,6 +116,17 @@ enum UIFactory {
         return button
     }
     
+    static func createMenuButtons(from items: [MenuItem], target: Any, action: Selector) -> [UIButton] {
+        var buttons: [UIButton] = []
+        for item in items {
+            let button = UIFactory.createDefaultButton(text: item.title)
+            button.tag = item.rawValue
+            button.addTarget(self, action: action, for: .touchUpInside)
+            buttons.append(button)
+        }
+        return buttons
+    }
+    
     static func createSegmentedControl(items: [String]) -> UISegmentedControl {
         let segmentedControl = UISegmentedControl(items: items)
         segmentedControl.translatesAutoresizingMaskIntoConstraints = false

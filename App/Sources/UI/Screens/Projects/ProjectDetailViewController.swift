@@ -94,7 +94,7 @@ private extension ProjectDetailViewController {
     }
     
     @objc func actionOpenTasks() {
-        let tasksViewConttroller = TasksViewController(project: project, server: server, settings: settings)
+        let tasksViewConttroller = TasksViewController(project: project)
         navigationController?.pushViewController(tasksViewConttroller, animated: true)
     }
 }
