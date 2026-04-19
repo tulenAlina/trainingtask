@@ -10,7 +10,7 @@ final class EmployeesViewController: BaseListViewController<Employee> {
     private let mode: EmployeesDisplayMode
     
     override var emptyStateText: String {
-        return Localized.noEmployees
+        Localized.noEmployees
     }
     
     init(mode: EmployeesDisplayMode = .list) {
@@ -47,7 +47,7 @@ final class EmployeesViewController: BaseListViewController<Employee> {
 
 extension EmployeesViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return displayedItemsCount
+        displayedItemsCount
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -55,7 +55,6 @@ extension EmployeesViewController: UITableViewDataSource {
         let employee = getItem(at: indexPath.row)
         cell.textLabel?.text = employee.fullName
         cell.detailTextLabel?.text = employee.position
-        
         return cell
     }
 }

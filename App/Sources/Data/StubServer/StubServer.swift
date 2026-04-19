@@ -20,7 +20,6 @@ class StubServer: Server {
         try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
         var result = Array(projects.values)
         result = result.sorted { $0.createdAt > $1.createdAt }
-        
         return result
     }
     
@@ -53,7 +52,6 @@ class StubServer: Server {
         try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
         var result = Array(employees.values)
         result = result.sorted { $0.createdAt > $1.createdAt }
-        
         return result
     }
     
@@ -89,7 +87,6 @@ class StubServer: Server {
             result = result.filter { $0.projectID == projectID }
         }
         result = result.sorted { $0.createdAt > $1.createdAt }
-        
         return result
     }
     

@@ -1,24 +1,10 @@
 import UIKit
 
 final class StatusView: UIView {
-    var status: TaskStatus {
-        get {
-            switch statusLabel.text {
-            case TaskStatus.notStarted.rawValue.localized:
-                return .notStarted
-            case TaskStatus.inProgress.rawValue.localized:
-                return .inProgress
-            case TaskStatus.completed.rawValue.localized:
-                return .completed
-            case TaskStatus.postponed.rawValue.localized:
-                return .postponed
-            default:
-                return .notStarted
-            }
-        }
-        set {
-            statusLabel.text = newValue.rawValue.localized
-            updateAppearance()
+    var status: TaskStatus = .notStarted {
+        didSet {
+            statusLabel.text = status.rawValue.localized
+            configure(with: status)
         }
     }
     
@@ -28,7 +14,6 @@ final class StatusView: UIView {
         view.layer.cornerRadius = 10
         view.clipsToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
-        
         return view
     }()
     
@@ -37,7 +22,6 @@ final class StatusView: UIView {
         label.font = .systemFont(ofSize: 12)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
-        
         return label
     }()
     
@@ -50,7 +34,7 @@ final class StatusView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func updateAppearance() {
+    func configure(with status: TaskStatus) {
         switch status {
         case .notStarted:
             statusLabel.textColor = .red

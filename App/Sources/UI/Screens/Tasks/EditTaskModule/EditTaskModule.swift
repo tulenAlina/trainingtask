@@ -41,7 +41,6 @@ final class EditTaskModule: Module {
         interactor.output = presenter
         
         let module = EditTaskModule(view: viewController, input: presenter)
-        
         return module
     }
 }

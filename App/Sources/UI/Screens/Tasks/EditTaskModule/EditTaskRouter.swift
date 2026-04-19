@@ -24,13 +24,17 @@ final class EditTaskRouter: EditTaskRouterInputProtocol {
     }
     
     func showProjects() {
-        guard let onProjectSelect else { return }
+        guard let onProjectSelect else {
+            return
+        }
        let projectsViewController = ProjectsViewController(mode: .selection(onSelect: onProjectSelect))
        viewController?.navigationController?.pushViewController(projectsViewController, animated: true)
     }
     
     func showEmployees() {
-        guard let onEmployeeSelect else { return }
+        guard let onEmployeeSelect else {
+            return
+        }
         let employeesViewController = EmployeesViewController(mode: .selection(onSelect: onEmployeeSelect))
         viewController?.navigationController?.pushViewController(employeesViewController, animated: true)
     }

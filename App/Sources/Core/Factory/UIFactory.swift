@@ -10,7 +10,6 @@ enum UIFactory {
         textField.layer.borderWidth = 0.5
         textField.layer.borderColor = UIColor(white: 0.8, alpha: 1).cgColor
         textField.translatesAutoresizingMaskIntoConstraints = false
-        
         return textField
     }
     
@@ -19,7 +18,6 @@ enum UIFactory {
         label.text = text
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
-        
         return label
     }
     
@@ -30,7 +28,6 @@ enum UIFactory {
         label.font = .systemFont(ofSize: 13, weight: .medium)
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
-        
         return label
     }
     
@@ -42,7 +39,6 @@ enum UIFactory {
         label.setContentHuggingPriority(.required, for: .horizontal)
         label.setContentCompressionResistancePriority(.required, for: .horizontal)
         label.translatesAutoresizingMaskIntoConstraints = false
-        
         return label
     }
     
@@ -50,7 +46,6 @@ enum UIFactory {
         let label = UILabel()
         label.font = .systemFont(ofSize: 18, weight: .semibold)
         label.numberOfLines = 0
-        
         return label
     }
     
@@ -61,7 +56,6 @@ enum UIFactory {
         stack.axis = .vertical
         stack.spacing = 5
         stack.translatesAutoresizingMaskIntoConstraints = false
-        
         return stack
     }
     
@@ -70,7 +64,6 @@ enum UIFactory {
         stack.axis = .vertical
         stack.spacing = spacing
         stack.translatesAutoresizingMaskIntoConstraints = false
-        
         return stack
     }
     
@@ -80,7 +73,6 @@ enum UIFactory {
         stack.spacing = spacing
         stack.alignment = .top
         stack.translatesAutoresizingMaskIntoConstraints = false
-        
         return stack
     }
     
@@ -90,7 +82,6 @@ enum UIFactory {
         button.setTitleColor(.black, for: .normal)
         button.backgroundColor = .lightGray
         button.translatesAutoresizingMaskIntoConstraints = false
-        
         return button
     }
     
@@ -103,7 +94,6 @@ enum UIFactory {
         button.layer.borderColor = UIColor.darkGray.cgColor
         button.layer.cornerRadius = 12
         button.translatesAutoresizingMaskIntoConstraints = false
-        
         return button
     }
     
@@ -116,7 +106,6 @@ enum UIFactory {
         button.layer.borderColor = UIColor.red.cgColor
         button.layer.cornerRadius = 12
         button.translatesAutoresizingMaskIntoConstraints = false
-        
         return button
     }
     
@@ -124,14 +113,12 @@ enum UIFactory {
         let button = UIButton(type: .system)
         button.setTitle(Localized.clear, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
-        
         return button
     }
     
     static func createSegmentedControl(items: [String]) -> UISegmentedControl {
         let segmentedControl = UISegmentedControl(items: items)
         segmentedControl.translatesAutoresizingMaskIntoConstraints = false
-        
         return segmentedControl
     }
     
@@ -140,7 +127,6 @@ enum UIFactory {
         picker.datePickerMode = .date
         picker.preferredDatePickerStyle = .inline
         picker.locale = Locale(identifier: "ru_RU")
-        
         return picker
     }
 }

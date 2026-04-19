@@ -89,7 +89,6 @@ private extension EditTaskPresenter {
         let isEndDateChanged = endDateString != DateHelper.string(from: task.endDate)
         let isEmployeeChanged = employeeID != task.employeeID
         let isStatusChanged = statusIndex != TaskStatus.allCases.firstIndex { $0 == task.status } ?? 0
-        
         return isTaskNameChanged || isProjectChanged || isWorkTimeChanged || isStartDateChanged || isEndDateChanged || isEmployeeChanged || isStatusChanged
     }
 
@@ -224,7 +223,6 @@ private extension EditTaskPresenter {
             }
         }
         view.applyValidationResults(fieldsValidity)
-        
         return isValid
     }
     
@@ -252,7 +250,6 @@ private extension EditTaskPresenter {
             view?.showAlert(Localized.hoursExceedPeriod)
             return false
         }
-        
         return true
     }
     
@@ -264,7 +261,6 @@ private extension EditTaskPresenter {
         guard validateDates(startDateString: startDateString, endDateString: endDateString, workTime: workTime.cleanedInt) else {
             return false
         }
-        
         return true
     }
 }

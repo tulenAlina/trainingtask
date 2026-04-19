@@ -9,7 +9,6 @@ final class MainMenuViewController: UIViewController {
         menuItems.map { title in
             let button = UIFactory.createDefaultButton(text: title)
             button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
-            
             return button
         }
     }()

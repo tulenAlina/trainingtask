@@ -22,7 +22,6 @@ final class TaskTimeCardView: UIView {
         stack.layer.shadowOffset = CGSize(width: 0, height: 2)
         stack.layer.shadowRadius = 4
         stack.translatesAutoresizingMaskIntoConstraints = false
-        
         return stack
     }()
     

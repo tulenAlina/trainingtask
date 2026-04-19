@@ -98,7 +98,6 @@ private extension EditEmployeeViewController {
         let isLastNameChanged = lastNameTextField.text.unwrappedOrEmpty.trimmed != employee.lastName.trimmed
         let isSurNameChanged = surNameTextField.text.unwrappedOrEmpty.trimmed != employee.surName.unwrappedOrEmpty.trimmed
         let isPositionChanged = positionTextField.text.unwrappedOrEmpty.trimmed != employee.position.trimmed
-        
         return isFirstNameChanged || isLastNameChanged || isSurNameChanged || isPositionChanged
     }
     
@@ -116,7 +115,6 @@ private extension EditEmployeeViewController {
             }
         }
         applyValidationResults(fieldsValidity)
-        
         return isValid
     }
     

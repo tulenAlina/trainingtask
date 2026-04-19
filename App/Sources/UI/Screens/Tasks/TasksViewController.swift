@@ -8,7 +8,7 @@ final class TasksViewController: BaseListViewController<ProjectTask>, EditTaskMo
     private var employees: [Employee] = []
         
     override var emptyStateText: String {
-        return Localized.noTasks
+        Localized.noTasks
     }
     
     init(project: Project? = nil, server: Server, settings: SettingsManager) {
@@ -59,7 +59,7 @@ final class TasksViewController: BaseListViewController<ProjectTask>, EditTaskMo
 
 extension TasksViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return displayedItemsCount
+        displayedItemsCount
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -82,7 +82,6 @@ extension TasksViewController: UITableViewDataSource {
         case .postponed:
             cell.imageView?.image = UIImage(systemName: "pause.circle")
         }
-        
         return cell
     }
 }
@@ -166,7 +165,6 @@ private extension TasksViewController {
             settings: settings,
             moduleOutput: self
         )
-        
         return detailViewController
     }
 

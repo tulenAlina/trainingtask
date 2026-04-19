@@ -2,11 +2,11 @@ import UIKit
 
 class BaseListViewController<Item>: BaseViewController {
     var emptyStateText: String {
-        return ""
+        ""
     }
     
     var displayedItemsCount: Int {
-        return min(items.count, settings.maxRecords)
+        min(items.count, settings.maxRecords)
     }
     
     private let settings: SettingsManager
@@ -65,7 +65,7 @@ class BaseListViewController<Item>: BaseViewController {
     }
     
     func getItem(at index: Int) -> Item {
-        return items[index]
+        items[index]
     }
     
     func addItem(_ item: Item) {

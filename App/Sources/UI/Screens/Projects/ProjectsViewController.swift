@@ -11,7 +11,7 @@ final class ProjectsViewController: BaseListViewController<Project> {
     private let mode: ProjectsDisplayMode
     
     override var emptyStateText: String {
-        return Localized.noProjects
+        Localized.noProjects
     }
     
     init(mode: ProjectsDisplayMode = .list) {
@@ -48,7 +48,7 @@ final class ProjectsViewController: BaseListViewController<Project> {
 
 extension ProjectsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return displayedItemsCount
+        displayedItemsCount
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -56,7 +56,6 @@ extension ProjectsViewController: UITableViewDataSource {
         let project = getItem(at: indexPath.row)
         cell.textLabel?.text = project.projectName
         cell.detailTextLabel?.text = project.description
-        
         return cell
     }
 }

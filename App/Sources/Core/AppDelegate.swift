@@ -19,7 +19,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let navigationController = UINavigationController(rootViewController: mainMenuViewController)
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
-        
         return true
     }
     

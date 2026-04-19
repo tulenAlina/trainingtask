@@ -84,9 +84,9 @@ private extension EditProjectViewController {
         guard let project else {
             return true
         }
+        
         let isNameChanged = (nameTextField.text.unwrappedOrEmpty.trimmed) != project.projectName.trimmed
         let isDescriptionChanged = (descriptionTextField.text.unwrappedOrEmpty.trimmed) != project.description.trimmed
-        
         return isNameChanged || isDescriptionChanged
     }
     
@@ -104,7 +104,6 @@ private extension EditProjectViewController {
             }
         }
         applyValidationResults(fieldsValidity)
-        
         return isValid
     }
     

@@ -21,7 +21,6 @@ final class EditTaskInteractor: EditTaskInteractorInputProtocol {
     func fetchData() async throws -> (projects: [Project], employees: [Employee]) {
         async let projects = server.fetchProjects()
         async let employees = server.fetchEmployees()
-        
         return try await (projects, employees)
     }
     
@@ -34,6 +33,6 @@ final class EditTaskInteractor: EditTaskInteractorInputProtocol {
     }
     
     func defaultDaysBetween() -> Int {
-        return settings.defaultDaysBetween
+        settings.defaultDaysBetween
     }
 }

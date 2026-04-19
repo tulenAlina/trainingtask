@@ -2,15 +2,15 @@ import Foundation
 
 extension String {
     var trimmed: String {
-        return trimmingCharacters(in: .whitespacesAndNewlines)
+        trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
     var withoutSpaces: String {
-        return replacingOccurrences(of: " ", with: "")
+        replacingOccurrences(of: " ", with: "")
     }
     
     var cleanedInt: Int {
-        return Int(withoutSpaces.trimmed) ?? 0
+        Int(withoutSpaces.trimmed) ?? 0
     }
     
     var isBlank: Bool {
@@ -18,6 +18,6 @@ extension String {
     }
     
     var localized: String {
-        return NSLocalizedString(self, comment: "")
+        NSLocalizedString(self, comment: "")
     }
 }

@@ -29,7 +29,7 @@ final class EditTaskViewController: BaseViewController, EditTaskViewInputProtoco
     var output: EditTaskViewOutputProtocol
     
     var requiredFields: [UITextField] {
-        return [taskNameTextField, projectTextField, workTimeTextField]
+        [taskNameTextField, projectTextField, workTimeTextField]
     }
     
     private let toolbar = UIToolbar()

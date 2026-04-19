@@ -7,7 +7,7 @@ enum TaskStatus: String, CaseIterable {
     case postponed = "postponed"
     
     var localized: String {
-        return self.rawValue.localized
+        self.rawValue.localized
     }
 }
 

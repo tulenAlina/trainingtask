@@ -43,7 +43,6 @@ extension SettingsViewController: UITextFieldDelegate {
             let characterSet = CharacterSet(charactersIn: string)
             return allowedCharacters.isSuperset(of: characterSet)
         }
-        
         return true
     }
 }
@@ -108,7 +107,6 @@ private extension SettingsViewController {
         let urlChanged = serverUrlTextField.text.unwrappedOrEmpty.trimmed != settings.serverURL
         let maxRecordsChanged = maxRecordsTextField.text.unwrappedOrEmpty.trimmed.withoutSpaces != String(settings.maxRecords)
         let defaultDaysBetweenChanged = defaultDaysBetweenTextField.text.unwrappedOrEmpty.trimmed.withoutSpaces != String(settings.defaultDaysBetween)
-        
         return urlChanged || maxRecordsChanged || defaultDaysBetweenChanged
     }
     
@@ -126,7 +124,6 @@ private extension SettingsViewController {
             }
         }
         applyValidationResults(fieldsValidity)
-        
         return isValid
     }
     
