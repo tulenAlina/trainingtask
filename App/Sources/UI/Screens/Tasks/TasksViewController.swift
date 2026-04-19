@@ -24,8 +24,8 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
-        refreshData()
+        setupView()
+        loadData()
     }
     
     @objc override func refreshData() {
@@ -42,54 +42,6 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
                 }
             }
         }
-    }
-    
-    private func setupUI() {
-        setupNavigationBar(navigationTitle: Localized.tasks, rightButtonSystemItem: .add, rightButtonAction: #selector(actionAddTask))
-        startLoading()
-        setupTableView()
-    }
-   
-    private func loadTasks() async throws {
-        async let allTasks = try await server.fetchTasks(projectID: project?.id)
-        async let allEmployees = server.fetchEmployees()
-        if project == nil {
-            async let allProjects = server.fetchProjects()
-            let (tasks, projects, employees) = try await (allTasks, allProjects, allEmployees)
-            setItems(tasks)
-            self.projects = projects
-            self.employees = employees
-        } else {
-            let (tasks, employees) = try await (allTasks, allEmployees)
-            setItems(tasks)
-            self.employees = employees
-        }
-    }
-    
-    private func deleteTask(at indexPath: IndexPath) {
-        startLoading()
-        let task = getItem(at: indexPath.row)
-
-        Task {
-            do {
-                try await server.deleteTask(task.id)
-                await MainActor.run {
-                    deleteItem(at: indexPath.row)
-                    updateUI()
-                }
-            } catch {
-                await MainActor.run {
-                    stopLoading()
-                    showAlert(Localized.deleteFailed)
-                }
-            }
-        }
-    }
-
-    @objc private func actionAddTask() {
-        let editModuleViewController = EditTaskModule.build(moduleOutput: self)
-        editModuleViewController.input.configureForCreate(project: project)
-        navigationController?.pushViewController(editModuleViewController.view, animated: true)
     }
 }
 
@@ -130,8 +82,72 @@ extension TasksViewController: UITableViewDelegate {
         let detailViewController = createTaskDetailViewController(for: task, indexPath: indexPath)
         navigationController?.pushViewController(detailViewController, animated: true)
     }
+}
+
+extension TasksViewController: EditTaskModuleOutputProtocol {
+    func didCreateTask(_ task: ProjectTask) {
+        addItem(task)
+    }
     
-    private func createTaskDetailViewController(for task: ProjectTask, indexPath: IndexPath) -> TaskDetailViewController {
+    func didUpdateTask(_ task: ProjectTask, project: Project?, employee: Employee?) {
+        updateItem(task) { $0.id == task.id }
+    }
+}
+
+extension TasksViewController: TaskDetailModuleOutputProtocol {
+    func didDeleteTask(at indexPath: IndexPath) {
+        deleteTask(at: indexPath)
+    }
+}
+
+private extension TasksViewController {
+    func setupView() {
+        setupNavigationBar(navigationTitle: Localized.tasks, rightButtonSystemItem: .add, rightButtonAction: #selector(actionAddTask))
+        setupTableView()
+    }
+   
+    func loadTasks() async throws {
+        async let allTasks = try await server.fetchTasks(projectID: project?.id)
+        async let allEmployees = server.fetchEmployees()
+        if project == nil {
+            async let allProjects = server.fetchProjects()
+            let (tasks, projects, employees) = try await (allTasks, allProjects, allEmployees)
+            setItems(tasks)
+            self.projects = projects
+            self.employees = employees
+        } else {
+            let (tasks, employees) = try await (allTasks, allEmployees)
+            setItems(tasks)
+            self.employees = employees
+        }
+    }
+    
+    func loadData() {
+        startLoading()
+        refreshData()
+    }
+    
+    func deleteTask(at indexPath: IndexPath) {
+        startLoading()
+        let task = getItem(at: indexPath.row)
+
+        Task {
+            do {
+                try await server.deleteTask(task.id)
+                await MainActor.run {
+                    deleteItem(at: indexPath.row)
+                    updateUI()
+                }
+            } catch {
+                await MainActor.run {
+                    stopLoading()
+                    showAlert(Localized.deleteFailed)
+                }
+            }
+        }
+    }
+    
+    func createTaskDetailViewController(for task: ProjectTask, indexPath: IndexPath) -> TaskDetailViewController {
         let currentProject: Project?
         var isOpenedFromProject = false
         
@@ -157,20 +173,10 @@ extension TasksViewController: UITableViewDelegate {
         
         return detailViewController
     }
-}
 
-extension TasksViewController: EditTaskModuleOutputProtocol {
-    func didCreateTask(_ task: ProjectTask) {
-        addItem(task)
-    }
-    
-    func didUpdateTask(_ task: ProjectTask, project: Project?, employee: Employee?) {
-        updateItem(task) { $0.id == task.id }
-    }
-}
-
-extension TasksViewController: TaskDetailModuleOutputProtocol {
-    func didDeleteTask(at indexPath: IndexPath) {
-        deleteTask(at: indexPath)
+    @objc func actionAddTask() {
+        let editModuleViewController = EditTaskModule.build(moduleOutput: self)
+        editModuleViewController.input.configureForCreate(project: project)
+        navigationController?.pushViewController(editModuleViewController.view, animated: true)
     }
 }

@@ -26,10 +26,10 @@ final class EditProjectViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
+        setupView()
     }
     
-    private func setupUI() {
+    private func setupView() {
         let title = (project != nil) ? Localized.editProject : Localized.addProject
         setupNavigationBar(navigationTitle: title, rightButtonTitle: Localized.save, rightButtonAction: #selector(actionSaveProject))
         

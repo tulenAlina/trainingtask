@@ -61,7 +61,7 @@ final class EditTaskViewController: BaseViewController, EditTaskViewInputProtoco
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
+        setupView()
         output.viewDidLoad()
     }
     
@@ -161,7 +161,7 @@ extension EditTaskViewController: UITextFieldDelegate {
 }
 
 private extension EditTaskViewController {
-    func setupUI() {
+    func setupView() {
         setupEditView()
         setupTextFields()
         setupClearEmployeeButton()

@@ -9,13 +9,6 @@ final class EmployeesViewController: BaseListViewController<Employee> {
     private let server: Server = AppDelegate.server
     private let mode: EmployeesDisplayMode
     
-    private var onSelectEmployee: ((Employee) -> Void)? {
-        if case .selection(let onSelect) = mode {
-            return onSelect
-        }
-        return nil
-    }
-    
     override var emptyStateText: String {
         return Localized.noEmployees
     }
@@ -31,8 +24,8 @@ final class EmployeesViewController: BaseListViewController<Employee> {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
-        refreshData()
+        setupView()
+        loadData()
     }
     
     @objc override func refreshData() {
@@ -49,53 +42,6 @@ final class EmployeesViewController: BaseListViewController<Employee> {
                 }
             }
         }
-    }
-
-    private func setupUI() {
-        setupNavigationBar()
-        setupTableView()
-        startLoading()
-    }
-    
-    private func setupNavigationBar() {
-        switch mode {
-        case .list:
-            super.setupNavigationBar(navigationTitle: Localized.employees, rightButtonSystemItem: .add, rightButtonAction: #selector(actionAddEmployee))
-        case .selection:
-            super.setupNavigationBar(navigationTitle: Localized.employees)
-        }
-    }
-    
-    private func loadEmployees() async throws{
-        let items = try await server.fetchEmployees()
-        setItems(items)
-    }
-    
-    private func deleteEmployee(at indexPath: IndexPath) {
-        startLoading()
-        let employee = getItem(at: indexPath.row)
-
-        Task {
-            do {
-                try await server.deleteEmployee(employee.id)
-                await MainActor.run {
-                    deleteItem(at: indexPath.row)
-                    updateUI()
-                }
-            } catch {
-                await MainActor.run {
-                    stopLoading()
-                    showAlert(Localized.deleteFailed)
-                }
-            }
-        }
-    }
-    
-    @objc private func actionAddEmployee() {
-        let editViewController = EditEmployeeViewController(server: server, action: .create( { [weak self] employee in
-            self?.addItem(employee)
-        }))
-        navigationController?.pushViewController(editViewController, animated: true)
     }
 }
 
@@ -126,9 +72,62 @@ extension EmployeesViewController: UITableViewDelegate {
                 self?.deleteEmployee(at: indexPath)
             })
             navigationController?.pushViewController(detailViewController, animated: true)
-        case .selection:
-            onSelectEmployee?(employee)
+        case .selection(let onSelect):
+            onSelect(employee)
             navigationController?.popViewController(animated: true)
         }
+    }
+}
+
+private extension EmployeesViewController {
+    func setupView() {
+        setupNavigationBar()
+        setupTableView()
+    }
+    
+    func setupNavigationBar() {
+        switch mode {
+        case .list:
+            super.setupNavigationBar(navigationTitle: Localized.employees, rightButtonSystemItem: .add, rightButtonAction: #selector(actionAddEmployee))
+        case .selection:
+            super.setupNavigationBar(navigationTitle: Localized.employees)
+        }
+    }
+    
+    func loadEmployees() async throws{
+        let items = try await server.fetchEmployees()
+        setItems(items)
+    }
+    
+    func loadData() {
+        startLoading()
+        refreshData()
+    }
+    
+    func deleteEmployee(at indexPath: IndexPath) {
+        startLoading()
+        let employee = getItem(at: indexPath.row)
+
+        Task {
+            do {
+                try await server.deleteEmployee(employee.id)
+                await MainActor.run {
+                    deleteItem(at: indexPath.row)
+                    updateUI()
+                }
+            } catch {
+                await MainActor.run {
+                    stopLoading()
+                    showAlert(Localized.deleteFailed)
+                }
+            }
+        }
+    }
+    
+    @objc func actionAddEmployee() {
+        let editViewController = EditEmployeeViewController(server: server, action: .create( { [weak self] employee in
+            self?.addItem(employee)
+        }))
+        navigationController?.pushViewController(editViewController, animated: true)
     }
 }

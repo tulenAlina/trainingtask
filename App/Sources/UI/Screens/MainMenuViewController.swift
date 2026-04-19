@@ -28,10 +28,10 @@ final class MainMenuViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
+        setupView()
     }
     
-    private func setupUI() {
+    private func setupView() {
         view.backgroundColor = .white
         title = Localized.mainMenu
         setupContentView()

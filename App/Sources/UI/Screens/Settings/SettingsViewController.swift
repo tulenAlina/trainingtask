@@ -27,10 +27,10 @@ final class SettingsViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
+        setupView()
     }
     
-    private func setupUI() {
+    private func setupView() {
         setupNavigationBar(navigationTitle: Localized.settings, rightButtonTitle: Localized.save, rightButtonAction: #selector(actionSaveSettings))
         setupTextFields()
         setupEditView()

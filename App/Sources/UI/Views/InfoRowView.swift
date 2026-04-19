@@ -15,14 +15,14 @@ final class InfoRowView: UIView {
     init(title: String = "") {
         self.title = title
         super.init(frame: .zero)
-        setupUI()
+        setupView()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func setupUI() {
+    private func setupView() {
         stackView.addArrangedSubview(titleLabel)
         stackView.addArrangedSubview(valueLabel)
         addSubview(stackView)

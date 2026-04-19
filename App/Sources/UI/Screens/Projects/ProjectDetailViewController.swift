@@ -33,10 +33,10 @@ final class ProjectDetailViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
+        setupView()
     }
     
-    private func setupUI() {
+    private func setupView() {
         setupNavigationBar(navigationTitle: Localized.projectDetails, rightButtonTitle: Localized.edit, rightButtonAction: #selector(actionChangeProject))
         setupContentView()
         setupButtons()

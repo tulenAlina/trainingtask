@@ -28,10 +28,10 @@ final class EditEmployeeViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
+        setupView()
     }
     
-    private func setupUI() {
+    private func setupView() {
         let title = (employee != nil) ? Localized.editEmployee : Localized.addEmployee
         setupNavigationBar(navigationTitle: title, rightButtonTitle: Localized.save, rightButtonAction: #selector(actionSaveEmployee))
         setupEditView()

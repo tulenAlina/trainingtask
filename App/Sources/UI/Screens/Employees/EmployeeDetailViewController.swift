@@ -29,10 +29,10 @@ final class EmployeeDetailViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
+        setupView()
     }
     
-    private func setupUI() {
+    private func setupView() {
         setupNavigationBar(navigationTitle: Localized.employeeDetails, rightButtonTitle: Localized.edit, rightButtonAction: #selector(actionChangeEmployee))
         setupContentView()
         setupDeleteButton()

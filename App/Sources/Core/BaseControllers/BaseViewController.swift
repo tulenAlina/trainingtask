@@ -13,7 +13,7 @@ class BaseViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
+        setupView()
     }
     
     override func viewDidLayoutSubviews() {
@@ -47,7 +47,7 @@ class BaseViewController: UIViewController {
         }
     }
     
-    private func setupUI() {
+    private func setupView() {
         view.backgroundColor = .systemBackground
         setupLoadingIndicator()
         setupTapGesture()

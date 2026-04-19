@@ -10,13 +10,6 @@ final class ProjectsViewController: BaseListViewController<Project> {
     private let settings: SettingsManager = AppDelegate.settings
     private let mode: ProjectsDisplayMode
     
-    private var onSelectProject: ((Project) -> Void)? {
-        if case .selection(let onSelect) = mode {
-            return onSelect
-        }
-        return nil
-    }
-    
     override var emptyStateText: String {
         return Localized.noProjects
     }
@@ -32,8 +25,8 @@ final class ProjectsViewController: BaseListViewController<Project> {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
-        refreshData()
+        setupView()
+        loadData()
     }
     
     @objc override func refreshData() {
@@ -50,53 +43,6 @@ final class ProjectsViewController: BaseListViewController<Project> {
                 }
             }
         }
-    }
-    
-    private func setupUI() {
-        setupNavigationBar()
-        startLoading()
-        setupTableView()
-    }
-    
-    private func setupNavigationBar() {
-        switch mode {
-        case .list:
-            super.setupNavigationBar(navigationTitle: Localized.projects, rightButtonSystemItem: .add, rightButtonAction: #selector(actionAddProject))
-        case .selection:
-            super.setupNavigationBar(navigationTitle: Localized.projects)
-        }
-    }
-    
-    private func loadProjects() async throws {
-        let items = try await server.fetchProjects()
-        setItems(items)
-    }
-    
-    private func deleteProject(at indexPath: IndexPath) {
-        startLoading()
-        let project = getItem(at: indexPath.row)
-        
-        Task {
-            do {
-                try await server.deleteProject(project.id)
-                await MainActor.run {
-                    deleteItem(at: indexPath.row)
-                    updateUI()
-                }
-            } catch {
-                await MainActor.run {
-                    stopLoading()
-                    showAlert(Localized.deleteFailed)
-                }
-            }
-        }
-    }
-    
-    @objc private func actionAddProject() {
-        let editViewController = EditProjectViewController(server: server, action: .create({ [weak self] project in
-            self?.addItem(project)
-        }))
-        navigationController?.pushViewController(editViewController, animated: true)
     }
 }
 
@@ -128,9 +74,62 @@ extension ProjectsViewController: UITableViewDelegate {
                 self?.deleteProject(at: indexPath)
             })
             navigationController?.pushViewController(detailViewController, animated: true)
-        case .selection:
-            onSelectProject?(project)
+        case .selection(let onSelect):
+            onSelect(project)
             navigationController?.popViewController(animated: true)
         }
+    }
+}
+
+private extension ProjectsViewController {
+    func setupView() {
+        setupNavigationBar()
+        setupTableView()
+    }
+    
+    func setupNavigationBar() {
+        switch mode {
+        case .list:
+            super.setupNavigationBar(navigationTitle: Localized.projects, rightButtonSystemItem: .add, rightButtonAction: #selector(actionAddProject))
+        case .selection:
+            super.setupNavigationBar(navigationTitle: Localized.projects)
+        }
+    }
+    
+    func loadProjects() async throws {
+        let items = try await server.fetchProjects()
+        setItems(items)
+    }
+    
+    func loadData() {
+        startLoading()
+        refreshData()
+    }
+    
+    func deleteProject(at indexPath: IndexPath) {
+        startLoading()
+        let project = getItem(at: indexPath.row)
+        
+        Task {
+            do {
+                try await server.deleteProject(project.id)
+                await MainActor.run {
+                    deleteItem(at: indexPath.row)
+                    updateUI()
+                }
+            } catch {
+                await MainActor.run {
+                    stopLoading()
+                    showAlert(Localized.deleteFailed)
+                }
+            }
+        }
+    }
+    
+    @objc func actionAddProject() {
+        let editViewController = EditProjectViewController(server: server, action: .create({ [weak self] project in
+            self?.addItem(project)
+        }))
+        navigationController?.pushViewController(editViewController, animated: true)
     }
 }

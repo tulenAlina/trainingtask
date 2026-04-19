@@ -28,7 +28,7 @@ final class TaskTimeCardView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setupUI()
+        setupView()
     }
     
     required init?(coder: NSCoder) {
@@ -41,7 +41,7 @@ final class TaskTimeCardView: UIView {
         endDateLabel.text = DateHelper.string(from: task.endDate)
     }
     
-    private func setupUI() {
+    private func setupView() {
         setupLabels()
         setupRows()
         setupContentView()

@@ -6,7 +6,7 @@ final class ScrollableStackView: UIScrollView {
     init(views: [UIView], spacing: CGFloat) {
         stackView = UIFactory.createVerticalStackView(views: views, spacing: spacing)
         super.init(frame: .zero)
-        setupUI()
+        setupView()
     }
     
     required init?(coder: NSCoder) {
@@ -17,7 +17,7 @@ final class ScrollableStackView: UIScrollView {
         stackView.addArrangedSubview(view)
     }
     
-    private func setupUI() {
+    private func setupView() {
         translatesAutoresizingMaskIntoConstraints = false
         
         addSubview(stackView)

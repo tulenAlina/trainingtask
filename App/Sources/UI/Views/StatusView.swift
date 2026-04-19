@@ -43,7 +43,7 @@ final class StatusView: UIView {
     
     init() {
         super.init(frame: .zero)
-        setupUI()
+        setupView()
     }
     
     required init?(coder: NSCoder) {
@@ -71,7 +71,7 @@ final class StatusView: UIView {
         }
     }
     
-    private func setupUI() {
+    private func setupView() {
         addSubview(statusView)
         statusView.addSubview(statusLabel)
         
