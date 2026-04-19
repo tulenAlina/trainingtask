@@ -1,6 +1,6 @@
 import UIKit
 
-final class TasksViewController: BaseListViewController<ProjectTask> {
+final class TasksViewController: BaseListViewController<ProjectTask>, EditTaskModuleOutputProtocol, TaskDetailModuleOutputProtocol {
     private let project: Project?
     private let server: Server
     private let settings: SettingsManager
@@ -43,6 +43,18 @@ final class TasksViewController: BaseListViewController<ProjectTask> {
             }
         }
     }
+    
+    func didCreateTask(_ task: ProjectTask) {
+        addItem(task)
+    }
+    
+    func didUpdateTask(_ task: ProjectTask, project: Project?, employee: Employee?) {
+        updateItem(task) { $0.id == task.id }
+    }
+    
+    func didDeleteTask(at indexPath: IndexPath) {
+        deleteTask(at: indexPath)
+    }
 }
 
 extension TasksViewController: UITableViewDataSource {
@@ -81,22 +93,6 @@ extension TasksViewController: UITableViewDelegate {
         let task = getItem(at: indexPath.row)
         let detailViewController = createTaskDetailViewController(for: task, indexPath: indexPath)
         navigationController?.pushViewController(detailViewController, animated: true)
-    }
-}
-
-extension TasksViewController: EditTaskModuleOutputProtocol {
-    func didCreateTask(_ task: ProjectTask) {
-        addItem(task)
-    }
-    
-    func didUpdateTask(_ task: ProjectTask, project: Project?, employee: Employee?) {
-        updateItem(task) { $0.id == task.id }
-    }
-}
-
-extension TasksViewController: TaskDetailModuleOutputProtocol {
-    func didDeleteTask(at indexPath: IndexPath) {
-        deleteTask(at: indexPath)
     }
 }
 

@@ -5,7 +5,7 @@ protocol TaskDetailModuleOutputProtocol: AnyObject {
     func didDeleteTask(at indexPath: IndexPath)
 }
 
-final class TaskDetailViewController: BaseViewController {
+final class TaskDetailViewController: BaseViewController, EditTaskModuleOutputProtocol {
     weak var moduleOutput: TaskDetailModuleOutputProtocol?
     
     private let server: Server
@@ -49,14 +49,27 @@ final class TaskDetailViewController: BaseViewController {
         setupView()
     }
     
-    private func setupView() {
+    func didUpdateTask(_ task: ProjectTask, project: Project?, employee: Employee?) {
+        self.task = task
+        self.project = project
+        self.employee = employee
+                
+        updateLabels()
+        moduleOutput?.didUpdateTask(task, project: project, employee: employee)
+    }
+    
+    func didCreateTask(_ task: ProjectTask) {}
+}
+
+private extension TaskDetailViewController {
+    func setupView() {
         setupNavigationBar(navigationTitle: Localized.taskDetails, rightButtonTitle: Localized.edit, rightButtonAction: #selector(actionChangeTask))
         setupContentView()
         setupDeleteButton()
         updateLabels()
     }
     
-    private func setupContentView() {
+    func setupContentView() {
         view.addSubview(contentScrollView)
                 
         NSLayoutConstraint.activate([
@@ -70,7 +83,7 @@ final class TaskDetailViewController: BaseViewController {
         ])
     }
 
-    private func setupDeleteButton() {
+    func setupDeleteButton() {
         deleteButton.addTarget(self, action: #selector(actionDeleteTask), for: .touchUpInside)
         
         NSLayoutConstraint.activate([
@@ -80,7 +93,7 @@ final class TaskDetailViewController: BaseViewController {
         ])
     }
     
-    private func updateLabels() {
+    func updateLabels() {
         taskNameLabel.text = task.taskName
         projectRow.value = project?.projectName ?? Localized.unknownProjectLabel
         employeeRow.value = employee?.fullName ?? Localized.notAssignedLabel
@@ -89,27 +102,14 @@ final class TaskDetailViewController: BaseViewController {
         timeCardView.configure(with: task)
     }
     
-    @objc private func actionDeleteTask() {
+    @objc func actionDeleteTask() {
         moduleOutput?.didDeleteTask(at: indexPath)
         navigationController?.popViewController(animated: true)
     }
     
-    @objc private func actionChangeTask() {
+    @objc func actionChangeTask() {
         let editModuleViewController = EditTaskModule.build(moduleOutput: self)
         editModuleViewController.input.configureForUpdate(task: task, project: project, isOpenedFromProject: isOpenedFromProject, employee: employee)
         navigationController?.pushViewController(editModuleViewController.view, animated: true)
-    }
-}
-
-extension TaskDetailViewController: EditTaskModuleOutputProtocol {
-    func didCreateTask(_ task: ProjectTask) {}
-    
-    func didUpdateTask(_ task: ProjectTask, project: Project?, employee: Employee?) {
-        self.task = task
-        self.project = project
-        self.employee = employee
-                
-        updateLabels()
-        moduleOutput?.didUpdateTask(task, project: project, employee: employee)
     }
 }
