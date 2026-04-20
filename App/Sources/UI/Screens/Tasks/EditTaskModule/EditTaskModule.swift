@@ -11,7 +11,9 @@ protocol EditTaskModuleOutputProtocol: AnyObject {
 }
 
 protocol Module {
+    associatedtype InputType
     var view: UIViewController { get }
+    var input: InputType { get }
 }
 
 final class EditTaskModule: Module {
