@@ -11,7 +11,7 @@ final class SettingsViewController: BaseViewController {
     private var maxRecordsTextField = UIFactory.createDefaultTextField(placeholder: Localized.maxRecordsPlaceholder)
     private var defaultDaysBetweenTextField = UIFactory.createDefaultTextField(placeholder: Localized.defaultDaysBetweenPlaceholder)
     
-    private let settingsEditView = EditView()
+    private let settingsEditView = ValidatableFormView()
     
     private let requiredFields: [UITextField]
     
@@ -81,19 +81,19 @@ private extension SettingsViewController {
             settingsEditView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         
-        let formRows: [(String, UIView)] = [
-            (labelText: Localized.serverUrlLabel, inputView: serverUrlTextField),
-            (labelText: Localized.maxRecordsLabel, inputView: maxRecordsTextField),
-            (labelText: Localized.defaultDaysBetweenLabel, inputView: defaultDaysBetweenTextField)
+        let formRows: [FormRow] = [
+            FormRow(labelText: Localized.serverUrlLabel, inputView: serverUrlTextField),
+            FormRow(labelText: Localized.maxRecordsLabel, inputView: maxRecordsTextField),
+            FormRow(labelText: Localized.defaultDaysBetweenLabel, inputView: defaultDaysBetweenTextField)
         ]
         
         settingsEditView.setupForm(rows: formRows)
     }
     
     func setupActions() {
-        serverUrlTextField.addTarget(settingsEditView, action: #selector(settingsEditView.textFieldDidChange), for: .editingChanged)
-        maxRecordsTextField.addTarget(settingsEditView, action: #selector(settingsEditView.textFieldDidChange), for: .editingChanged)
-        defaultDaysBetweenTextField.addTarget(settingsEditView, action: #selector(settingsEditView.textFieldDidChange), for: .editingChanged)
+        serverUrlTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        maxRecordsTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        defaultDaysBetweenTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
     }
 
     func loadCurrentSettings() {
@@ -110,28 +110,12 @@ private extension SettingsViewController {
     }
     
     func validateFields(serverUrlString: String, maxRecordsString: String, defaultDaysBetweenString: String) -> Bool {
-        var fieldsValidity: [Bool] = []
-        var isValid = true
-        
-        for text in [serverUrlString, maxRecordsString, defaultDaysBetweenString]
-        {
+        for text in [serverUrlString, maxRecordsString, defaultDaysBetweenString] {
             if text.isBlank == true {
-                fieldsValidity.append(false)
-                isValid = false
-            } else {
-                fieldsValidity.append(true)
+                return false
             }
         }
-        applyValidationResults(fieldsValidity)
-        return isValid
-    }
-    
-    func applyValidationResults(_ fieldsValidity: [Bool]) {
-        var result: [(UITextField, Bool)] = []
-        for i in 0..<requiredFields.count {
-            result.append((requiredFields[i], fieldsValidity[i]))
-        }
-        settingsEditView.applyValidationResults(result)
+        return true
     }
     
     @objc func actionSaveSettings() {
@@ -152,5 +136,13 @@ private extension SettingsViewController {
         settings.maxRecords = maxRecordsTextField.text.unwrappedOrEmpty.withoutSpaces.cleanedInt
         settings.defaultDaysBetween = defaultDaysBetweenTextField.text.unwrappedOrEmpty.withoutSpaces.cleanedInt
         self.navigationController?.popViewController(animated: true)
+    }
+    
+    @objc func textFieldDidChange(sender: UITextField) {
+        if sender.text?.isBlank == false {
+            settingsEditView.applyValidationStyle(sender, isValid: true)
+        } else {
+            settingsEditView.applyValidationStyle(sender, isValid: false)
+        }
     }
 }

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6F0F8C972F9676D1003F7AFE /* DesignConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F0F8C962F9676CE003F7AFE /* DesignConstants.swift */; };
 		6F404D192F72C2CE00B40BA4 /* DateHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F404D182F72C2CC00B40BA4 /* DateHelper.swift */; };
 		6F404DF42F75350000B40BA4 /* LocalizedStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F404DF32F7534FF00B40BA4 /* LocalizedStrings.swift */; };
 		6F404DF52F753A8C00B40BA4 /* Localizable.strings in Sources */ = {isa = PBXBuildFile; fileRef = 6F404DF02F75337200B40BA4 /* Localizable.strings */; };
@@ -28,6 +29,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6F0F8C962F9676CE003F7AFE /* DesignConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignConstants.swift; sourceTree = "<group>"; };
 		6F404D182F72C2CC00B40BA4 /* DateHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateHelper.swift; sourceTree = "<group>"; };
 		6F404DEF2F75337200B40BA4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		6F404DF22F7533B600B40BA4 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -135,6 +137,7 @@
 		6FFDD0CE2F618685008CED45 /* Constants */ = {
 			isa = PBXGroup;
 			children = (
+				6F0F8C962F9676CE003F7AFE /* DesignConstants.swift */,
 				6F404DF32F7534FF00B40BA4 /* LocalizedStrings.swift */,
 				6FBE2CB12F6AF6D300B02B5A /* UserDefaultsKeys.swift */,
 			);
@@ -341,6 +344,7 @@
 				6FBE2CA62F69438B00B02B5A /* SettingsManager.swift in Sources */,
 				6FFDD0E32F61933E008CED45 /* MainMenuViewController.swift in Sources */,
 				6FBE2CB22F6AF6D700B02B5A /* UserDefaultsKeys.swift in Sources */,
+				6F0F8C972F9676D1003F7AFE /* DesignConstants.swift in Sources */,
 				6FBE2C7E2F62A2AA00B02B5A /* ProjectTask.swift in Sources */,
 				6F696D3B2F8537EA00E4DD4F /* Optional+Extensions.swift in Sources */,
 				6FBE2CAA2F698B1D00B02B5A /* UIViewController+Alert.swift in Sources */,

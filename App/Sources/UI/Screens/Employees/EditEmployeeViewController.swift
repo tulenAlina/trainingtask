@@ -10,7 +10,7 @@ final class EditEmployeeViewController: BaseViewController {
     private var surNameTextField = UIFactory.createDefaultTextField(placeholder: Localized.surnamePlaceholder)
     private var positionTextField = UIFactory.createDefaultTextField(placeholder: Localized.positionPlaceholder)
     
-    private let employeeEditView = EditView()
+    private let employeeEditView = ValidatableFormView()
     
     private let requiredFields: [UITextField]
     
@@ -59,11 +59,11 @@ private extension EditEmployeeViewController {
             employeeEditView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         
-        let formRows: [(String, UIView)] = [
-            (labelText: Localized.firstNameLabel, inputView: firstNameTextField),
-            (labelText: Localized.lastNameLabel, inputView: lastNameTextField),
-            (labelText: Localized.surnameLabel, inputView: surNameTextField),
-            (labelText: Localized.positionLabel, inputView: positionTextField)
+        let formRows: [FormRow] = [
+            FormRow(labelText: Localized.firstNameLabel, inputView: firstNameTextField),
+            FormRow(labelText: Localized.lastNameLabel, inputView: lastNameTextField),
+            FormRow(labelText: Localized.surnameLabel, inputView: surNameTextField),
+            FormRow(labelText: Localized.positionLabel, inputView: positionTextField)
         ]
         
         employeeEditView.setupForm(rows: formRows)
@@ -84,9 +84,9 @@ private extension EditEmployeeViewController {
     }
     
     func setupActions() {
-        firstNameTextField.addTarget(employeeEditView, action: #selector(employeeEditView.textFieldDidChange), for: .editingChanged)
-        lastNameTextField.addTarget(employeeEditView, action: #selector(employeeEditView.textFieldDidChange), for: .editingChanged)
-        positionTextField.addTarget(employeeEditView, action: #selector(employeeEditView.textFieldDidChange), for: .editingChanged)
+        firstNameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        lastNameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        positionTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
     }
     
     func isFieldsChanged() -> Bool {
@@ -119,9 +119,9 @@ private extension EditEmployeeViewController {
     }
     
     func applyValidationResults(_ fieldsValidity: [Bool]) {
-        var result: [(UITextField, Bool)] = []
+        var result: [ValidationResult] = []
         for i in 0..<requiredFields.count {
-            result.append((requiredFields[i], fieldsValidity[i]))
+            result.append(ValidationResult(textField: requiredFields[i], isValid: fieldsValidity[i]))
         }
         employeeEditView.applyValidationResults(result)
     }
@@ -198,6 +198,14 @@ private extension EditEmployeeViewController {
                     stopLoading()
                 }
             }
+        }
+    }
+    
+    @objc func textFieldDidChange(sender: UITextField) {
+        if sender.text?.isBlank == false {
+            employeeEditView.applyValidationStyle(sender, isValid: true)
+        } else {
+            employeeEditView.applyValidationStyle(sender, isValid: false)
         }
     }
 }

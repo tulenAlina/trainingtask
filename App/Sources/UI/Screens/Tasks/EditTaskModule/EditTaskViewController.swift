@@ -1,5 +1,14 @@
 import UIKit
 
+enum EditTaskFieldType {
+    case taskName
+    case project
+    case workTime
+    case startDate
+    case endDate
+    case employee
+}
+
 protocol EditTaskViewInputProtocol: AnyObject {
     var output: EditTaskViewOutputProtocol { get set }
     var requiredFields: [UITextField] { get }
@@ -12,6 +21,7 @@ protocol EditTaskViewInputProtocol: AnyObject {
     func setEndDateField(defaultDaysBetween: Int)
     func setTaskFields(taskName: String, projectName: String, workTime: String, startDate: String, endDate: String, employee: String?)
     func applyValidationResults(_ fieldsValidity: [Bool])
+    func updateValidationStyle(textFieldType: EditTaskFieldType, isValid: Bool)
     func startLoading()
     func stopLoading()
     func showAlert (_ message: String)
@@ -23,6 +33,7 @@ protocol EditTaskViewOutputProtocol {
     func didTapClearEmployee()
     func didTapSelectProject()
     func didTapSelectEmployee()
+    func textFieldDidChange(textFieldType: EditTaskFieldType, text: String?)
 }
 
 final class EditTaskViewController: BaseViewController, EditTaskViewInputProtocol {
@@ -33,7 +44,7 @@ final class EditTaskViewController: BaseViewController, EditTaskViewInputProtoco
     }
     
     private let toolbar = UIToolbar()
-    private let taskEditView = EditView()
+    private let taskEditView = ValidatableFormView()
     
     private let taskNameTextField = UIFactory.createDefaultTextField(placeholder: Localized.taskNamePlaceholder)
     private let projectTextField = UIFactory.createDefaultTextField(placeholder: Localized.selectedProjectNamePlaceholder)
@@ -80,7 +91,7 @@ final class EditTaskViewController: BaseViewController, EditTaskViewInputProtoco
     
     func updateProjectName(_ name: String) {
         projectTextField.text = name
-        taskEditView.textFieldDidChange(sender: projectTextField)
+        output.textFieldDidChange(textFieldType: .project, text: name)
     }
     
     func updateEmployeeName(_ name: String) {
@@ -107,11 +118,27 @@ final class EditTaskViewController: BaseViewController, EditTaskViewInputProtoco
     }
     
     func applyValidationResults(_ fieldsValidity: [Bool]) {
-        var result: [(UITextField, Bool)] = []
+        var result: [ValidationResult] = []
         for i in 0..<requiredFields.count {
-            result.append((requiredFields[i], fieldsValidity[i]))
+            result.append(ValidationResult(textField: requiredFields[i], isValid: fieldsValidity[i]))
         }
         taskEditView.applyValidationResults(result)
+    }
+    
+    func updateValidationStyle(textFieldType: EditTaskFieldType, isValid: Bool) {
+        let textField: UITextField?
+            switch textFieldType {
+            case .taskName:
+                textField = taskNameTextField
+            case .project:
+                textField = projectTextField
+            case .workTime:
+                textField = workTimeTextField
+            default:
+                textField = nil
+            }
+        guard let textField else { return }
+        taskEditView.applyValidationStyle(textField, isValid: isValid)
     }
 }
 
@@ -161,6 +188,25 @@ extension EditTaskViewController: UITextFieldDelegate {
 }
 
 private extension EditTaskViewController {
+    func fieldType(for textField: UITextField) -> EditTaskFieldType? {
+        switch textField {
+        case taskNameTextField:
+            return .taskName
+        case projectTextField:
+            return .project
+        case workTimeTextField:
+            return .workTime
+        case startDateTextField:
+            return .startDate
+        case endDateTextField:
+            return .endDate
+        case employeeTextField:
+            return .employee
+        default:
+            return nil
+        }
+    }
+    
     func setupView() {
         setupEditView()
         setupTextFields()
@@ -179,14 +225,14 @@ private extension EditTaskViewController {
             taskEditView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         
-        let formRows: [(String, UIView)] = [
-            (labelText: Localized.nameLabel, inputView: taskNameTextField),
-            (labelText: Localized.projectLabel, inputView: projectTextField),
-            (labelText: Localized.hoursLabel, inputView: workTimeTextField),
-            (labelText: Localized.startDateLabel, inputView: startDateTextField),
-            (labelText: Localized.endDateLabel, inputView: endDateTextField),
-            (labelText: Localized.statusLabel, inputView: statusSegmentedControl),
-            (labelText: Localized.employeeLabel, inputView: employeeHorizontalStack)
+        let formRows: [FormRow] = [
+            FormRow(labelText: Localized.nameLabel, inputView: taskNameTextField),
+            FormRow(labelText: Localized.projectLabel, inputView: projectTextField),
+            FormRow(labelText: Localized.hoursLabel, inputView: workTimeTextField),
+            FormRow(labelText: Localized.startDateLabel, inputView: startDateTextField),
+            FormRow(labelText: Localized.endDateLabel, inputView: endDateTextField),
+            FormRow(labelText: Localized.statusLabel, inputView: statusSegmentedControl),
+            FormRow(labelText: Localized.employeeLabel, inputView: employeeHorizontalStack)
         ]
         
         taskEditView.setupForm(rows: formRows)
@@ -221,9 +267,9 @@ private extension EditTaskViewController {
     }
     
     func setupActions() {
-        taskNameTextField.addTarget(taskEditView, action: #selector(taskEditView.textFieldDidChange), for: .editingChanged)
-        projectTextField.addTarget(taskEditView, action: #selector(taskEditView.textFieldDidChange), for: .editingChanged)
-        workTimeTextField.addTarget(taskEditView, action: #selector(taskEditView.textFieldDidChange), for: .editingChanged)
+        taskNameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        projectTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        workTimeTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         clearEmployeeButton.addTarget(self, action: #selector(actionClearEmployee), for: .touchUpInside)
     }
     
@@ -257,5 +303,12 @@ private extension EditTaskViewController {
     @objc func actionClearEmployee() {
         employeeTextField.text = nil
         output.didTapClearEmployee()
+    }
+    
+    @objc func textFieldDidChange(_ textField: UITextField) {
+        guard let fieldType = fieldType(for: textField) else {
+            return
+        }
+        output.textFieldDidChange(textFieldType: fieldType, text: textField.text)
     }
 }

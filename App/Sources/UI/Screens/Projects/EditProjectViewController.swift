@@ -8,7 +8,7 @@ final class EditProjectViewController: BaseViewController {
     private var nameTextField = UIFactory.createDefaultTextField(placeholder: Localized.projectNamePlaceholder)
     private var descriptionTextField = UIFactory.createDefaultTextField(placeholder: Localized.projectDescriptionPlaceholder)
     
-    private let projectEditView = EditView()
+    private let projectEditView = ValidatableFormView()
     
     private let requiredFields: [UITextField]
     
@@ -67,17 +67,17 @@ private extension EditProjectViewController {
             projectEditView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         
-        let formRows: [(String, UIView)] = [
-            (labelText: Localized.nameLabel, inputView: nameTextField),
-            (labelText: Localized.descriptionLabel, inputView: descriptionTextField)
+        let formRows: [FormRow] = [
+            FormRow(labelText: Localized.nameLabel, inputView: nameTextField),
+            FormRow(labelText: Localized.descriptionLabel, inputView: descriptionTextField)
         ]
         
         projectEditView.setupForm(rows: formRows)
     }
     
     func setupActions() {
-        nameTextField.addTarget(projectEditView, action: #selector(projectEditView.textFieldDidChange), for: .editingChanged)
-        descriptionTextField.addTarget(projectEditView, action: #selector(projectEditView.textFieldDidChange), for: .editingChanged)
+        nameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        descriptionTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
     }
 
     func isFieldsChanged() -> Bool {
@@ -108,9 +108,9 @@ private extension EditProjectViewController {
     }
     
     func applyValidationResults(_ fieldsValidity: [Bool]) {
-        var result: [(UITextField, Bool)] = []
+        var result: [ValidationResult] = []
         for i in 0..<requiredFields.count {
-            result.append((requiredFields[i], fieldsValidity[i]))
+            result.append(ValidationResult(textField: requiredFields[i], isValid: fieldsValidity[i]))
         }
         projectEditView.applyValidationResults(result)
     }
@@ -179,6 +179,14 @@ private extension EditProjectViewController {
                     showAlert(Localized.saveFailed)
                 }
             }
+        }
+    }
+    
+    @objc func textFieldDidChange(sender: UITextField) {
+        if sender.text?.isBlank == false {
+            projectEditView.applyValidationStyle(sender, isValid: true)
+        } else {
+            projectEditView.applyValidationStyle(sender, isValid: false)
         }
     }
 }

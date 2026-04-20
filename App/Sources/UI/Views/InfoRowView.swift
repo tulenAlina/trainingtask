@@ -10,7 +10,7 @@ final class InfoRowView: UIView {
     
     private let valueLabel = UIFactory.createDefaultLabel()
     private lazy var titleLabel = UIFactory.createTitleLabel(text: title)
-    private lazy var stackView = UIFactory.createHorizontalStackView(views: [titleLabel, valueLabel], spacing: 5)
+    private lazy var stackView = UIFactory.createHorizontalStackView(views: [titleLabel, valueLabel], spacing: Spacing.small)
     
     init(title: String = "") {
         self.title = title
@@ -23,8 +23,7 @@ final class InfoRowView: UIView {
     }
     
     private func setupView() {
-        stackView.addArrangedSubview(titleLabel)
-        stackView.addArrangedSubview(valueLabel)
+        translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
         
         NSLayoutConstraint.activate([

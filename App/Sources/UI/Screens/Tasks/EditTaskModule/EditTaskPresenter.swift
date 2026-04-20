@@ -71,6 +71,14 @@ extension EditTaskPresenter: EditTaskViewOutputProtocol {
     func didTapClearEmployee() {
         employee = nil
     }
+    
+    func textFieldDidChange(textFieldType: EditTaskFieldType,text: String?) {
+        if text?.isBlank == false {
+            view?.updateValidationStyle(textFieldType: textFieldType, isValid: true)
+        } else {
+            view?.updateValidationStyle(textFieldType: textFieldType, isValid: false)
+        }
+    }
 }
 
 extension EditTaskPresenter: EditTaskInteractorOutputProtocol {

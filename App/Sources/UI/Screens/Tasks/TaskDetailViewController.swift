@@ -17,7 +17,7 @@ final class TaskDetailViewController: BaseViewController, EditTaskModuleOutputPr
     private let isOpenedFromProject: Bool
     
     private var taskNameLabel = UIFactory.createTitleLargeLabel()
-    private let statusView = StatusView()
+    private let statusView = TaskStatusLabel()
     private let timeCardView = TaskTimeCardView()
     private var deleteButton = UIFactory.createDeleteButton()
     
@@ -102,7 +102,11 @@ private extension TaskDetailViewController {
         employeeRow.value = employee?.fullName ?? Localized.notAssignedLabel
         statusView.status = task.status
         
-        timeCardView.configure(with: task)
+        timeCardView.configure(
+            workTime: "\(task.workTime)",
+            startDate: DateHelper.string(from: task.startDate),
+            endDate: DateHelper.string(from: task.endDate)
+        )
     }
     
     @objc func actionDeleteTask() {
