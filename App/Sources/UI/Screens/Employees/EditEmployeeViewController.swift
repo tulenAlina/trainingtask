@@ -5,10 +5,10 @@ final class EditEmployeeViewController: BaseViewController {
     private var employee: Employee?
     private let action: EditEmployeeAction
     
-    private var firstNameTextField = UIFactory.createDefaultTextField(placeholder: Localized.firstNamePlaceholder)
-    private var lastNameTextField = UIFactory.createDefaultTextField(placeholder: Localized.lastNamePlaceholder)
-    private var surNameTextField = UIFactory.createDefaultTextField(placeholder: Localized.surnamePlaceholder)
-    private var positionTextField = UIFactory.createDefaultTextField(placeholder: Localized.positionPlaceholder)
+    private var firstNameTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.firstNamePlaceholder)
+    private var lastNameTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.lastNamePlaceholder)
+    private var surNameTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.surnamePlaceholder)
+    private var positionTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.positionPlaceholder)
     
     private let employeeEditView = ValidatableFormView()
     

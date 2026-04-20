@@ -34,7 +34,7 @@ final class MainMenuViewController: UIViewController {
     private let server: Server
     private let menuItems = MenuItem.allCases
     
-    private lazy var buttons: [UIButton] = UIFactory.createMenuButtons(from: menuItems, target: self, action: #selector(actionButtonTapped))
+    private lazy var buttons: [UIButton] = ButtonFactory.createMenuButtons(from: menuItems, target: self, action: #selector(actionButtonTapped))
     private lazy var contentScrollView = ScrollableStackView(views: buttons, spacing: 15)
     
     init(server: Server, settings: SettingsManager) {

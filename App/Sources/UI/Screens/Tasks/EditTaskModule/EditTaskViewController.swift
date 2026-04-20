@@ -46,20 +46,20 @@ final class EditTaskViewController: BaseViewController, EditTaskViewInputProtoco
     private let toolbar = UIToolbar()
     private let taskEditView = ValidatableFormView()
     
-    private let taskNameTextField = UIFactory.createDefaultTextField(placeholder: Localized.taskNamePlaceholder)
-    private let projectTextField = UIFactory.createDefaultTextField(placeholder: Localized.selectedProjectNamePlaceholder)
-    private let workTimeTextField = UIFactory.createDefaultTextField(placeholder: Localized.workTimePlaceholder)
-    private let startDateTextField = UIFactory.createDefaultTextField(placeholder: Localized.startDatePlaceholder)
-    private let endDateTextField = UIFactory.createDefaultTextField(placeholder: Localized.endDatePlaceholder)
-    private let employeeTextField = UIFactory.createDefaultTextField(placeholder: Localized.employeeNamePlaceholder)
+    private let taskNameTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.taskNamePlaceholder)
+    private let projectTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.selectedProjectNamePlaceholder)
+    private let workTimeTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.workTimePlaceholder)
+    private let startDateTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.startDatePlaceholder)
+    private let endDateTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.endDatePlaceholder)
+    private let employeeTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.employeeNamePlaceholder)
     
-    private let statusSegmentedControl = UIFactory.createSegmentedControl(items: TaskStatus.allCases.map {$0.rawValue.localized})
+    private let statusSegmentedControl = SegmentedControlFactory.createSegmentedControl(items: TaskStatus.allCases.map {$0.rawValue.localized})
     
-    private let startDatePicker = UIFactory.createDatePicker()
-    private let endDatePicker = UIFactory.createDatePicker()
-    private let clearEmployeeButton = UIFactory.createClearButton()
+    private let startDatePicker = DatePickerFactory.createDatePicker()
+    private let endDatePicker = DatePickerFactory.createDatePicker()
+    private let clearEmployeeButton = ButtonFactory.createClearButton()
     
-    private lazy var employeeHorizontalStack = UIFactory.createHorizontalStackView(views: [employeeTextField, clearEmployeeButton], spacing: 5)
+    private lazy var employeeHorizontalStack = StackViewFactory.createHorizontalStackView(views: [employeeTextField, clearEmployeeButton], spacing: 5)
     
     init(presenter: EditTaskViewOutputProtocol) {
         self.output = presenter

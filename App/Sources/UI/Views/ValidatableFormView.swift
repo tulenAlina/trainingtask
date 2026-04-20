@@ -47,7 +47,7 @@ final class ValidatableFormView: UIView {
     
     private func addRows(rows: [FormRow]) {
         for row in rows {
-            let formRow = UIFactory.createVerticalFieldGroup(labelText: row.labelText, inputView: row.inputView)
+            let formRow = StackViewFactory.createVerticalFieldGroup(labelText: row.labelText, inputView: row.inputView)
             contentScrollView.addArrangedSubview(formRow)
         }
     }

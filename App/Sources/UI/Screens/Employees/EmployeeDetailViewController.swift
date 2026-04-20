@@ -10,7 +10,7 @@ final class EmployeeDetailViewController: BaseViewController {
     
     private let fullNameRow = InfoRowView(title: Localized.fullNameLabel)
     private let positionRow = InfoRowView(title: Localized.positionLabel)
-    private var deleteButton = UIFactory.createDeleteButton()
+    private var deleteButton = ButtonFactory.createDeleteButton()
     
     private lazy var contentScrollView = ScrollableStackView(views: [fullNameRow, positionRow, deleteButton], spacing: 15)
     

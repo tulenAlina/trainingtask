@@ -3,13 +3,13 @@ import UIKit
 final class SettingsViewController: BaseViewController {
     private let settings: SettingsManager = AppDelegate.settings
     
-    private let serverUrlLabel = UIFactory.createSecondaryLabel(text: Localized.serverUrlLabel)
-    private let maxRecordsLabel = UIFactory.createSecondaryLabel(text: Localized.maxRecordsLabel)
-    private let defaultDaysBetweenLabel = UIFactory.createSecondaryLabel(text: Localized.defaultDaysBetweenLabel)
+    private let serverUrlLabel = LabelFactory.createSecondaryLabel(text: Localized.serverUrlLabel)
+    private let maxRecordsLabel = LabelFactory.createSecondaryLabel(text: Localized.maxRecordsLabel)
+    private let defaultDaysBetweenLabel = LabelFactory.createSecondaryLabel(text: Localized.defaultDaysBetweenLabel)
     
-    private var serverUrlTextField = UIFactory.createDefaultTextField(placeholder: Localized.serverUrlPlaceholder)
-    private var maxRecordsTextField = UIFactory.createDefaultTextField(placeholder: Localized.maxRecordsPlaceholder)
-    private var defaultDaysBetweenTextField = UIFactory.createDefaultTextField(placeholder: Localized.defaultDaysBetweenPlaceholder)
+    private var serverUrlTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.serverUrlPlaceholder)
+    private var maxRecordsTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.maxRecordsPlaceholder)
+    private var defaultDaysBetweenTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.defaultDaysBetweenPlaceholder)
     
     private let settingsEditView = ValidatableFormView()
     

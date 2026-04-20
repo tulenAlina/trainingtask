@@ -5,7 +5,7 @@ final class ScrollableStackView: UIView {
     private let stackView: UIStackView
     
     init(views: [UIView], spacing: CGFloat) {
-        stackView = UIFactory.createVerticalStackView(views: views, spacing: spacing)
+        stackView = StackViewFactory.createVerticalStackView(views: views, spacing: spacing)
         super.init(frame: .zero)
         setupView()
     }

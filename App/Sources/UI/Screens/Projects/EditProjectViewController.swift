@@ -5,8 +5,8 @@ final class EditProjectViewController: BaseViewController {
     private var project: Project?
     private let action: EditProjectAction
     
-    private var nameTextField = UIFactory.createDefaultTextField(placeholder: Localized.projectNamePlaceholder)
-    private var descriptionTextField = UIFactory.createDefaultTextField(placeholder: Localized.projectDescriptionPlaceholder)
+    private var nameTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.projectNamePlaceholder)
+    private var descriptionTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.projectDescriptionPlaceholder)
     
     private let projectEditView = ValidatableFormView()
     

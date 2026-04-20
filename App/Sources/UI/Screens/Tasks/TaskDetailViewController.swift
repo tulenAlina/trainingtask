@@ -16,15 +16,15 @@ final class TaskDetailViewController: BaseViewController, EditTaskModuleOutputPr
     private var employee: Employee?
     private let isOpenedFromProject: Bool
     
-    private var taskNameLabel = UIFactory.createTitleLargeLabel()
+    private var taskNameLabel = LabelFactory.createTitleLargeLabel()
     private let statusView = TaskStatusLabel()
     private let timeCardView = TaskTimeCardView()
-    private var deleteButton = UIFactory.createDeleteButton()
+    private var deleteButton = ButtonFactory.createDeleteButton()
     
     private lazy var projectRow = InfoRowView(title: Localized.projectLabel)
     private lazy var employeeRow = InfoRowView(title: Localized.employeeLabel)
-    private lazy var taskAndStatusRow = UIFactory.createVerticalStackView(views: [taskNameLabel, statusView], spacing: 5)
-    private lazy var projectAndEmployeeRow = UIFactory.createVerticalStackView(views: [projectRow, employeeRow], spacing: 15)
+    private lazy var taskAndStatusRow = StackViewFactory.createVerticalStackView(views: [taskNameLabel, statusView], spacing: 5)
+    private lazy var projectAndEmployeeRow = StackViewFactory.createVerticalStackView(views: [projectRow, employeeRow], spacing: 15)
     
     private lazy var contentScrollView = ScrollableStackView(views: [taskAndStatusRow, projectAndEmployeeRow, timeCardView, deleteButton], spacing: 30)
     

@@ -11,7 +11,7 @@ final class TaskStatusLabel: UIView {
     private let statusView: UIView = {
         let view = UIView()
         view.layer.borderWidth = BorderWidth.thin
-        view.layer.cornerRadius = CornerRadius.medium
+        view.layer.cornerRadius = CornerRadius.small
         view.clipsToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -37,21 +37,21 @@ final class TaskStatusLabel: UIView {
     func configure(with status: TaskStatus) {
         switch status {
         case .notStarted:
-            statusLabel.textColor = Colors.notStartedText
-            statusView.layer.borderColor = Colors.notStartedText.cgColor
-            statusView.backgroundColor = Colors.notStartedBackground
+            statusLabel.textColor = Colors.statusNotStarted
+            statusView.layer.borderColor = Colors.statusNotStarted.cgColor
+            statusView.backgroundColor = Colors.statusNotStartedBackground
         case .inProgress:
-            statusLabel.textColor = Colors.inProgressText
-            statusView.layer.borderColor = Colors.inProgressText.cgColor
-            statusView.backgroundColor = Colors.inProgressBackground
+            statusLabel.textColor = Colors.statusInProgress
+            statusView.layer.borderColor = Colors.statusInProgress.cgColor
+            statusView.backgroundColor = Colors.statusInProgressBackground
         case .completed:
-            statusLabel.textColor = Colors.completedText
-            statusView.layer.borderColor = Colors.completedText.cgColor
-            statusView.backgroundColor = Colors.completedBackground
+            statusLabel.textColor = Colors.statusCompleted
+            statusView.layer.borderColor = Colors.statusCompleted.cgColor
+            statusView.backgroundColor = Colors.statusCompletedBackground
         case .postponed:
-            statusLabel.textColor = Colors.postponedText
-            statusView.layer.borderColor = Colors.postponedText.cgColor
-            statusView.backgroundColor = Colors.postponedBackground
+            statusLabel.textColor = Colors.statusPostponed
+            statusView.layer.borderColor = Colors.statusPostponed.cgColor
+            statusView.backgroundColor = Colors.statusPostponedBackground
         }
     }
     

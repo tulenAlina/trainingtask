@@ -8,9 +8,9 @@ final class InfoRowView: UIView {
     
     private let title: String
     
-    private let valueLabel = UIFactory.createDefaultLabel()
-    private lazy var titleLabel = UIFactory.createTitleLabel(text: title)
-    private lazy var stackView = UIFactory.createHorizontalStackView(views: [titleLabel, valueLabel], spacing: Spacing.small)
+    private let valueLabel = LabelFactory.createDefaultLabel()
+    private lazy var titleLabel = LabelFactory.createTitleLabel(text: title)
+    private lazy var stackView = StackViewFactory.createHorizontalStackView(views: [titleLabel, valueLabel], spacing: Spacing.small)
     
     init(title: String = "") {
         self.title = title

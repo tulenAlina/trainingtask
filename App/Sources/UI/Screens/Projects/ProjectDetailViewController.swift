@@ -9,12 +9,12 @@ final class ProjectDetailViewController: BaseViewController {
     private let indexPath: IndexPath
     private var project: Project
     
-    private let nameLabel = UIFactory.createTitleLargeLabel()
+    private let nameLabel = LabelFactory.createTitleLargeLabel()
     private let descriptionRow = InfoRowView(title: Localized.descriptionLabel)
-    private var openTasksButton = UIFactory.createSecondaryButton(text: Localized.openTasks)
-    private var deleteButton = UIFactory.createDeleteButton()
+    private var openTasksButton = ButtonFactory.createSecondaryButton(text: Localized.openTasks)
+    private var deleteButton = ButtonFactory.createDeleteButton()
     
-    private lazy var buttonsStackView = UIFactory.createVerticalStackView(views: [openTasksButton, deleteButton], spacing: 10)
+    private lazy var buttonsStackView = StackViewFactory.createVerticalStackView(views: [openTasksButton, deleteButton], spacing: 10)
     private lazy var contentScrollView = ScrollableStackView(views: [nameLabel, descriptionRow, buttonsStackView], spacing: 30)
     
     init(indexPath: IndexPath, project: Project, server: Server, settings: SettingsManager, onUpdate: @escaping ((Project) -> Void), onDelete: @escaping ((IndexPath) -> Void)) {
