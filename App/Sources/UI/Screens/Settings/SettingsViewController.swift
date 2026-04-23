@@ -30,6 +30,8 @@ final class SettingsViewController: BaseViewController {
     }
 }
 
+// MARK: - UITextFieldDelegate
+
 extension SettingsViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
@@ -45,6 +47,8 @@ extension SettingsViewController: UITextFieldDelegate {
         return true
     }
 }
+
+// MARK: - Private
 
 private extension SettingsViewController {
     func setupView() {

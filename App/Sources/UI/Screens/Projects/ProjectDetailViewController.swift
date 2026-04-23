@@ -35,6 +35,8 @@ final class ProjectDetailViewController: BaseViewController {
     }
 }
 
+// MARK: - Private
+
 private extension ProjectDetailViewController {
     func setupView() {
         setupNavigationBar(navigationTitle: Localized.projectDetails, rightButtonTitle: Localized.edit, rightButtonAction: #selector(actionChangeProject))

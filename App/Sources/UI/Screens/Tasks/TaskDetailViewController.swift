@@ -59,6 +59,8 @@ final class TaskDetailViewController: BaseViewController, EditTaskModuleOutputPr
     func didCreateTask(_ task: ProjectTask) {}
 }
 
+// MARK: - Private
+
 private extension TaskDetailViewController {
     func setupView() {
         setupNavigationBar(navigationTitle: Localized.taskDetails, rightButtonTitle: Localized.edit, rightButtonAction: #selector(actionChangeTask))
@@ -114,7 +116,7 @@ private extension TaskDetailViewController {
     
     @objc func actionChangeTask() {
         let editModuleViewController = EditTaskModule.build(moduleOutput: self)
-        editModuleViewController.input.configureForUpdate(task: task, project: project, isOpenedFromProject: isOpenedFromProject, employee: employee)
+        editModuleViewController.input.updateTask(task: task, project: project, isOpenedFromProject: isOpenedFromProject, employee: employee)
         navigationController?.pushViewController(editModuleViewController.view, animated: true)
     }
 }

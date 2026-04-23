@@ -17,7 +17,7 @@ final class EditTaskPresenter: EditTaskModuleInputProtocol {
         self.router = router
     }
     
-    func configureForCreate(project: Project?) {
+    func createTask(project: Project?) {
         self.task = nil
         self.project = project
         self.isOpenedFromProject = project != nil ? true : false
@@ -25,7 +25,7 @@ final class EditTaskPresenter: EditTaskModuleInputProtocol {
         self.action = .create
     }
     
-    func configureForUpdate(task: ProjectTask, project: Project?, isOpenedFromProject: Bool, employee: Employee?) {
+    func updateTask(task: ProjectTask, project: Project?, isOpenedFromProject: Bool, employee: Employee?) {
         self.task = task
         self.project = project
         self.isOpenedFromProject = isOpenedFromProject
@@ -33,6 +33,8 @@ final class EditTaskPresenter: EditTaskModuleInputProtocol {
         self.action = .update
     }
 }
+
+// MARK: - EditTaskViewOutputProtocol
 
 extension EditTaskPresenter: EditTaskViewOutputProtocol {
     func viewDidLoad() {
@@ -57,15 +59,11 @@ extension EditTaskPresenter: EditTaskViewOutputProtocol {
     }
     
     func didTapSelectProject() {
-        router.onProjectSelect = { [weak self] project in
-            self?.didSelectProject(project)
-        }
+        router.showProjects(output: self)
     }
 
     func didTapSelectEmployee() {
-        router.onEmployeeSelect = { [weak self] employee in
-            self?.didSelectEmployee(employee)
-        }
+        router.showEmployees(output: self)
     }
     
     func didTapClearEmployee() {
@@ -81,8 +79,23 @@ extension EditTaskPresenter: EditTaskViewOutputProtocol {
     }
 }
 
-extension EditTaskPresenter: EditTaskInteractorOutputProtocol {
+// MARK: - ProjectSelectionOutputProtocol
+extension EditTaskPresenter: ProjectSelectionOutputProtocol {
+    func didSelectProject(_ project: Project) {
+        self.project = project
+        view?.updateProjectName(project.projectName)
+    }
 }
+
+// MARK: - EmployeeSelectionOutputProtocol
+extension EditTaskPresenter: EmployeeSelectionOutputProtocol {
+    func didSelectEmployee(_ employee: Employee) {
+        self.employee = employee
+        view?.updateEmployeeName(employee.fullName)
+    }
+}
+
+// MARK: - Private
 
 private extension EditTaskPresenter {
     func isFieldsChanged(taskNameString: String, projectID: UUID, workTime: Int, startDateString: String, endDateString: String, statusIndex: Int, employeeID: UUID?) -> Bool {
@@ -98,16 +111,6 @@ private extension EditTaskPresenter {
         let isEmployeeChanged = employeeID != task.employeeID
         let isStatusChanged = statusIndex != TaskStatus.allCases.firstIndex { $0 == task.status } ?? 0
         return isTaskNameChanged || isProjectChanged || isWorkTimeChanged || isStartDateChanged || isEndDateChanged || isEmployeeChanged || isStatusChanged
-    }
-
-    func didSelectProject(_ project: Project) {
-        self.project = project
-        view?.updateProjectName(project.projectName)
-    }
-
-    func didSelectEmployee(_ employee: Employee) {
-        self.employee = employee
-        view?.updateEmployeeName(employee.fullName)
     }
     
     func configureFields() {

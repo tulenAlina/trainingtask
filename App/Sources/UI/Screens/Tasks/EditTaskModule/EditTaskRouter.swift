@@ -1,41 +1,21 @@
 import UIKit
 
 protocol EditTaskRouterInputProtocol {
-    var onProjectSelect: ((Project) -> Void)? { get set }
-    var onEmployeeSelect: ((Employee) -> Void)? { get set }
-    func showProjects()
-    func showEmployees()
+    func showProjects(output: ProjectSelectionOutputProtocol)
+    func showEmployees(output: EmployeeSelectionOutputProtocol)
     func close()
 }
 
 final class EditTaskRouter: EditTaskRouterInputProtocol {
     weak var viewController: UIViewController?
     
-    var onProjectSelect: ((Project) -> Void)? {
-        didSet {
-            showProjects()
-        }
+    func showProjects(output: ProjectSelectionOutputProtocol) {
+        let projectsViewController = ProjectsViewController(selectionOutput: output)
+        viewController?.navigationController?.pushViewController(projectsViewController, animated: true)
     }
     
-    var onEmployeeSelect: ((Employee) -> Void)? {
-        didSet {
-            showEmployees()
-        }
-    }
-    
-    func showProjects() {
-        guard let onProjectSelect else {
-            return
-        }
-       let projectsViewController = ProjectsViewController(mode: .selection(onSelect: onProjectSelect))
-       viewController?.navigationController?.pushViewController(projectsViewController, animated: true)
-    }
-    
-    func showEmployees() {
-        guard let onEmployeeSelect else {
-            return
-        }
-        let employeesViewController = EmployeesViewController(mode: .selection(onSelect: onEmployeeSelect))
+    func showEmployees(output: EmployeeSelectionOutputProtocol) {
+        let employeesViewController = EmployeesViewController(selectionOutput: output)
         viewController?.navigationController?.pushViewController(employeesViewController, animated: true)
     }
 

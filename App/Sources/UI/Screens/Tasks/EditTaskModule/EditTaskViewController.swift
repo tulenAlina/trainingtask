@@ -10,7 +10,6 @@ enum EditTaskFieldType {
 }
 
 protocol EditTaskViewInputProtocol: AnyObject {
-    var output: EditTaskViewOutputProtocol { get set }
     var requiredFields: [UITextField] { get }
     
     func setupNavigationBar(title: String)
@@ -24,7 +23,7 @@ protocol EditTaskViewInputProtocol: AnyObject {
     func updateValidationStyle(textFieldType: EditTaskFieldType, isValid: Bool)
     func startLoading()
     func stopLoading()
-    func showAlert (_ message: String)
+    func showAlert(_ message: String)
 }
 
 protocol EditTaskViewOutputProtocol {
@@ -62,7 +61,7 @@ final class EditTaskViewController: BaseViewController, EditTaskViewInputProtoco
     private lazy var employeeHorizontalStack = StackViewFactory.createHorizontalStackView(views: [employeeTextField, clearEmployeeButton], spacing: 5)
     
     init(presenter: EditTaskViewOutputProtocol) {
-        self.output = presenter
+        output = presenter
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -142,6 +141,8 @@ final class EditTaskViewController: BaseViewController, EditTaskViewInputProtoco
     }
 }
 
+// MARK: - UITextFieldDelegate
+
 extension EditTaskViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
@@ -186,6 +187,8 @@ extension EditTaskViewController: UITextFieldDelegate {
         }
     }
 }
+
+// MARK: - Private
 
 private extension EditTaskViewController {
     func fieldType(for textField: UITextField) -> EditTaskFieldType? {

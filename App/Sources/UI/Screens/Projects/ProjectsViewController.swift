@@ -1,21 +1,21 @@
 import UIKit
 
+protocol ProjectSelectionOutputProtocol: AnyObject {
+    func didSelectProject(_ project: Project)
+}
+
 final class ProjectsViewController: BaseListViewController<Project> {
-    enum ProjectsDisplayMode {
-        case list
-        case selection(onSelect: (Project) -> Void)
-    }
+    weak var selectionOutput: ProjectSelectionOutputProtocol?
     
     private let server: Server = AppDelegate.server
     private let settings: SettingsManager = AppDelegate.settings
-    private let mode: ProjectsDisplayMode
     
     override var emptyStateText: String {
         Localized.noProjects
     }
     
-    init(mode: ProjectsDisplayMode = .list) {
-        self.mode = mode
+    init(selectionOutput: ProjectSelectionOutputProtocol? = nil) {
+        self.selectionOutput = selectionOutput
         super.init(settings: settings)
     }
 
@@ -46,6 +46,8 @@ final class ProjectsViewController: BaseListViewController<Project> {
     }
 }
 
+// MARK: - UITableViewDataSource
+
 extension ProjectsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         displayedItemsCount
@@ -60,25 +62,34 @@ extension ProjectsViewController: UITableViewDataSource {
     }
 }
 
+// MARK: - UITableViewDelegate
+
 extension ProjectsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let project = getItem(at: indexPath.row)
         
-        switch mode {
-        case .list:
-            let detailViewController = ProjectDetailViewController(project: project, server: server, settings: settings, onUpdate: { [weak self] project in
-                self?.updateItem(project) { $0.id == project.id }
-            }, onDelete: { [weak self] projectID in
-                self?.deleteProject(with: projectID)
-            })
-            navigationController?.pushViewController(detailViewController, animated: true)
-        case .selection(let onSelect):
-            onSelect(project)
+        if let selectionOutput {
+            selectionOutput.didSelectProject(project)
             navigationController?.popViewController(animated: true)
+        } else {
+            let detailViewController = ProjectDetailViewController(
+                project: project,
+                server: server,
+                settings: settings,
+                onUpdate: { [weak self] project in
+                    self?.updateItem(project) { $0.id == project.id }
+                },
+                onDelete: { [weak self] projectID in
+                    self?.deleteProject(with: projectID)
+                }
+            )
+            navigationController?.pushViewController(detailViewController, animated: true)
         }
     }
 }
+
+// MARK: - Private
 
 private extension ProjectsViewController {
     func setupView() {
@@ -87,10 +98,9 @@ private extension ProjectsViewController {
     }
     
     func setupNavigationBar() {
-        switch mode {
-        case .list:
+        if selectionOutput == nil {
             super.setupNavigationBar(navigationTitle: Localized.projects, rightButtonSystemItem: .add, rightButtonAction: #selector(actionAddProject))
-        case .selection:
+        } else {
             super.setupNavigationBar(navigationTitle: Localized.projects)
         }
     }

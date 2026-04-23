@@ -1,20 +1,20 @@
 import UIKit
 
+protocol EmployeeSelectionOutputProtocol: AnyObject {
+    func didSelectEmployee(_ employee: Employee)
+}
+
 final class EmployeesViewController: BaseListViewController<Employee> {
-    enum EmployeesDisplayMode {
-        case list
-        case selection(onSelect: (Employee) -> Void)
-    }
+    weak var selectionOutput: EmployeeSelectionOutputProtocol?
     
     private let server: Server = AppDelegate.server
-    private let mode: EmployeesDisplayMode
     
     override var emptyStateText: String {
         Localized.noEmployees
     }
     
-    init(mode: EmployeesDisplayMode = .list) {
-        self.mode = mode
+    init(selectionOutput: EmployeeSelectionOutputProtocol? = nil) {
+        self.selectionOutput = selectionOutput
         super.init(settings: AppDelegate.settings)
     }
     
@@ -45,6 +45,8 @@ final class EmployeesViewController: BaseListViewController<Employee> {
     }
 }
 
+// MARK: - UITableViewDataSource
+
 extension EmployeesViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         displayedItemsCount
@@ -59,24 +61,33 @@ extension EmployeesViewController: UITableViewDataSource {
     }
 }
 
+// MARK: - UITableViewDelegate
+
 extension EmployeesViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let employee = getItem(at: indexPath.row)
-        switch mode {
-        case .list:
-            let detailViewController = EmployeeDetailViewController(employee: employee, server: server, onUpdate: { [weak self] employee in
-                self?.updateItem(employee) { $0.id == employee.id }
-            }, onDelete: { [weak self] employeeID in
-                self?.deleteEmployee(with: employeeID)
-            })
-            navigationController?.pushViewController(detailViewController, animated: true)
-        case .selection(let onSelect):
-            onSelect(employee)
+        if let selectionOutput {
+            selectionOutput.didSelectEmployee(employee)
             navigationController?.popViewController(animated: true)
+            
+        } else {
+            let detailViewController = EmployeeDetailViewController(
+                employee: employee,
+                server: server,
+                onUpdate: { [weak self] employee in
+                    self?.updateItem(employee) { $0.id == employee.id }
+                },
+                onDelete: { [weak self] employeeID in
+                    self?.deleteEmployee(with: employeeID)
+                }
+            )
+            navigationController?.pushViewController(detailViewController, animated: true)
         }
     }
 }
+
+// MARK: - Private
 
 private extension EmployeesViewController {
     func setupView() {
@@ -85,15 +96,14 @@ private extension EmployeesViewController {
     }
     
     func setupNavigationBar() {
-        switch mode {
-        case .list:
+        if selectionOutput == nil {
             super.setupNavigationBar(navigationTitle: Localized.employees, rightButtonSystemItem: .add, rightButtonAction: #selector(actionAddEmployee))
-        case .selection:
+        } else {
             super.setupNavigationBar(navigationTitle: Localized.employees)
         }
     }
     
-    func loadEmployees() async throws{
+    func loadEmployees() async throws {
         let items = try await server.fetchEmployees()
         setItems(items)
     }

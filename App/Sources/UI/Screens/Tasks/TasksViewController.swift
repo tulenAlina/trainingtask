@@ -55,6 +55,8 @@ final class TasksViewController: BaseListViewController<ProjectTask>, EditTaskMo
     }
 }
 
+// MARK: - UITableViewDataSource
+
 extension TasksViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         displayedItemsCount
@@ -84,6 +86,8 @@ extension TasksViewController: UITableViewDataSource {
     }
 }
 
+// MARK: - UITableViewDelegate
+
 extension TasksViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
@@ -92,6 +96,8 @@ extension TasksViewController: UITableViewDelegate {
         navigationController?.pushViewController(detailViewController, animated: true)
     }
 }
+
+// MARK: - Private
 
 private extension TasksViewController {
     func setupView() {
@@ -167,7 +173,7 @@ private extension TasksViewController {
 
     @objc func actionAddTask() {
         let editModuleViewController = EditTaskModule.build(moduleOutput: self)
-        editModuleViewController.input.configureForCreate(project: project)
+        editModuleViewController.input.createTask(project: project)
         navigationController?.pushViewController(editModuleViewController.view, animated: true)
     }
 }

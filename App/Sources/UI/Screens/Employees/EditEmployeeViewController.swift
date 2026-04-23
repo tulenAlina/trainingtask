@@ -39,6 +39,8 @@ extension EditEmployeeViewController: UITextFieldDelegate {
     }
 }
 
+// MARK: - Private
+
 private extension EditEmployeeViewController {
     func setupView() {
         let title = (employee != nil) ? Localized.editEmployee : Localized.addEmployee

@@ -1,8 +1,8 @@
 import UIKit
 
 protocol EditTaskModuleInputProtocol {
-    func configureForCreate(project: Project?)
-    func configureForUpdate(task: ProjectTask, project: Project?, isOpenedFromProject: Bool, employee: Employee?)
+    func createTask(project: Project?)
+    func updateTask(task: ProjectTask, project: Project?, isOpenedFromProject: Bool, employee: Employee?)
 }
 
 protocol EditTaskModuleOutputProtocol: AnyObject {
@@ -10,17 +10,11 @@ protocol EditTaskModuleOutputProtocol: AnyObject {
     func didUpdateTask(_ task: ProjectTask, project: Project?, employee: Employee?)
 }
 
-protocol Module {
-    associatedtype InputType
-    var view: UIViewController { get }
-    var input: InputType { get }
-}
-
 final class EditTaskModule: Module {
-    var view: UIViewController
-    let input: EditTaskModuleInputProtocol
+    private(set) var view: UIViewController
+    private(set) var input: EditTaskModuleInputProtocol
 
-    init(view: UIViewController, input: EditTaskModuleInputProtocol) {
+    private init(view: UIViewController, input: EditTaskModuleInputProtocol) {
         self.view = view
         self.input = input
     }
@@ -40,7 +34,6 @@ final class EditTaskModule: Module {
         presenter.output = moduleOutput
         router.viewController = viewController
         presenter.view = viewController
-        interactor.output = presenter
         
         let module = EditTaskModule(view: viewController, input: presenter)
         return module

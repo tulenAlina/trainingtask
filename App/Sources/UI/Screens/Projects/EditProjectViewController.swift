@@ -30,12 +30,16 @@ final class EditProjectViewController: BaseViewController {
     }
 }
 
+// MARK: - UITextFieldDelegate
+
 extension EditProjectViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
     }
 }
+
+// MARK: - Private
 
 private extension EditProjectViewController {
     func setupView() {
