@@ -1,25 +1,24 @@
 import UIKit
 
 final class InfoRowView: UIView {
-    var value: String {
-        get { valueLabel.text ?? "" }
-        set { valueLabel.text = newValue }
-    }
-    
-    private let title: String
-    
     private let valueLabel = LabelFactory.createDefaultLabel()
-    private lazy var titleLabel = LabelFactory.createTitleLabel(text: title)
-    private lazy var stackView = StackViewFactory.createHorizontalStackView(views: [titleLabel, valueLabel], spacing: Spacing.small)
+    private let titleLabel = LabelFactory.createTitleLabel()
+    private let stackView = StackViewFactory.createHorizontalStackView(views: [], spacing: Spacing.small)
     
-    init(title: String = "") {
-        self.title = title
+    init(title: String) {
         super.init(frame: .zero)
+        titleLabel.text = title
+        stackView.addArrangedSubview(titleLabel)
+        stackView.addArrangedSubview(valueLabel)
         setupView()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func configure(value: String) {
+        valueLabel.text = value
     }
     
     private func setupView() {

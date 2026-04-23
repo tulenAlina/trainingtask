@@ -76,7 +76,7 @@ private extension ProjectDetailViewController {
     
     func updateLabels() {
         nameLabel.text = project.projectName
-        descriptionRow.value = project.description
+        descriptionRow.configure(value: project.description)
     }
         
     @objc func actionChangeProject() {

@@ -69,8 +69,8 @@ private extension EmployeeDetailViewController {
     }
     
     func updateLabels() {
-        fullNameRow.value = employee.fullName
-        positionRow.value = employee.position
+        fullNameRow.configure(value: employee.fullName)
+        positionRow.configure(value: employee.position)
     }
     
     @objc func actionChangeEmployee() {

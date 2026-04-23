@@ -3,9 +3,9 @@ import UIKit
 final class SettingsViewController: BaseViewController {
     private let settings: SettingsManager = AppDelegate.settings
     
-    private let serverUrlLabel = LabelFactory.createSecondaryLabel(text: Localized.serverUrlLabel)
-    private let maxRecordsLabel = LabelFactory.createSecondaryLabel(text: Localized.maxRecordsLabel)
-    private let defaultDaysBetweenLabel = LabelFactory.createSecondaryLabel(text: Localized.defaultDaysBetweenLabel)
+    private let serverUrlLabel = LabelFactory.createSecondaryLabel()
+    private let maxRecordsLabel = LabelFactory.createSecondaryLabel()
+    private let defaultDaysBetweenLabel = LabelFactory.createSecondaryLabel()
     
     private var serverUrlTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.serverUrlPlaceholder)
     private var maxRecordsTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.maxRecordsPlaceholder)
@@ -54,6 +54,12 @@ private extension SettingsViewController {
         setupActions()
     }
     
+    func setupLabels() {
+        serverUrlLabel.text = Localized.serverUrlLabel
+        maxRecordsLabel.text = Localized.maxRecordsLabel
+        defaultDaysBetweenLabel.text = Localized.defaultDaysBetweenLabel
+    }
+        
     func setupTextFields() {
         serverUrlTextField.keyboardType = .URL
         serverUrlTextField.delegate = self

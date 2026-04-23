@@ -98,8 +98,8 @@ private extension TaskDetailViewController {
     
     func updateLabels() {
         taskNameLabel.text = task.taskName
-        projectRow.value = project?.projectName ?? Localized.unknownProjectLabel
-        employeeRow.value = employee?.fullName ?? Localized.notAssignedLabel
+        projectRow.configure(value: project?.projectName ?? Localized.unknownProjectLabel)
+        employeeRow.configure(value: employee?.fullName ?? Localized.notAssignedLabel)
         statusView.status = task.status
         
         timeCardView.configure(
