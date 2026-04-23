@@ -50,8 +50,8 @@ final class TasksViewController: BaseListViewController<ProjectTask>, EditTaskMo
         updateItem(task) { $0.id == task.id }
     }
     
-    func didDeleteTask(at indexPath: IndexPath) {
-        deleteTask(at: indexPath)
+    func didDeleteTask(with taskID: UUID) {
+        deleteTask(with: taskID)
     }
 }
 
@@ -120,15 +120,15 @@ private extension TasksViewController {
         refreshData()
     }
     
-    func deleteTask(at indexPath: IndexPath) {
+    func deleteTask(with taskID: UUID) {
         startLoading()
-        let task = getItem(at: indexPath.row)
+        guard let index = firstIndex(where: { $0.id == taskID }) else { return }
 
         Task {
             do {
-                try await server.deleteTask(task.id)
+                try await server.deleteTask(taskID)
                 await MainActor.run {
-                    deleteItem(at: indexPath.row)
+                    deleteItem(at: index)
                     updateUI()
                 }
             } catch {
@@ -154,7 +154,6 @@ private extension TasksViewController {
         let currentEmployee = employees.first { $0.id == task.employeeID }
         
         let detailViewController = TaskDetailViewController(
-            indexPath: indexPath,
             task: task,
             project: currentProject,
             employee: currentEmployee,

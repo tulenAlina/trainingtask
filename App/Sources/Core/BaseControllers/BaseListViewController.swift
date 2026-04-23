@@ -89,6 +89,10 @@ class BaseListViewController<Item>: BaseViewController {
         items.remove(at: index)
     }
     
+    func firstIndex(where predicate: (Item) -> Bool) -> Int? {
+        return items.firstIndex(where: predicate)
+    }
+    
     func endRefreshing() {
         refreshControl.endRefreshing()
     }

@@ -65,10 +65,10 @@ extension EmployeesViewController: UITableViewDelegate {
         let employee = getItem(at: indexPath.row)
         switch mode {
         case .list:
-            let detailViewController = EmployeeDetailViewController(indexPath: indexPath, employee: employee, server: server, onUpdate: { [weak self] employee in
+            let detailViewController = EmployeeDetailViewController(employee: employee, server: server, onUpdate: { [weak self] employee in
                 self?.updateItem(employee) { $0.id == employee.id }
-            }, onDelete: { [weak self] indexPath in
-                self?.deleteEmployee(at: indexPath)
+            }, onDelete: { [weak self] employeeID in
+                self?.deleteEmployee(with: employeeID)
             })
             navigationController?.pushViewController(detailViewController, animated: true)
         case .selection(let onSelect):
@@ -103,15 +103,15 @@ private extension EmployeesViewController {
         refreshData()
     }
     
-    func deleteEmployee(at indexPath: IndexPath) {
+    func deleteEmployee(with employeeID: UUID) {
         startLoading()
-        let employee = getItem(at: indexPath.row)
+        guard let index = firstIndex(where: { $0.id == employeeID }) else { return }
 
         Task {
             do {
-                try await server.deleteEmployee(employee.id)
+                try await server.deleteEmployee(employeeID)
                 await MainActor.run {
-                    deleteItem(at: indexPath.row)
+                    deleteItem(at: index)
                     updateUI()
                 }
             } catch {

@@ -67,10 +67,10 @@ extension ProjectsViewController: UITableViewDelegate {
         
         switch mode {
         case .list:
-            let detailViewController = ProjectDetailViewController(indexPath: indexPath, project: project, server: server, settings: settings, onUpdate: { [weak self] project in
+            let detailViewController = ProjectDetailViewController(project: project, server: server, settings: settings, onUpdate: { [weak self] project in
                 self?.updateItem(project) { $0.id == project.id }
-            }, onDelete: { [weak self] indexPath in
-                self?.deleteProject(at: indexPath)
+            }, onDelete: { [weak self] projectID in
+                self?.deleteProject(with: projectID)
             })
             navigationController?.pushViewController(detailViewController, animated: true)
         case .selection(let onSelect):
@@ -105,15 +105,15 @@ private extension ProjectsViewController {
         refreshData()
     }
     
-    func deleteProject(at indexPath: IndexPath) {
+    func deleteProject(with projectID: UUID) {
         startLoading()
-        let project = getItem(at: indexPath.row)
+        guard let index = firstIndex(where: { $0.id == projectID }) else { return }
         
         Task {
             do {
-                try await server.deleteProject(project.id)
+                try await server.deleteProject(projectID)
                 await MainActor.run {
-                    deleteItem(at: indexPath.row)
+                    deleteItem(at: index)
                     updateUI()
                 }
             } catch {

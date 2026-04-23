@@ -2,10 +2,9 @@ import UIKit
 
 final class EmployeeDetailViewController: BaseViewController {
     var onUpdate: ((Employee) -> Void)
-    var onDelete: ((IndexPath) -> Void)
+    var onDelete: ((UUID) -> Void)
     
     private let server: Server
-    private let indexPath: IndexPath
     private var employee: Employee
     
     private let fullNameRow = InfoRowView(title: Localized.fullNameLabel)
@@ -14,8 +13,7 @@ final class EmployeeDetailViewController: BaseViewController {
     
     private lazy var contentScrollView = ScrollableStackView(views: [fullNameRow, positionRow, deleteButton], spacing: 15)
     
-    init(indexPath: IndexPath, employee: Employee, server: Server, onUpdate: @escaping ((Employee) -> Void), onDelete: @escaping ((IndexPath) -> Void)) {
-        self.indexPath = indexPath
+    init(employee: Employee, server: Server, onUpdate: @escaping ((Employee) -> Void), onDelete: @escaping ((UUID) -> Void)) {
         self.employee = employee
         self.server = server
         self.onUpdate = onUpdate
@@ -83,7 +81,7 @@ private extension EmployeeDetailViewController {
     }
     
     @objc func actionDeleteEmployee() {
-        onDelete(indexPath)
+        onDelete(employee.id)
         navigationController?.popViewController(animated: true)
     }
 }

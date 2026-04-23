@@ -2,7 +2,7 @@ import UIKit
 
 protocol TaskDetailModuleOutputProtocol: AnyObject {
     func didUpdateTask(_ task: ProjectTask, project: Project?, employee: Employee?)
-    func didDeleteTask(at indexPath: IndexPath)
+    func didDeleteTask(with taskID: UUID)
 }
 
 final class TaskDetailViewController: BaseViewController, EditTaskModuleOutputProtocol {
@@ -10,7 +10,6 @@ final class TaskDetailViewController: BaseViewController, EditTaskModuleOutputPr
     
     private let server: Server
     private let settings: SettingsManager
-    private let indexPath: IndexPath
     private var task: ProjectTask
     private var project: Project?
     private var employee: Employee?
@@ -28,8 +27,7 @@ final class TaskDetailViewController: BaseViewController, EditTaskModuleOutputPr
     
     private lazy var contentScrollView = ScrollableStackView(views: [taskAndStatusRow, projectAndEmployeeRow, timeCardView, deleteButton], spacing: 30)
     
-    init(indexPath: IndexPath, task: ProjectTask, project: Project?, employee: Employee?, isOpenedFromProject: Bool, server: Server, settings: SettingsManager, moduleOutput: TaskDetailModuleOutputProtocol?) {
-        self.indexPath = indexPath
+    init(task: ProjectTask, project: Project?, employee: Employee?, isOpenedFromProject: Bool, server: Server, settings: SettingsManager, moduleOutput: TaskDetailModuleOutputProtocol?) {
         self.task = task
         self.project = project
         self.employee = employee
@@ -110,7 +108,7 @@ private extension TaskDetailViewController {
     }
     
     @objc func actionDeleteTask() {
-        moduleOutput?.didDeleteTask(at: indexPath)
+        moduleOutput?.didDeleteTask(with: task.id)
         navigationController?.popViewController(animated: true)
     }
     

@@ -2,11 +2,10 @@ import UIKit
 
 final class ProjectDetailViewController: BaseViewController {
     var onUpdate: ((Project) -> Void)
-    var onDelete: ((IndexPath) -> Void)
+    var onDelete: ((UUID) -> Void)
     
     private let server: Server
     private let settings: SettingsManager
-    private let indexPath: IndexPath
     private var project: Project
     
     private let nameLabel = LabelFactory.createTitleLargeLabel()
@@ -17,8 +16,7 @@ final class ProjectDetailViewController: BaseViewController {
     private lazy var buttonsStackView = StackViewFactory.createVerticalStackView(views: [openTasksButton, deleteButton], spacing: 10)
     private lazy var contentScrollView = ScrollableStackView(views: [nameLabel, descriptionRow, buttonsStackView], spacing: 30)
     
-    init(indexPath: IndexPath, project: Project, server: Server, settings: SettingsManager, onUpdate: @escaping ((Project) -> Void), onDelete: @escaping ((IndexPath) -> Void)) {
-        self.indexPath = indexPath
+    init(project: Project, server: Server, settings: SettingsManager, onUpdate: @escaping ((Project) -> Void), onDelete: @escaping ((UUID) -> Void)) {
         self.project = project
         self.server = server
         self.settings = settings
@@ -89,7 +87,7 @@ private extension ProjectDetailViewController {
     }
     
     @objc func actionDeleteProject() {
-        onDelete(indexPath)
+        onDelete(project.id)
         navigationController?.popViewController(animated: true)
     }
     
