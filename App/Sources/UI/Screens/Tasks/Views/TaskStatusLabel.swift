@@ -1,13 +1,6 @@
 import UIKit
 
 final class TaskStatusLabel: UIView {
-    var status: TaskStatus = .notStarted {
-        didSet {
-            statusLabel.text = status.rawValue.localized
-            configure(with: status)
-        }
-    }
-    
     private let statusView: UIView = {
         let view = UIView()
         view.layer.borderWidth = BorderWidth.thin
@@ -35,6 +28,8 @@ final class TaskStatusLabel: UIView {
     }
     
     func configure(with status: TaskStatus) {
+        statusLabel.text = status.rawValue.localized
+        
         switch status {
         case .notStarted:
             statusLabel.textColor = Colors.statusNotStarted

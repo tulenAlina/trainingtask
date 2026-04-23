@@ -100,7 +100,7 @@ private extension TaskDetailViewController {
         taskNameLabel.text = task.taskName
         projectRow.configure(value: project?.projectName ?? Localized.unknownProjectLabel)
         employeeRow.configure(value: employee?.fullName ?? Localized.notAssignedLabel)
-        statusView.status = task.status
+        statusView.configure(with: task.status)
         
         timeCardView.configure(
             workTime: "\(task.workTime)",
