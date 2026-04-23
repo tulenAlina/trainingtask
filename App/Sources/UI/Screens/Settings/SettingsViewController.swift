@@ -77,8 +77,11 @@ private extension SettingsViewController {
     }
     
     func setupEditView() {
+        settingsEditView.addRow(labelText: Localized.serverUrlLabel, inputView: serverUrlTextField)
+        settingsEditView.addRow(labelText: Localized.maxRecordsLabel, inputView: maxRecordsTextField)
+        settingsEditView.addRow(labelText: Localized.defaultDaysBetweenLabel, inputView: defaultDaysBetweenTextField)
+        
         view.addSubview(settingsEditView)
-        settingsEditView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             settingsEditView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -86,14 +89,6 @@ private extension SettingsViewController {
             settingsEditView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             settingsEditView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
-        
-        let formRows: [FormRow] = [
-            FormRow(labelText: Localized.serverUrlLabel, inputView: serverUrlTextField),
-            FormRow(labelText: Localized.maxRecordsLabel, inputView: maxRecordsTextField),
-            FormRow(labelText: Localized.defaultDaysBetweenLabel, inputView: defaultDaysBetweenTextField)
-        ]
-        
-        settingsEditView.setupForm(rows: formRows)
     }
     
     func setupActions() {

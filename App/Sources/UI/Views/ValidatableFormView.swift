@@ -1,11 +1,6 @@
 import UIKit
 
-struct FormRow {
-    let labelText: String
-    let inputView: UIView
-}
-
-struct ValidationResult {
+struct ValidatedField {
     let textField: UITextField
     let isValid: Bool
 }
@@ -13,12 +8,24 @@ struct ValidationResult {
 final class ValidatableFormView: UIView {
     private let contentScrollView = ScrollableStackView(views: [], spacing: Spacing.medium)
     
-    func setupForm(rows: [FormRow]) {
-        setupScrollView()
-        addRows(rows: rows)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupView()
     }
     
-    func applyValidationResults(_ results: [ValidationResult]) {
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func addRow(labelText: String, inputView: UIView) {
+        let formRow = StackViewFactory.createVerticalFieldGroup(
+            labelText: labelText,
+            inputView: inputView
+        )
+        contentScrollView.addArrangedSubview(formRow)
+    }
+    
+    func applyValidationResults(_ results: [ValidatedField]) {
         for result in results {
             applyValidationStyle(result.textField, isValid: result.isValid)
         }
@@ -34,7 +41,8 @@ final class ValidatableFormView: UIView {
         }
     }
     
-    private func setupScrollView() {
+    private func setupView() {
+        translatesAutoresizingMaskIntoConstraints = false
         addSubview(contentScrollView)
                 
         NSLayoutConstraint.activate([
@@ -43,12 +51,5 @@ final class ValidatableFormView: UIView {
             contentScrollView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Spacing.extraLarge),
             contentScrollView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -Spacing.medium)
         ])
-    }
-    
-    private func addRows(rows: [FormRow]) {
-        for row in rows {
-            let formRow = StackViewFactory.createVerticalFieldGroup(labelText: row.labelText, inputView: row.inputView)
-            contentScrollView.addArrangedSubview(formRow)
-        }
     }
 }

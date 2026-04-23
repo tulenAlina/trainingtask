@@ -49,8 +49,12 @@ private extension EditEmployeeViewController {
     }
     
     func setupEditView() {
+        employeeEditView.addRow(labelText: Localized.firstNameLabel, inputView: firstNameTextField)
+        employeeEditView.addRow(labelText: Localized.lastNameLabel, inputView: lastNameTextField)
+        employeeEditView.addRow(labelText: Localized.surnameLabel, inputView: surNameTextField)
+        employeeEditView.addRow(labelText: Localized.positionLabel, inputView: positionTextField)
+        
         view.addSubview(employeeEditView)
-        employeeEditView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             employeeEditView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -58,15 +62,6 @@ private extension EditEmployeeViewController {
             employeeEditView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             employeeEditView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
-        
-        let formRows: [FormRow] = [
-            FormRow(labelText: Localized.firstNameLabel, inputView: firstNameTextField),
-            FormRow(labelText: Localized.lastNameLabel, inputView: lastNameTextField),
-            FormRow(labelText: Localized.surnameLabel, inputView: surNameTextField),
-            FormRow(labelText: Localized.positionLabel, inputView: positionTextField)
-        ]
-        
-        employeeEditView.setupForm(rows: formRows)
     }
     
     func setupTextFields() {
@@ -119,9 +114,9 @@ private extension EditEmployeeViewController {
     }
     
     func applyValidationResults(_ fieldsValidity: [Bool]) {
-        var result: [ValidationResult] = []
+        var result: [ValidatedField] = []
         for i in 0..<requiredFields.count {
-            result.append(ValidationResult(textField: requiredFields[i], isValid: fieldsValidity[i]))
+            result.append(ValidatedField(textField: requiredFields[i], isValid: fieldsValidity[i]))
         }
         employeeEditView.applyValidationResults(result)
     }

@@ -118,9 +118,9 @@ final class EditTaskViewController: BaseViewController, EditTaskViewInputProtoco
     }
     
     func applyValidationResults(_ fieldsValidity: [Bool]) {
-        var result: [ValidationResult] = []
+        var result: [ValidatedField] = []
         for i in 0..<requiredFields.count {
-            result.append(ValidationResult(textField: requiredFields[i], isValid: fieldsValidity[i]))
+            result.append(ValidatedField(textField: requiredFields[i], isValid: fieldsValidity[i]))
         }
         taskEditView.applyValidationResults(result)
     }
@@ -215,8 +215,15 @@ private extension EditTaskViewController {
     }
     
     func setupEditView() {
+        taskEditView.addRow(labelText: Localized.nameLabel, inputView: taskNameTextField)
+        taskEditView.addRow(labelText: Localized.projectLabel, inputView: projectTextField)
+        taskEditView.addRow(labelText: Localized.hoursLabel, inputView: workTimeTextField)
+        taskEditView.addRow(labelText: Localized.startDateLabel, inputView: startDateTextField)
+        taskEditView.addRow(labelText: Localized.endDateLabel, inputView: endDateTextField)
+        taskEditView.addRow(labelText: Localized.statusLabel, inputView: statusSegmentedControl)
+        taskEditView.addRow(labelText: Localized.employeeLabel, inputView: employeeHorizontalStack)
+        
         view.addSubview(taskEditView)
-        taskEditView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             taskEditView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -224,18 +231,6 @@ private extension EditTaskViewController {
             taskEditView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             taskEditView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
-        
-        let formRows: [FormRow] = [
-            FormRow(labelText: Localized.nameLabel, inputView: taskNameTextField),
-            FormRow(labelText: Localized.projectLabel, inputView: projectTextField),
-            FormRow(labelText: Localized.hoursLabel, inputView: workTimeTextField),
-            FormRow(labelText: Localized.startDateLabel, inputView: startDateTextField),
-            FormRow(labelText: Localized.endDateLabel, inputView: endDateTextField),
-            FormRow(labelText: Localized.statusLabel, inputView: statusSegmentedControl),
-            FormRow(labelText: Localized.employeeLabel, inputView: employeeHorizontalStack)
-        ]
-        
-        taskEditView.setupForm(rows: formRows)
     }
     
     func setupTextFields() {

@@ -57,8 +57,10 @@ private extension EditProjectViewController {
     }
     
     func setupEditView() {
+        projectEditView.addRow(labelText: Localized.nameLabel, inputView: nameTextField)
+        projectEditView.addRow(labelText: Localized.descriptionLabel, inputView: descriptionTextField)
+        
         view.addSubview(projectEditView)
-        projectEditView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             projectEditView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -66,13 +68,6 @@ private extension EditProjectViewController {
             projectEditView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             projectEditView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
-        
-        let formRows: [FormRow] = [
-            FormRow(labelText: Localized.nameLabel, inputView: nameTextField),
-            FormRow(labelText: Localized.descriptionLabel, inputView: descriptionTextField)
-        ]
-        
-        projectEditView.setupForm(rows: formRows)
     }
     
     func setupActions() {
@@ -108,9 +103,9 @@ private extension EditProjectViewController {
     }
     
     func applyValidationResults(_ fieldsValidity: [Bool]) {
-        var result: [ValidationResult] = []
+        var result: [ValidatedField] = []
         for i in 0..<requiredFields.count {
-            result.append(ValidationResult(textField: requiredFields[i], isValid: fieldsValidity[i]))
+            result.append(ValidatedField(textField: requiredFields[i], isValid: fieldsValidity[i]))
         }
         projectEditView.applyValidationResults(result)
     }
