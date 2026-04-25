@@ -1,8 +1,8 @@
 import Foundation
 
-enum EditEmployeeAction {
-    case create((Employee) -> Void)
-    case update((Employee) -> Void)
+enum EditEmployeeActionType {
+    case create
+    case update
 }
 
 struct Employee {

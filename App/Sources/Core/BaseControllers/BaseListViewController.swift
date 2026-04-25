@@ -9,20 +9,11 @@ class BaseListViewController<Item>: BaseViewController {
         min(items.count, settings.maxRecords)
     }
     
-    private let settings: SettingsManager
+    private let settings: SettingsManager = AppDelegate.settings
     private var items: [Item] = []
     
     private let tableView = UITableView()
     private let refreshControl = UIRefreshControl()
-    
-    init(settings: SettingsManager) {
-        self.settings = settings
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
     
     func setupTableView() {
         tableView.dataSource = self as? UITableViewDataSource
