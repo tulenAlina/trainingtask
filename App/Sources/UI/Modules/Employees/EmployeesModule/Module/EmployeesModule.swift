@@ -15,7 +15,7 @@ final class EmployeesModule: Module {
         self.input = input
     }
     
-    static func build(employee: Employee? = nil) -> EmployeesModule {
+    static func build(selectionOutput: EmployeeSelectionOutputProtocol? = nil) -> EmployeesModule {
         let server = AppDelegate.server
         let settings = AppDelegate.settings
         
@@ -23,7 +23,8 @@ final class EmployeesModule: Module {
         let router = EmployeesRouter()
         let presenter = EmployeesPresenter(
             interactor: interactor,
-            router: router
+            router: router,
+            selectionOutput: selectionOutput
         )
         let viewController = EmployeesViewController(presenter: presenter)
         

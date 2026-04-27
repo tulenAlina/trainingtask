@@ -3,6 +3,7 @@ import UIKit
 protocol EmployeesRouterInputProtocol {
     func pushDetailScreen(for employee: Employee, moduleOutput: EmployeeDetailModuleOutputProtocol)
     func pushAddEmployeeScreen(moduleOutput: EditEmployeeModuleOutputProtocol)
+    func close()
 }
 
 final class EmployeesRouter: EmployeesRouterInputProtocol {
@@ -18,5 +19,9 @@ final class EmployeesRouter: EmployeesRouterInputProtocol {
         let editModuleViewController = EditEmployeeModule.build(moduleOutput: moduleOutput)
         editModuleViewController.input.createEmployee()
         viewController?.navigationController?.pushViewController(editModuleViewController.view, animated: true)
+    }
+    
+    func close() {
+        viewController?.navigationController?.popViewController(animated: true)
     }
 }

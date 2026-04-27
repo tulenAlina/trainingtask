@@ -8,9 +8,21 @@ protocol TasksRouterInputProtocol {
 final class TasksRouter: TasksRouterInputProtocol {
     weak var viewController: UIViewController?
 
-    func pushDetailScreen(for task: ProjectTask, project: Project?, employee: Employee?, isOpenedFromProject: Bool, moduleOutput: TaskDetailModuleOutputProtocol) {
+    func pushDetailScreen(
+        for task: ProjectTask,
+        project: Project?,
+        employee: Employee?,
+        isOpenedFromProject: Bool,
+        moduleOutput: TaskDetailModuleOutputProtocol
+    ) {
         
-        let detailModule = TaskDetailModule.build(task: task, project: project, employee: employee, isOpenedFromProject: isOpenedFromProject, moduleOutput: moduleOutput)
+        let detailModule = TaskDetailModule.build(
+            task: task,
+            project: project,
+            employee: employee,
+            isOpenedFromProject: isOpenedFromProject,
+            moduleOutput: moduleOutput
+        )
         viewController?.navigationController?.pushViewController(detailModule.view, animated: true)
     }
     

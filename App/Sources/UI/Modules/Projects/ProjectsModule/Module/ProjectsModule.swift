@@ -15,7 +15,7 @@ final class ProjectsModule: Module {
         self.input = input
     }
     
-    static func build(project: Project? = nil) -> ProjectsModule {
+    static func build(selectionOutput: ProjectSelectionOutputProtocol? = nil) -> ProjectsModule {
         let server = AppDelegate.server
         let settings = AppDelegate.settings
         
@@ -23,7 +23,8 @@ final class ProjectsModule: Module {
         let router = ProjectsRouter()
         let presenter = ProjectsPresenter(
             interactor: interactor,
-            router: router
+            router: router,
+            selectionOutput: selectionOutput
         )
         let viewController = ProjectsViewController(presenter: presenter)
         

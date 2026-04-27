@@ -1,6 +1,8 @@
 import UIKit
 
 protocol EmployeesViewInputProtocol: AnyObject {
+    func setupNavigationTitle()
+    func setupNavigationBar()
     func updateUI()
     func setItems(_ newItems: [Employee])
     func getItem(at index: Int) -> Employee
@@ -46,6 +48,14 @@ final class EmployeesViewController: BaseListViewController<Employee>, Employees
     @objc override func refreshData() {
         output.didRefreshData()
     }
+    
+    func setupNavigationTitle() {
+        setupNavigationBar(navigationTitle: Localized.employees)
+    }
+    
+    func setupNavigationBar() {
+        setupNavigationBar(navigationTitle: Localized.employees, rightButtonSystemItem: .add, rightButtonAction: #selector(actionAddEmployee))
+    }
 }
 
 // MARK: - UITableViewDataSource
@@ -78,7 +88,6 @@ extension EmployeesViewController: UITableViewDelegate {
 
 private extension EmployeesViewController {
     func setupView() {
-        setupNavigationBar(navigationTitle: Localized.employees, rightButtonSystemItem: .add, rightButtonAction: #selector(actionAddEmployee))
         setupTableView()
     }
 

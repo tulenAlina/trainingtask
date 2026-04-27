@@ -5,11 +5,14 @@ final class EmployeesPresenter: EmployeesModuleInputProtocol {
     private let interactor: EmployeesInteractorInputProtocol
     private var router: EmployeesRouterInputProtocol
     
+    private let selectionOutput: EmployeeSelectionOutputProtocol?
+    
     private var employees: [Employee] = []
     
-    init(interactor: EmployeesInteractorInputProtocol, router: EmployeesRouterInputProtocol) {
+    init(interactor: EmployeesInteractorInputProtocol, router: EmployeesRouterInputProtocol, selectionOutput: EmployeeSelectionOutputProtocol?) {
         self.interactor = interactor
         self.router = router
+        self.selectionOutput = selectionOutput
     }
 }
 
@@ -17,6 +20,11 @@ final class EmployeesPresenter: EmployeesModuleInputProtocol {
 
 extension EmployeesPresenter: EmployeesViewOutputProtocol {
     func viewDidLoad() {
+        if selectionOutput == nil {
+            view?.setupNavigationBar()
+        } else {
+            view?.setupNavigationTitle()
+        }
         view?.startLoading()
         refreshData()
     }
@@ -26,7 +34,12 @@ extension EmployeesPresenter: EmployeesViewOutputProtocol {
     }
     
     func didTapEmployeeRow(employee: Employee) {
-        router.pushDetailScreen(for: employee, moduleOutput: self)
+        if let selectionOutput {
+            selectionOutput.didSelectEmployee(employee)
+            router.close()
+        } else {
+            router.pushDetailScreen(for: employee, moduleOutput: self)
+        }
     }
     
     func didTapAddButton() {

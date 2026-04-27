@@ -5,11 +5,14 @@ final class ProjectsPresenter: ProjectsModuleInputProtocol {
     private let interactor: ProjectsInteractorInputProtocol
     private var router: ProjectsRouterInputProtocol
     
+    private let selectionOutput: ProjectSelectionOutputProtocol?
+    
     private var projects: [Project] = []
     
-    init(interactor: ProjectsInteractorInputProtocol, router: ProjectsRouterInputProtocol) {
+    init(interactor: ProjectsInteractorInputProtocol, router: ProjectsRouterInputProtocol, selectionOutput: ProjectSelectionOutputProtocol?) {
         self.interactor = interactor
         self.router = router
+        self.selectionOutput = selectionOutput
     }
 }
 
@@ -17,6 +20,11 @@ final class ProjectsPresenter: ProjectsModuleInputProtocol {
 
 extension ProjectsPresenter: ProjectsViewOutputProtocol {
     func viewDidLoad() {
+        if selectionOutput == nil {
+            view?.setupNavigationBar()
+        } else {
+            view?.setupNavigationTitle()
+        }
         view?.startLoading()
         refreshData()
     }
@@ -26,7 +34,12 @@ extension ProjectsPresenter: ProjectsViewOutputProtocol {
     }
     
     func didTapProjectRow(project: Project) {
-        router.pushDetailScreen(for: project, moduleOutput: self)
+        if let selectionOutput {
+            selectionOutput.didSelectProject(project)
+            router.close()
+        } else {
+            router.pushDetailScreen(for: project, moduleOutput: self)
+        }
     }
     
     func didTapAddButton() {

@@ -1,6 +1,8 @@
 import UIKit
 
 protocol ProjectsViewInputProtocol: AnyObject {
+    func setupNavigationBar()
+    func setupNavigationTitle()
     func updateUI()
     func setItems(_ newItems: [Project])
     func getItem(at index: Int) -> Project
@@ -46,6 +48,14 @@ final class ProjectsViewController: BaseListViewController<Project>, ProjectsVie
     @objc override func refreshData() {
         output.didRefreshData()
     }
+    
+    func setupNavigationTitle() {
+        setupNavigationBar(navigationTitle: Localized.projects)
+    }
+    
+    func setupNavigationBar() {
+        setupNavigationBar(navigationTitle: Localized.projects, rightButtonSystemItem: .add, rightButtonAction: #selector(actionAddProject))
+    }
 }
 
 // MARK: - UITableViewDataSource
@@ -78,7 +88,6 @@ extension ProjectsViewController: UITableViewDelegate {
 
 private extension ProjectsViewController {
     func setupView() {
-        setupNavigationBar(navigationTitle: Localized.projects, rightButtonSystemItem: .add, rightButtonAction: #selector(actionAddProject))
         setupTableView()
     }
 
