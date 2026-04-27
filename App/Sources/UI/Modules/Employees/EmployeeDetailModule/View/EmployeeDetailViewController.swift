@@ -35,8 +35,8 @@ final class EmployeeDetailViewController: BaseViewController, EmployeeDetailView
     }
     
     func configureLabels(fio: String, position: String) {
-        fullNameRow.configure(value: fio)
-        positionRow.configure(value: position)
+        fullNameRow.configure(fio)
+        positionRow.configure(position)
     }
 }
 

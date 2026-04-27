@@ -42,11 +42,11 @@ extension ProjectDetailPresenter: ProjectDetailViewOutputProtocol {
     }
     
     func didTapOpenTasksButton() {
-        router.openTasksScreen(project: project)
+        router.pushTasksScreen(project: project)
     }
     
     func didTapChangeButton() {
-        router.openEditScreen(project: project, moduleOutput: self)
+        router.pushEditScreen(project: project, moduleOutput: self)
     }
     
     func didTapDeleteButton() {

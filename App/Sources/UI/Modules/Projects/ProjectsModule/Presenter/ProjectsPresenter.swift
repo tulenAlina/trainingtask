@@ -26,11 +26,11 @@ extension ProjectsPresenter: ProjectsViewOutputProtocol {
     }
     
     func didTapProjectRow(project: Project) {
-        router.openDetailScreen(for: project, moduleOutput: self)
+        router.pushDetailScreen(for: project, moduleOutput: self)
     }
     
     func didTapAddButton() {
-        router.openAddProjectScreen(moduleOutput: self)
+        router.pushAddProjectScreen(moduleOutput: self)
     }
 }
 

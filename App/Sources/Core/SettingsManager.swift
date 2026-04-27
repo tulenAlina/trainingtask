@@ -1,7 +1,7 @@
 import Foundation
 
 final class SettingsManager {
-    private enum Defaults {
+    private enum DefaultSettings {
         static let serverURL = ""
         static let maxRecords = 50
         static let defaultDaysBetween = 7
@@ -57,9 +57,9 @@ final class SettingsManager {
             return
         }
         let defaultValues: [String: Any] = [
-            UserDefaultsKeys.serverURL : config["serverURL"] as? String ?? Defaults.serverURL,
-            UserDefaultsKeys.maxRecords : config["maxRecords"] as? Int ?? Defaults.maxRecords,
-            UserDefaultsKeys.defaultDaysBetween : config["defaultDaysBetween"] as? Int ?? Defaults.defaultDaysBetween
+            UserDefaultsKeys.serverURL : config["serverURL"] as? String ?? DefaultSettings.serverURL,
+            UserDefaultsKeys.maxRecords : config["maxRecords"] as? Int ?? DefaultSettings.maxRecords,
+            UserDefaultsKeys.defaultDaysBetween : config["defaultDaysBetween"] as? Int ?? DefaultSettings.defaultDaysBetween
         ]
         UserDefaults.standard.register(defaults: defaultValues)
     }

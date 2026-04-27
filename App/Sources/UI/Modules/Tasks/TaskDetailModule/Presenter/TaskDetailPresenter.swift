@@ -60,7 +60,7 @@ extension TaskDetailPresenter: TaskDetailViewOutputProtocol {
     }
     
     func didTapChangeButton() {
-        router.openEditScreen(task: task, project: project, isOpenedFromProject: isOpenedFromProject, employee: employee, moduleOutput: self)
+        router.pushEditScreen(task: task, project: project, isOpenedFromProject: isOpenedFromProject, employee: employee, moduleOutput: self)
     }
     
     func didTapDeleteButton() {

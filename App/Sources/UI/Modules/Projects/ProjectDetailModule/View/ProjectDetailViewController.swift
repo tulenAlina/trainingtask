@@ -39,7 +39,7 @@ final class ProjectDetailViewController: BaseViewController, ProjectDetailViewIn
     
     func configureLabels(name: String, description: String) {
         nameLabel.text = name
-        descriptionRow.configure(value: description)
+        descriptionRow.configure(description)
     }
 }
 

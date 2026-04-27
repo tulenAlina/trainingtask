@@ -31,9 +31,9 @@ final class TaskTimeCardView: UIView {
     }
     
     func configure(workTime: String, startDate: String, endDate: String) {
-        workTimeRaw.configure(value: workTime)
-        startDateRaw.configure(value: startDate)
-        endDateRaw.configure(value: endDate)
+        workTimeRaw.configure(workTime)
+        startDateRaw.configure(startDate)
+        endDateRaw.configure(endDate)
     }
     
     private func setupView() {

@@ -15,18 +15,18 @@ final class MainMenuPresenter: MainMenuModuleInputProtocol {
 
 extension MainMenuPresenter: MainMenuViewOutputProtocol {
     func didTapProjectsButton() {
-        router.openProjects()
+        router.pushProjectsScreen()
     }
     
     func didTapTasksButton() {
-        router.openTasks()
+        router.pushTasksScreen()
     }
     
     func didTapEmployeesButton() {
-        router.openEmployees()
+        router.pushEmployeesScreen()
     }
     
     func didTapSettingsButton() {
-        router.openSettings()
+        router.pushSettingsScreen()
     }
 }

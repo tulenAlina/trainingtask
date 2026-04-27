@@ -59,11 +59,11 @@ extension EditTaskPresenter: EditTaskViewOutputProtocol {
     }
     
     func didTapSelectProject() {
-        router.showProjects(output: self)
+        router.pushProjectsScreen(output: self)
     }
 
     func didTapSelectEmployee() {
-        router.showEmployees(output: self)
+        router.pushEmployeesScreen(output: self)
     }
     
     func didTapClearEmployee() {

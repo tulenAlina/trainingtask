@@ -41,7 +41,7 @@ class StubServer: Server {
         guard let project = projects[id] else {
             throw Errors.itemNotFound
         }
-        try removeAllTasks(of: project)
+        try removeAllTasksWithAssignments(of: project)
         
         projects[id] = nil
     }
@@ -73,7 +73,7 @@ class StubServer: Server {
         guard let employee = employees[id] else {
             throw Errors.itemNotFound
         }
-        try removeEmployeeFromTasks(employee: employee)
+        try unassignEmployeeFromTasks(employee: employee)
         
         employees[id] = nil
     }
@@ -196,7 +196,7 @@ private extension StubServer {
         }
     }
     
-    func removeEmployeeFromTasks(employee: Employee) throws {
+    func unassignEmployeeFromTasks(employee: Employee) throws {
         var hasErrors = false
         
         for taskID in employee.tasks {
@@ -213,7 +213,7 @@ private extension StubServer {
         }
     }
     
-    func removeAllTasks(of project: Project) throws {
+    func removeAllTasksWithAssignments(of project: Project) throws {
         var hasErrors = false
         
         for taskID in project.tasks {

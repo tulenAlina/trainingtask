@@ -42,7 +42,7 @@ extension EmployeeDetailPresenter: EmployeeDetailViewOutputProtocol {
     }
     
     func didTapChangeButton() {
-        router.openEditScreen(employee: employee, moduleOutput: self)
+        router.pushEditScreen(employee: employee, moduleOutput: self)
     }
     
     func didTapDeleteButton() {

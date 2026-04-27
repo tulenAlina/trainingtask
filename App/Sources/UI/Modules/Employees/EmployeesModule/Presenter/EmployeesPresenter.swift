@@ -26,11 +26,11 @@ extension EmployeesPresenter: EmployeesViewOutputProtocol {
     }
     
     func didTapEmployeeRow(employee: Employee) {
-        router.openDetailScreen(for: employee, moduleOutput: self)
+        router.pushDetailScreen(for: employee, moduleOutput: self)
     }
     
     func didTapAddButton() {
-        router.openAddEmployeeScreen(moduleOutput: self)
+        router.pushAddEmployeeScreen(moduleOutput: self)
     }
 }
 

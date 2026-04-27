@@ -42,8 +42,8 @@ final class TaskDetailViewController: BaseViewController, TaskDetailViewInputPro
     
     func configureLabels(taskName: String, projectName: String, employeeName: String, status: TaskStatus, workTime: String, startDate: String, endDate: String ) {
         taskNameLabel.text = taskName
-        projectRow.configure(value: projectName)
-        employeeRow.configure(value: employeeName)
+        projectRow.configure(projectName)
+        employeeRow.configure(employeeName)
         statusView.configure(with: status)
         
         timeCardView.configure(

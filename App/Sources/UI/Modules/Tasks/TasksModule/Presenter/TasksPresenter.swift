@@ -47,11 +47,11 @@ extension TasksPresenter: TasksViewOutputProtocol {
         
         let currentEmployee = employees.first { $0.id == task.employeeID }
         
-        router.openDetailScreen(for: task, project: currentProject, employee: currentEmployee, isOpenedFromProject: isOpenedFromProject, moduleOutput: self)
+        router.pushDetailScreen(for: task, project: currentProject, employee: currentEmployee, isOpenedFromProject: isOpenedFromProject, moduleOutput: self)
     }
     
     func didTapAddButton() {
-        router.openAddTaskScreen(project: project, moduleOutput: self)
+        router.pushAddTaskScreen(project: project, moduleOutput: self)
     }
     
     func viewModelForTask(at index: Int) -> TaskCellViewModel? {
