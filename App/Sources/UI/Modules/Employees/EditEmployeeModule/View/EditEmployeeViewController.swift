@@ -91,7 +91,6 @@ final class EditEmployeeViewController: BaseViewController, EditEmployeeViewInpu
 }
 
 // MARK: - UITextFieldDelegate
-
 extension EditEmployeeViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
@@ -101,7 +100,6 @@ extension EditEmployeeViewController: UITextFieldDelegate {
 
 
 // MARK: - Private
-
 private extension EditEmployeeViewController {
     func fieldType(for textField: UITextField) -> EditEmployeeFieldType? {
         switch textField {

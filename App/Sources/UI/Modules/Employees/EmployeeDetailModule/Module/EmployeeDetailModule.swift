@@ -4,7 +4,7 @@ protocol EmployeeDetailModuleInputProtocol {}
 
 protocol EmployeeDetailModuleOutputProtocol: AnyObject {
     func didUpdateEmployee(_ employee: Employee)
-    func didDeleteEmployee(with employeeID: UUID)
+    func didDeleteEmployee(_ employeeID: UUID)
 }
 
 final class EmployeeDetailModule: Module {
@@ -16,7 +16,7 @@ final class EmployeeDetailModule: Module {
         self.input = input
     }
     
-    static func build(employee: Employee, moduleOutput: EmployeeDetailModuleOutputProtocol?) -> EmployeeDetailModule {
+    static func build(employee: Employee, output: EmployeeDetailModuleOutputProtocol?) -> EmployeeDetailModule {
         let interactor = EmployeeDetailInteractor()
         let router = EmployeeDetailRouter()
         let presenter = EmployeeDetailPresenter(
@@ -26,7 +26,7 @@ final class EmployeeDetailModule: Module {
         )
         let viewController = EmployeeDetailViewController(presenter: presenter)
         
-        presenter.output = moduleOutput
+        presenter.output = output
         router.viewController = viewController
         presenter.view = viewController
         

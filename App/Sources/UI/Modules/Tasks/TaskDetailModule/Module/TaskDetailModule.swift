@@ -4,7 +4,7 @@ protocol TaskDetailModuleInputProtocol {}
 
 protocol TaskDetailModuleOutputProtocol: AnyObject {
     func didUpdateTask(_ task: ProjectTask, project: Project?, employee: Employee?)
-    func didDeleteTask(with taskID: UUID)
+    func didDeleteTask(_ taskID: UUID)
 }
 
 final class TaskDetailModule: Module {
@@ -16,7 +16,7 @@ final class TaskDetailModule: Module {
         self.input = input
     }
     
-    static func build(task: ProjectTask, project: Project?, employee: Employee?, isOpenedFromProject: Bool, moduleOutput: TaskDetailModuleOutputProtocol?) -> TaskDetailModule {
+    static func build(task: ProjectTask, project: Project?, employee: Employee?, isOpenedFromProject: Bool, output: TaskDetailModuleOutputProtocol?) -> TaskDetailModule {
         let interactor = TaskDetailInteractor()
         let router = TaskDetailRouter()
         let presenter = TaskDetailPresenter(
@@ -29,7 +29,7 @@ final class TaskDetailModule: Module {
         )
         let viewController = TaskDetailViewController(presenter: presenter)
         
-        presenter.output = moduleOutput
+        presenter.output = output
         router.viewController = viewController
         presenter.view = viewController
         

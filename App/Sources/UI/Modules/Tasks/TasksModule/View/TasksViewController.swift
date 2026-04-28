@@ -50,7 +50,6 @@ final class TasksViewController: BaseListViewController<ProjectTask>, TasksViewI
 }
 
 // MARK: - UITableViewDataSource
-
 extension TasksViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         displayedItemsCount
@@ -79,7 +78,6 @@ extension TasksViewController: UITableViewDataSource {
 }
 
 // MARK: - UITableViewDelegate
-
 extension TasksViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
@@ -89,7 +87,6 @@ extension TasksViewController: UITableViewDelegate {
 }
 
 // MARK: - Private
-
 private extension TasksViewController {
     func setupView() {
         setupNavigationBar(navigationTitle: Localized.tasks, rightButtonSystemItem: .add, rightButtonAction: #selector(actionAddTask))

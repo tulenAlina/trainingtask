@@ -16,7 +16,6 @@ final class ProjectDetailPresenter: ProjectDetailModuleInputProtocol {
 }
 
 // MARK: - EditProjectModuleOutputProtocol
-
 extension ProjectDetailPresenter: EditProjectModuleOutputProtocol {
     func didUpdateProject(_ project: Project) {
         self.project = project
@@ -32,7 +31,6 @@ extension ProjectDetailPresenter: EditProjectModuleOutputProtocol {
 }
 
 // MARK: - ProjectDetailViewOutputProtocol
-
 extension ProjectDetailPresenter: ProjectDetailViewOutputProtocol {
     func viewDidLoad() {
         view?.configureLabels(
@@ -46,11 +44,11 @@ extension ProjectDetailPresenter: ProjectDetailViewOutputProtocol {
     }
     
     func didTapChangeButton() {
-        router.pushEditScreen(project: project, moduleOutput: self)
+        router.pushEditScreen(project: project, output: self)
     }
     
     func didTapDeleteButton() {
-        output?.didDeleteProject(with: project.id)
+        output?.didDeleteProject(project.id)
         router.close()
     }
 }

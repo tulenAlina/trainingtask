@@ -19,7 +19,7 @@ final class EditProjectModule: Module {
         self.input = input
     }
     
-    static func build(moduleOutput: EditProjectModuleOutputProtocol? = nil) -> EditProjectModule {
+    static func build(output: EditProjectModuleOutputProtocol? = nil) -> EditProjectModule {
         let server = AppDelegate.server
         let settings = AppDelegate.settings
         
@@ -31,7 +31,7 @@ final class EditProjectModule: Module {
         )
         let viewController = EditProjectViewController(presenter: presenter)
         
-        presenter.output = moduleOutput
+        presenter.output = output
         router.viewController = viewController
         presenter.view = viewController
         

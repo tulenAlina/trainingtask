@@ -13,7 +13,6 @@ final class SettingsPresenter: SettingsModuleInputProtocol {
 }
 
 // MARK: - SettingsViewOutputProtocol
-
 extension SettingsPresenter: SettingsViewOutputProtocol {
     func viewDidLoad() {
         configureFields()
@@ -42,7 +41,6 @@ extension SettingsPresenter: SettingsViewOutputProtocol {
 }
 
 // MARK: - Private
-
 private extension SettingsPresenter {
     func isFieldsChanged(serverUrl: String, maxRecords: String, defaultDaysBetween: String) -> Bool {
         let settings = interactor.getCurrentSettings()

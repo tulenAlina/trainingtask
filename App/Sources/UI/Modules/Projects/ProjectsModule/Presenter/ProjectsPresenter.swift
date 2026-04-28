@@ -17,7 +17,6 @@ final class ProjectsPresenter: ProjectsModuleInputProtocol {
 }
 
 // MARK: - ProjectsViewOutputProtocol
-
 extension ProjectsPresenter: ProjectsViewOutputProtocol {
     func viewDidLoad() {
         if selectionOutput == nil {
@@ -38,17 +37,16 @@ extension ProjectsPresenter: ProjectsViewOutputProtocol {
             selectionOutput.didSelectProject(project)
             router.close()
         } else {
-            router.pushDetailScreen(for: project, moduleOutput: self)
+            router.pushDetailScreen(for: project, output: self)
         }
     }
     
     func didTapAddButton() {
-        router.pushAddProjectScreen(moduleOutput: self)
+        router.pushAddProjectScreen(output: self)
     }
 }
 
 // MARK: - EditProjectModuleOutputProtocol
-
 extension ProjectsPresenter: EditProjectModuleOutputProtocol {
     func didCreateProject(_ project: Project) {
         view?.addItem(project)
@@ -60,15 +58,13 @@ extension ProjectsPresenter: EditProjectModuleOutputProtocol {
 }
 
 // MARK: - ProjectDetailModuleOutputProtocol
-
 extension ProjectsPresenter: ProjectDetailModuleOutputProtocol {
-    func didDeleteProject(with projectID: UUID) {
-        deleteProject(with: projectID)
+    func didDeleteProject(_ projectID: UUID) {
+        deleteProject(projectID)
     }
 }
 
 // MARK: - Private
-
 private extension ProjectsPresenter {
     func loadData() async throws {
         projects = try await interactor.fetchProjects()
@@ -92,7 +88,7 @@ private extension ProjectsPresenter {
         }
     }
     
-    func deleteProject(with projectID: UUID) {
+    func deleteProject(_ projectID: UUID) {
         view?.startLoading()
         guard let index = view?.firstIndex(where: { $0.id == projectID }) else { return }
 

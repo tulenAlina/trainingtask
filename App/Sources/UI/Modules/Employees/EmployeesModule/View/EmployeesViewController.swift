@@ -59,7 +59,6 @@ final class EmployeesViewController: BaseListViewController<Employee>, Employees
 }
 
 // MARK: - UITableViewDataSource
-
 extension EmployeesViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         displayedItemsCount
@@ -75,7 +74,6 @@ extension EmployeesViewController: UITableViewDataSource {
 }
 
 // MARK: - UITableViewDelegate
-
 extension EmployeesViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
@@ -85,7 +83,6 @@ extension EmployeesViewController: UITableViewDelegate {
 }
 
 // MARK: - Private
-
 private extension EmployeesViewController {
     func setupView() {
         setupTableView()

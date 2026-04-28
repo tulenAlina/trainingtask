@@ -26,7 +26,6 @@ final class EditProjectPresenter: EditProjectModuleInputProtocol {
 }
 
 // MARK: - EditProjectViewOutputProtocol
-
 extension EditProjectPresenter: EditProjectViewOutputProtocol {
     func viewDidLoad() {
         let title = (project != nil) ? Localized.editProject : Localized.addProject
@@ -57,7 +56,6 @@ extension EditProjectPresenter: EditProjectViewOutputProtocol {
 }
 
 // MARK: - Private
-
 private extension EditProjectPresenter {
     func isFieldsChanged(name: String, description: String) -> Bool {
         guard let project else {

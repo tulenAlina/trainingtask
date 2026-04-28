@@ -22,14 +22,13 @@ final class TaskDetailPresenter: TaskDetailModuleInputProtocol {
 }
 
 // MARK: - EditTaskModuleOutputProtocol
-
 extension TaskDetailPresenter: EditTaskModuleOutputProtocol {
     func didUpdateTask(_ task: ProjectTask, project: Project?, employee: Employee?) {
         self.task = task
         self.project = project
         self.employee = employee
         
-        view?.configureLabels(
+        let displayedTask = TaskDisplayModel(
             taskName: task.taskName,
             projectName: project?.projectName ?? Localized.unknownProjectLabel,
             employeeName: employee?.fullName ?? Localized.notAssignedLabel,
@@ -38,17 +37,21 @@ extension TaskDetailPresenter: EditTaskModuleOutputProtocol {
             startDate: DateHelper.string(from: task.startDate),
             endDate: DateHelper.string(from: task.endDate)
         )
+            
+        view?.configure(with: displayedTask)
         output?.didUpdateTask(task, project: project, employee: employee)
     }
     
-    func didCreateTask(_ task: ProjectTask) {}
+    func didCreateTask(_ task: ProjectTask) {
+        // TaskDetailPresenter не обрабатывает создание задач, только обновление существующих.
+        // Метод оставлен пустым для соответствия протоколу.
+    }
 }
 
 // MARK: - TaskDetailViewOutputProtocol
-
 extension TaskDetailPresenter: TaskDetailViewOutputProtocol {
     func viewDidLoad() {
-        view?.configureLabels(
+        let displayedTask = TaskDisplayModel(
             taskName: task.taskName,
             projectName: project?.projectName ?? Localized.unknownProjectLabel,
             employeeName: employee?.fullName ?? Localized.notAssignedLabel,
@@ -57,6 +60,7 @@ extension TaskDetailPresenter: TaskDetailViewOutputProtocol {
             startDate: DateHelper.string(from: task.startDate),
             endDate: DateHelper.string(from: task.endDate)
         )
+        view?.configure(with: displayedTask)
     }
     
     func didTapChangeButton() {
@@ -65,12 +69,12 @@ extension TaskDetailPresenter: TaskDetailViewOutputProtocol {
             project: project,
             isOpenedFromProject: isOpenedFromProject,
             employee: employee,
-            moduleOutput: self
+            output: self
         )
     }
     
     func didTapDeleteButton() {
-        output?.didDeleteTask(with: task.id)
+        output?.didDeleteTask(task.id)
         router.close()
     }
 }

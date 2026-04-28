@@ -4,7 +4,7 @@ protocol ProjectDetailModuleInputProtocol {}
 
 protocol ProjectDetailModuleOutputProtocol: AnyObject {
     func didUpdateProject(_ project: Project)
-    func didDeleteProject(with projectID: UUID)
+    func didDeleteProject(_ projectID: UUID)
 }
 
 final class ProjectDetailModule: Module {
@@ -16,7 +16,7 @@ final class ProjectDetailModule: Module {
         self.input = input
     }
     
-    static func build(project: Project, moduleOutput: ProjectDetailModuleOutputProtocol?) -> ProjectDetailModule {
+    static func build(project: Project, output: ProjectDetailModuleOutputProtocol?) -> ProjectDetailModule {
         let interactor = ProjectDetailInteractor()
         let router = ProjectDetailRouter()
         let presenter = ProjectDetailPresenter(
@@ -26,7 +26,7 @@ final class ProjectDetailModule: Module {
         )
         let viewController = ProjectDetailViewController(presenter: presenter)
         
-        presenter.output = moduleOutput
+        presenter.output = output
         router.viewController = viewController
         presenter.view = viewController
         

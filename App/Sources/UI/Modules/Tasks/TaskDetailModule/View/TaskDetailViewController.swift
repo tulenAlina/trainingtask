@@ -1,7 +1,17 @@
 import UIKit
 
+struct TaskDisplayModel {
+    let taskName: String
+    let projectName: String
+    let employeeName: String
+    let status: TaskStatus
+    let workTime: String
+    let startDate: String
+    let endDate: String
+}
+
 protocol TaskDetailViewInputProtocol: AnyObject {
-    func configureLabels(taskName: String, projectName: String, employeeName: String, status: TaskStatus, workTime: String, startDate: String, endDate: String )
+    func configure(with task: TaskDisplayModel)
 }
 
 protocol TaskDetailViewOutputProtocol {
@@ -40,22 +50,21 @@ final class TaskDetailViewController: BaseViewController, TaskDetailViewInputPro
         output.viewDidLoad()
     }
     
-    func configureLabels(taskName: String, projectName: String, employeeName: String, status: TaskStatus, workTime: String, startDate: String, endDate: String ) {
-        taskNameLabel.text = taskName
-        projectRow.configure(projectName)
-        employeeRow.configure(employeeName)
-        statusView.configure(with: status)
+    func configure(with task: TaskDisplayModel) {
+        taskNameLabel.text = task.taskName
+        projectRow.configure(task.projectName)
+        employeeRow.configure(task.employeeName)
+        statusView.configure(with: task.status)
         
         timeCardView.configure(
-            workTime: workTime,
-            startDate: startDate,
-            endDate: endDate
+            workTime: task.workTime,
+            startDate: task.startDate,
+            endDate: task.endDate
         )
     }
 }
 
 // MARK: - Private
-
 private extension TaskDetailViewController {
     func setupView() {
         setupNavigationBar(navigationTitle: Localized.taskDetails, rightButtonTitle: Localized.edit, rightButtonAction: #selector(actionChangeTask))

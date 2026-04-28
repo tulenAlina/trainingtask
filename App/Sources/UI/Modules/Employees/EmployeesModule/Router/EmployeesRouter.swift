@@ -1,22 +1,22 @@
 import UIKit
 
 protocol EmployeesRouterInputProtocol {
-    func pushDetailScreen(for employee: Employee, moduleOutput: EmployeeDetailModuleOutputProtocol)
-    func pushAddEmployeeScreen(moduleOutput: EditEmployeeModuleOutputProtocol)
+    func pushDetailScreen(for employee: Employee, output: EmployeeDetailModuleOutputProtocol)
+    func pushAddEmployeeScreen(output: EditEmployeeModuleOutputProtocol)
     func close()
 }
 
 final class EmployeesRouter: EmployeesRouterInputProtocol {
     weak var viewController: UIViewController?
 
-    func pushDetailScreen(for employee: Employee, moduleOutput: EmployeeDetailModuleOutputProtocol) {
+    func pushDetailScreen(for employee: Employee, output: EmployeeDetailModuleOutputProtocol) {
         
-        let detailModule = EmployeeDetailModule.build(employee: employee, moduleOutput: moduleOutput)
+        let detailModule = EmployeeDetailModule.build(employee: employee, output: output)
         viewController?.navigationController?.pushViewController(detailModule.view, animated: true)
     }
     
-    func pushAddEmployeeScreen(moduleOutput: EditEmployeeModuleOutputProtocol) {
-        let editModuleViewController = EditEmployeeModule.build(moduleOutput: moduleOutput)
+    func pushAddEmployeeScreen(output: EditEmployeeModuleOutputProtocol) {
+        let editModuleViewController = EditEmployeeModule.build(output: output)
         editModuleViewController.input.createEmployee()
         viewController?.navigationController?.pushViewController(editModuleViewController.view, animated: true)
     }

@@ -4,7 +4,7 @@ import Foundation
 /// Определяет все операции для управления проектами, сотрудниками и задачами
 protocol Server {
     // MARK: - Projects
-        
+
     /// Загружает все проекты с сервера.
     /// - Returns: Массив проектов.
     func fetchProjects() async throws -> [Project]

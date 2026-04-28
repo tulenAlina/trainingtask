@@ -49,7 +49,6 @@ final class MainMenuViewController: UIViewController, MainMenuViewInputProtocol 
 }
 
 // MARK: - Private
-
 private extension MainMenuViewController {
     private func setupView() {
         view.backgroundColor = .white

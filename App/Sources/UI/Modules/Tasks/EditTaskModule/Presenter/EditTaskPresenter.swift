@@ -35,7 +35,6 @@ final class EditTaskPresenter: EditTaskModuleInputProtocol {
 }
 
 // MARK: - EditTaskViewOutputProtocol
-
 extension EditTaskPresenter: EditTaskViewOutputProtocol {
     func viewDidLoad() {
         let title = (task != nil) ? Localized.editTask : Localized.addTask
@@ -96,7 +95,6 @@ extension EditTaskPresenter: EmployeeSelectionOutputProtocol {
 }
 
 // MARK: - Private
-
 private extension EditTaskPresenter {
     func isFieldsChanged(taskNameString: String, projectID: UUID, workTime: Int, startDateString: String, endDateString: String, statusIndex: Int, employeeID: UUID?) -> Bool {
         guard let task = task else {

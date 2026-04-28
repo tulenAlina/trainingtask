@@ -16,7 +16,6 @@ final class EmployeeDetailPresenter: EmployeeDetailModuleInputProtocol {
 }
 
 // MARK: - EditEmployeeModuleOutputProtocol
-
 extension EmployeeDetailPresenter: EditEmployeeModuleOutputProtocol {
     func didUpdateEmployee(_ employee: Employee) {
         self.employee = employee
@@ -32,7 +31,6 @@ extension EmployeeDetailPresenter: EditEmployeeModuleOutputProtocol {
 }
 
 // MARK: - EmployeeDetailViewOutputProtocol
-
 extension EmployeeDetailPresenter: EmployeeDetailViewOutputProtocol {
     func viewDidLoad() {
         view?.configureLabels(
@@ -42,11 +40,11 @@ extension EmployeeDetailPresenter: EmployeeDetailViewOutputProtocol {
     }
     
     func didTapChangeButton() {
-        router.pushEditScreen(employee: employee, moduleOutput: self)
+        router.pushEditScreen(employee: employee, output: self)
     }
     
     func didTapDeleteButton() {
-        output?.didDeleteEmployee(with: employee.id)
+        output?.didDeleteEmployee(employee.id)
         router.close()
     }
 }

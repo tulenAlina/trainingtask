@@ -13,7 +13,7 @@ final class SettingsModule: Module {
         self.input = input
     }
     
-    static func build(moduleOutput: SettingsModuleOutputProtocol? = nil) -> SettingsModule {
+    static func build(output: SettingsModuleOutputProtocol? = nil) -> SettingsModule {
         let settings = AppDelegate.settings
         
         let interactor = SettingsInteractor(settings: settings)
@@ -24,7 +24,7 @@ final class SettingsModule: Module {
         )
         let viewController = SettingsViewController(presenter: presenter)
         
-        presenter.output = moduleOutput
+        presenter.output = output
         router.viewController = viewController
         presenter.view = viewController
         

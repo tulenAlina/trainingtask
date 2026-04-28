@@ -17,8 +17,8 @@ final class InfoRowView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configure(_ value: String) {
-        valueLabel.text = value
+    func configure(_ text: String) {
+        valueLabel.text = text
     }
     
     private func setupView() {

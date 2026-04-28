@@ -41,7 +41,6 @@ final class EmployeeDetailViewController: BaseViewController, EmployeeDetailView
 }
 
 // MARK: - Private
-
 private extension EmployeeDetailViewController {
     func setupView() {
         setupNavigationBar(navigationTitle: Localized.employeeDetails, rightButtonTitle: Localized.edit, rightButtonAction: #selector(actionChangeEmployee))

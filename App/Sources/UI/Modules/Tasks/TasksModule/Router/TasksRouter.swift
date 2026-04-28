@@ -1,8 +1,8 @@
 import UIKit
 
 protocol TasksRouterInputProtocol {
-    func pushDetailScreen(for task: ProjectTask, project: Project?, employee: Employee?, isOpenedFromProject: Bool, moduleOutput: TaskDetailModuleOutputProtocol)
-    func pushAddTaskScreen(project: Project?, moduleOutput: EditTaskModuleOutputProtocol)
+    func pushDetailScreen(for task: ProjectTask, project: Project?, employee: Employee?, isOpenedFromProject: Bool, output: TaskDetailModuleOutputProtocol)
+    func pushAddTaskScreen(project: Project?, output: EditTaskModuleOutputProtocol)
 }
 
 final class TasksRouter: TasksRouterInputProtocol {
@@ -13,7 +13,7 @@ final class TasksRouter: TasksRouterInputProtocol {
         project: Project?,
         employee: Employee?,
         isOpenedFromProject: Bool,
-        moduleOutput: TaskDetailModuleOutputProtocol
+        output: TaskDetailModuleOutputProtocol
     ) {
         
         let detailModule = TaskDetailModule.build(
@@ -21,13 +21,13 @@ final class TasksRouter: TasksRouterInputProtocol {
             project: project,
             employee: employee,
             isOpenedFromProject: isOpenedFromProject,
-            moduleOutput: moduleOutput
+            output: output
         )
         viewController?.navigationController?.pushViewController(detailModule.view, animated: true)
     }
     
-    func pushAddTaskScreen(project: Project?, moduleOutput: EditTaskModuleOutputProtocol) {
-        let editModuleViewController = EditTaskModule.build(moduleOutput: moduleOutput)
+    func pushAddTaskScreen(project: Project?, output: EditTaskModuleOutputProtocol) {
+        let editModuleViewController = EditTaskModule.build(output: output)
         editModuleViewController.input.createTask(project: project)
         viewController?.navigationController?.pushViewController(editModuleViewController.view, animated: true)
     }

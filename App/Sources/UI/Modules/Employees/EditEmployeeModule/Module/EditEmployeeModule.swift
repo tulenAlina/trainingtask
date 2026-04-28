@@ -19,7 +19,7 @@ final class EditEmployeeModule: Module {
         self.input = input
     }
     
-    static func build(moduleOutput: EditEmployeeModuleOutputProtocol? = nil) -> EditEmployeeModule {
+    static func build(output: EditEmployeeModuleOutputProtocol? = nil) -> EditEmployeeModule {
         let server = AppDelegate.server
         let settings = AppDelegate.settings
         
@@ -31,7 +31,7 @@ final class EditEmployeeModule: Module {
         )
         let viewController = EditEmployeeViewController(presenter: presenter)
         
-        presenter.output = moduleOutput
+        presenter.output = output
         router.viewController = viewController
         presenter.view = viewController
         

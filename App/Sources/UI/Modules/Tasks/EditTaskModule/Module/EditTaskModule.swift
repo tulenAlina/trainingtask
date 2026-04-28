@@ -19,7 +19,7 @@ final class EditTaskModule: Module {
         self.input = input
     }
     
-    static func build(moduleOutput: EditTaskModuleOutputProtocol? = nil) -> EditTaskModule {
+    static func build(output: EditTaskModuleOutputProtocol? = nil) -> EditTaskModule {
         let server = AppDelegate.server
         let settings = AppDelegate.settings
         
@@ -31,7 +31,7 @@ final class EditTaskModule: Module {
         )
         let viewController = EditTaskViewController(presenter: presenter)
         
-        presenter.output = moduleOutput
+        presenter.output = output
         router.viewController = viewController
         presenter.view = viewController
         

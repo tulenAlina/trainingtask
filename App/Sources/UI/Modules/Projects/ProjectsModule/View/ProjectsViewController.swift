@@ -59,7 +59,6 @@ final class ProjectsViewController: BaseListViewController<Project>, ProjectsVie
 }
 
 // MARK: - UITableViewDataSource
-
 extension ProjectsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         displayedItemsCount
@@ -75,7 +74,6 @@ extension ProjectsViewController: UITableViewDataSource {
 }
 
 // MARK: - UITableViewDelegate
-
 extension ProjectsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
@@ -85,7 +83,6 @@ extension ProjectsViewController: UITableViewDelegate {
 }
 
 // MARK: - Private
-
 private extension ProjectsViewController {
     func setupView() {
         setupTableView()

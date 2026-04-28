@@ -81,7 +81,6 @@ final class EditProjectViewController: BaseViewController, EditProjectViewInputP
 }
 
 // MARK: - UITextFieldDelegate
-
 extension EditProjectViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
@@ -91,7 +90,6 @@ extension EditProjectViewController: UITextFieldDelegate {
 
 
 // MARK: - Private
-
 private extension EditProjectViewController {
     func fieldType(for textField: UITextField) -> EditProjectFieldType? {
         switch textField {

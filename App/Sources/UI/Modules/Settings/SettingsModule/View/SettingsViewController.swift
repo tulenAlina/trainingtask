@@ -81,7 +81,6 @@ final class SettingsViewController: BaseViewController, SettingsViewInputProtoco
 }
 
 // MARK: - UITextFieldDelegate
-
 extension SettingsViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
@@ -91,7 +90,6 @@ extension SettingsViewController: UITextFieldDelegate {
 
 
 // MARK: - Private
-
 private extension SettingsViewController {
     func fieldType(for textField: UITextField) -> SettingsFieldType? {
         switch textField {

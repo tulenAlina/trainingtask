@@ -1,7 +1,7 @@
 import UIKit
 
 protocol ProjectDetailRouterInputProtocol {
-    func pushEditScreen(project: Project, moduleOutput: EditProjectModuleOutputProtocol)
+    func pushEditScreen(project: Project, output: EditProjectModuleOutputProtocol)
     func pushTasksScreen(project: Project)
     func close()
 }
@@ -9,8 +9,8 @@ protocol ProjectDetailRouterInputProtocol {
 final class ProjectDetailRouter: ProjectDetailRouterInputProtocol {
     weak var viewController: UIViewController?
 
-    func pushEditScreen(project: Project, moduleOutput: EditProjectModuleOutputProtocol) {
-        let editModuleViewController = EditProjectModule.build(moduleOutput: moduleOutput)
+    func pushEditScreen(project: Project, output: EditProjectModuleOutputProtocol) {
+        let editModuleViewController = EditProjectModule.build(output: output)
         editModuleViewController.input.updateProject(project: project)
         viewController?.navigationController?.pushViewController(editModuleViewController.view, animated: true)
     }

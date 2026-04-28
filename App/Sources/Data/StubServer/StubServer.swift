@@ -15,7 +15,6 @@ class StubServer: Server {
     }
     
     // MARK: - Projects
-    
     func fetchProjects() async throws -> [Project] {
         try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
         var result = Array(projects.values)
@@ -47,7 +46,6 @@ class StubServer: Server {
     }
     
     // MARK: - Employees
-    
     func fetchEmployees() async throws -> [Employee] {
         try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
         var result = Array(employees.values)
@@ -79,7 +77,6 @@ class StubServer: Server {
     }
     
     // MARK: - Tasks
-    
     func fetchTasks(projectID: UUID?) async throws -> [ProjectTask] {
         try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
         var result = Array(tasks.values)
@@ -129,7 +126,6 @@ class StubServer: Server {
 }
 
 // MARK: - Private Helpers
-
 private extension StubServer {
     func addTaskToProject(projectID: UUID, taskID: UUID) throws {
         if let project = projects[projectID] {
@@ -269,7 +265,6 @@ private extension StubServer {
     }
     
     // MARK: - Data
-    
     func setupMockData() {
         for i in 0..<10 {
             let project = Project(projectName: "Project\(i)", description: "Description\(i)")

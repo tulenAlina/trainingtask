@@ -142,7 +142,6 @@ final class EditTaskViewController: BaseViewController, EditTaskViewInputProtoco
 }
 
 // MARK: - UITextFieldDelegate
-
 extension EditTaskViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
@@ -189,7 +188,6 @@ extension EditTaskViewController: UITextFieldDelegate {
 }
 
 // MARK: - Private
-
 private extension EditTaskViewController {
     func fieldType(for textField: UITextField) -> EditTaskFieldType? {
         switch textField {

@@ -12,7 +12,6 @@ final class MainMenuPresenter: MainMenuModuleInputProtocol {
 }
 
 // MARK: - MainMenuViewOutputProtocol
-
 extension MainMenuPresenter: MainMenuViewOutputProtocol {
     func didTapProjectsButton() {
         router.pushProjectsScreen()

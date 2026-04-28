@@ -26,7 +26,6 @@ final class EditEmployeePresenter: EditEmployeeModuleInputProtocol {
 }
 
 // MARK: - EditEmployeeViewOutputProtocol
-
 extension EditEmployeePresenter: EditEmployeeViewOutputProtocol {
     func viewDidLoad() {
         let title = (employee != nil) ? Localized.editEmployee : Localized.addEmployee
@@ -57,7 +56,6 @@ extension EditEmployeePresenter: EditEmployeeViewOutputProtocol {
 }
 
 // MARK: - Private
-
 private extension EditEmployeePresenter {
     func isFieldsChanged(firstName: String, lastName: String, surName: String?, position: String) -> Bool {
         guard let employee else {

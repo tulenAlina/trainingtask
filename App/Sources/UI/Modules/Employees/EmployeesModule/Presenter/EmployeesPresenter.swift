@@ -17,7 +17,6 @@ final class EmployeesPresenter: EmployeesModuleInputProtocol {
 }
 
 // MARK: - EmployeesViewOutputProtocol
-
 extension EmployeesPresenter: EmployeesViewOutputProtocol {
     func viewDidLoad() {
         if selectionOutput == nil {
@@ -38,17 +37,16 @@ extension EmployeesPresenter: EmployeesViewOutputProtocol {
             selectionOutput.didSelectEmployee(employee)
             router.close()
         } else {
-            router.pushDetailScreen(for: employee, moduleOutput: self)
+            router.pushDetailScreen(for: employee, output: self)
         }
     }
     
     func didTapAddButton() {
-        router.pushAddEmployeeScreen(moduleOutput: self)
+        router.pushAddEmployeeScreen(output: self)
     }
 }
 
 // MARK: - EditEmployeeModuleOutputProtocol
-
 extension EmployeesPresenter: EditEmployeeModuleOutputProtocol {
     func didCreateEmployee(_ employee: Employee) {
         view?.addItem(employee)
@@ -60,15 +58,13 @@ extension EmployeesPresenter: EditEmployeeModuleOutputProtocol {
 }
 
 // MARK: - EmployeeDetailModuleOutputProtocol
-
 extension EmployeesPresenter: EmployeeDetailModuleOutputProtocol {
-    func didDeleteEmployee(with employeeID: UUID) {
-        deleteEmployee(with: employeeID)
+    func didDeleteEmployee(_ employeeID: UUID) {
+        deleteEmployee(employeeID)
     }
 }
 
 // MARK: - Private
-
 private extension EmployeesPresenter {
     func loadData() async throws {
         employees = try await interactor.fetchEmployees()
@@ -92,7 +88,7 @@ private extension EmployeesPresenter {
         }
     }
     
-    func deleteEmployee(with employeeID: UUID) {
+    func deleteEmployee(_ employeeID: UUID) {
         view?.startLoading()
         guard let index = view?.firstIndex(where: { $0.id == employeeID }) else { return }
 

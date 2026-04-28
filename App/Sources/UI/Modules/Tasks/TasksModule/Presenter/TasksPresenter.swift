@@ -23,7 +23,6 @@ final class TasksPresenter: TasksModuleInputProtocol {
 }
 
 // MARK: - TasksViewOutputProtocol
-
 extension TasksPresenter: TasksViewOutputProtocol {
     func viewDidLoad() {
         view?.startLoading()
@@ -47,11 +46,11 @@ extension TasksPresenter: TasksViewOutputProtocol {
         
         let currentEmployee = employees.first { $0.id == task.employeeID }
         
-        router.pushDetailScreen(for: task, project: currentProject, employee: currentEmployee, isOpenedFromProject: isOpenedFromProject, moduleOutput: self)
+        router.pushDetailScreen(for: task, project: currentProject, employee: currentEmployee, isOpenedFromProject: isOpenedFromProject, output: self)
     }
     
     func didTapAddButton() {
-        router.pushAddTaskScreen(project: project, moduleOutput: self)
+        router.pushAddTaskScreen(project: project, output: self)
     }
     
     func viewModelForTask(at index: Int) -> TaskCellViewModel? {
@@ -71,7 +70,6 @@ extension TasksPresenter: TasksViewOutputProtocol {
 }
 
 // MARK: - EditTaskModuleOutputProtocol
-
 extension TasksPresenter: EditTaskModuleOutputProtocol {
     func didCreateTask(_ task: ProjectTask) {
         view?.addItem(task)
@@ -83,15 +81,13 @@ extension TasksPresenter: EditTaskModuleOutputProtocol {
 }
 
 // MARK: - TaskDetailModuleOutputProtocol
-
 extension TasksPresenter: TaskDetailModuleOutputProtocol {
-    func didDeleteTask(with taskID: UUID) {
-        deleteTask(with: taskID)
+    func didDeleteTask(_ taskID: UUID) {
+        deleteTask(taskID)
     }
 }
 
 // MARK: - Private
-
 private extension TasksPresenter {
     func loadData() async throws {
         let (tasks, projects, employees) = try await interactor.fetchData(projectID: project?.id)
@@ -117,7 +113,7 @@ private extension TasksPresenter {
         }
     }
     
-    func deleteTask(with taskID: UUID) {
+    func deleteTask(_ taskID: UUID) {
         view?.startLoading()
         guard let index = view?.firstIndex(where: { $0.id == taskID }) else { return }
 
