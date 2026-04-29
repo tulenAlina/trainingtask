@@ -55,6 +55,9 @@ extension EditEmployeePresenter: EditEmployeeViewOutputProtocol {
     }
 }
 
+// MARK: - EditEmployeeInteractorOutputProtocol
+extension EditEmployeePresenter: EditEmployeeInteractorOutputProtocol {}
+
 // MARK: - Private
 private extension EditEmployeePresenter {
     func isFieldsChanged(firstName: String, lastName: String, surName: String?, position: String) -> Bool {

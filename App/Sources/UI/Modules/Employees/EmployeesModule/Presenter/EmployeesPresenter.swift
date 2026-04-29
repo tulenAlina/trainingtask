@@ -64,6 +64,9 @@ extension EmployeesPresenter: EmployeeDetailModuleOutputProtocol {
     }
 }
 
+// MARK: - EmployeesInteractorOutputProtocol
+extension EmployeesPresenter: EmployeesInteractorOutputProtocol {}
+
 // MARK: - Private
 private extension EmployeesPresenter {
     func loadData() async throws {

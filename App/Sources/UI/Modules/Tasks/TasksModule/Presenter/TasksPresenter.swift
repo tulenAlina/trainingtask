@@ -87,6 +87,9 @@ extension TasksPresenter: TaskDetailModuleOutputProtocol {
     }
 }
 
+// MARK: - TasksInteractorOutputProtocol
+extension TasksPresenter: TasksInteractorOutputProtocol {}
+
 // MARK: - Private
 private extension TasksPresenter {
     func loadData() async throws {

@@ -1,29 +1,9 @@
 import UIKit
 
-enum MenuItem: Int, CaseIterable {
-    case projects
-    case tasks
-    case employees
-    case settings
-    
-    var title: String {
-        switch self {
-            
-        case .projects: return Localized.projects
-        case .tasks: return Localized.tasks
-        case .employees: return Localized.employees
-        case .settings: return Localized.settings
-        }
-    }
-}
-
 protocol MainMenuViewInputProtocol: AnyObject {}
 
 protocol MainMenuViewOutputProtocol {
-    func didTapProjectsButton()
-    func didTapTasksButton()
-    func didTapEmployeesButton()
-    func didTapSettingsButton()
+    func didTapButton(item: MenuItem)
 }
 
 final class MainMenuViewController: UIViewController, MainMenuViewInputProtocol {
@@ -51,14 +31,14 @@ final class MainMenuViewController: UIViewController, MainMenuViewInputProtocol 
 
 // MARK: - Private
 private extension MainMenuViewController {
-    private func setupView() {
+    func setupView() {
         view.backgroundColor = .white
         title = Localized.mainMenu
         setupContentView()
         setupButtons()
     }
     
-    private func setupContentView() {
+    func setupContentView() {
         view.addSubview(contentScrollView)
         NSLayoutConstraint.activate([
             contentScrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
@@ -68,7 +48,7 @@ private extension MainMenuViewController {
         ])
     }
     
-    private func setupButtons() {
+    func setupButtons() {
         buttons.forEach { button in
             NSLayoutConstraint.activate([
                 button.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05)
@@ -76,20 +56,10 @@ private extension MainMenuViewController {
         }
     }
     
-    @objc private func actionButtonTapped(_ sender: UIButton) {
+    @objc func actionButtonTapped(_ sender: UIButton) {
         guard let item = MenuItem(rawValue: sender.tag) else {
             return
         }
-        switch item {
-            
-        case .projects:
-            output.didTapProjectsButton()
-        case .tasks:
-            output.didTapTasksButton()
-        case .employees:
-            output.didTapEmployeesButton()
-        case .settings:
-            output.didTapSettingsButton()
-        }
+        output.didTapButton(item: item)
     }
 }

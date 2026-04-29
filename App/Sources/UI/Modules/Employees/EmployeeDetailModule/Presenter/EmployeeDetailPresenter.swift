@@ -48,3 +48,6 @@ extension EmployeeDetailPresenter: EmployeeDetailViewOutputProtocol {
         router.close()
     }
 }
+
+// MARK: - EmployeeDetailInteractorOutputProtocol
+extension EmployeeDetailPresenter: EmployeeDetailInteractorOutputProtocol {}

@@ -34,6 +34,7 @@ final class EditEmployeeModule: Module {
         presenter.output = output
         router.viewController = viewController
         presenter.view = viewController
+        interactor.output = presenter
         
         let module = EditEmployeeModule(view: viewController, input: presenter)
         return module

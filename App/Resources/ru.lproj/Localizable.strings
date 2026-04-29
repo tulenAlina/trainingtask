@@ -47,7 +47,7 @@
 "last_name_placeholder" = "Введите фамилию";
 "surname_placeholder" = "Введите отчество (если есть)";
 "position_placeholder" = "Введите должность";
-"server_Url_placeholder" = "Введите Url сервера";
+"server_url_placeholder" = "Введите url сервера";
 "max_records_placeholder" = "Введите максимальное количество записей в списках";
 "default_days_between_placeholder" = "Введите количество дней между начальной и конечной датами в задаче";
 "name_placeholder" = "Введите название";
@@ -68,7 +68,7 @@
 "end_date_label" = "Дата окончания:";
 "employee_label" = "Сотрудник:";
 "status_label" = "Статус:";
-"server_Url_label" = "Url сервера:";
+"server_url_label" = "Url сервера:";
 "max_records_label" = "Максимальное количество записей в списках:";
 "default_days_between_label" = "Количество дней по умолчанию между начальной и конечной датами в задаче:";
 "not_assigned" = "не назначен";

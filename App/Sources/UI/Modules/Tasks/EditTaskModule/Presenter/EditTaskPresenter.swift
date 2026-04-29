@@ -94,6 +94,9 @@ extension EditTaskPresenter: EmployeeSelectionOutputProtocol {
     }
 }
 
+// MARK: - EditTaskInteractorOutputProtocol
+extension EditTaskPresenter: EditTaskInteractorOutputProtocol {}
+
 // MARK: - Private
 private extension EditTaskPresenter {
     func isFieldsChanged(taskNameString: String, projectID: UUID, workTime: Int, startDateString: String, endDateString: String, statusIndex: Int, employeeID: UUID?) -> Bool {

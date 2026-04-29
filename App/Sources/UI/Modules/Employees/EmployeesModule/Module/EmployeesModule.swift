@@ -30,6 +30,7 @@ final class EmployeesModule: Module {
         
         router.viewController = viewController
         presenter.view = viewController
+        interactor.output = presenter
         
         let module = EmployeesModule(view: viewController, input: presenter)
         return module

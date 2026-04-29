@@ -40,6 +40,9 @@ extension SettingsPresenter: SettingsViewOutputProtocol {
     }
 }
 
+// MARK: - SettingsInteractorOutputProtocol
+extension SettingsPresenter: SettingsInteractorOutputProtocol {}
+
 // MARK: - Private
 private extension SettingsPresenter {
     func isFieldsChanged(serverUrl: String, maxRecords: String, defaultDaysBetween: String) -> Bool {

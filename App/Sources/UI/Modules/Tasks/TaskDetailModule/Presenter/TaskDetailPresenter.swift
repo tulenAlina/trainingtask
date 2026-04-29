@@ -78,3 +78,6 @@ extension TaskDetailPresenter: TaskDetailViewOutputProtocol {
         router.close()
     }
 }
+
+// MARK: - TaskDetailInteractorOutputProtocol
+extension TaskDetailPresenter: TaskDetailInteractorOutputProtocol {}

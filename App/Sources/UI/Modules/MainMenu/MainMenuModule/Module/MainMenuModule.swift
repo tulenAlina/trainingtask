@@ -22,6 +22,7 @@ final class MainMenuModule: Module {
         
         router.viewController = viewController
         presenter.view = viewController
+        interactor.output = presenter
         
         let module = MainMenuModule(view: viewController, input: presenter)
         return module
