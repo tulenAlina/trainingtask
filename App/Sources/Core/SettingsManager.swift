@@ -56,10 +56,13 @@ final class SettingsManager {
         guard let config else {
             return
         }
+        let serverUrl = config["serverUrl"] as? String ?? DefaultSettings.serverUrl
+        let maxRecords = config["maxRecords"] as? Int ?? DefaultSettings.maxRecords
+        let defaultDaysBetween = config["defaultDaysBetween"] as? Int ?? DefaultSettings.defaultDaysBetween
         let defaultValues: [String: Any] = [
-            UserDefaultsKeys.serverUrl : config["serverUrl"] as? String ?? DefaultSettings.serverUrl,
-            UserDefaultsKeys.maxRecords : config["maxRecords"] as? Int ?? DefaultSettings.maxRecords,
-            UserDefaultsKeys.defaultDaysBetween : config["defaultDaysBetween"] as? Int ?? DefaultSettings.defaultDaysBetween
+            UserDefaultsKeys.serverUrl : serverUrl,
+            UserDefaultsKeys.maxRecords : maxRecords,
+            UserDefaultsKeys.defaultDaysBetween : defaultDaysBetween
         ]
         UserDefaults.standard.register(defaults: defaultValues)
     }
