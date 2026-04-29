@@ -1,12 +1,5 @@
 import UIKit
 
-enum EditEmployeeFieldType {
-    case firstName
-    case lastName
-    case surName
-    case position
-}
-
 protocol EditEmployeeViewInputProtocol: AnyObject {
     var requiredFields: [UITextField] { get }
     
@@ -53,7 +46,7 @@ final class EditEmployeeViewController: BaseViewController, EditEmployeeViewInpu
         setupView()
         output.viewDidLoad()
     }
-
+    
     func setupNavigationBar(title: String) {
         super.setupNavigationBar(navigationTitle: title, rightButtonTitle: Localized.save, rightButtonAction: #selector(actionSaveEmployee))
     }
@@ -75,16 +68,17 @@ final class EditEmployeeViewController: BaseViewController, EditEmployeeViewInpu
     
     func updateValidationStyle(textFieldType: EditEmployeeFieldType, isValid: Bool) {
         let textField: UITextField?
-            switch textFieldType {
-            case .firstName:
-                textField = firstNameTextField
-            case .lastName:
-                textField = lastNameTextField
-            case .position:
-                textField = positionTextField
-            default:
-                textField = nil
-            }
+        switch textFieldType {
+            
+        case .firstName:
+            textField = firstNameTextField
+        case .lastName:
+            textField = lastNameTextField
+        case .position:
+            textField = positionTextField
+        default:
+            textField = nil
+        }
         guard let textField else { return }
         employeeEditView.applyValidationStyle(textField, isValid: isValid)
     }
@@ -103,6 +97,7 @@ extension EditEmployeeViewController: UITextFieldDelegate {
 private extension EditEmployeeViewController {
     func fieldType(for textField: UITextField) -> EditEmployeeFieldType? {
         switch textField {
+            
         case firstNameTextField:
             return .firstName
         case lastNameTextField:

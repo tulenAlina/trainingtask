@@ -1,14 +1,5 @@
 import UIKit
 
-enum EditTaskFieldType {
-    case taskName
-    case project
-    case workTime
-    case startDate
-    case endDate
-    case employee
-}
-
 protocol EditTaskViewInputProtocol: AnyObject {
     var requiredFields: [UITextField] { get }
     
@@ -79,9 +70,13 @@ final class EditTaskViewController: BaseViewController, EditTaskViewInputProtoco
         super.viewWillDisappear(animated)
         view.endEditing(true)
     }
-
+    
     func setupNavigationBar(title: String) {
-        super.setupNavigationBar(navigationTitle: title, rightButtonTitle: Localized.save, rightButtonAction: #selector(actionSaveTask))
+        super.setupNavigationBar(
+            navigationTitle: title,
+            rightButtonTitle: Localized.save,
+            rightButtonAction: #selector(actionSaveTask)
+        )
     }
     
     func setupSegmentedControl(index: Int) {
@@ -104,7 +99,11 @@ final class EditTaskViewController: BaseViewController, EditTaskViewInputProtoco
     }
     
     func setEndDateField(defaultDaysBetween: Int) {
-        endDateTextField.text = DateHelper.string(from: Calendar.current.date(byAdding: .day, value: defaultDaysBetween, to: Date()) ?? Date())
+        let endDate = Calendar.current.date(byAdding: .day, value: defaultDaysBetween, to: Date())
+        guard let endDate else {
+            return
+        }
+        endDateTextField.text = DateHelper.string(from: endDate)
     }
     
     func setTaskFields(taskName: String, projectName: String, workTime: String, startDate: String, endDate: String, employee: String?) {
@@ -126,16 +125,17 @@ final class EditTaskViewController: BaseViewController, EditTaskViewInputProtoco
     
     func updateValidationStyle(textFieldType: EditTaskFieldType, isValid: Bool) {
         let textField: UITextField?
-            switch textFieldType {
-            case .taskName:
-                textField = taskNameTextField
-            case .project:
-                textField = projectTextField
-            case .workTime:
-                textField = workTimeTextField
-            default:
-                textField = nil
-            }
+        switch textFieldType {
+            
+        case .taskName:
+            textField = taskNameTextField
+        case .project:
+            textField = projectTextField
+        case .workTime:
+            textField = workTimeTextField
+        default:
+            textField = nil
+        }
         guard let textField else { return }
         taskEditView.applyValidationStyle(textField, isValid: isValid)
     }
@@ -150,6 +150,7 @@ extension EditTaskViewController: UITextFieldDelegate {
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         switch textField {
+            
         case workTimeTextField:
             let allowedCharacters = CharacterSet.decimalDigits
             let characterSet = CharacterSet(charactersIn: string)
@@ -169,6 +170,7 @@ extension EditTaskViewController: UITextFieldDelegate {
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
         switch textField {
+            
         case startDateTextField:
             if let text = textField.text, let date = DateHelper.date(from: text) {
                 startDatePicker.date = date
@@ -191,6 +193,7 @@ extension EditTaskViewController: UITextFieldDelegate {
 private extension EditTaskViewController {
     func fieldType(for textField: UITextField) -> EditTaskFieldType? {
         switch textField {
+            
         case taskNameTextField:
             return .taskName
         case projectTextField:
@@ -241,24 +244,24 @@ private extension EditTaskViewController {
         startDateTextField.inputView = startDatePicker
         startDateTextField.inputAccessoryView = toolbar
         startDateTextField.delegate = self
-    
+        
         endDateTextField.inputView = endDatePicker
         endDateTextField.inputAccessoryView = toolbar
         endDateTextField.delegate = self
-
+        
         taskNameTextField.delegate = self
         projectTextField.delegate = self
         workTimeTextField.delegate = self
         employeeTextField.delegate = self
     }
- 
+    
     func setupToolbar() {
         toolbar.sizeToFit()
         
         let doneButton = UIBarButtonItem(title: Localized.select, style: .done, target: self, action: #selector(actionDateChange))
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let cancelButton = UIBarButtonItem(title: Localized.cancel, style: .plain, target: self, action: #selector(actionEndEditing))
-    
+        
         toolbar.setItems([cancelButton, flexibleSpace, doneButton], animated: false)
     }
     

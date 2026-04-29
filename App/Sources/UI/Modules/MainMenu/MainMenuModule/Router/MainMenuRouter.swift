@@ -1,32 +1,32 @@
 import UIKit
 
 protocol MainMenuRouterInputProtocol {
-    func pushProjectsScreen()
-    func pushTasksScreen()
-    func pushEmployeesScreen()
-    func pushSettingsScreen()
+    func pushProjectsModule()
+    func pushTasksModule()
+    func pushEmployeesModule()
+    func pushSettingsModule()
 }
 
 final class MainMenuRouter: MainMenuRouterInputProtocol {
     weak var viewController: UIViewController?
-
-    func pushProjectsScreen() {
+    
+    func pushProjectsModule() {
         let projectsModule = ProjectsModule.build()
         viewController?.navigationController?.pushViewController(projectsModule.view, animated: true)
-
+        
     }
     
-    func pushTasksScreen() {
+    func pushTasksModule() {
         let tasksModule = TasksModule.build()
         viewController?.navigationController?.pushViewController(tasksModule.view, animated: true)
     }
     
-    func pushEmployeesScreen() {
+    func pushEmployeesModule() {
         let employeesModule = EmployeesModule.build()
         viewController?.navigationController?.pushViewController(employeesModule.view, animated: true)
     }
     
-    func pushSettingsScreen() {
+    func pushSettingsModule() {
         let settingsModule = SettingsModule.build()
         viewController?.navigationController?.pushViewController(settingsModule.view, animated: true)
     }

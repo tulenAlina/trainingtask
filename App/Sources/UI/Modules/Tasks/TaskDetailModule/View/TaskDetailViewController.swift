@@ -75,7 +75,7 @@ private extension TaskDetailViewController {
     
     func setupContentView() {
         view.addSubview(contentScrollView)
-                
+        
         NSLayoutConstraint.activate([
             contentScrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
             contentScrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),

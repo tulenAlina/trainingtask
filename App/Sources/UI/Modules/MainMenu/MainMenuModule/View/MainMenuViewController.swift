@@ -8,6 +8,7 @@ enum MenuItem: Int, CaseIterable {
     
     var title: String {
         switch self {
+            
         case .projects: return Localized.projects
         case .tasks: return Localized.tasks
         case .employees: return Localized.employees
@@ -56,7 +57,7 @@ private extension MainMenuViewController {
         setupContentView()
         setupButtons()
     }
-
+    
     private func setupContentView() {
         view.addSubview(contentScrollView)
         NSLayoutConstraint.activate([
@@ -80,6 +81,7 @@ private extension MainMenuViewController {
             return
         }
         switch item {
+            
         case .projects:
             output.didTapProjectsButton()
         case .tasks:

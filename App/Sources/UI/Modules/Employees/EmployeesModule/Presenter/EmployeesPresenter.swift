@@ -37,12 +37,12 @@ extension EmployeesPresenter: EmployeesViewOutputProtocol {
             selectionOutput.didSelectEmployee(employee)
             router.close()
         } else {
-            router.pushDetailScreen(for: employee, output: self)
+            router.pushDetailModule(for: employee, output: self)
         }
     }
     
     func didTapAddButton() {
-        router.pushAddEmployeeScreen(output: self)
+        router.pushAddEmployeeModule(output: self)
     }
 }
 
@@ -91,7 +91,7 @@ private extension EmployeesPresenter {
     func deleteEmployee(_ employeeID: UUID) {
         view?.startLoading()
         guard let index = view?.firstIndex(where: { $0.id == employeeID }) else { return }
-
+        
         Task {
             do {
                 try await interactor.deleteEmployee(employeeID)

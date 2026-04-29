@@ -5,7 +5,7 @@ final class ProjectDetailPresenter: ProjectDetailModuleInputProtocol {
     weak var output: ProjectDetailModuleOutputProtocol?
     private let interactor: ProjectDetailInteractorInputProtocol
     private var router: ProjectDetailRouterInputProtocol
-
+    
     private var project: Project
     
     init(interactor: ProjectDetailInteractorInputProtocol, router: ProjectDetailRouterInputProtocol, project: Project) {
@@ -40,11 +40,11 @@ extension ProjectDetailPresenter: ProjectDetailViewOutputProtocol {
     }
     
     func didTapOpenTasksButton() {
-        router.pushTasksScreen(project: project)
+        router.pushTasksModule(project: project)
     }
     
     func didTapChangeButton() {
-        router.pushEditScreen(project: project, output: self)
+        router.pushEditModule(project: project, output: self)
     }
     
     func didTapDeleteButton() {

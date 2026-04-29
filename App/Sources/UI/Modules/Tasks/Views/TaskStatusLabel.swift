@@ -31,6 +31,7 @@ final class TaskStatusLabel: UIView {
         statusLabel.text = status.rawValue.localized
         
         switch status {
+            
         case .notStarted:
             statusLabel.textColor = Colors.statusNotStarted
             statusView.layer.borderColor = Colors.statusNotStarted.cgColor

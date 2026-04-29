@@ -7,7 +7,7 @@ protocol SettingsModuleOutputProtocol: AnyObject {}
 final class SettingsModule: Module {
     private(set) var view: UIViewController
     private(set) var input: SettingsModuleInputProtocol
-
+    
     private init(view: UIViewController, input: SettingsModuleInputProtocol) {
         self.view = view
         self.input = input

@@ -286,7 +286,7 @@ private extension StubServer {
             var newEmployeeTasks = employee.tasks
             newEmployeeTasks.append(task.id)
             let newEmployee = createEmployee(from: employee, newTasks: newEmployeeTasks)
-
+            
             projects[project.id] = newProject
             employees[employee.id] = newEmployee
             tasks[task.id] = task

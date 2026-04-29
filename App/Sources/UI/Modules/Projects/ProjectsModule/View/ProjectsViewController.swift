@@ -87,12 +87,12 @@ private extension ProjectsViewController {
     func setupView() {
         setupTableView()
     }
-
+    
     func loadData() {
         startLoading()
         refreshData()
     }
-
+    
     @objc func actionAddProject() {
         output.didTapAddButton()
     }

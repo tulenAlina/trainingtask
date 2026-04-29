@@ -5,7 +5,7 @@ final class EmployeeDetailPresenter: EmployeeDetailModuleInputProtocol {
     weak var output: EmployeeDetailModuleOutputProtocol?
     private let interactor: EmployeeDetailInteractorInputProtocol
     private var router: EmployeeDetailRouterInputProtocol
-
+    
     private var employee: Employee
     
     init(interactor: EmployeeDetailInteractorInputProtocol, router: EmployeeDetailRouterInputProtocol, employee: Employee) {
@@ -40,7 +40,7 @@ extension EmployeeDetailPresenter: EmployeeDetailViewOutputProtocol {
     }
     
     func didTapChangeButton() {
-        router.pushEditScreen(employee: employee, output: self)
+        router.pushEditModule(employee: employee, output: self)
     }
     
     func didTapDeleteButton() {

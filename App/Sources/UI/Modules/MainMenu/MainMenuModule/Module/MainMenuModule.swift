@@ -5,7 +5,7 @@ protocol MainMenuModuleInputProtocol {}
 final class MainMenuModule: Module {
     private(set) var view: UIViewController
     private(set) var input: MainMenuModuleInputProtocol
-
+    
     private init(view: UIViewController, input: MainMenuModuleInputProtocol) {
         self.view = view
         self.input = input

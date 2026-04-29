@@ -1,10 +1,5 @@
 import UIKit
 
-enum EditProjectFieldType {
-    case name
-    case description
-}
-
 protocol EditProjectViewInputProtocol: AnyObject {
     var requiredFields: [UITextField] { get }
     
@@ -49,7 +44,7 @@ final class EditProjectViewController: BaseViewController, EditProjectViewInputP
         setupView()
         output.viewDidLoad()
     }
-
+    
     func setupNavigationBar(title: String) {
         super.setupNavigationBar(navigationTitle: title, rightButtonTitle: Localized.save, rightButtonAction: #selector(actionSaveProject))
     }
@@ -69,12 +64,13 @@ final class EditProjectViewController: BaseViewController, EditProjectViewInputP
     
     func updateValidationStyle(textFieldType: EditProjectFieldType, isValid: Bool) {
         let textField: UITextField?
-            switch textFieldType {
-            case .name:
-                textField = nameTextField
-            case .description:
-                textField = descriptionTextField
-            }
+        switch textFieldType {
+            
+        case .name:
+            textField = nameTextField
+        case .description:
+            textField = descriptionTextField
+        }
         guard let textField else { return }
         projectEditView.applyValidationStyle(textField, isValid: isValid)
     }
@@ -93,6 +89,7 @@ extension EditProjectViewController: UITextFieldDelegate {
 private extension EditProjectViewController {
     func fieldType(for textField: UITextField) -> EditProjectFieldType? {
         switch textField {
+            
         case nameTextField:
             return .name
         case descriptionTextField:

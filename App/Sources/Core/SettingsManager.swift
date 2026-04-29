@@ -2,19 +2,19 @@ import Foundation
 
 final class SettingsManager {
     private enum DefaultSettings {
-        static let serverURL = ""
+        static let serverUrl = ""
         static let maxRecords = 50
         static let defaultDaysBetween = 7
     }
     
     private(set) var didFailToLoadConfig = false
     
-    var serverURL: String {
+    var serverUrl: String {
         get {
-            UserDefaults.standard.string(forKey: UserDefaultsKeys.serverURL).unwrappedOrEmpty
+            UserDefaults.standard.string(forKey: UserDefaultsKeys.serverUrl).unwrappedOrEmpty
         }
         set {
-            UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.serverURL)
+            UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.serverUrl)
         }
     }
     
@@ -57,7 +57,7 @@ final class SettingsManager {
             return
         }
         let defaultValues: [String: Any] = [
-            UserDefaultsKeys.serverURL : config["serverURL"] as? String ?? DefaultSettings.serverURL,
+            UserDefaultsKeys.serverUrl : config["serverUrl"] as? String ?? DefaultSettings.serverUrl,
             UserDefaultsKeys.maxRecords : config["maxRecords"] as? Int ?? DefaultSettings.maxRecords,
             UserDefaultsKeys.defaultDaysBetween : config["defaultDaysBetween"] as? Int ?? DefaultSettings.defaultDaysBetween
         ]

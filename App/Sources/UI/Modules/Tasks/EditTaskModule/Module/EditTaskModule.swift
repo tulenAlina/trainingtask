@@ -13,7 +13,7 @@ protocol EditTaskModuleOutputProtocol: AnyObject {
 final class EditTaskModule: Module {
     private(set) var view: UIViewController
     private(set) var input: EditTaskModuleInputProtocol
-
+    
     private init(view: UIViewController, input: EditTaskModuleInputProtocol) {
         self.view = view
         self.input = input

@@ -9,7 +9,7 @@ protocol EmployeesModuleInputProtocol {}
 final class EmployeesModule: Module {
     private(set) var view: UIViewController
     private(set) var input: EmployeesModuleInputProtocol
-
+    
     private init(view: UIViewController, input: EmployeesModuleInputProtocol) {
         self.view = view
         self.input = input

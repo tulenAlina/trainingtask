@@ -14,18 +14,18 @@ final class MainMenuPresenter: MainMenuModuleInputProtocol {
 // MARK: - MainMenuViewOutputProtocol
 extension MainMenuPresenter: MainMenuViewOutputProtocol {
     func didTapProjectsButton() {
-        router.pushProjectsScreen()
+        router.pushProjectsModule()
     }
     
     func didTapTasksButton() {
-        router.pushTasksScreen()
+        router.pushTasksModule()
     }
     
     func didTapEmployeesButton() {
-        router.pushEmployeesScreen()
+        router.pushEmployeesModule()
     }
     
     func didTapSettingsButton() {
-        router.pushSettingsScreen()
+        router.pushSettingsModule()
     }
 }

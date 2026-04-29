@@ -10,7 +10,7 @@ protocol ProjectDetailModuleOutputProtocol: AnyObject {
 final class ProjectDetailModule: Module {
     private(set) var view: UIViewController
     private(set) var input: ProjectDetailModuleInputProtocol
-
+    
     private init(view: UIViewController, input: ProjectDetailModuleInputProtocol) {
         self.view = view
         self.input = input

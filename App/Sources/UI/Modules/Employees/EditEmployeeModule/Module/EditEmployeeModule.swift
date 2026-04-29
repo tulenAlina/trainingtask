@@ -13,7 +13,7 @@ protocol EditEmployeeModuleOutputProtocol: AnyObject {
 final class EditEmployeeModule: Module {
     private(set) var view: UIViewController
     private(set) var input: EditEmployeeModuleInputProtocol
-
+    
     private init(view: UIViewController, input: EditEmployeeModuleInputProtocol) {
         self.view = view
         self.input = input

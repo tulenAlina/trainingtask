@@ -1,24 +1,24 @@
 import UIKit
 
 protocol EditTaskRouterInputProtocol {
-    func pushProjectsScreen(output: ProjectSelectionOutputProtocol)
-    func pushEmployeesScreen(output: EmployeeSelectionOutputProtocol)
+    func pushProjectsModule(output: ProjectSelectionOutputProtocol)
+    func pushEmployeesModule(output: EmployeeSelectionOutputProtocol)
     func close()
 }
 
 final class EditTaskRouter: EditTaskRouterInputProtocol {
     weak var viewController: UIViewController?
     
-    func pushProjectsScreen(output: ProjectSelectionOutputProtocol) {
-        let projectsViewController = ProjectsModule.build(selectionOutput: output).view
-        viewController?.navigationController?.pushViewController(projectsViewController, animated: true)
+    func pushProjectsModule(output: ProjectSelectionOutputProtocol) {
+        let projectsModule = ProjectsModule.build(selectionOutput: output)
+        viewController?.navigationController?.pushViewController(projectsModule.view, animated: true)
     }
     
-    func pushEmployeesScreen(output: EmployeeSelectionOutputProtocol) {
-        let employeesViewController = EmployeesModule.build(selectionOutput: output).view 
-        viewController?.navigationController?.pushViewController(employeesViewController, animated: true)
+    func pushEmployeesModule(output: EmployeeSelectionOutputProtocol) {
+        let employeesModule = EmployeesModule.build(selectionOutput: output)
+        viewController?.navigationController?.pushViewController(employeesModule.view, animated: true)
     }
-
+    
     func close() {
         viewController?.navigationController?.popViewController(animated: true)
     }

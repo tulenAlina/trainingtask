@@ -1,7 +1,7 @@
 import UIKit
 
 enum SettingsFieldType {
-    case serverURL
+    case serverUrl
     case maxRecords
     case defaultDaysBetween
 }
@@ -9,7 +9,7 @@ enum SettingsFieldType {
 protocol SettingsViewInputProtocol: AnyObject {
     var requiredFields: [UITextField] { get }
     
-    func setSettingsFields(serverURl: String, maxRecords: String, defaultDaysBetween: String)
+    func setSettingsFields(serverUrl: String, maxRecords: String, defaultDaysBetween: String)
     func applyValidationResults(_ fieldsValidity: [Bool])
     func updateValidationStyle(textFieldType: SettingsFieldType, isValid: Bool)
     func startLoading()
@@ -51,8 +51,8 @@ final class SettingsViewController: BaseViewController, SettingsViewInputProtoco
         output.viewDidLoad()
     }
     
-    func setSettingsFields(serverURl serverURL: String, maxRecords: String, defaultDaysBetween: String) {
-        serverUrlTextField.text = serverURL
+    func setSettingsFields(serverUrl: String, maxRecords: String, defaultDaysBetween: String) {
+        serverUrlTextField.text = serverUrl
         maxRecordsTextField.text = maxRecords
         defaultDaysBetweenTextField.text = defaultDaysBetween
     }
@@ -67,14 +67,15 @@ final class SettingsViewController: BaseViewController, SettingsViewInputProtoco
     
     func updateValidationStyle(textFieldType: SettingsFieldType, isValid: Bool) {
         let textField: UITextField?
-            switch textFieldType {
-            case .serverURL:
-                textField = serverUrlTextField
-            case .maxRecords:
-                textField = maxRecordsTextField
-            case .defaultDaysBetween:
-                textField = defaultDaysBetweenTextField
-            }
+        switch textFieldType {
+            
+        case .serverUrl:
+            textField = serverUrlTextField
+        case .maxRecords:
+            textField = maxRecordsTextField
+        case .defaultDaysBetween:
+            textField = defaultDaysBetweenTextField
+        }
         guard let textField else { return }
         settingsEditView.applyValidationStyle(textField, isValid: isValid)
     }
@@ -93,8 +94,9 @@ extension SettingsViewController: UITextFieldDelegate {
 private extension SettingsViewController {
     func fieldType(for textField: UITextField) -> SettingsFieldType? {
         switch textField {
+            
         case serverUrlTextField:
-            return .serverURL
+            return .serverUrl
         case maxRecordsTextField:
             return .maxRecords
         case defaultDaysBetweenTextField:

@@ -1,5 +1,5 @@
 enum UserDefaultsKeys {
-    static let serverURL = "serverURL"
+    static let serverUrl = "serverUrl"
     static let maxRecords = "maxRecords"
     static let defaultDaysBetween = "defaultDaysBetween"
 }

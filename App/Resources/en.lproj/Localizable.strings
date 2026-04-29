@@ -47,7 +47,7 @@
 "last_name_placeholder" = "Enter last name";
 "surname_placeholder" = "Enter patronymic (if any)";
 "position_placeholder" = "Enter position";
-"server_url_placeholder" = "Enter server URL";
+"server_Url_placeholder" = "Enter server Url";
 "max_records_placeholder" = "Enter maximum number of records in lists";
 "default_days_between_placeholder" = "Enter default number of days between start and end dates";
 "name_placeholder" = "Enter name";
@@ -68,7 +68,7 @@
 "end_date_label" = "End date:";
 "employee_label" = "Employee:";
 "status_label" = "Status:";
-"server_url_label" = "Server URL:";
+"server_Url_label" = "Server Url:";
 "max_records_label" = "Maximum number of records in lists:";
 "default_days_between_label" = "Default days between start and end dates:";
 "not_assigned" = "not assigned";

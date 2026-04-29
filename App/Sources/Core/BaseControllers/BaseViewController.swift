@@ -24,7 +24,7 @@ class BaseViewController: UIViewController {
         view.isUserInteractionEnabled = false
         navigationRightButton?.isEnabled = false
     }
-        
+    
     func stopLoading() {
         loadingIndicator.stopAnimating()
         view.isUserInteractionEnabled = true

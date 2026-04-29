@@ -13,7 +13,7 @@ protocol EditProjectModuleOutputProtocol: AnyObject {
 final class EditProjectModule: Module {
     private(set) var view: UIViewController
     private(set) var input: EditProjectModuleInputProtocol
-
+    
     private init(view: UIViewController, input: EditProjectModuleInputProtocol) {
         self.view = view
         self.input = input

@@ -37,7 +37,7 @@ extension TaskDetailPresenter: EditTaskModuleOutputProtocol {
             startDate: DateHelper.string(from: task.startDate),
             endDate: DateHelper.string(from: task.endDate)
         )
-            
+        
         view?.configure(with: displayedTask)
         output?.didUpdateTask(task, project: project, employee: employee)
     }
@@ -64,7 +64,7 @@ extension TaskDetailPresenter: TaskDetailViewOutputProtocol {
     }
     
     func didTapChangeButton() {
-        router.pushEditScreen(
+        router.pushEditModule(
             task: task,
             project: project,
             isOpenedFromProject: isOpenedFromProject,

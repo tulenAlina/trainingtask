@@ -1,24 +1,24 @@
 import UIKit
 
 protocol ProjectsRouterInputProtocol {
-    func pushDetailScreen(for project: Project, output: ProjectDetailModuleOutputProtocol)
-    func pushAddProjectScreen(output: EditProjectModuleOutputProtocol)
+    func pushDetailModule(for project: Project, output: ProjectDetailModuleOutputProtocol)
+    func pushAddProjectModule(output: EditProjectModuleOutputProtocol)
     func close()
 }
 
 final class ProjectsRouter: ProjectsRouterInputProtocol {
     weak var viewController: UIViewController?
-
-    func pushDetailScreen(for project: Project, output: ProjectDetailModuleOutputProtocol) {
+    
+    func pushDetailModule(for project: Project, output: ProjectDetailModuleOutputProtocol) {
         
         let detailModule = ProjectDetailModule.build(project: project, output: output)
         viewController?.navigationController?.pushViewController(detailModule.view, animated: true)
     }
     
-    func pushAddProjectScreen(output: EditProjectModuleOutputProtocol) {
-        let editModuleViewController = EditProjectModule.build(output: output)
-        editModuleViewController.input.createProject()
-        viewController?.navigationController?.pushViewController(editModuleViewController.view, animated: true)
+    func pushAddProjectModule(output: EditProjectModuleOutputProtocol) {
+        let editModule = EditProjectModule.build(output: output)
+        editModule.input.createProject()
+        viewController?.navigationController?.pushViewController(editModule.view, animated: true)
     }
     
     func close() {

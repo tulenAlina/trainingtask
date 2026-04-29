@@ -37,12 +37,12 @@ extension ProjectsPresenter: ProjectsViewOutputProtocol {
             selectionOutput.didSelectProject(project)
             router.close()
         } else {
-            router.pushDetailScreen(for: project, output: self)
+            router.pushDetailModule(for: project, output: self)
         }
     }
     
     func didTapAddButton() {
-        router.pushAddProjectScreen(output: self)
+        router.pushAddProjectModule(output: self)
     }
 }
 
@@ -91,7 +91,7 @@ private extension ProjectsPresenter {
     func deleteProject(_ projectID: UUID) {
         view?.startLoading()
         guard let index = view?.firstIndex(where: { $0.id == projectID }) else { return }
-
+        
         Task {
             do {
                 try await interactor.deleteProject(projectID)

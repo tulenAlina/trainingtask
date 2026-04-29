@@ -6,7 +6,7 @@
 	<integer>7</integer>
 	<key>maxRecords</key>
 	<integer>50</integer>
-	<key>serverURL</key>
+	<key>serverUrl</key>
 	<string>http://localhost:8080</string>
 </dict>
 </plist>

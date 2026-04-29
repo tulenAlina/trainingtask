@@ -75,7 +75,7 @@ private extension EditEmployeePresenter {
             let lastName = employee.lastName
             let surName = employee.surName.unwrappedOrEmpty
             let position = employee.position
-        
+            
             view?.setEmployeeFields(
                 firstName: firstName,
                 lastName: lastName,
@@ -117,14 +117,15 @@ private extension EditEmployeePresenter {
             do {
                 let newEmployee = createEmployee(from: employee, firstName: firstName, lastName: lastName, surName: surName, position: position)
                 employee != nil ? try await interactor.updateEmployee(newEmployee) : try await interactor.createEmployee(newEmployee)
-
+                
                 await MainActor.run {
                     switch self.action {
+                        
                     case .create:
                         output?.didCreateEmployee(newEmployee)
                     case .update:
                         output?.didUpdateEmployee(newEmployee)
-                                        }
+                    }
                     view?.stopLoading()
                     router.close()
                 }
@@ -136,23 +137,12 @@ private extension EditEmployeePresenter {
             }
         }
     }
-
+    
     func validateFields(firstName: String, lastName: String, position: String) -> Bool {
-        guard let view else {
-            return false
-        }
-        var fieldsValidity: [Bool] = []
-        var isValid = true
+        let fieldsValidity = [firstName, lastName, position].map { $0?.isBlank == false }
+        let isValid = fieldsValidity.allSatisfy {$0}
         
-        for text in [firstName, lastName, position] {
-            if text.isBlank == true {
-                fieldsValidity.append(false)
-                isValid = false
-            } else {
-                fieldsValidity.append(true)
-            }
-        }
-        view.applyValidationResults(fieldsValidity)
+        view?.applyValidationResults(fieldsValidity)
         return isValid
     }
     

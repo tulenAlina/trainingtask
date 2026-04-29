@@ -62,6 +62,7 @@ extension TasksViewController: UITableViewDataSource {
         cell.detailTextLabel?.text = cellViewModel?.projectName
         
         switch cellViewModel?.status {
+            
         case .notStarted:
             cell.imageView?.image = UIImage(systemName: "circle")
         case .inProgress:
@@ -92,12 +93,12 @@ private extension TasksViewController {
         setupNavigationBar(navigationTitle: Localized.tasks, rightButtonSystemItem: .add, rightButtonAction: #selector(actionAddTask))
         setupTableView()
     }
-
+    
     func loadData() {
         startLoading()
         refreshData()
     }
-
+    
     @objc func actionAddTask() {
         output.didTapAddButton()
     }

@@ -27,7 +27,7 @@ extension SettingsPresenter: SettingsViewOutputProtocol {
             router.close()
             return
         }
-        interactor.updateSettings(serverURL: serverUrl, maxRecords: maxRecords.cleanedInt, defaultDaysBetween: defaultDaysBetween.cleanedInt)
+        interactor.updateSettings(serverUrl: serverUrl, maxRecords: maxRecords.cleanedInt, defaultDaysBetween: defaultDaysBetween.cleanedInt)
         router.close()
     }
     
@@ -44,7 +44,7 @@ extension SettingsPresenter: SettingsViewOutputProtocol {
 private extension SettingsPresenter {
     func isFieldsChanged(serverUrl: String, maxRecords: String, defaultDaysBetween: String) -> Bool {
         let settings = interactor.getCurrentSettings()
-        let serverUrlChanged = serverUrl != settings.serverURL
+        let serverUrlChanged = serverUrl != settings.serverUrl
         let maxRecordsChanged = maxRecords != String(settings.maxRecords)
         let defaultDaysBetweenChanged = defaultDaysBetween != String(settings.defaultDaysBetween)
         return serverUrlChanged || maxRecordsChanged || defaultDaysBetweenChanged
@@ -53,28 +53,17 @@ private extension SettingsPresenter {
     func configureFields() {
         let settings = interactor.getCurrentSettings()
         view?.setSettingsFields(
-            serverURl: settings.serverURL,
+            serverUrl: settings.serverUrl,
             maxRecords: "\(settings.maxRecords)",
             defaultDaysBetween: "\(settings.defaultDaysBetween)"
         )
     }
-
+    
     func validateFields(serverUrl: String, maxRecords: String, defaultDaysBetween: String) -> Bool {
-        guard let view else {
-            return false
-        }
-        var fieldsValidity: [Bool] = []
-        var isValid = true
+        let fieldsValidity = [serverUrl, maxRecords, defaultDaysBetween].map { $0?.isBlank == false }
+        let isValid = fieldsValidity.allSatisfy {$0}
         
-        for text in [serverUrl, maxRecords, defaultDaysBetween] {
-            if text.isBlank == true {
-                fieldsValidity.append(false)
-                isValid = false
-            } else {
-                fieldsValidity.append(true)
-            }
-        }
-        view.applyValidationResults(fieldsValidity)
+        view?.applyValidationResults(fieldsValidity)
         return isValid
     }
     

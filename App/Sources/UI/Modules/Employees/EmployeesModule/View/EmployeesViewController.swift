@@ -87,12 +87,12 @@ private extension EmployeesViewController {
     func setupView() {
         setupTableView()
     }
-
+    
     func loadData() {
         startLoading()
         refreshData()
     }
-
+    
     @objc func actionAddEmployee() {
         output.didTapAddButton()
     }

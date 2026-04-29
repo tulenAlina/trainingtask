@@ -4,7 +4,7 @@ enum Localized {
     static let error = "error".localized
     static let success = "success".localized
     static let warning = "warning".localized
-
+    
     static let projects = "projects".localized
     static let tasks = "tasks".localized
     static let employees = "employees".localized
@@ -20,7 +20,7 @@ enum Localized {
     static let employeeDetails = "employee_details".localized
     static let projectDetails = "project_details".localized
     static let mainMenu = "main_menu".localized
-
+    
     static let save = "save".localized
     static let cancel = "cancel".localized
     static let clear = "clear".localized
@@ -32,12 +32,12 @@ enum Localized {
     static let change = "change".localized
     static let done = "done".localized
     static let openTasks = "open_tasks".localized
-
+    
     static let notStarted = "not_started".localized
     static let inProgress = "in_progress".localized
     static let completed = "completed".localized
     static let postponed = "postponed".localized
-
+    
     static let taskNamePlaceholder = "task_name_placeholder".localized
     static let selectedProjectNamePlaceholder = "select_project_placeholder".localized
     static let projectNamePlaceholder = "project_name_placeholder".localized
@@ -55,7 +55,7 @@ enum Localized {
     static let defaultDaysBetweenPlaceholder = "default_days_between_placeholder".localized
     static let namePlaceholder = "name_placeholder".localized
     static let descriptionPlaceholder = "description_placeholder".localized
-
+    
     static let nameLabel = "name_label".localized
     static let descriptionLabel = "description_label".localized
     static let firstNameLabel = "first_name_label".localized
@@ -76,11 +76,11 @@ enum Localized {
     static let notAssignedLabel = "not_assigned".localized
     static let unknownProjectLabel = "unknown_project".localized
     static let noLabel = "no".localized
-
+    
     static let noProjects = "no_projects".localized
     static let noTasks = "no_tasks".localized
     static let noEmployees = "no_employees".localized
-
+    
     static let errorTitle = "error_title".localized
     static let loadFailed = "load_failed".localized
     static let saveFailed = "save_failed".localized
@@ -93,10 +93,10 @@ enum Localized {
     static let maxRecordsReached = "max_records_reached".localized
     static let emptyFields = "empty_fields".localized
     static let configFileUploadError = "config_file_upload_error".localized
-
+    
     static let deleteProject = "delete_project_confirmation".localized
     static let deleteTask = "delete_task_confirmation".localized
     static let deleteEmployee = "delete_employee_confirmation".localized
-
+    
     static let version = "version_prefix".localized
 }

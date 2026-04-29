@@ -5,7 +5,7 @@ protocol TasksModuleInputProtocol {}
 final class TasksModule: Module {
     private(set) var view: UIViewController
     private(set) var input: TasksModuleInputProtocol
-
+    
     private init(view: UIViewController, input: TasksModuleInputProtocol) {
         self.view = view
         self.input = input

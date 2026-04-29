@@ -10,7 +10,7 @@ protocol EmployeeDetailModuleOutputProtocol: AnyObject {
 final class EmployeeDetailModule: Module {
     private(set) var view: UIViewController
     private(set) var input: EmployeeDetailModuleInputProtocol
-
+    
     private init(view: UIViewController, input: EmployeeDetailModuleInputProtocol) {
         self.view = view
         self.input = input

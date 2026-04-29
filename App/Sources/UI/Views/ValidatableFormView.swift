@@ -44,7 +44,7 @@ final class ValidatableFormView: UIView {
     private func setupView() {
         translatesAutoresizingMaskIntoConstraints = false
         addSubview(contentScrollView)
-                
+        
         NSLayoutConstraint.activate([
             contentScrollView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: Spacing.medium),
             contentScrollView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Spacing.extraLarge),

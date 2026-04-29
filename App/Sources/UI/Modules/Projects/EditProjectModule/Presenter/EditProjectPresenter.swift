@@ -71,7 +71,7 @@ private extension EditProjectPresenter {
         if let project {
             let name = project.projectName
             let description = project.description
-        
+            
             view?.setProjectFields(
                 name: name,
                 description: description
@@ -105,14 +105,15 @@ private extension EditProjectPresenter {
             do {
                 let newProject = createProject(from: project, name: name, description: description)
                 project != nil ? try await interactor.updateProject(newProject) : try await interactor.createProject(newProject)
-
+                
                 await MainActor.run {
                     switch self.action {
+                        
                     case .create:
                         output?.didCreateProject(newProject)
                     case .update:
                         output?.didUpdateProject(newProject)
-                                        }
+                    }
                     view?.stopLoading()
                     router.close()
                 }
@@ -124,23 +125,12 @@ private extension EditProjectPresenter {
             }
         }
     }
-
+    
     func validateFields(name: String, description: String) -> Bool {
-        guard let view else {
-            return false
-        }
-        var fieldsValidity: [Bool] = []
-        var isValid = true
+        let fieldsValidity = [name, description].map { $0?.isBlank == false }
+        let isValid = fieldsValidity.allSatisfy {$0}
         
-        for text in [name, description] {
-            if text.isBlank == true {
-                fieldsValidity.append(false)
-                isValid = false
-            } else {
-                fieldsValidity.append(true)
-            }
-        }
-        view.applyValidationResults(fieldsValidity)
+        view?.applyValidationResults(fieldsValidity)
         return isValid
     }
     

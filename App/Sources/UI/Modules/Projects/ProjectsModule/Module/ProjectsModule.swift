@@ -9,7 +9,7 @@ protocol ProjectsModuleInputProtocol {}
 final class ProjectsModule: Module {
     private(set) var view: UIViewController
     private(set) var input: ProjectsModuleInputProtocol
-
+    
     private init(view: UIViewController, input: ProjectsModuleInputProtocol) {
         self.view = view
         self.input = input

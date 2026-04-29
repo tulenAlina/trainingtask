@@ -1,6 +1,6 @@
 protocol SettingsInteractorInputProtocol {
-    func getCurrentSettings() -> (serverURL: String, maxRecords: Int, defaultDaysBetween: Int)
-    func updateSettings(serverURL: String, maxRecords: Int, defaultDaysBetween: Int)
+    func getCurrentSettings() -> (serverUrl: String, maxRecords: Int, defaultDaysBetween: Int)
+    func updateSettings(serverUrl: String, maxRecords: Int, defaultDaysBetween: Int)
 }
 
 protocol SettingsInteractorOutputProtocol: AnyObject {}
@@ -14,12 +14,12 @@ final class SettingsInteractor: SettingsInteractorInputProtocol {
         self.settings = settings
     }
     
-    func getCurrentSettings() -> (serverURL: String, maxRecords: Int, defaultDaysBetween: Int) {
-        return (settings.serverURL, settings.maxRecords, settings.defaultDaysBetween)
+    func getCurrentSettings() -> (serverUrl: String, maxRecords: Int, defaultDaysBetween: Int) {
+        return (settings.serverUrl, settings.maxRecords, settings.defaultDaysBetween)
     }
     
-    func updateSettings(serverURL: String, maxRecords: Int, defaultDaysBetween: Int) {
-        settings.serverURL = serverURL
+    func updateSettings(serverUrl: String, maxRecords: Int, defaultDaysBetween: Int) {
+        settings.serverUrl = serverUrl
         settings.maxRecords = maxRecords
         settings.defaultDaysBetween = defaultDaysBetween
     }

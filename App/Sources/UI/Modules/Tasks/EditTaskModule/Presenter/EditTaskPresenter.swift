@@ -58,11 +58,11 @@ extension EditTaskPresenter: EditTaskViewOutputProtocol {
     }
     
     func didTapSelectProject() {
-        router.pushProjectsScreen(output: self)
+        router.pushProjectsModule(output: self)
     }
-
+    
     func didTapSelectEmployee() {
-        router.pushEmployeesScreen(output: self)
+        router.pushEmployeesModule(output: self)
     }
     
     func didTapClearEmployee() {
@@ -121,7 +121,7 @@ private extension EditTaskPresenter {
             let startDate = DateHelper.string(from: task.startDate)
             let endDate = DateHelper.string(from: task.endDate)
             let employee = employee?.fullName
-        
+            
             view?.setTaskFields(
                 taskName: taskName,
                 projectName: projectName,
@@ -196,14 +196,15 @@ private extension EditTaskPresenter {
             do {
                 let newTask = createTask(from: task, newTaskName: taskNameString, newProjectID: project.id, newWorkTime: workTime.cleanedInt, newStartDateString: startDateString, newEndDateString: endDateString, newStatusIndex: statusIndex, newEmployeeID: employee?.id)
                 task != nil ? try await interactor.updateTask(newTask) : try await interactor.createTask(newTask)
-
+                
                 await MainActor.run {
                     switch self.action {
+                        
                     case .create:
                         output?.didCreateTask(newTask)
                     case .update:
                         output?.didUpdateTask(newTask, project: project, employee: employee)
-                                        }
+                    }
                     view?.stopLoading()
                     router.close()
                 }
@@ -215,23 +216,12 @@ private extension EditTaskPresenter {
             }
         }
     }
-
+    
     func validateFields(taskNameString: String, projectName: String?, workTime: String) -> Bool {
-        guard let view else {
-            return false
-        }
-        var fieldsValidity: [Bool] = []
-        var isValid = true
+        let fieldsValidity = [taskNameString, projectName, workTime].map { $0?.isBlank == false }
+        let isValid = fieldsValidity.allSatisfy {$0}
         
-        for text in [taskNameString, projectName, workTime] {
-            if text == nil || text?.isBlank == true {
-                fieldsValidity.append(false)
-                isValid = false
-            } else {
-                fieldsValidity.append(true)
-            }
-        }
-        view.applyValidationResults(fieldsValidity)
+        view?.applyValidationResults(fieldsValidity)
         return isValid
     }
     

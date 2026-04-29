@@ -46,11 +46,11 @@ extension TasksPresenter: TasksViewOutputProtocol {
         
         let currentEmployee = employees.first { $0.id == task.employeeID }
         
-        router.pushDetailScreen(for: task, project: currentProject, employee: currentEmployee, isOpenedFromProject: isOpenedFromProject, output: self)
+        router.pushDetailModule(for: task, project: currentProject, employee: currentEmployee, isOpenedFromProject: isOpenedFromProject, output: self)
     }
     
     func didTapAddButton() {
-        router.pushAddTaskScreen(project: project, output: self)
+        router.pushAddTaskModule(project: project, output: self)
     }
     
     func viewModelForTask(at index: Int) -> TaskCellViewModel? {
@@ -116,7 +116,7 @@ private extension TasksPresenter {
     func deleteTask(_ taskID: UUID) {
         view?.startLoading()
         guard let index = view?.firstIndex(where: { $0.id == taskID }) else { return }
-
+        
         Task {
             do {
                 try await interactor.deleteTask(taskID)

@@ -10,7 +10,7 @@ protocol TaskDetailModuleOutputProtocol: AnyObject {
 final class TaskDetailModule: Module {
     private(set) var view: UIViewController
     private(set) var input: TaskDetailModuleInputProtocol
-
+    
     private init(view: UIViewController, input: TaskDetailModuleInputProtocol) {
         self.view = view
         self.input = input
