@@ -2,7 +2,7 @@ import UIKit
 
 protocol EmployeesRouterInputProtocol {
     func pushDetailModule(for employee: Employee, output: EmployeeDetailModuleOutputProtocol)
-    func pushAddEmployeeModule(output: EditEmployeeModuleOutputProtocol)
+    func pushAddEmployeeModule(output: EmployeeEditModuleOutputProtocol)
     func close()
 }
 
@@ -15,8 +15,8 @@ final class EmployeesRouter: EmployeesRouterInputProtocol {
         viewController?.navigationController?.pushViewController(detailModule.view, animated: true)
     }
     
-    func pushAddEmployeeModule(output: EditEmployeeModuleOutputProtocol) {
-        let editModule = EditEmployeeModule.build(output: output)
+    func pushAddEmployeeModule(output: EmployeeEditModuleOutputProtocol) {
+        let editModule = EmployeeEditModule.build(output: output)
         editModule.input.createEmployee()
         viewController?.navigationController?.pushViewController(editModule.view, animated: true)
     }

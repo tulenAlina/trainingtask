@@ -11,7 +11,7 @@ enum TaskStatus: String, CaseIterable {
     }
 }
 
-enum EditTaskActionType {
+enum TaskEditActionType {
     case create
     case update
 }

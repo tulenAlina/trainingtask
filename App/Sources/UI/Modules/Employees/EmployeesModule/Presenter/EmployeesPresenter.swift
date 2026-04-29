@@ -47,7 +47,7 @@ extension EmployeesPresenter: EmployeesViewOutputProtocol {
 }
 
 // MARK: - EditEmployeeModuleOutputProtocol
-extension EmployeesPresenter: EditEmployeeModuleOutputProtocol {
+extension EmployeesPresenter: EmployeeEditModuleOutputProtocol {
     func didCreateEmployee(_ employee: Employee) {
         view?.addItem(employee)
     }

@@ -1,6 +1,6 @@
 import Foundation
 
-enum EditEmployeeActionType {
+enum EmployeeEditActionType {
     case create
     case update
 }

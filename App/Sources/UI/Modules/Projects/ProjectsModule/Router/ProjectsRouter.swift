@@ -2,7 +2,7 @@ import UIKit
 
 protocol ProjectsRouterInputProtocol {
     func pushDetailModule(for project: Project, output: ProjectDetailModuleOutputProtocol)
-    func pushAddProjectModule(output: EditProjectModuleOutputProtocol)
+    func pushAddProjectModule(output: ProjectEditModuleOutputProtocol)
     func close()
 }
 
@@ -15,8 +15,8 @@ final class ProjectsRouter: ProjectsRouterInputProtocol {
         viewController?.navigationController?.pushViewController(detailModule.view, animated: true)
     }
     
-    func pushAddProjectModule(output: EditProjectModuleOutputProtocol) {
-        let editModule = EditProjectModule.build(output: output)
+    func pushAddProjectModule(output: ProjectEditModuleOutputProtocol) {
+        let editModule = ProjectEditModule.build(output: output)
         editModule.input.createProject()
         viewController?.navigationController?.pushViewController(editModule.view, animated: true)
     }

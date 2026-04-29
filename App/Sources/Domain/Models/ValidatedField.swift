@@ -1,6 +1,6 @@
 import UIKit
 
-struct ValidatedField<FieldType: Hashable> {
+struct ValidatedField {
     let textField: UITextField
     let isValid: Bool
 }

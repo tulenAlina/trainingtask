@@ -16,7 +16,7 @@ final class EmployeeDetailPresenter: EmployeeDetailModuleInputProtocol {
 }
 
 // MARK: - EditEmployeeModuleOutputProtocol
-extension EmployeeDetailPresenter: EditEmployeeModuleOutputProtocol {
+extension EmployeeDetailPresenter: EmployeeEditModuleOutputProtocol {
     func didUpdateEmployee(_ employee: Employee) {
         self.employee = employee
         

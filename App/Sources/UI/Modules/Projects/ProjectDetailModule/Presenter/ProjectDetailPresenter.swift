@@ -16,7 +16,7 @@ final class ProjectDetailPresenter: ProjectDetailModuleInputProtocol {
 }
 
 // MARK: - EditProjectModuleOutputProtocol
-extension ProjectDetailPresenter: EditProjectModuleOutputProtocol {
+extension ProjectDetailPresenter: ProjectEditModuleOutputProtocol {
     func didUpdateProject(_ project: Project) {
         self.project = project
         

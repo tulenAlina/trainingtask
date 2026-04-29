@@ -22,7 +22,7 @@ final class TaskDetailPresenter: TaskDetailModuleInputProtocol {
 }
 
 // MARK: - EditTaskModuleOutputProtocol
-extension TaskDetailPresenter: EditTaskModuleOutputProtocol {
+extension TaskDetailPresenter: TaskEditModuleOutputProtocol {
     func didUpdateTask(_ task: ProjectTask, project: Project?, employee: Employee?) {
         self.task = task
         self.project = project

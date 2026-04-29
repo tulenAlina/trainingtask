@@ -47,7 +47,7 @@ extension ProjectsPresenter: ProjectsViewOutputProtocol {
 }
 
 // MARK: - EditProjectModuleOutputProtocol
-extension ProjectsPresenter: EditProjectModuleOutputProtocol {
+extension ProjectsPresenter: ProjectEditModuleOutputProtocol {
     func didCreateProject(_ project: Project) {
         view?.addItem(project)
     }

@@ -70,7 +70,7 @@ extension TasksPresenter: TasksViewOutputProtocol {
 }
 
 // MARK: - EditTaskModuleOutputProtocol
-extension TasksPresenter: EditTaskModuleOutputProtocol {
+extension TasksPresenter: TaskEditModuleOutputProtocol {
     func didCreateTask(_ task: ProjectTask) {
         view?.addItem(task)
     }
