@@ -5,56 +5,56 @@ import Foundation
 protocol Server {
     // MARK: - Projects
     
-    /// Загружает все проекты с сервера.
-    /// - Returns: Массив проектов.
-    func fetchProjects() async throws -> [Project]
+    /// Загрузить проекты
+    /// - Returns: Список проектов
+    func loadProjects() async throws -> [Project]
     
-    /// Создаёт новый проект на сервере.
-    /// - Parameter project: Проект для создания.
+    /// Создать проект
+    /// - Parameter project: Создаваемый проект
     func createProject(_ project: Project) async throws
     
-    /// Обновляет существующий проект на сервере.
-    /// - Parameter project: Проект с обновлёнными полями.
+    /// Обновить проект
+    /// - Parameter project: Обновляемый проект
     func updateProject(_ project: Project) async throws
     
-    /// Удаляет проект с сервера.
-    /// - Parameter id: UUID удаляемого проекта.
+    /// Удалить проект
+    /// - Parameter id: ID удаляемого проекта
     func deleteProject(_ id: UUID) async throws
     
     // MARK: - Employees
     
-    /// Загружает всех сотрудников с сервера.
-    /// - Returns: Массив сотрудников.
-    func fetchEmployees() async throws -> [Employee]
+    /// Загрузить сотрудников
+    /// - Returns: Список сотрудников
+    func loadEmployees() async throws -> [Employee]
     
-    /// Создаёт нового сотрудника на сервере.
-    /// - Parameter employee: Сотрудник для создания.
+    /// Создать сотрудника
+    /// - Parameter employee: Создаваемый сотрудник
     func createEmployee(_ employee: Employee) async throws
     
-    /// Обновляет существующего сотрудника на сервере.
-    /// - Parameter employee: Сотрудник с обновлёнными полями.
+    /// Обновить сотрудника
+    /// - Parameter employee: Обновляемый сотрудник
     func updateEmployee(_ employee: Employee) async throws
     
-    /// Удаляет сотрудника с сервера.
-    /// - Parameter id: UUID удаляемого сотрудника.
+    /// Удалить сотрудника
+    /// - Parameter id: ID удаляемого сотрудника.
     func deleteEmployee(_ id: UUID) async throws
     
     // MARK: - Tasks
     
-    /// Загружает задачи с сервера.
-    /// - Parameter projectID: ID проекта для фильтрации. Если nil — загружаются все задачи.
-    /// - Returns: Массив задач.
-    func fetchTasks(projectID: UUID?) async throws -> [ProjectTask]
+    /// Загрузить задачи
+    /// - Parameter projectID: ID проекта
+    /// - Returns: Список задач
+    func loadTasks(projectID: UUID?) async throws -> [ProjectTask]
     
-    /// Создаёт новую задачу на сервере.
-    /// - Parameter task: Задача для создания.
+    /// Создать задачу
+    /// - Parameter task: Создаваемая задача
     func createTask(_ task: ProjectTask) async throws
     
-    /// Обновляет существующую задачу на сервере.
-    /// - Parameter task: Задача с обновлёнными полями.
+    /// Обновить задачу
+    /// - Parameter task: Обновляемая задача
     func updateTask(_ task: ProjectTask) async throws
     
-    /// Удаляет задачу с сервера.
-    /// - Parameter id: UUID удаляемой задачи.
+    /// Удалить задачу
+    /// - Parameter id: ID удаляемой задачи
     func deleteTask(_ id: UUID) async throws
 }

@@ -1,7 +1,7 @@
 import Foundation
 
 protocol EmployeesInteractorInputProtocol {
-    func fetchEmployees() async throws -> [Employee]
+    func loadEmployees() async throws -> [Employee]
     func deleteEmployee(_ employeeID: UUID) async throws
 }
 
@@ -18,8 +18,8 @@ final class EmployeesInteractor: EmployeesInteractorInputProtocol {
         self.settings = settings
     }
     
-    func fetchEmployees() async throws -> [Employee] {
-        return try await server.fetchEmployees()
+    func loadEmployees() async throws -> [Employee] {
+        return try await server.loadEmployees()
     }
     
     func deleteEmployee(_ employeeID: UUID) async throws {

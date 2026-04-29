@@ -15,7 +15,7 @@ class StubServer: Server {
     }
     
     // MARK: - Projects
-    func fetchProjects() async throws -> [Project] {
+    func loadProjects() async throws -> [Project] {
         try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
         var result = Array(projects.values)
         result = result.sorted { $0.createdAt > $1.createdAt }
@@ -29,24 +29,20 @@ class StubServer: Server {
     
     func updateProject(_ project: Project) async throws {
         try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
-        if projects[project.id] == nil {
-            throw Errors.itemNotFound
-        }
+        let project = try validatedProject(project.id)
         projects[project.id] = project
     }
     
     func deleteProject(_ id: UUID) async throws {
         try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
-        guard let project = projects[id] else {
-            throw Errors.itemNotFound
-        }
+        let project = try validatedProject(id)
         try removeAllTasksWithAssignments(of: project)
         
         projects[id] = nil
     }
     
     // MARK: - Employees
-    func fetchEmployees() async throws -> [Employee] {
+    func loadEmployees() async throws -> [Employee] {
         try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
         var result = Array(employees.values)
         result = result.sorted { $0.createdAt > $1.createdAt }
@@ -60,24 +56,20 @@ class StubServer: Server {
     
     func updateEmployee(_ employee: Employee) async throws {
         try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
-        if employees[employee.id] == nil {
-            throw Errors.itemNotFound
-        }
+        let employee = try validatedEmployee(employee.id)
         employees[employee.id] = employee
     }
     
     func deleteEmployee(_ id: UUID) async throws {
         try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
-        guard let employee = employees[id] else {
-            throw Errors.itemNotFound
-        }
+        let employee = try validatedEmployee(id)
         try unassignEmployeeFromTasks(employee: employee)
         
         employees[id] = nil
     }
     
     // MARK: - Tasks
-    func fetchTasks(projectID: UUID?) async throws -> [ProjectTask] {
+    func loadTasks(projectID: UUID?) async throws -> [ProjectTask] {
         try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
         var result = Array(tasks.values)
         if let projectID {
@@ -100,20 +92,28 @@ class StubServer: Server {
     
     func updateTask(_ task: ProjectTask) async throws {
         try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
-        guard let oldTask = tasks[task.id] else {
-            throw Errors.itemNotFound
-        }
+        let oldTask = try validatedTask(task.id)
         
-        try updateTaskProject(oldTask: oldTask, newTask: task)
-        try updateTaskEmployee(oldTask: oldTask, newTask: task)
+        if oldTask.projectID != task.projectID {
+            try updateTaskProject(
+                taskID: task.id,
+                from: oldTask.projectID,
+                to: task.projectID
+            )
+        }
+        if oldTask.employeeID != task.employeeID {
+            try updateTaskEmployee(
+                taskID: task.id,
+                from: oldTask.employeeID,
+                to: task.employeeID
+            )
+        }
         tasks[task.id] = task
     }
     
     func deleteTask(_ id: UUID) async throws {
         try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
-        guard let task = tasks[id] else {
-            throw Errors.itemNotFound
-        }
+        let task = try validatedTask(id)
         
         try removeTaskFromProject(projectID: task.projectID, taskID: id)
         
@@ -149,26 +149,18 @@ private extension StubServer {
         }
     }
     
-    func updateTaskProject(oldTask: ProjectTask, newTask: ProjectTask) throws {
-        guard oldTask.projectID != newTask.projectID else {
-            return
-        }
-        
-        try removeTaskFromProject(projectID: oldTask.projectID, taskID: oldTask.id)
-        try addTaskToProject(projectID: newTask.projectID, taskID: newTask.id)
+    func updateTaskProject(taskID: UUID, from oldProjectID: UUID, to newProjectID: UUID) throws {
+        try removeTaskFromProject(projectID: oldProjectID, taskID: taskID)
+        try addTaskToProject(projectID: newProjectID, taskID: taskID)
     }
     
-    func updateTaskEmployee(oldTask: ProjectTask, newTask: ProjectTask) throws {
-        guard oldTask.employeeID != newTask.employeeID else {
-            return
+    func updateTaskEmployee(taskID: UUID, from oldEmployeeID: UUID?, to newEmployeeID: UUID?) throws {
+        if let oldEmployeeID {
+            try removeTaskFromEmployee(employeeID: oldEmployeeID, taskID: taskID)
         }
         
-        if let employeeID = oldTask.employeeID {
-            try removeTaskFromEmployee(employeeID: employeeID, taskID: oldTask.id)
-        }
-        
-        if let employeeID = newTask.employeeID {
-            try addTaskToEmployee(employeeID: employeeID, taskID: newTask.id)
+        if let newEmployeeID {
+            try addTaskToEmployee(employeeID: newEmployeeID, taskID: taskID)
         }
     }
     
@@ -200,8 +192,7 @@ private extension StubServer {
                 hasErrors = true
                 continue
             }
-            let newTask = createTask(from: task, newEmployeeID: nil)
-            tasks[taskID] = newTask
+            tasks[taskID] = createTask(from: task, newEmployeeID: nil)
         }
         
         if hasErrors {
@@ -219,7 +210,9 @@ private extension StubServer {
             }
             tasks[taskID] = nil
             
-            guard let employeeID = task.employeeID else { continue }
+            guard let employeeID = task.employeeID else {
+                continue
+            }
             try removeTaskFromEmployee(employeeID: employeeID, taskID: taskID)
         }
         
@@ -262,6 +255,45 @@ private extension StubServer {
             employeeID: newEmployeeID,
             createdAt: existing.createdAt
         )
+    }
+    
+    // MARK: - Validation
+    func validateAllTasksExist(in employee: Employee) throws -> Bool {
+        for taskID in employee.tasks {
+            guard tasks[taskID] != nil else {
+                return false
+            }
+        }
+        return true
+    }
+    
+    func validateAllTasksExist(in project: Project) throws {
+        for taskID in project.tasks {
+            guard tasks[taskID] != nil else {
+                throw Errors.itemNotFound
+            }
+        }
+    }
+    
+    func validatedProject(_ id: UUID) throws -> Project {
+        guard let project = projects[id] else {
+            throw Errors.itemNotFound
+        }
+        return project
+    }
+    
+    func validatedTask(_ id: UUID) throws -> ProjectTask {
+        guard let task = tasks[id] else {
+            throw Errors.itemNotFound
+        }
+        return task
+    }
+    
+    func validatedEmployee(_ id: UUID) throws -> Employee {
+        guard let employee = employees[id] else {
+            throw Errors.itemNotFound
+        }
+        return employee
     }
     
     // MARK: - Data

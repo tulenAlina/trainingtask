@@ -1,5 +1,5 @@
 protocol EditTaskInteractorInputProtocol {
-    func fetchData() async throws -> (projects: [Project], employees: [Employee])
+    func loadData() async throws -> (projects: [Project], employees: [Employee])
     func createTask(_ task: ProjectTask) async throws
     func updateTask(_ task: ProjectTask) async throws
     func defaultDaysBetween() -> Int
@@ -18,9 +18,9 @@ final class EditTaskInteractor: EditTaskInteractorInputProtocol {
         self.settings = settings
     }
     
-    func fetchData() async throws -> (projects: [Project], employees: [Employee]) {
-        async let projects = server.fetchProjects()
-        async let employees = server.fetchEmployees()
+    func loadData() async throws -> (projects: [Project], employees: [Employee]) {
+        async let projects = server.loadProjects()
+        async let employees = server.loadEmployees()
         return try await (projects, employees)
     }
     

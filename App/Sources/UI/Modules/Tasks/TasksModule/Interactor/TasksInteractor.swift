@@ -1,7 +1,7 @@
 import Foundation
 
 protocol TasksInteractorInputProtocol {
-    func fetchData(projectID: UUID?) async throws -> (tasks: [ProjectTask], projects: [Project]?, employees: [Employee])
+    func loadData(projectID: UUID?) async throws -> (tasks: [ProjectTask], projects: [Project]?, employees: [Employee])
     func deleteTask(_ taskID: UUID) async throws
 }
 
@@ -18,11 +18,11 @@ final class TasksInteractor: TasksInteractorInputProtocol {
         self.settings = settings
     }
     
-    func fetchData(projectID: UUID?) async throws -> (tasks: [ProjectTask], projects: [Project]?, employees: [Employee])  {
-        async let allTasks = try await server.fetchTasks(projectID: projectID)
-        async let allEmployees = server.fetchEmployees()
+    func loadData(projectID: UUID?) async throws -> (tasks: [ProjectTask], projects: [Project]?, employees: [Employee])  {
+        async let allTasks = try await server.loadTasks(projectID: projectID)
+        async let allEmployees = server.loadEmployees()
         if projectID == nil {
-            async let allProjects = server.fetchProjects()
+            async let allProjects = server.loadProjects()
             return try await (allTasks, allProjects, allEmployees)
         } else {
             return try await (allTasks, nil, allEmployees)

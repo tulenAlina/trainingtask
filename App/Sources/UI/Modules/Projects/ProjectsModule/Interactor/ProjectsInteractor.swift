@@ -1,7 +1,7 @@
 import Foundation
 
 protocol ProjectsInteractorInputProtocol {
-    func fetchProjects() async throws -> [Project]
+    func loadProjects() async throws -> [Project]
     func deleteProject(_ projectID: UUID) async throws
 }
 
@@ -18,8 +18,8 @@ final class ProjectsInteractor: ProjectsInteractorInputProtocol {
         self.settings = settings
     }
     
-    func fetchProjects() async throws -> [Project] {
-        return try await server.fetchProjects()
+    func loadProjects() async throws -> [Project] {
+        return try await server.loadProjects()
     }
     
     func deleteProject(_ projectID: UUID) async throws {

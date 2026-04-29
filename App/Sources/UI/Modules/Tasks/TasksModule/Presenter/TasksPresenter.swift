@@ -90,7 +90,7 @@ extension TasksPresenter: TaskDetailModuleOutputProtocol {
 // MARK: - Private
 private extension TasksPresenter {
     func loadData() async throws {
-        let (tasks, projects, employees) = try await interactor.fetchData(projectID: project?.id)
+        let (tasks, projects, employees) = try await interactor.loadData(projectID: project?.id)
         view?.setItems(tasks)
         self.projects = projects ?? []
         self.employees = employees

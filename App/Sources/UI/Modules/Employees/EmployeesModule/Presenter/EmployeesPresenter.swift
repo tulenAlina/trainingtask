@@ -67,7 +67,7 @@ extension EmployeesPresenter: EmployeeDetailModuleOutputProtocol {
 // MARK: - Private
 private extension EmployeesPresenter {
     func loadData() async throws {
-        employees = try await interactor.fetchEmployees()
+        employees = try await interactor.loadEmployees()
         view?.setItems(employees)
     }
     

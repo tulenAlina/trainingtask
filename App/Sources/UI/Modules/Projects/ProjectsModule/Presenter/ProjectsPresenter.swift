@@ -67,7 +67,7 @@ extension ProjectsPresenter: ProjectDetailModuleOutputProtocol {
 // MARK: - Private
 private extension ProjectsPresenter {
     func loadData() async throws {
-        projects = try await interactor.fetchProjects()
+        projects = try await interactor.loadProjects()
         view?.setItems(projects)
     }
     
