@@ -23,6 +23,7 @@
 		6FBE2CAE2F6AAE9D00B02B5A /* String+Extention.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FBE2CAD2F6AAE9300B02B5A /* String+Extention.swift */; };
 		6FBE2CB02F6AF10100B02B5A /* version.txt in Resources */ = {isa = PBXBuildFile; fileRef = 6FBE2CAF2F6AF10100B02B5A /* version.txt */; };
 		6FBE2CB22F6AF6D700B02B5A /* UserDefaultsKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FBE2CB12F6AF6D300B02B5A /* UserDefaultsKeys.swift */; };
+		6FF223D92FA2A82000E49ED7 /* ValidatedField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FF223D82FA2A81D00E49ED7 /* ValidatedField.swift */; };
 		6FFDD0E12F61933E008CED45 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FFDD0D12F618685008CED45 /* AppDelegate.swift */; };
 		6FFDD0E72F619930008CED45 /* LaunchScreen.storyboard in Sources */ = {isa = PBXBuildFile; fileRef = 6FFDD0CB2F618666008CED45 /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
@@ -45,6 +46,7 @@
 		6FBE2CAD2F6AAE9300B02B5A /* String+Extention.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extention.swift"; sourceTree = "<group>"; };
 		6FBE2CAF2F6AF10100B02B5A /* version.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = version.txt; sourceTree = "<group>"; };
 		6FBE2CB12F6AF6D300B02B5A /* UserDefaultsKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsKeys.swift; sourceTree = "<group>"; };
+		6FF223D82FA2A81D00E49ED7 /* ValidatedField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatedField.swift; sourceTree = "<group>"; };
 		6FFDD0872F616B40008CED45 /* trainingtask.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = trainingtask.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6FFDD0C82F618666008CED45 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6FFDD0C92F618666008CED45 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -213,6 +215,7 @@
 		6FFDD0D82F618685008CED45 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				6FF223D82FA2A81D00E49ED7 /* ValidatedField.swift */,
 				6FBE2C812F62A66000B02B5A /* Employee.swift */,
 				6FBE2C7F2F62A57300B02B5A /* Project.swift */,
 				6FBE2C7D2F62A29E00B02B5A /* ProjectTask.swift */,
@@ -357,6 +360,7 @@
 				6F0F8C972F9676D1003F7AFE /* DesignConstants.swift in Sources */,
 				6FBE2C7E2F62A2AA00B02B5A /* ProjectTask.swift in Sources */,
 				6F696D3B2F8537EA00E4DD4F /* Optional+Extensions.swift in Sources */,
+				6FF223D92FA2A82000E49ED7 /* ValidatedField.swift in Sources */,
 				6FBE2CAA2F698B1D00B02B5A /* UIViewController+Alert.swift in Sources */,
 				6FBE2C802F62A57800B02B5A /* Project.swift in Sources */,
 				6FBE2C862F62AC7300B02B5A /* Server.swift in Sources */,

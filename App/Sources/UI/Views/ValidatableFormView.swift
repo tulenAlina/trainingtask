@@ -1,10 +1,5 @@
 import UIKit
 
-struct ValidatedField {
-    let textField: UITextField
-    let isValid: Bool
-}
-
 final class ValidatableFormView: UIView {
     private let contentScrollView = ScrollableStackView(views: [], spacing: Spacing.medium)
     
