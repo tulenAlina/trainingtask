@@ -34,7 +34,7 @@ final class SettingsViewController: BaseViewController, SettingsViewInputProtoco
     private var maxRecordsTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.maxRecordsPlaceholder)
     private var defaultDaysBetweenTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.defaultDaysBetweenPlaceholder)
     
-    private let settingsEditView = ValidatableFormView()
+    private lazy var settingsEditView = ValidatableFormView(requiredFields: requiredFields)
     
     init(presenter: SettingsViewOutputProtocol) {
         output = presenter
@@ -60,7 +60,7 @@ final class SettingsViewController: BaseViewController, SettingsViewInputProtoco
     func applyValidationResults(_ fieldsValidity: [Bool]) {
         var result: [ValidatedField] = []
         for i in 0..<requiredFields.count {
-            result.append(ValidatedField(textField: requiredFields[i], isValid: fieldsValidity[i]))
+            result.append(ValidatedField(fieldIdentifier: requiredFields[i].accessibilityIdentifier, isValid: fieldsValidity[i]))
         }
         settingsEditView.applyValidationResults(result)
     }
@@ -129,6 +129,10 @@ private extension SettingsViewController {
     }
     
     func setupTextFields() {
+        serverUrlTextField.accessibilityIdentifier = "settings.serverUrl"
+        maxRecordsTextField.accessibilityIdentifier = "settings.maxRecordsTextField"
+        defaultDaysBetweenTextField.accessibilityIdentifier = "settings.defaultDaysBetweenTextField"
+        
         serverUrlTextField.delegate = self
         maxRecordsTextField.delegate = self
         defaultDaysBetweenTextField.delegate = self

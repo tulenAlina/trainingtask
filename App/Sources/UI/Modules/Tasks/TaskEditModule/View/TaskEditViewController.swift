@@ -34,7 +34,6 @@ final class TaskEditViewController: BaseViewController, TaskEditViewInputProtoco
     }
     
     private let toolbar = UIToolbar()
-    private let taskEditView = ValidatableFormView()
     
     private let taskNameTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.taskNamePlaceholder)
     private let projectTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.selectedProjectNamePlaceholder)
@@ -50,6 +49,7 @@ final class TaskEditViewController: BaseViewController, TaskEditViewInputProtoco
     private let clearEmployeeButton = ButtonFactory.createClearButton()
     
     private lazy var employeeHorizontalStack = StackViewFactory.createHorizontalStackView(views: [employeeTextField, clearEmployeeButton], spacing: 5)
+    private lazy var taskEditView = ValidatableFormView(requiredFields: requiredFields)
     
     init(presenter: TaskEditViewOutputProtocol) {
         output = presenter
@@ -118,7 +118,7 @@ final class TaskEditViewController: BaseViewController, TaskEditViewInputProtoco
     func applyValidationResults(_ fieldsValidity: [Bool]) {
         var result: [ValidatedField] = []
         for i in 0..<requiredFields.count {
-            result.append(ValidatedField(textField: requiredFields[i], isValid: fieldsValidity[i]))
+            result.append(ValidatedField(fieldIdentifier: requiredFields[i].accessibilityIdentifier, isValid: fieldsValidity[i]))
         }
         taskEditView.applyValidationResults(result)
     }
@@ -238,6 +238,13 @@ private extension TaskEditViewController {
     }
     
     func setupTextFields() {
+        taskNameTextField.accessibilityIdentifier = "task.taskNameTextField"
+        projectTextField.accessibilityIdentifier = "task.projectTextField"
+        workTimeTextField.accessibilityIdentifier = "task.workTimeTextField"
+        startDateTextField.accessibilityIdentifier = "task.startDateTextField"
+        endDateTextField.accessibilityIdentifier = "task.endDateTextField"
+        employeeTextField.accessibilityIdentifier = "task.employeeTextField"
+        
         workTimeTextField.keyboardType = .numberPad
         
         startDateTextField.text = DateHelper.string(from: Date())

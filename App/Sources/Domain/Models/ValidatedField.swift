@@ -1,6 +1,6 @@
 import UIKit
 
 struct ValidatedField {
-    let textField: UITextField
+    let fieldIdentifier: String?
     let isValid: Bool
 }

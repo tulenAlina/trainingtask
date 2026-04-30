@@ -30,7 +30,7 @@ final class EmployeeEditViewController: BaseViewController, EmployeeEditViewInpu
     private var surNameTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.surnamePlaceholder)
     private var positionTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.positionPlaceholder)
     
-    private let employeeEditView = ValidatableFormView()
+    private lazy var employeeEditView = ValidatableFormView(requiredFields: requiredFields)
     
     init(presenter: EmployeeEditViewOutputProtocol) {
         output = presenter
@@ -61,7 +61,7 @@ final class EmployeeEditViewController: BaseViewController, EmployeeEditViewInpu
     func applyValidationResults(_ fieldsValidity: [Bool]) {
         var result: [ValidatedField] = []
         for i in 0..<requiredFields.count {
-            result.append(ValidatedField(textField: requiredFields[i], isValid: fieldsValidity[i]))
+            result.append(ValidatedField(fieldIdentifier: requiredFields[i].accessibilityIdentifier, isValid: fieldsValidity[i]))
         }
         employeeEditView.applyValidationResults(result)
     }
@@ -134,6 +134,11 @@ private extension EmployeeEditViewController {
     }
     
     func setupTextFields() {
+        firstNameTextField.accessibilityIdentifier = "employee.firstNameTextField"
+        lastNameTextField.accessibilityIdentifier = "employee.lastNameTextField"
+        surNameTextField.accessibilityIdentifier = "employee.surNameTextField"
+        positionTextField.accessibilityIdentifier = "employee.positionTextField"
+        
         firstNameTextField.delegate = self
         lastNameTextField.delegate = self
         surNameTextField.delegate = self

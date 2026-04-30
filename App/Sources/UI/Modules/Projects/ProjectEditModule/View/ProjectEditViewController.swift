@@ -28,7 +28,7 @@ final class ProjectEditViewController: BaseViewController, ProjectEditViewInputP
     private var nameTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.projectNamePlaceholder)
     private var descriptionTextField = TextFieldFactory.createDefaultTextField(placeholder: Localized.projectDescriptionPlaceholder)
     
-    private let projectEditView = ValidatableFormView()
+    private lazy var projectEditView = ValidatableFormView(requiredFields: requiredFields)
     
     init(presenter: ProjectEditViewOutputProtocol) {
         output = presenter
@@ -57,7 +57,7 @@ final class ProjectEditViewController: BaseViewController, ProjectEditViewInputP
     func applyValidationResults(_ fieldsValidity: [Bool]) {
         var result: [ValidatedField] = []
         for i in 0..<requiredFields.count {
-            result.append(ValidatedField(textField: requiredFields[i], isValid: fieldsValidity[i]))
+            result.append(ValidatedField(fieldIdentifier: requiredFields[i].accessibilityIdentifier, isValid: fieldsValidity[i]))
         }
         projectEditView.applyValidationResults(result)
     }
@@ -120,6 +120,9 @@ private extension ProjectEditViewController {
     }
     
     func setupTextFields() {
+        nameTextField.accessibilityIdentifier = "project.nameTextField"
+        descriptionTextField.accessibilityIdentifier = "project.descriptionTextField"
+        
         nameTextField.delegate = self
         descriptionTextField.delegate = self
     }

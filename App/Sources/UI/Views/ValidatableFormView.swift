@@ -2,9 +2,11 @@ import UIKit
 
 final class ValidatableFormView: UIView {
     private let contentScrollView = ScrollableStackView(views: [], spacing: Spacing.medium)
+    private let requiredFields: [UITextField]
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(requiredFields: [UITextField]) {
+        self.requiredFields = requiredFields
+        super.init(frame: .zero)
         setupView()
     }
     
@@ -22,7 +24,10 @@ final class ValidatableFormView: UIView {
     
     func applyValidationResults(_ results: [ValidatedField]) {
         for result in results {
-            applyValidationStyle(result.textField, isValid: result.isValid)
+            guard let textField = requiredFields.first(where: {$0.accessibilityIdentifier == result.fieldIdentifier}) else {
+                continue
+            }
+            applyValidationStyle(textField, isValid: result.isValid)
         }
     }
     
