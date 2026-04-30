@@ -63,7 +63,7 @@ class StubServer: Server {
     func deleteEmployee(_ id: UUID) async throws {
         try await Task.sleep(nanoseconds: sleepTimeInNanoseconds)
         let employee = try validatedEmployee(id)
-        try unassignEmployeeFromTasks(employee: employee)
+        unassignEmployeeFromTasks(employee: employee)
         
         employees[id] = nil
     }
@@ -184,40 +184,24 @@ private extension StubServer {
         }
     }
     
-    func unassignEmployeeFromTasks(employee: Employee) throws {
-        var hasErrors = false
-        
+    func unassignEmployeeFromTasks(employee: Employee) {
         for taskID in employee.tasks {
-            guard let task = tasks[taskID] else {
-                hasErrors = true
-                continue
+            if let task = tasks[taskID] {
+                tasks[taskID] = createTask(from: task, newEmployeeID: nil)
             }
-            tasks[taskID] = createTask(from: task, newEmployeeID: nil)
-        }
-        
-        if hasErrors {
-            throw Errors.itemNotFound
         }
     }
     
     func removeAllTasksWithAssignments(of project: Project) throws {
-        var hasErrors = false
-        
         for taskID in project.tasks {
             guard let task = tasks[taskID] else {
-                hasErrors = true
                 continue
             }
             tasks[taskID] = nil
             
-            guard let employeeID = task.employeeID else {
-                continue
+            if let employeeID = task.employeeID {
+                try removeTaskFromEmployee(employeeID: employeeID, taskID: taskID)
             }
-            try removeTaskFromEmployee(employeeID: employeeID, taskID: taskID)
-        }
-        
-        if hasErrors {
-            throw Errors.itemNotFound
         }
     }
     
@@ -258,23 +242,6 @@ private extension StubServer {
     }
     
     // MARK: - Validation
-    func validateAllTasksExist(in employee: Employee) throws -> Bool {
-        for taskID in employee.tasks {
-            guard tasks[taskID] != nil else {
-                return false
-            }
-        }
-        return true
-    }
-    
-    func validateAllTasksExist(in project: Project) throws {
-        for taskID in project.tasks {
-            guard tasks[taskID] != nil else {
-                throw Errors.itemNotFound
-            }
-        }
-    }
-    
     func validatedProject(_ id: UUID) throws -> Project {
         guard let project = projects[id] else {
             throw Errors.itemNotFound
