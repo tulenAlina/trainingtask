@@ -1,6 +1,6 @@
 import Foundation
 
-final class EmployeesPresenter: EmployeesModuleInputProtocol {
+final class EmployeesPresenter: EmployeesModuleInputProtocol, EmployeesInteractorOutputProtocol {
     weak var view: EmployeesViewInputProtocol?
     private let interactor: EmployeesInteractorInputProtocol
     private var router: EmployeesRouterInputProtocol
@@ -63,9 +63,6 @@ extension EmployeesPresenter: EmployeeDetailModuleOutputProtocol {
         deleteEmployee(employeeID)
     }
 }
-
-// MARK: - EmployeesInteractorOutputProtocol
-extension EmployeesPresenter: EmployeesInteractorOutputProtocol {}
 
 // MARK: - Private
 private extension EmployeesPresenter {

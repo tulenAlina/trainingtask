@@ -1,6 +1,6 @@
 import Foundation
 
-final class EmployeeDetailPresenter: EmployeeDetailModuleInputProtocol {
+final class EmployeeDetailPresenter: EmployeeDetailModuleInputProtocol, EmployeeDetailInteractorOutputProtocol {
     weak var view: EmployeeDetailViewInputProtocol?
     weak var output: EmployeeDetailModuleOutputProtocol?
     private let interactor: EmployeeDetailInteractorInputProtocol
@@ -48,6 +48,3 @@ extension EmployeeDetailPresenter: EmployeeDetailViewOutputProtocol {
         router.close()
     }
 }
-
-// MARK: - EmployeeDetailInteractorOutputProtocol
-extension EmployeeDetailPresenter: EmployeeDetailInteractorOutputProtocol {}

@@ -6,7 +6,7 @@ struct TaskCellViewModel {
     let status: TaskStatus
 }
 
-final class TasksPresenter: TasksModuleInputProtocol {
+final class TasksPresenter: TasksModuleInputProtocol, TasksInteractorOutputProtocol {
     weak var view: TasksViewInputProtocol?
     private let interactor: TasksInteractorInputProtocol
     private var router: TasksRouterInputProtocol
@@ -86,9 +86,6 @@ extension TasksPresenter: TaskDetailModuleOutputProtocol {
         deleteTask(taskID)
     }
 }
-
-// MARK: - TasksInteractorOutputProtocol
-extension TasksPresenter: TasksInteractorOutputProtocol {}
 
 // MARK: - Private
 private extension TasksPresenter {

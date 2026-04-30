@@ -1,6 +1,6 @@
 import Foundation
 
-final class EmployeeEditPresenter: EmployeeEditModuleInputProtocol {
+final class EmployeeEditPresenter: EmployeeEditModuleInputProtocol, EmployeeEditInteractorOutputProtocol {
     weak var view: EmployeeEditViewInputProtocol?
     weak var output: EmployeeEditModuleOutputProtocol?
     private let interactor: EmployeeEditInteractorInputProtocol
@@ -54,9 +54,6 @@ extension EmployeeEditPresenter: EmployeeEditViewOutputProtocol {
         }
     }
 }
-
-// MARK: - EmployeeEditInteractorOutputProtocol
-extension EmployeeEditPresenter: EmployeeEditInteractorOutputProtocol {}
 
 // MARK: - Private
 private extension EmployeeEditPresenter {

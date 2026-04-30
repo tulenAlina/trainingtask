@@ -1,6 +1,6 @@
 import Foundation
 
-final class MainMenuPresenter: MainMenuModuleInputProtocol {
+final class MainMenuPresenter: MainMenuModuleInputProtocol, MainMenuInteractorOutputProtocol {
     weak var view: MainMenuViewInputProtocol?
     private let interactor: MainMenuInteractorInputProtocol
     private var router: MainMenuRouterInputProtocol
@@ -17,6 +17,3 @@ extension MainMenuPresenter: MainMenuViewOutputProtocol {
         router.pushModule(item: item)
     }
 }
-
-// MARK: - MainMenuInteractorOutputProtocol
-extension MainMenuPresenter: MainMenuInteractorOutputProtocol {}

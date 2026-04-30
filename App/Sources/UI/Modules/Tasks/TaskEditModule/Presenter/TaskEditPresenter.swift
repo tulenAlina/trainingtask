@@ -1,6 +1,6 @@
 import Foundation
 
-final class TaskEditPresenter: TaskEditModuleInputProtocol {
+final class TaskEditPresenter: TaskEditModuleInputProtocol, TaskEditInteractorOutputProtocol {
     weak var view: TaskEditViewInputProtocol?
     weak var output: TaskEditModuleOutputProtocol?
     private let interactor: TaskEditInteractorInputProtocol
@@ -93,9 +93,6 @@ extension TaskEditPresenter: EmployeeSelectionOutputProtocol {
         view?.updateEmployeeName(employee.fullName)
     }
 }
-
-// MARK: - TaskEditInteractorOutputProtocol
-extension TaskEditPresenter: TaskEditInteractorOutputProtocol {}
 
 // MARK: - Private
 private extension TaskEditPresenter {

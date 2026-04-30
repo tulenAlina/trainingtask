@@ -1,6 +1,6 @@
 import Foundation
 
-final class TaskDetailPresenter: TaskDetailModuleInputProtocol {
+final class TaskDetailPresenter: TaskDetailModuleInputProtocol, TaskDetailInteractorOutputProtocol {
     weak var view: TaskDetailViewInputProtocol?
     weak var output: TaskDetailModuleOutputProtocol?
     private let interactor: TaskDetailInteractorInputProtocol
@@ -78,6 +78,3 @@ extension TaskDetailPresenter: TaskDetailViewOutputProtocol {
         router.close()
     }
 }
-
-// MARK: - TaskDetailInteractorOutputProtocol
-extension TaskDetailPresenter: TaskDetailInteractorOutputProtocol {}

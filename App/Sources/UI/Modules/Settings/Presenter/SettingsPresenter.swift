@@ -1,6 +1,6 @@
 import Foundation
 
-final class SettingsPresenter: SettingsModuleInputProtocol {
+final class SettingsPresenter: SettingsModuleInputProtocol, SettingsInteractorOutputProtocol {
     weak var view: SettingsViewInputProtocol?
     weak var output: SettingsModuleOutputProtocol?
     private let interactor: SettingsInteractorInputProtocol
@@ -39,9 +39,6 @@ extension SettingsPresenter: SettingsViewOutputProtocol {
         }
     }
 }
-
-// MARK: - SettingsInteractorOutputProtocol
-extension SettingsPresenter: SettingsInteractorOutputProtocol {}
 
 // MARK: - Private
 private extension SettingsPresenter {
