@@ -4,7 +4,7 @@ final class TaskStatusLabel: UIView {
     private let statusView: UIView = {
         let view = UIView()
         view.layer.borderWidth = BorderWidth.thin
-        view.layer.cornerRadius = CornerRadius.small
+        view.layer.cornerRadius = TaskStatusStyle.cornerRadius
         view.clipsToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -29,26 +29,9 @@ final class TaskStatusLabel: UIView {
     
     func configure(with status: TaskStatus) {
         statusLabel.text = status.rawValue.localized
-        
-        switch status {
-            
-        case .notStarted:
-            statusLabel.textColor = Colors.statusNotStarted
-            statusView.layer.borderColor = Colors.statusNotStarted.cgColor
-            statusView.backgroundColor = Colors.statusNotStartedBackground
-        case .inProgress:
-            statusLabel.textColor = Colors.statusInProgress
-            statusView.layer.borderColor = Colors.statusInProgress.cgColor
-            statusView.backgroundColor = Colors.statusInProgressBackground
-        case .completed:
-            statusLabel.textColor = Colors.statusCompleted
-            statusView.layer.borderColor = Colors.statusCompleted.cgColor
-            statusView.backgroundColor = Colors.statusCompletedBackground
-        case .postponed:
-            statusLabel.textColor = Colors.statusPostponed
-            statusView.layer.borderColor = Colors.statusPostponed.cgColor
-            statusView.backgroundColor = Colors.statusPostponedBackground
-        }
+        statusLabel.textColor = TaskStatusStyle.color(for: status)
+        statusView.layer.borderColor = TaskStatusStyle.color(for: status).cgColor
+        statusView.backgroundColor = TaskStatusStyle.backgroundColor(for: status)
     }
     
     private func setupView() {

@@ -8,7 +8,7 @@ enum TextFieldFactory {
         textField.borderStyle = .roundedRect
         textField.backgroundColor = Colors.secondaryBackground
         textField.layer.borderWidth = BorderWidth.thin
-        textField.layer.borderColor = Colors.validBorder.cgColor
+        textField.layer.borderColor = Colors.border.cgColor
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }

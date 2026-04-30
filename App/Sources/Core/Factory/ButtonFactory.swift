@@ -5,7 +5,7 @@ enum ButtonFactory {
         let button = UIButton()
         button.setTitle(text, for: .normal)
         button.setTitleColor(Colors.primaryText, for: .normal)
-        button.backgroundColor = Colors.defaultButtonBackground
+        button.backgroundColor = ButtonStyle.defaultBackground
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }
@@ -16,8 +16,8 @@ enum ButtonFactory {
         button.setTitleColor(Colors.primaryText, for: .normal)
         button.backgroundColor = Colors.secondaryBackground
         button.layer.borderWidth = BorderWidth.thin
-        button.layer.borderColor = Colors.secondaryButtonBorder.cgColor
-        button.layer.cornerRadius = CornerRadius.medium
+        button.layer.borderColor = ButtonStyle.border.cgColor
+        button.layer.cornerRadius = ButtonStyle.cornerRadius
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }
@@ -26,10 +26,10 @@ enum ButtonFactory {
         let button = UIButton(type: .system)
         button.setTitle(Localized.delete, for: .normal)
         button.setTitleColor(Colors.invalidBorder, for: .normal)
-        button.backgroundColor = Colors.deleteButtonBackground
+        button.backgroundColor = ButtonStyle.deleteBackground
         button.layer.borderWidth = BorderWidth.thin
         button.layer.borderColor = Colors.invalidBorder.cgColor
-        button.layer.cornerRadius = CornerRadius.medium
+        button.layer.cornerRadius = ButtonStyle.cornerRadius
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }

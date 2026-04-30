@@ -10,13 +10,13 @@ final class TaskTimeCardView: UIView {
         stack.axis = .vertical
         stack.spacing = Spacing.large
         stack.isLayoutMarginsRelativeArrangement = true
-        stack.layoutMargins = Margins.cardInsets
-        stack.backgroundColor = Colors.cardBackground
-        stack.layer.cornerRadius = CornerRadius.large
-        stack.layer.shadowColor = Shadow.color
-        stack.layer.shadowOpacity = Shadow.opacity
-        stack.layer.shadowOffset = Shadow.offset
-        stack.layer.shadowRadius = Shadow.radius
+        stack.layoutMargins = CardStyle.insets
+        stack.backgroundColor = CardStyle.backgroundColor
+        stack.layer.cornerRadius = CardStyle.cornerRadius
+        stack.layer.shadowColor = CardStyle.shadowColor
+        stack.layer.shadowOpacity = CardStyle.shadowOpacity
+        stack.layer.shadowOffset = CardStyle.shadowOffset
+        stack.layer.shadowRadius = CardStyle.shadowRadius
         stack.translatesAutoresizingMaskIntoConstraints = false
         return stack
     }()

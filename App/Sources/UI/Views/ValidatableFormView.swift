@@ -33,7 +33,7 @@ final class ValidatableFormView: UIView {
     
     func applyValidationStyle(_ textField: UITextField, isValid: Bool) {
         if isValid {
-            textField.layer.borderColor = Colors.validBorder.cgColor
+            textField.layer.borderColor = Colors.border.cgColor
             textField.layer.borderWidth = BorderWidth.thin
         } else {
             textField.layer.borderColor = Colors.invalidBorder.cgColor
